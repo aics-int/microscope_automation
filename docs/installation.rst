@@ -32,13 +32,13 @@ You can either clone the public repository:
 
 .. code-block:: console
 
-    $ git clone git://github.com/fletchapin/microscope_automation
+    $ git clone git://github.com/aics-int/microscope_automation
 
 Or download the `tarball`_:
 
 .. code-block:: console
 
-    $ curl  -OL https://github.com/fletchapin/microscope_automation/tarball/master
+    $ curl  -OL https://github.com/aics-int/microscope_automation/tarball/master
 
 Once you have a copy of the source, you can install it with:
 
@@ -47,5 +47,5 @@ Once you have a copy of the source, you can install it with:
     $ python setup.py install
 
 
-.. _Github repo: https://github.com/fletchapin/microscope_automation
-.. _tarball: https://github.com/fletchapin/microscope_automation/tarball/master
+.. _Github repo: https://github.com/aics-int/microscope_automation
+.. _tarball: https://github.com/aics-int/microscope_automation/tarball/master
