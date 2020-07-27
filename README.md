@@ -1,8 +1,6 @@
 # Microscope Automation
 
-[![Build Status](https://github.com/fletchapin/microscope_automation/workflows/Build%20Master/badge.svg)](https://github.com/fletchapin/microscope_automation/actions)
-[![Documentation](https://github.com/fletchapin/microscope_automation/workflows/Documentation/badge.svg)](https://fletchapin.github.io/microscope_automation)
-[![Code Coverage](https://codecov.io/gh/fletchapin/microscope_automation/branch/master/graph/badge.svg)](https://codecov.io/gh/fletchapin/microscope_automation)
+[![Build Status](https://github.com/aics-int/microscope_automation/workflows/Build%20Master/badge.svg)](https://github.com/aics-int/microscope_automation/actions)
 
 Automation software for the AICS Microscopes.
 
@@ -22,10 +20,7 @@ a.get_value()  # 10
 
 ## Installation
 **Stable Release:** `pip install microscope_automation`<br>
-**Development Head:** `pip install git+https://github.com/fletchapin/microscope_automation.git`
-
-## Documentation
-For full package documentation please visit [fletchapin.github.io/microscope_automation](https://fletchapin.github.io/microscope_automation).
+**Development Head:** `pip install git+https://github.com/aics-int/microscope_automation.git`
 
 ## Development
 See [CONTRIBUTING.md](CONTRIBUTING.md) for information related to developing the code.
@@ -62,31 +57,11 @@ See [CONTRIBUTING.md](CONTRIBUTING.md) for information related to developing the
     * _A lot of the following optional steps are *free* if the repository is Public,
     plus open source is cool_
   * After a GitHub repo has been created, run the following commands:
-    * `git remote add origin git@github.com:fletchapin/microscope_automation.git`
+    * `git remote add origin git@github.com:aics-int/microscope_automation.git`
     * `git push -u origin master`
-* Register microscope_automation with Codecov:
-  * Make an account on [codecov.io](https://codecov.io)
-  (Recommended to sign in with GitHub)
-  * Select `fletchapin` and click: `Add new repository`
-  * Copy the token provided, go to your [GitHub repository's settings and under the `Secrets` tab](https://github.com/fletchapin/microscope_automation/settings/secrets),
-  add a secret called `CODECOV_TOKEN` with the token you just copied.
-  Don't worry, no one will see this token because it will be encrypted.
-* Generate and add an access token as a secret to the repository for auto documentation
-generation to work
-  * Go to your [GitHub account's Personal Access Tokens page](https://github.com/settings/tokens)
-  * Click: `Generate new token`
-  * _Recommendations:_
-    * _Name the token: "Auto-Documentation Generation" or similar so you know what it
-    is being used for later_
-    * _Select only: `repo:status`, `repo_deployment`, and `public_repo` to limit what
-    this token has access to_
-  * Copy the newly generated token
-  * Go to your [GitHub repository's settings and under the `Secrets` tab](https://github.com/fletchapin/microscope_automation/settings/secrets),
-  add a secret called `ACCESS_TOKEN` with the personal access token you just created.
-  Don't worry, no one will see this password because it will be encrypted.
 * Register your project with PyPI:
   * Make an account on [pypi.org](https://pypi.org)
-  * Go to your [GitHub repository's settings and under the `Secrets` tab](https://github.com/fletchapin/microscope_automation/settings/secrets),
+  * Go to your [GitHub repository's settings and under the `Secrets` tab](https://github.com/aics-int/microscope_automation/settings/secrets),
   add a secret called `PYPI_TOKEN` with your password for your PyPI account.
   Don't worry, no one will see this password because it will be encrypted.
   * Next time you push to the branch: `stable`, GitHub actions will build and deploy
@@ -98,7 +73,7 @@ generation to work
     * To protect from just anyone pushing to `master` or `stable` (the branches with
     more tests and deploy
     configurations)
-    * Go to your [GitHub repository's settings and under the `Branches` tab](https://github.com/fletchapin/microscope_automation/settings/branches), click `Add rule` and select the
+    * Go to your [GitHub repository's settings and under the `Branches` tab](https://github.com/aics-int/microscope_automation/settings/branches), click `Add rule` and select the
     settings you believe best.
     * _Recommendations:_
       * _Require pull request reviews before merging_
@@ -126,4 +101,3 @@ should always rebase locally on the CLI until they fix it.
 
 
 ***Free software: Allen Institute Software License***
-

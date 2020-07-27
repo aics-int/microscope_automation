@@ -31,7 +31,6 @@ jobs:
     - name: Test with pytest
       run: |
         pytest --cov-report xml --cov=microscope_automation microscope_automation/tests/
-        codecov -t ${{ secrets.CODECOV_TOKEN }}
 
   lint:
     runs-on: ubuntu-latest
