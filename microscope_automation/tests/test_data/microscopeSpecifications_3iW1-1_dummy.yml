@@ -1,0 +1,317 @@
+# Microscope specifications for microscope automation
+# Used by Python script MicroscopeAutomation.py to control different types of microscopes
+#
+# based on yaml specification Version 1.2
+# http://www.yaml.org/spec/1.2/spec.html
+#
+##########################################################################################
+
+Info:
+ Date: 05/25/2020
+ Version: 052520_1
+ Type: Specifications
+ Note: Specifictions for spinning disk 3iW1-1
+
+############################################################
+#
+# Software that controls microscope hardware
+# Possible values
+#     ZEN Blue for Zeiss spinning disk and Zeiss LSM 800
+#     ZEN Black for Zeiss LSM 880 (not implemented)
+#     Slidebook for 3i spinning diks (not implemented)
+#     Test for offline testing
+#
+############################################################
+
+Software: Slidebook Dummy
+
+############################################################
+#
+# Microscope
+#
+############################################################
+
+Microscope:
+ Name: 3iW1-1
+ Type: SpinningDisk_3i
+
+############################################################
+#
+# Cameras
+#
+############################################################
+
+Cameras:
+ Camera1 (back):
+  pixelSize_x: 0.753
+  pixelSize_y: 0.753
+  pixelNumber_x: 1776
+  pixelNumber_y: 1736
+  offset_x: 0
+  offset_y: 0
+  pixelType: np.uint16
+  name: PVCAM
+  detectorType: sCMOS
+  manufacturer: Photometrics
+
+ Camera2 (left):
+  pixelSize_x: 0.753
+  pixelSize_y: 0.753
+  pixelNumber_x: 1776
+  pixelNumber_y: 1736
+  offset_x: 0
+  offset_y: 0
+  pixelType: np.uint16
+  name: PVCAM
+  detectorType: sCMOS
+  manufacturer: Photometrics
+
+
+
+############################################################
+#
+# safe area
+#  Edge points for areas that are save to move stage
+#
+############################################################
+
+#SafeAreas:
+# ZSD_01_immersion:
+#  StageArea:
+#   area: [
+#    [3270, 1870],
+#    [108400, 1870],
+#    [108400, 71200],
+#    [3270, 71200],
+#    ]
+#   zMax: 9900
+#  PumpArea:
+#   area: [[5400, 64300], [7400, 64300], [7400, 85100], [5400, 85100]]
+#   zMax: 100
+# ZSD_01_plate:
+#  StageArea:
+#   area: [
+#    [5300, 5800],
+#    [106000, 5800],
+#    [106000, 62600],
+#    [5300, 62600],
+#    ]
+#   zMax: 9900
+# ZSD_01_slide:
+#  StageArea:
+#   area: [
+#    [30800, 28000],
+#    [79000, 28000],
+#    [79000, 43400],
+#    [30800, 43400],
+#    ]
+#   zMax: 8000
+
+############################################################
+#
+# Stage
+#
+# In Slidebook x, y, and z movement are controlled together
+############################################################
+
+Stages:
+ Marzhauser:
+  SafeArea: 0
+  SafePosition: [0, 40200, 0]
+  DefaultExperiment: Setup_10x.czexp
+  ObjectiveChanger: 6xMotorizedNosepiece
+
+############################################################
+#
+# Plate holder
+#
+############################################################
+
+PlateHolder:
+ Name: Plateholder
+ StageID: Marzhauser                        # name of stage plate holder is mounted on
+ FocusID: MotorizedFocus                    # name of focus drive used to image samples on plate holder
+ AutoFocusID: DefiniteFocus2                # name of auto focus used with this plate holder
+ ObjectiveChangerID: 6xMotorizedNosepiece   # name of nose piece that holds objectives used to image samples on plate holder
+ SafetyID: ZSD_01_plate                     # name of safety area of plate holder
+ xCenter: 0             # zero position of plate holder in stage coordinates.
+ yCenter: 0
+ zCenter: 0
+
+ xFlip: 1               # -1 if plate holder coordinate system is flipped in respect to stage coordinate system, otherwise 1
+ yFlip: 1               # -1 if plate holder coordinate system is flipped in respect to stage coordinate system, otherwise 1
+ zFlip: 1               # -1 if plate holder coordinate system is flipped in respect to stage coordinate system, otherwise 1
+ xCorrection: 1         # correction term for differences in calibration between plate holder and stage
+ yCorrection: 1         # correction term for differences in calibration between plate holder and stage
+ zCorrection: 1         # correction term for differences in calibration between plate holder and stage
+ xSafePosition: 55600   # safe position to start any movements without danger of objective collisions in absolute coordinates
+ ySafePosition: 31800   # safe position to start any movements without danger of objective collisions in absolute coordinates
+ zSafePosition: None    # safe position to start any movements without danger of objective collisions (None= load position)
+
+
+############################################################
+#
+# Plate
+#
+############################################################
+
+Plate:
+ Name: 96-well
+ xCenter: 102125           # zero position of plate in plate holder coordinates = center of well A1.
+ yCenter: 71126
+ zCenter: 9354
+
+ xFlip: 1               # -1 if plate holder coordinate system is flipped in respect to plate holder coordinate system, otherwise 1
+ yFlip: 1               # -1 if plate holder coordinate system is flipped in respect to plate holder coordinate system, otherwise 1
+ zFlip: 1               # -1 if plate holder coordinate system is flipped in respect to staplate holderge coordinate system, otherwise 1
+ xCorrection: 1         # correction term for differences in calibration between plate holder and plate holder
+ yCorrection: 1         # correction term for differences in calibration between plate holder and plate holder
+ zCorrection: 1         # correction term for differences in calibration between plate holder and plate holder
+ zCenterBackground: 200
+ InitialReferenceWell: E7    # Well to set initial x, y, z positions for parfocality
+
+############################################################
+#
+# Slide
+#
+############################################################
+
+Slide:
+ Name: CalibrationSlide
+ xCenter: 50272         # zero position of slide in plate holder coordinates
+ yCenter: 37274
+ zCenter: 6970
+ SafetyID: ZSD_01_slide # name of safety area for slide
+ xFlip: 1               # -1 if plate holder coordinate system is flipped in respect to plate holder coordinate system, otherwise 1
+ yFlip: 1               # -1 if plate holder coordinate system is flipped in respect to plate holder coordinate system, otherwise 1
+ zFlip: 1               # -1 if plate holder coordinate system is flipped in respect to staplate holderge coordinate system, otherwise 1
+ xCorrection: 1         # correction term for differences in calibration between plate holder and plate holder
+ yCorrection: 1         # correction term for differences in calibration between plate holder and plate holder
+ zCorrection: 1         # correction term for differences in calibration between plate holder and plate holder
+
+############################################################
+#
+# Wells (common settings, the center coordinates and names are calculated within the software)
+#
+############################################################
+
+# Dimensions of plate
+RowsWell: 8
+ColumnsWell: 12
+PitchWell: 9000
+DiameterWell: 6134
+zCenterWell: 0             # Difinite focus finds upper side of cover slip and sets it as plate zero
+
+xFlipWell: 1               # -1 if plate holder coordinate system is flipped in respect to plate holder coordinate system, otherwise 1
+yFlipWell: 1               # -1 if plate holder coordinate system is flipped in respect to plate holder coordinate system, otherwise 1
+zFlipWell: 1               # -1 if plate holder coordinate system is flipped in respect to staplate holderge coordinate system, otherwise 1
+xCorrectionWell: 1         # correction term for differences in calibration between plate holder and plate holder
+yCorrectionWell: 1         # correction term for differences in calibration between plate holder and plate holder
+zCorrectionWell: 1         # correction term for differences in calibration between plate holder and plate holder
+
+############################################################
+#
+# Colonies (position and name of colonies will come from colonies file)
+#
+############################################################
+
+xFlipColony: 1               # -1 if colony coordinate system is flipped in respect to well coordinate system, otherwise 1
+yFlipColony: 1               # -1 if colony coordinate system is flipped in respect to well coordinate system, otherwise 1
+zFlipColony: 1               # -1 if colony coordinate system is flipped in respect to well coordinate system, otherwise 1
+xCorrectionColony: 1         # correction term for differences in calibration between colony and well
+yCorrectionColony: 1         # correction term for differences in calibration between colony and well
+zCorrectionColony: 1         # correction term for differences in calibration between colony and well
+
+zCenterBackground: 200       # center of background in the z direction in the plate.
+
+############################################################
+#
+# Focus Drive
+#
+############################################################
+
+Focus:
+ Name: MotorizedFocus
+ MaxLoadPosition: 50
+ MinWorkPosition: 100
+ AutoFocus: DefiniteFocus2
+ DefaultExperiment: Setup_10x.czexp
+ DefaultCamera: Camera1 (back)
+ ObjectiveChanger: 6xMotorizedNosepiece
+
+############################################################
+#
+# Autofocus
+#
+############################################################
+
+#AutoFocus:
+# Name: DefiniteFocus2
+# DefaultExperiment: Setup_10x.czexp
+# DefaultCamera: Camera1 (back)
+# DefaultReferencePosition: [52000, 40200, 8941]
+
+############################################################
+#
+# Objective changer
+#
+############################################################
+
+#ObjectiveChanger:
+# Name: 6xMotorizedNosepiece
+# # Number of posititions in objective changer
+# Positions: 6
+# # There is a mechanical offset between different objectives, called parcentricity and parfocality
+# # Reference objective to define reference position
+# ReferenceObjective: 'Plan-Apochromat 20x/0.8 M27'
+# Objectives:
+#    # Use grid slide to calibrate offset
+#    # Focus with 20x objective on center of grid and record xyz stage position as shown in ZEN software
+#    # Switch to 10x objective and focus on center of grid and record xyz position
+#    # Substract 20x position from 10x position and save as offset below
+#    # Multiply y_offset with -1
+#    {'Plan-Apochromat 10x/0.45': {'x_offset': -19,
+#                                  'y_offset': 15,
+#                                  'z_offset': 10,
+#                                  'magnification': 10,
+#                                  'immersion': 'air',
+#                                  'experiment': 'Setup_10x',
+#                                  'camera': Camera1 (back),
+#                                  'autofocus': 'DefiniteFocus2'},
+#          'Plan-Apochromat 20x/0.8 M27': {'x_offset': 0,
+#                                          'y_offset': 0,
+#                                          'z_offset': 0,
+#                                          'magnification': 20,
+#                                          'immersion': 'air',
+#                                          'experiment': 'Setup_20x',
+#                                          'camera': Camera1 (back),
+#                                          'autofocus': 'DefiniteFocus2'},
+#          'C-Apochromat 100x/1.25 W Korr UV VIS IR': {'x_offset': 44,
+#                                                      'y_offset': 198,
+#                                                      'z_offset': -90,
+#                                                      'magnification': 100,
+#                                                      'immersion': 'water',
+#                                                      'experiment': 'Setup_100x',
+#                                                      'camera': Camera1 (back),
+#                                                      'autofocus': 'DefiniteFocus2'}}
+
+############################################################
+#
+# Pump for immersion water
+#
+############################################################
+
+#Pump: BraintreeScientific
+#PumpSafetyID: ZSD_01_immersion      # name of safety area for immersion water delivery system
+#xCenterPump: 52063                  # zero position of immersion water outlet in plate holder coordinates.
+#yCenterPump: 37147
+#zCenterPump: -5099
+#xFlipPump: 1                        # -1 if immersion water outlet coordinate system is flipped in respect to stage coordinate system, otherwise 1
+#yFlipPump: 1                        # -1 if immersion water outlet coordinate system is flipped in respect to stage coordinate system, otherwise 1
+#zFlipPump: 1                        # -1 if immersion water outlet coordinate system is flipped in respect to stage coordinate system, otherwise 1
+#xCorrectionPump: 1                  # correction term for differences in calibration between immersion water outlet and plate holder
+#yCorrectionPump: 1                  # correction term for differences in calibration between immersion water outlet plate holder
+#zCorrectionPump: 1                  # correction term for differences in calibration between immersion water outlet plate holder
+#ComPortPump: COM1                   # COM port used to control pump
+#BaudratePump: 19200                 # Baudrate to communicate with pump
+#TimePump: 5                         # Time in sec pump will dispense immersion water
