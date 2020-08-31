@@ -311,8 +311,8 @@ def test_get_focus_settings(name, path, prefs_path, expected):
 
         # there was a difference in tabs from the different xml files
         # the below trimming fixes that
-        result = "\n".join(settings.split())
-        expected = "\n".join(root.split())
+        result = b"\n".join(settings.split())
+        expected = b"\n".join(root.split())
     except Exception as err:
         result = type(err).__name__
     assert result == expected
