@@ -333,9 +333,9 @@ def test_get_focus_settings(name, path, prefs_path, expected):
 @pytest.mark.skipif(skip_all_tests, reason='Exclude all tests from')
 @pytest.mark.parametrize('software, expected',
                          [('ZEN Blue Dummy',
-                           'microscope_automation.connect_zen_blue.ConnectMicroscope'),
+                           'microscope_automation_zen_blue.connect_zen_blue.ConnectMicroscope'),
                           ('Slidebook Dummy',
-                           'microscope_automation.connect_slidebook.ConnectMicroscope'),
+                           'microscope_automation_slidebook.connect_slidebook.ConnectMicroscope'),
                           ('Invalid Name', 'AttributeError')])
 def test_connect_to_microscope_software(software, expected):
     control_software = setup_local_control_software(software)

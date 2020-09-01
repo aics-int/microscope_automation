@@ -8,9 +8,7 @@ from setuptools import find_packages, setup
 with open("README.md") as readme_file:
     readme = readme_file.read()
 
-setup_requirements = [
-    "pytest-runner>=5.2",
-]
+setup_requirements = []
 
 test_requirements = [
     "black>=19.10b0",
@@ -20,6 +18,7 @@ test_requirements = [
     "pytest>=5.4.3",
     "pytest-cov>=2.9.0",
     "pytest-raises>=0.11",
+    "pytest-runner>=5.2"
 ]
 
 dev_requirements = [
