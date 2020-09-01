@@ -35,21 +35,21 @@ Workflow: [
            ]
 
 #WorkflowInterrupt: ScanPlate
-RecoverySettingsFilePath: ['test_data\Production\RecoverySettings', 'test_data/Production/RecoverySettings']
+RecoverySettingsFilePath: ['data\Production\RecoverySettings', 'data/Production/RecoverySettings']
 
 #WorkflowContinue: ScanCells
-LogFilePath: ['test_data\Production\LogFiles', 'test_data/Production/LogFiles']
+LogFilePath: ['data\Production\LogFiles', 'data/Production/LogFiles']
 
-PathExperiments: ['test_data\SlideBook 6.0\', 'test_data/SlideBook 6.0/']
+PathExperiments: ['data\SlideBook 6.0\', 'data/SlideBook 6.0/']
 
 # Path to specifications for microscope hardware and software
-PathMicroscopeSpecs: ['test_data\microscopeSpecifications_3iW1-1_dummy.yml', 'test_data/microscopeSpecifications_3iW1-1_dummy.yml']
+PathMicroscopeSpecs: ['data\microscopeSpecifications_3iW1-1_dummy.yml', 'data/microscopeSpecifications_3iW1-1_dummy.yml']
 
 # Path to daily folder
-PathDailyFolder: ['test_data\Production\Daily\', 'test_data/Production/Daily/']
+PathDailyFolder: ['data\Production\Daily\', 'data/Production/Daily/']
 
 # Path to calibration information
-PathCalibration: ['test_data\Production\GeneralSettings\Calibration\', 'test_data/Production/GeneralSettings/Calibration/']
+PathCalibration: ['data\Production\GeneralSettings\Calibration\', 'data/Production/GeneralSettings/Calibration/']
 
 # Sample Information in daily folder. Do not use '/' at end of directory.
 # All paths are relative to daily folder

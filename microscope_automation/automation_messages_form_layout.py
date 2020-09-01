@@ -386,7 +386,7 @@ if __name__ == '__main__':
     import pyqtgraph
     # test functions to show messages
 #     if getpass.getuser() == 'mattb':
-#         direc = "C:/Users/matthewbo/Git/microscopeautomation/data/test_data_matthew/2017_2_2/PlateSpecifications"
+#         direc = "C:/Users/matthewbo/Git/microscopeautomation/data/data_matthew/2017_2_2/PlateSpecifications"
 #         print(value_calibration_form("Sample title", "Fill this form out please", ('Float Value', 0.5),)
 #                                      ('Another float', 12.))
 #         exit()
