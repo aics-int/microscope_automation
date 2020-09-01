@@ -30,7 +30,6 @@ from .automation_exceptions import ExperimentNotExistError, \
 
 # setup logging
 import logging
-from . import automation_messages_form_layout
 
 logger = logging
 
@@ -377,21 +376,21 @@ class ControlSoftware(MicroscopeComponent):
         """
         log_method(self, 'connect_to_microscope_software')
         if self.get_id() == 'ZEN Blue':
-            from .connect_zen_blue import ConnectMicroscope
+            from microscope_automation_zen_blue.connect_zen_blue import ConnectMicroscope
             self.connection = ConnectMicroscope()
         elif self.get_id() == 'ZEN Black':
-            from .connect_zen_black import ConnectMicroscope
+            from microscope_automation_zen_black.connect_zen_black import ConnectMicroscope
             self.connection = ConnectMicroscope()
         elif self.get_id() == 'Slidebook':
-            from .connect_slidebook import ConnectMicroscope
+            from microscope_automation_slidebook.connect_slidebook import ConnectMicroscope
             self.connection = ConnectMicroscope()
         elif self.get_id() == 'ZEN Blue Dummy':
             # create microscope Zeiss spinning disk simulation
             # Uses same module as standard Zen Blue microscope, but without dll
-            from .connect_zen_blue import ConnectMicroscope
+            from microscope_automation_zen_blue.connect_zen_blue import ConnectMicroscope
             self.connection = ConnectMicroscope(connect_dll=False)
         elif self.get_id() == 'Slidebook Dummy':
-            from .connect_slidebook import ConnectMicroscope
+            from microscope_automation_slidebook.connect_slidebook import ConnectMicroscope
             self.connection = ConnectMicroscope(dummy=True)
 
         # logger.info('selected software: %s', self.get_id())
