@@ -1,5 +1,5 @@
 '''
-QDialog boxes and other messages for Microscope Automation package based on formlayout
+Dialog boxes and other messages for Microscope Automation package based on formlayout
 https://pypi.python.org/pypi/formlayout
 http://pythonhosted.org/formlayout/index.html#
 https://github.com/PierreRaybaut/formlayout
@@ -17,17 +17,15 @@ Created on Jun 23, 2016
 # make sure QT5 is installed on system
 import os
 import sys
-import getpass
 import re
-import time
 
 # switch between different versions of PyQt depending on computer system
 try:
-    os.environ['QT_API']='pyqt5'
+    os.environ['QT_API'] = 'pyqt5'
     from PyQt5 import QtGui
-except:
+except ImportError:
     from PyQt4 import QtGui
-    os.environ['QT_API']='pyqt'
+    os.environ['QT_API'] = 'pyqt'
 # from PySide import QtGui
 from formlayout import fedit
 from os import listdir
@@ -44,15 +42,19 @@ logger = logging.getLogger('microscopeAutomation')
 
 def read_string(title, label, default, returnCode=False):
     """Ask for user input and allows option to abort script.
-    
+
     Input:
      title: Title of dialog box
+
      label: Text to display in front of sting input field
+
      default: default input
+
      returnCode: if True, will return after cancel with code 0, otherwise will call sys.exit()
-    
+
     Return:
      0: User selected to abort script
+
      1: User pressed ok
     """
 
@@ -71,14 +73,17 @@ def read_string(title, label, default, returnCode=False):
 
 def information_message(title, message, returnCode=False):
     """Displays information to user and allows option to abort script.
-    
+
     Input:
      title: Title of dialog box
+
      message: Message that will be displayed
+
      returnCode: if True, will return after cancel with code 0, otherwise will call sys.exit()
-    
+
     Return:
      0: User selected to abort script
+
      1: User pressed ok
     """
     datalist = [(None, None),
@@ -98,13 +103,15 @@ def information_message(title, message, returnCode=False):
 
 def setup_message(message, returnCode=False):
     """Displays information about setup error and allows option to abort script.
-    
+
     Input:
      message: Message that will be displayed
+
      returnCode: if True, will return after cancel with code 0, otherwise will call sys.exit()
-    
+
     Return:
      0: User selected to abort script
+
      1: User pressed ok
     """
     datalist = [(None, None),
@@ -124,13 +131,15 @@ def setup_message(message, returnCode=False):
 
 def operate_message(message, returnCode=False):
     """Ask user to operate microscope manually and allows option to abort script.
-    
+
     Input:
      message: Message that will be displayed
+
      returnCode: if True, will return after cancel with code 0, otherwise will call sys.exit()
-    
+
     Return:
      0: User selected to abort script
+
      1: User pressed ok
     """
     datalist = [(None, None),
@@ -150,21 +159,24 @@ def operate_message(message, returnCode=False):
 
 def check_box_message(message, checkBoxList, returnCode=False):
     """Ask user to operate microscope manually and allows option to abort script.
-    
+
     Input:
      message: Message that will be displayed
+
      checkBoxList: list with check box names and settings in form [('Choice 1', True), ('Choice 2', False)
+
      returnCode: if True, will return after cancel with code 0, otherwise will call sys.exit()
-    
+
     Return:
      0: User selected to abort script
+
      newCheckBoxList: User pressed ok result is updated checkBoxList
     """
     datalist = checkBoxList + [(None, None), (None, '''Press ok when done. \nPress cancel to abort.''')]
     #datalist = [(None, None),
     #            (None, '''Press ok when done. \nPress cancel to abort.''')
     #            ] + checkBoxList
- 
+
     result = fedit(datalist, title="Please select",
                    comment=message)
     if result is None:
@@ -181,15 +193,19 @@ def check_box_message(message, checkBoxList, returnCode=False):
 
 def error_message(message, returnCode=False, blocking=True):
     """Show error message and allows option to abort script.
-    
+
     Input:
      message: Message that will be displayed
+
      returnCode: if True, will return after cancel with code 0, otherwise will call sys.exit()
+
      blocking: if True use modal dialog for error reporting, otherwise print(message)
-     
+
     Return:
      0: User selected to abort script
+
      1: User pressed ok
+
      -1: User pressed ok and selected 'Ignore'
     """
     if blocking is False:
@@ -219,14 +235,17 @@ def error_message(message, returnCode=False, blocking=True):
 
 def wait_message(message, returnCode=False):
     """Interrupt script and wait for user to continue.
-    
+
     Input:
      message: Message that will be displayed
+
      returnCode: if True, will return after cancel with code 0, otherwise will call sys.exit()
-    
+
     Return:
      0: User selected to abort script
+
      True: User pressed ok and want's to continue to wait after each image
+
      False: User pressed ok and want's to cancel wait times
     """
     datalist = [(None, None),
@@ -247,14 +266,17 @@ def wait_message(message, returnCode=False):
 
 def select_message(message, count=None, returnCode=False):
     """Interrupt script and wait for user to continue.
-    
+
     Input:
      message: Message that will be displayed
+
      count: number of collected positions
+
      returnCode: if True, will return after cancel with code 0, otherwise will call sys.exit()
-    
+
     Return:
-     0: User selected to abort script
+     0: If user selected to abort script
+
      resultDict: dictionary of form {'Include': True/False, 'Continue': True/False}
     """
     datalist = [(None, None),
@@ -279,12 +301,14 @@ def select_message(message, count=None, returnCode=False):
 
 def file_select_dialog(directory, filePattern=None, comment=None, returnCode=False):
     """List all files in directory and select one.
-    
+
     Input:
      directory: path to directory with files
+
      filePattern: string with regular expression. If file matches expression it will be pre-selected.
+
      returnCode: if True, will return after cancel with code 0, otherwise will call sys.exit()
-     
+
     Output:
      filePath: path to selected file
     """
@@ -317,11 +341,12 @@ def file_select_dialog(directory, filePattern=None, comment=None, returnCode=Fal
 
 def pull_down_select_dialog(itemList, message):
     """Show all items from itemList in pulldown menu and allow user to select one item.
-    
+
     Input:
-     itemList: list of strings to display in pull down menu  
+     itemList: list of strings to display in pull down menu
+
      message: string with instructions to user
-     
+
     Output:
      selectedItem: item selected by user
     """
@@ -338,13 +363,19 @@ def pull_down_select_dialog(itemList, message):
 
 
 def value_calibration_form(title, comment, default, *form_fields):
-    """
-    Attribute selection dialog for value calibration
-        Last result value will always be True or False for whether the value(s) were acceptable
-    :param title: title for the form
-    :param comment: comment for the form
-    :param form_fields: variable length argument list for all fields to be changed
-    :return: result from form
+    """Attribute selection dialog for value calibration
+
+    Last result value will always be True or False for whether the value(s) were acceptable
+
+    Input:
+     title: title for the form
+
+     comment: comment for the form
+
+     form_fields: variable length argument list for all fields to be changed
+
+    Output:
+     result: the filled-in form
     """
     data_list = list(form_fields) + [('Correct?', default)]
     result = fedit(data_list, title=title, comment=comment)
@@ -353,12 +384,14 @@ def value_calibration_form(title, comment, default, *form_fields):
 
 def stop_script(messageText=None, allowContinue=False):
     """Stop processing and ask to leave automation script.
+    Script will stop all Microscope action immediately and ask user
+    to stop execution of script or to continue.
 
     Input:
      messageText: Message to user explaining why processing should be stopped.
+
      allowContinue: if True, allow user to continue. Default: False
 
-    Script will stop all Microscope action immediately and ask user to stop execution of script or to continue.
     Returns if user selects 'Continue', otherwise calls sys.exit()
     """
 
@@ -392,28 +425,28 @@ if __name__ == '__main__':
 #         exit()
 #     else:
 #         direc = 'D:\\Winfried\\Production\\Daily\\2018_10_10\\'
-# 
-    
+#
+
     image = np.zeros((50, 50))
     app = QtGui.QApplication([])
     input('Continue')
     ImageLocationPicker(image, app = app).plot_points('Test')
     input('Continue')
     print((error_message('Test error message')))
-    pyqtgraph.exit() 
-#     checkBoxList =[('InitializeMicroscope', True),  
-#            ('AddColonies', True), 
-#            ('UpdatePlateWellZero', True), 
-#            ('ImageBarcode', True), 
-#            ('CalibrateWellDistance', True), 
-#            ('CalibrateWellDiameter', True), 
-#            ('SetupImmersionSystem', True), 
-#            ('ScanWellsZero', True), 
-#            ('ScanBackground', True), 
-#            ('ScanPlate', True),         
-#            ('PreScanColonies', True),  
-#            ('ScanColonies', True), 
-#            ('PreScanCells', True),  
+    pyqtgraph.exit()
+#     checkBoxList =[('InitializeMicroscope', True),
+#            ('AddColonies', True),
+#            ('UpdatePlateWellZero', True),
+#            ('ImageBarcode', True),
+#            ('CalibrateWellDistance', True),
+#            ('CalibrateWellDiameter', True),
+#            ('SetupImmersionSystem', True),
+#            ('ScanWellsZero', True),
+#            ('ScanBackground', True),
+#            ('ScanPlate', True),
+#            ('PreScanColonies', True),
+#            ('ScanColonies', True),
+#            ('PreScanCells', True),
 #            ('ScanCells', True)]
 #     print(check_box_message('Select experiments to run', checkBoxList, returnCode = False))
 #     barcodeList = ['123', '456', '789']

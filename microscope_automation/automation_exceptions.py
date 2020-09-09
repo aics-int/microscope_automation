@@ -61,8 +61,9 @@ class AutomationError(Exception):
 
         Input:
          message: error message
-         error_component: instance of hardware instance that caused exception
-                             Default: None
+
+         error_component: instance of hardware instance that caused exception.
+         Default: None
 
         Output:
          None
@@ -98,8 +99,7 @@ class HardwareError(AutomationError):
 
 
 class HardwareDoesNotExistError(HardwareError):
-    """Exception if hardware was not defined.
-    """
+    """Exception if hardware was not defined."""
 
     def error_dialog(self, advice = ''):
         """Show error message to user.

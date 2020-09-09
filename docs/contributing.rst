@@ -1,1 +1,5 @@
-.. mdinclude:: ../CONTRIBUTING.md
+.. contents::
+
+.. _CONTRIBUTING:
+
+.. include:: ../CONTRIBUTING.rst

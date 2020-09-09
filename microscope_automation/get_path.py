@@ -23,6 +23,7 @@ def add_suffix(filePath, suffix):
 
     Input:
      filePath: path to file name
+
      suffix: suffix to put between end of filename and file extension
 
     Output:
@@ -32,13 +33,16 @@ def add_suffix(filePath, suffix):
     newFilePath = split_path[0] + '_' + suffix + split_path[1]
     return newFilePath
 
-
+# TODO: This should be an object
 def set_pref_file(prefs):
     """
-    Set the preferences file location for the application during runtime
-    TODO: This should be an object
-    :param prefs: file location
-    :return:
+    Set the preferences file location for the application during runtime.
+
+    Input:
+     prefs: file location
+
+    Output:
+     none
     """
     global pref_path
     pref_path = prefs
@@ -49,7 +53,9 @@ def get_valid_path_from_prefs(prefs, key, search_dir=True, validate=False):
 
     Input:
      prefs:  Dictionary with preferences
+
      key: key for pathlist in preferences.yml
+
      search_dir: if True search for directory, otherwise for file
 
     Output:
@@ -90,6 +96,7 @@ def set_up_subfolders(parent_folder_path, subfolder):
 
     Input:
      parent_folder_path: Image Folder Path
+
      subfolder: folder to create, can be list of multiple folders
 
     Output:
@@ -111,7 +118,9 @@ def get_daily_folder(prefs, barcode=None):
 
     Input:
      prefs: Dictionary with preferences
+
      barcode: Use the plate barcode to make the folder
+
     Output:
      folderPath: path to daily folder. No '/' at end.
     """
@@ -142,7 +151,9 @@ def get_daily_folder(prefs, barcode=None):
 
 def get_position_csv_path(prefs):
     """
-    Function to get the file path for the csv files where all the positions are stored after segmentation
+    Function to get the file path for the csv files where all the positions are
+    stored after segmentation
+
     Input:
      param prefs: preferences
 
@@ -209,8 +220,9 @@ def get_experiment_path(prefs, dir=False):
 
     Input:
      prefs: Dictionary with preferences
-     dir: if true return path to experiments directory, otherwise to experiment file
-          default: False
+
+     dir: if true return path to experiments directory, otherwise to experiment file.
+     Default: False
 
     Output:
      experiment_path: path to experiment
@@ -235,15 +247,15 @@ def get_prefs_path():
      none
 
     Output:
-     prefsFile: path to preferences file
+     prefs_path: path to preferences file
     """
 
     return pref_path
 
 
 def get_recovery_settings_path(prefs):
-    """
-    Returns the file path to save the pickled dictionary after interruption
+    """Returns the file path to save the pickled dictionary after interruption
+
     Input:
      param prefs: Dictionary with preferences
 
@@ -296,10 +308,12 @@ def get_colony_remote_dir_path(prefs):
 
 
 def get_colony_file_path(prefs, colony_file):
-    """Return path to file with colony information typically produced by CellProfiler based on Celigo platescanner data.
+    """Return path to file with colony information typically produced by CellProfiler
+    based on Celigo platescanner data.
 
     Input:
      prefs: Dictionary with preferences
+
      colony_file: path to .csv file with colony data
 
     Output:
@@ -320,11 +334,13 @@ def get_hardware_settings_path(prefs):
     Output:
      hardwarePath: path to layout file
     """
-    return get_valid_path_from_prefs(prefs, 'PathMicroscopeSpecs', search_dir=False, validate=True)
+    return get_valid_path_from_prefs(prefs, 'PathMicroscopeSpecs',
+                                     search_dir=False, validate=True)
 
 
 def get_references_path(prefs):
-    """Return path to directory for reference images. Create directory if not available
+    """Return path to directory for reference images.
+    Create directory if not available
 
     Input:
      prefs: Dictionary with preferences

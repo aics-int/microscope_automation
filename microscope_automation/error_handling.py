@@ -18,7 +18,7 @@ except:
 
 logLevel='DEBUG'
 
-def setupLogger(prefs, logLevel=logLevel):
+def setup_logger(prefs, logLevel=logLevel):
     '''Initialize logger. Will work over multiple modules
 
     see https://docs.python.org/2/howto/logging-cookbook.html#using-logging-in-multiple-modules'''

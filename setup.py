@@ -5,7 +5,7 @@
 
 from setuptools import find_packages, setup
 
-with open("README.md") as readme_file:
+with open("README.rst") as readme_file:
     readme = readme_file.read()
 
 setup_requirements = []
@@ -27,16 +27,28 @@ dev_requirements = [
     "bumpversion>=0.6.0",
     "coverage>=5.1",
     "ipython>=7.15.0",
-    "m2r>=0.2.1",
     "pytest-runner>=5.2",
-    "Sphinx>=2.0.0b1,<3",
+    "Sphinx>=3",
     "sphinx_rtd_theme>=0.4.3",
     "tox>=3.15.2",
     "twine>=3.1.1",
     "wheel>=0.34.2",
 ]
 
-requirements = []
+requirements = [
+    'tifffile',
+    'aicsimageio',
+    'pandas',
+    'numpy',
+    'pyyaml',
+    'pyqtgraph',
+    'matplotlib',
+    'formlayout',
+    'lxml',
+    'pathlib',
+    'pyserial',
+    'scikit-image'
+]
 
 extra_requirements = {
     "setup": setup_requirements,

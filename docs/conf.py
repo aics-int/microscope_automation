@@ -40,8 +40,7 @@ extensions = [
     "sphinx.ext.autodoc",
     "sphinx.ext.viewcode",
     "sphinx.ext.napoleon",
-    "sphinx.ext.mathjax",
-    "m2r",
+    "sphinx.ext.mathjax"
 ]
 
 # Control napoleon
@@ -60,9 +59,9 @@ templates_path = ["_templates"]
 # You can specify multiple suffix as a list of string:
 #
 source_suffix = {
-        ".rst": "restructuredtext",
-        ".txt": "markdown",
-        ".md": "markdown",
+    ".rst": "restructuredtext",
+    ".txt": "markdown",
+    ".md": "markdown"
 }
 
 # The master toctree document.
