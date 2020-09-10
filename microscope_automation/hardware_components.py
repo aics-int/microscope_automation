@@ -385,13 +385,14 @@ class ControlSoftware(MicroscopeComponent):
             from microscope_automation_slidebook.connect_slidebook import ConnectMicroscope
             self.connection = ConnectMicroscope()
         elif self.get_id() == 'ZEN Blue Dummy':
-            from .connect_dummy import connection_selector
-            self.connection = connection_selector('ZEN Blue')
+            from microscope_automation_zen_blue.connect_zen_blue import ConnectMicroscope
+            self.connection = ConnectMicroscope(connect_dll=False)
         elif self.get_id() == 'Slidebook Dummy':
-            from .connect_dummy import connection_selector
-            self.connection = connection_selector('Slidebook')
-
-        # logger.info('selected software: %s', self.get_id())
+            from microscope_automation_slidebook.connect_slidebook import ConnectMicroscope
+            self.connection = ConnectMicroscope(dummy=True)
+        elif self.get_id() == 'Dummy':
+            from .connect_dummy import ConnectMicroscope
+            self.connection = ConnectMicroscope()
 
 
 ################################################################################################

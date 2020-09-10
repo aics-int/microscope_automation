@@ -27,17 +27,7 @@ from .automation_exceptions import HardwareError, AutofocusError, \
 test_messages = False
 
 
-def connection_selector(software_simulated):
-    if software_simulated == "ZEN Blue":
-        return ConnectZenBlueDummy()
-    elif software_simulated == "Slidebook":
-        return ConnectSlidebookDummy()
-    else:
-        raise HardwareDoesNotExistError("Software " + software_simulated
-                                        + " not supported by microscope_automation")
-
-
-class ConnectZenBlueDummy():
+class ConnectMicroscope():
 
     def __init__(self):
         # create logger
@@ -713,7 +703,7 @@ class ConnectZenBlueDummy():
         Output:
          valid_experiment: bool describing if the experiment is valid
         """
-        zen_experiment = ZenExperimentDummy(experiment_path, experiment_name)
+        zen_experiment = ExperimentDummy(experiment_path, experiment_name)
         valid_experiment = zen_experiment.experiment_exists()
         return valid_experiment
 
@@ -728,7 +718,7 @@ class ConnectZenBlueDummy():
         Output:
          z_stack_experiment: bool describing if the experiment acquires a z stack
         """
-        zen_experiment = ZenExperimentDummy(experiment_path, experiment_name)
+        zen_experiment = ExperimentDummy(experiment_path, experiment_name)
         z_stack_experiment = zen_experiment.is_z_stack()
         return z_stack_experiment
 
@@ -743,7 +733,7 @@ class ConnectZenBlueDummy():
         Output:
          zstack_range: range of the z-stack
         """
-        zen_experiment = ZenExperimentDummy(experiment_path, experiment_name)
+        zen_experiment = ExperimentDummy(experiment_path, experiment_name)
         zstack_range = zen_experiment.z_stack_range()
         return zstack_range
 
@@ -758,7 +748,7 @@ class ConnectZenBlueDummy():
         Output:
          tile_scan_bool: bool describing if the experiment contains a tile scan
         """
-        zen_experiment = ZenExperimentDummy(experiment_path, experiment_name)
+        zen_experiment = ExperimentDummy(experiment_path, experiment_name)
         tile_scan_bool = zen_experiment.is_tile_scan()
         return tile_scan_bool
 
@@ -780,7 +770,7 @@ class ConnectZenBlueDummy():
         Output:
          none
         """
-        zen_experiment = ZenExperimentDummy(experiment_path, experiment_name)
+        zen_experiment = ExperimentDummy(experiment_path, experiment_name)
         zen_experiment.update_tile_positions(x_value, y_value, z_value)
 
     def get_objective_position_from_experiment_file(self, experiment_path,
@@ -795,7 +785,7 @@ class ConnectZenBlueDummy():
         Output:
          position: the integer position of the objective
         """
-        zen_experiment = ZenExperimentDummy(experiment_path, experiment_name)
+        zen_experiment = ExperimentDummy(experiment_path, experiment_name)
         position = zen_experiment.get_objective_position()
         return position
 
@@ -810,12 +800,12 @@ class ConnectZenBlueDummy():
         Output:
          focus_settings: All instances of focus settings in experiment file
         """
-        zen_experiment = ZenExperimentDummy(experiment_path, experiment_name)
+        zen_experiment = ExperimentDummy(experiment_path, experiment_name)
         focus_settings = zen_experiment.get_focus_settings()
         return focus_settings
 
 
-class ZenExperimentDummy():
+class ExperimentDummy():
 
     TAG_PATH_TILE_CENTER_XY = '/HardwareExperiment/ExperimentBlocks/AcquisitionBlock' \
         '/SubDimensionSetups/RegionsSetup/SampleHolder/TileRegions/TileRegion/CenterPosition'
@@ -968,318 +958,6 @@ class ZenExperimentDummy():
             last_postion = float(ZStackSetup.find('Last/Distance/Value').text)
             z_stack_range = abs(last_postion - first_postion)
             return z_stack_range
-
-
-class ConnectSlidebookDummy():
-    def __init__(self, cmd_url='http://127.0.0.1:5000',
-                 data_url='http://127.0.0.1:5100',
-                 microscope='3iW1-0'):
-        # Create Logger
-        self.log = logging.getLogger('microscopeAutomation connect_slidebook')
-
-        self.cmd_url = cmd_url + '/cmd'
-        self.data_url = data_url + '/data'
-        self.microscope = microscope
-
-        self.default_experiment = {'experiment_id': '',
-                                   'microscope': self.microscope,
-                                   'number_positions': 1,
-                                   'stage_locations': [(0, 0, 0)],
-                                   'stage_locations_filter': [True],
-                                   'capture_settings': ['No_experiment'],
-                                   'centers_of_interest': [(0, 0, 0)],
-                                   'objective': 'Apo_10x',
-                                   'time_stamp': '',
-                                   'microscope_action': 'exit',
-                                   'id_counter': 0,
-                                   'status': 'none'
-                                   }
-        self.zLoad = 500
-        self.zWork = 500
-
-    def not_implemented(self, method_name):
-        '''Raise exception if method is not implemented.
-
-        Input:
-         method_name: method that calls this method
-
-        Output:
-         none
-        '''
-        raise HardwareCommandNotDefinedError(method_name + ' is not supported'
-                                             + ' for Slidebook microscope')
-
-    ############################################################################
-    #
-    # Methods to handle Capture Settings
-    #
-    ############################################################################
-
-    def snap_image(self, capture_settings, objective=''):
-        """Snap image with parameters defined in experiment at current location.
-
-        Input:
-         capture_settings: string with name of capture_settings as defined
-         within Microscope software
-
-         objective: objective used to acquire image. If none keep objective.
-
-        Return:
-         success: True when experiment was successfully posted on command server
-        """
-        experiment = self.default_experiment
-        experiment['objective'] = objective
-        experiment['microscope_action'] = 'snap'
-
-        return True
-
-    def live_mode_start(self, experiment):
-        '''Start live mode.
-        Included for parity between Microscope connections.
-
-        Raises HardwareCommandNotDefinedError.
-
-        Input:
-         experiment: name of experiment
-
-        Output:
-         none
-        '''
-        self.not_implemented('live_mode_start')
-
-    def live_mode_stop(self, experiment):
-        '''Stop live mode.
-        Included for parity between Microscope connections.
-
-        Raises HardwareCommandNotDefinedError.
-
-        Input:
-         experiment: name of experiment
-
-        Output:
-         none
-        '''
-        self.not_implemented('live_mode_stop')
-
-    def move_focus_to(self, zPos):
-        '''Move focus to new position.
-        Included for parity between Microscope connections.
-
-        Raises HardwareCommandNotDefinedError.
-
-        Input:
-         zPos, yPos: new focus position in micrometers.
-
-        Output:
-         zFocus: new position of focus drive
-        '''
-        self.not_implemented('move_focus_to')
-
-    def move_focus_to_load(self):
-        '''Move focus to load position if defined.
-
-        Input:
-         zPos, yPos: new focus position in micrometers.
-
-        Output:
-         zFocus: new position of focus drive
-        '''
-        # check if load position is defined
-        if self.zLoad is None:
-            self.log.error('Load position not defined')
-            raise LoadNotDefinedError("Tried to move focus drive to load position,"
-                                      " but load position was not defined.")
-
-        if self.zLoad > 1000:
-            self.log.error('Load position too high')
-            raise LoadNotDefinedError("Tried to move focus drive to load position,"
-                                      " but load position was too high.")
-
-        # move to load position if defined
-        zFocus = self.move_focus_to(self.zLoad)
-
-        self.log.info('moved focus to load position: %s', str(zFocus))
-
-        return zFocus
-
-    def move_focus_to_work(self):
-        '''Move focus to work position if defined.
-
-        Input:
-         zPos, yPos: new focus position in micrometers.
-
-        Output:
-         zFocus: new position of focus drive
-        '''
-        # check if load position is defined
-        if self.zWork is None:
-            self.log.error('Work position not defined')
-            raise WorkNotDefinedError("Tried to move focus drive to load position,"
-                                      " but work position was not defined.")
-
-        # move to load position if defined
-        zFocus = self.move_focus_to(self.zWork)
-
-        self.log.info('moved focus to load position: %s', str(zFocus))
-
-        return zFocus
-
-    ############################################################################
-    #
-    # Methods to collect information about experiments
-    #
-    ############################################################################
-
-    def validate_experiment(self, experiment_path=None, experiment_name=None):
-        """Function to check if the experiment is defined in the Slidebook software
-
-        Input:
-         experiment_path: path of the experiment file - does not matter for Zen Black
-
-         experiment_name: name of the experiment
-
-        Output:
-         valid_experiment: bool describing if the experiment is valid
-        """
-        slidebook_experiment = SlidebookExperimentDummy(experiment_path, experiment_name)
-        valid_experiment = slidebook_experiment.experiment_exists()
-        return valid_experiment
-
-    def get_focus_settings(self, experiment_path=None, experiment_name=None):
-        """Get focus settings.
-        Included for parity between Microscope connections.
-
-        Raises HardwareCommandNotDefinedError.
-
-        Input:
-         experiment_path: path of the experiment file
-
-         experiment_name: name of the experiment
-
-        Output:
-         none
-        """
-        self.not_implemented('get_focus_settings')
-
-    def get_objective_position_from_experiment_file(self, experiment_path=None,
-                                                    experiment_name=None):
-        """Function to get the position of the objective used in the experiment
-        Included for parity between Microscope connections.
-
-        Raises HardwareCommandNotDefinedError.
-
-        Input:
-         experiment_path: path of the experiment file
-
-         experiment_name: name of the experiment
-
-        Output:
-         none
-        """
-        self.not_implemented('get_objective_position_from_experiment_file')
-
-    def is_z_stack(self, experiment_path=None, experiment_name=None):
-        """Function to check if the experiment contains z-stack acquisition.
-        Included for parity between Microscope connections.
-
-        Raises HardwareCommandNotDefinedError.
-
-        Input:
-         experiment_path: path of the experiment file
-
-         experiment_name: name of the experiment
-
-        Output:
-         none
-        """
-        self.not_implemented('is_z_stack')
-
-    def z_stack_range(self, experiment_path=None, experiment_name=None):
-        """Function to  get the range of first z-stack in experiment.
-        Included for parity between Microscope connections.
-
-        Raises HardwareCommandNotDefinedError.
-
-        Input:
-         experiment_path: path of the experiment file
-
-         experiment_name: name of the experiment
-
-        Output:
-         none
-        """
-        self.not_implemented('z_stack_range')
-
-    def is_tile_scan(self, experiment_path=None, experiment_name=None):
-        """Function to check if the experiment is a tile scan.
-        Included for parity between Microscope connections.
-
-        Raises HardwareCommandNotDefinedError.
-
-        Input:
-         experiment_path: path of the experiment file
-
-         experiment_name: name of the experiment
-
-        Output:
-         none
-        """
-        self.not_implemented('is_tile_scan')
-
-    def update_tile_positions(self, experiment_path, experiment_name,
-                              x_value, y_value, z_value):
-        """Function to define the position of the tile.
-        Included for parity between Microscope connections.
-
-        Raises HardwareCommandNotDefinedError.
-
-        Input:
-         experiment_path: path of the experiment file
-
-         experiment_name: name of the experiment
-
-         x_value: float (x - coordinate)
-
-         y_value: float (y - coordinate)
-
-         z_value: float (z - coordinate)
-
-        Output:
-         none
-        """
-        self.not_implemented('update_tile_positions')
-
-
-class SlidebookExperimentDummy():
-    def __init__(self, experiment_path, experiment_name):
-        """
-        Initializing the experiment class
-
-        Input:
-         experiment_name: Name of the experiment as defined in the Zen software
-         & preference file
-
-         prefs: the preference file for the workflow
-
-        Output:
-         none
-        """
-        self.experiment_path = experiment_path
-        self.experiment_name = experiment_name
-
-    def experiment_exists(self):
-        """Function to check if the experiment name provided in the preference
-        file exists in the Slidebook software
-
-        Input:
-         none
-
-        Output:
-         a boolean indicating if the experiment exists or not
-        """
-        # log.debug("Experiment path: {}".format(self.experiment_path))
-        experiment_exists = Path(self.experiment_path).exists()
-        return experiment_exists
 
 
 class MicroscopeStatus(object):
