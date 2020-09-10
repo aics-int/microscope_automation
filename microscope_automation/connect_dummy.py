@@ -61,69 +61,6 @@ class ConnectZenBlueDummy():
 
     ##################################################################################################################
     #
-    # Methods to handle ZEN blueExperiment Settings
-    #
-    ##################################################################################################################
-
-    def create_experiment_path(self, experiment, experiment_folder):
-        '''Creates complete path to experiment.
-        Raises exception if experiment does not exist
-
-        Input:
-         experiment: string with name of experiment (with or w/o extension .czexp)
-
-         experiment_folder: folder for capture settings
-
-        Output:
-         experiment_path: path to experiment
-        '''
-        # check if experiment has proper extension
-        extension = os.path.splitext(experiment)[1]
-        if extension != '.czexp':
-            experiment = experiment + '.czexp'
-        experiment_path = os.path.normpath(os.path.join(experiment_folder, experiment))
-        if not os.path.exists(experiment_path):
-            raise ExperimentNotExistError('Could not create experiment path {}.'.format(experiment_path), experiment)
-        return experiment_path
-
-    ##################################################################################################################
-    #
-    # Methods to save and load images
-    #
-    ##################################################################################################################
-
-    def save_image(self, fileName):
-        '''Save last acquired ImageAICS in original file format using microscope software.
-
-        Input:
-         file: file name and path for ImageAICS save
-        '''
-        try:
-            self.image.Save_2(fileName)
-            self.log.info('save ImageAICS to ' + fileName)
-        except Exception as err:
-            self.log.exception(err)
-            raise HardwareError('Error in save_image to {}.'.format(fileName))
-
-    def load_image(self, image, getMeta=False):
-        """Load image using aicsimage and return it a class ImageAICS
-
-        Input:
-         image: image object of class ImageAICS. Holds meta data at this moment, no image data.
-
-         getMeta: if true, retrieve meta data from file. Default is False
-
-        Output:
-         image: image with data and meta data as ImageAICS class
-        """
-
-        rz = LoadImageCzi()
-        image = rz.load_image(image, get_meta_data=True)
-        self.log.info('loaded file ' + image.get_meta('aics_filePath'))
-        return image
-
-    ##################################################################################################################
-    #
     # Methods to acquire images
     #
     ##################################################################################################################
@@ -165,145 +102,6 @@ class ConnectZenBlueDummy():
         except Exception:
             raise HardwareError('Error in snap_image.')
 
-        # set flag for definite focus if objective was changed
-        if currentObjective != self.get_objective_name() or self.get_objective_name() == '':
-            self.set_autofocus_not_ready()
-
-    def close_experiment(self, experiment=None):
-        '''Closes experiment and forces reload.
-
-        Input:
-         experiment: string with name of experiment as defined within Microscope software.
-
-        Output:
-         none
-        '''
-        exp_class = self.Zen.Acquisition.Experiments.GetByName(experiment)
-        exp_class.Close()
-
-    def get_experiment_folder(self):
-        '''Return path to user specific experiment file.
-
-        Input:
-         none
-
-        Output:
-         experiment_path: path to experiment file
-        '''
-        user_document_path = self.Zen.Application.Environment.GetFolderPath(self.Zen.ZenSpecialFolder.UserDocuments)
-        return user_document_path
-
-    def wait_for_experiment(self, experiment):
-        '''Wait until experimentis active experiment.
-
-        Input:
-         experiment: string with name of experiment as defined within Microscope software.
-
-        Output:
-         none
-        '''
-        # if experiment name contains extension remove it
-        target_experiment = os.path.splitext(experiment)[0]
-        while True:
-            active_experiment = os.path.splitext(self.Zen.Acquisition.Experiments.ActiveExperiment.name)[0]
-            print (active_experiment)
-            if target_experiment == active_experiment:
-                break
-
-    def wait_for_objective(self, target_objective):
-        '''Wait until objective is in place.
-
-        Input:
-         target_objective: string with name of objective.
-
-        Output:
-         None
-        '''
-        while True:
-            current_objective = self.get_objective_name()
-            # print ('Current objective:  {}\nTarget objective: {}'.format(current_objective, target_objective))
-            if current_objective == target_objective:
-                break
-
-    def set_experiment(self, experiment=None, pos_list=None):
-        '''Sets the experiment with ZEN API
-
-        Input:
-         experiment: string with name of experiment as defined within Microscope software.
-         If None use actual experiment.
-
-         pos_list: if experiment has tiles enabled execute experiment at positions [(x1, y1, z1), (x2 ...]
-         Supports only one block experiments.
-
-        Output:
-         exp_class: the instance of the experiment returned by ZEN API
-        '''
-        if experiment is None:
-            # use active experiment in software. Will fail if no experiment is set.
-            try:
-                exp_class = self.Zen.Acquisition.Experiments.ActiveExperiment
-            except Exception:
-                raise ExperimentError('No active experiment is defined.')
-        else:
-            exp_class = self.Zen.Acquisition.Experiments.GetByName(experiment)
-            if pos_list:
-                exp_class.ClearTileRegionsAndPositions(0)
-                for pos in pos_list:
-                    exp_class.AddSinglePosition(0, pos[0], pos[1], pos[2])
-
-        return exp_class
-
-    def execute_experiment(self, experiment=None, pos_list=None):
-        '''Execute experiments with parameters defined in experiment.
-        Image object is stored in self.image.
-        Takes all images that are part of experiment (e.g. all slices).
-
-        Input:
-         experiment: string with name of experiment as defined within Microscope software.
-         If None use actual experiment.
-
-         pos_list: if experiment has tiles enabled execute experiment at positions [(x1, y1, z1), (x2 ...]
-         Supports only one block experiments.
-
-        Output:
-         none
-        '''
-        self.log.info('execute experiment to acquire image using experiment %s', experiment)
-
-        # if method switches objective the stored position for definite focus will be invalid.
-        currentObjective = self.get_objective_name()
-
-        # stop live mode, otherwise the wrong objective might be used
-        self.live_mode_stop()
-
-        exp_class = self.set_experiment(experiment, pos_list)
-
-        try:
-            # Reason for the duplicate try except block: One specific experiment - WellTile_10x
-            # fails to execute the first time the execution function is called. Hence, it needs
-            # a second call if the first one fails, and that seems to fix the bug.
-            # Note - This is a temporary fix. There is something messed up with the oommunication object.
-            # We will be looking into it further.
-            # TODO - MICRND-741
-            try:
-                # check if experiment exists
-                if exp_class is not None and self.Zen.Acquisition.Experiments.Contains(exp_class):
-                    self.image = self.Zen.Acquisition.Execute(exp_class)
-                    if self.image is None:
-                        raise ExperimentError('Zen.Acquisition.Execute() did not return image.')
-                else:
-                    raise ExperimentNotExistError(experiment)
-            except Exception:
-                if exp_class is not None and self.Zen.Acquisition.Experiments.Contains(exp_class):
-                    self.image = self.Zen.Acquisition.Execute(exp_class)
-                    if self.image is None:
-                        raise ExperimentError('Zen.Acquisition.Execute() did not return image.')
-                else:
-                    raise ExperimentNotExistError(experiment)
-        except (ExperimentError, ExperimentNotExistError) as err:
-            raise err
-        except Exception:
-            raise HardwareError('Error in execute_experiment.')
         # set flag for definite focus if objective was changed
         if currentObjective != self.get_objective_name() or self.get_objective_name() == '':
             self.set_autofocus_not_ready()
@@ -373,43 +171,6 @@ class ConnectZenBlueDummy():
             raise err
         except Exception:
             raise HardwareError('Error in live_mode_stop.')
-
-################################################################################
-#
-# Methods to interact with image display in ZEN
-#
-################################################################################
-
-    def show_image(self):
-        '''Display last acquired image in ZEN software.
-
-        Input:
-         none
-
-        Output:
-         none
-        '''
-        try:
-            if self.image is None:
-                print('No active image in ZEN Blue software')
-            else:
-                self.Zen.Application.Documents.Add(self.image)
-        except Exception:
-            raise HardwareError('Error in show_image.')
-
-    def remove_all(self):
-        """Remove all images from display within ZEN software.
-
-        Input:
-         none
-
-        Output:
-         none
-        """
-        try:
-            self.Zen.Application.Documents.RemoveAll(True)
-        except Exception:
-            raise HardwareError('Error in remove_all.')
 
 ################################################################################
 #
@@ -539,21 +300,6 @@ class ConnectZenBlueDummy():
         '''
         self.lastKnownFocusPosition = focusPostion
 
-    def get_last_known_focus_position(self):
-        '''Retrieves focus position used for recovery if autofocus fails.
-        Will raise AutofocusNotSetError exception if not defined
-
-        Input:
-         focusPostion: position in um to be used for autofocus recovery
-
-        Output:
-         none.
-        '''
-        if self.lastKnownFocusPosition is None:
-            raise AutofocusNotSetError(message='Autofocus position not defined.')
-
-        return self.lastKnownFocusPosition
-
     def recover_focus(self):
         '''Try to recover from autofocus failure.
 
@@ -571,30 +317,6 @@ class ConnectZenBlueDummy():
         # move focus to last know position
         self.move_focus_to(self.get_last_known_focus_position())
         self.store_focus()
-
-    def find_autofocus(self, experiment):
-        '''Focus with ZEN software autofocus.
-
-        Input:
-         experiment: string with name for experiment defined in ZEN
-
-        Output:
-         zPos: position of focus drive after autofocus
-        '''
-        try:
-            # use definite focus to find bottom of plate
-            self.Zen.Acquisition.FindSurface()
-            experimentObj = self.Zen.Acquisition.Experiments.GetByName(experiment)
-            # use FindAutofocus_2 instead of FindAutofocus
-            # because method with parameters overloads method without parameters
-            self.Zen.Acquisition.FindAutofocus_2(experimentObj)
-            zPos = self.get_focus_pos()
-
-            # store offset to definite focus
-            self.Zen.Acquisition.StoreFocus()
-        except Exception:
-            raise HardwareError('Error in find_autofocus.')
-        return zPos
 
     def find_surface(self):
         '''Find cover slip using Definite Focus 2.
@@ -722,48 +444,6 @@ class ConnectZenBlueDummy():
         # gives type error
 
         return zFocus
-
-    def z_relative_move(self, delta):
-        '''Move focus relative to current position.
-
-        Input:
-         delta: distance in mum
-
-        Output:
-         z: new position of focus drive
-        '''
-        try:
-            zStart = self.Zen.Devices.Focus.ActualPosition
-            zEndCalc = zStart + delta
-            self.Zen.Devices.Focus.MoveTo(zEndCalc)
-            z = self.Zen.Devices.Focus.ActualPosition
-        except Exception:
-            raise HardwareError('Error in z_relative_move.')
-        return z
-
-    def z_down_relative(self, delta):
-        '''Move focus relative to current position away from sample.
-
-        Input:
-         delta: absolute distance in mum
-
-        Output:
-         z: new position of focus drive
-        '''
-        z = self.z_relative_move(-delta)
-        return z
-
-    def z_up_relative(self, delta):
-        '''Move focus relative to current position towards sample.
-
-        Input:
-         delta: absolute distance in mum
-
-        Output:
-         z: new position of focus drive
-        '''
-        z = self.z_relative_move(delta)
-        return z
 
     def set_focus_work_position(self):
         '''retrieve current position and set as work position.
@@ -980,26 +660,6 @@ class ConnectZenBlueDummy():
             raise HardwareError('Error in get_objective_name.')
         return position
 
-    def run_macro(self, macro_name, macro_param=None):
-        """Function to run a given Zen Blue Macro
-
-        Input:
-         macro_name: Name of the macro
-
-        Output:
-         none
-        """
-        try:
-            if macro_param is None:
-
-                self.Zen.Application.RunMacro(macro_name)
-            else:
-                self.Zen.Application.RunMacro_2(macro_name, macro_param)
-
-        except Exception as e:
-            self.log(e)
-            raise e
-
 ################################################################################
 #
 # Methods to control immersion water delivery
@@ -1035,29 +695,6 @@ class ConnectZenBlueDummy():
             raise HardwareError('Error in trigger_pump.')
 
         self.log.debug('Pump activated for : %s sec', seconds)
-
-################################################################################
-#
-# Methods to collect information about microsocpe
-#
-################################################################################
-
-    def get_microscope_name(self):
-        '''Returns name of the microscope from hardware that is controlled by this class.
-
-        Input:
-         none
-
-        Output:
-         Microscope: name of Microscope'''
-
-        name = 'get_microscope_name not implemented'
-        self.log.info('This class controls the microscope: %s', name)
-        return name
-
-    def stop(self):
-        '''Stop Microscope immediately'''
-        self.log.info('Microscope operation aborted')
 
 ################################################################################
 #
@@ -1179,7 +816,7 @@ class ConnectZenBlueDummy():
 
 
 class ZenExperimentDummy():
-    
+
     TAG_PATH_TILE_CENTER_XY = '/HardwareExperiment/ExperimentBlocks/AcquisitionBlock' \
         '/SubDimensionSetups/RegionsSetup/SampleHolder/TileRegions/TileRegion/CenterPosition'
     TAG_PATH_TILE_CENTER_Z = '/HardwareExperiment/ExperimentBlocks/AcquisitionBlock' \
@@ -1214,23 +851,6 @@ class ZenExperimentDummy():
         experiment_exists = Path(self.experiment_path).exists()
         # print('Experiment {} exists: {}'.format(self.experiment_path, experiment_exists))
         return experiment_exists
-
-    def get_tag_value(self, tag_path):
-        """Function to find the value of a tag in the Zen Experiment file.
-
-        Input:
-         experiment_name: Name of the experiment file
-
-        Output:
-         tag_value: string value of the tag
-        """
-        root = self.tree.getroot()
-        try:
-            tag = root.xpath(tag_path)
-            tag_value = tag[0].text
-            return tag_value
-        except Exception as err:
-            raise ValueError("Tag path '{}' is not valid".format(tag_path))
 
     def update_tag_value(self, tag_path, new_value):
         """Function to update the value of a tag in the experiment xml file.
@@ -1323,11 +943,7 @@ class ZenExperimentDummy():
          is_z_stack: True if experiment contains z-stack
         '''
         root = self.tree.getroot()
-        # retrieve all z-stack setups, use only fist
-        # TODO:
-        # I would separate this out into two steps - one where you do the findall and another to access the first item.
-        # That way, you can actually check if the file has any MTBObjectiveChanger entries in it and throw an appropriate error if they are non, rather than have the findall return an empty list and then the [0] access throw an undescriptive IndexError.
-        # It may be helpful to write a common function for this that will take the result of a findall, ensure that there is at least one element in it and if not throw a more appropriate exception.
+        # retrieve all z-stack setups, use only first
         ZStackSetup = root.findall(".//ZStackSetup")[0]
         is_z_stack = ZStackSetup.attrib['IsActivated'] == 'true'
         return is_z_stack
@@ -1399,42 +1015,6 @@ class ConnectSlidebookDummy():
     #
     ############################################################################
 
-    def create_experiment_path(self, experiment, experiment_folder):
-        """Creates complete path to capture settings.
-        Raises exception if experiment does not exist.
-
-        Input:
-         experiment: string with name of capture settings
-         (with or w/o extension .exp.prefs)
-
-         experiment_folder: folder for capture settings
-
-        Output:
-         experiment_path: path to experiment
-        """
-        # make sure that experiment has proper extension
-        name_1, extension_prefs = os.path.splitext(experiment)
-        name, extension_exp = os.path.splitext(name_1)
-        # experiment_corrected = name + '.exp.prefs'
-        experiment_path = os.path.normpath(os.path.join(experiment_folder, experiment))
-        if not os.path.exists(experiment_path):
-            raise ExperimentNotExistError('Could not create experiment path {}.'.format(experiment_path), experiment)
-        return experiment_path
-
-    def save_image(self, fileName):
-        '''save last acquired ImageAICS in original file format using microscope
-        software
-
-        Raises HardwareCommandNotDefinedError
-
-        Input:
-         file: file name and path for ImageAICS save
-
-        Output:
-         none
-        '''
-        self.not_implemented('save_image')
-
     def snap_image(self, capture_settings, objective=''):
         """Snap image with parameters defined in experiment at current location.
 
@@ -1481,20 +1061,6 @@ class ConnectSlidebookDummy():
         '''
         self.not_implemented('live_mode_stop')
 
-    def get_focus_pos(self):
-        """Return current position of focus drive.
-
-        Input:
-         none
-
-        Output:
-         zPos: position of focus drive in micrometer
-        """
-        positions = self.get_stage_pos()
-        if len(positions) == 0:
-            return None
-        return positions[2]
-
     def move_focus_to(self, zPos):
         '''Move focus to new position.
         Included for parity between Microscope connections.
@@ -1508,82 +1074,6 @@ class ConnectSlidebookDummy():
          zFocus: new position of focus drive
         '''
         self.not_implemented('move_focus_to')
-
-    def z_relative_move(self, delta):
-        '''Move focus relative to current position.
-        Included for parity between Microscope connections.
-
-        Raises HardwareCommandNotDefinedError.
-
-        Input:
-         delta: distance in mum
-
-        Output:
-         z: new position of focus drive
-        '''
-        self.not_implemented('z_relative_move')
-
-    def z_down_relative(self, delta):
-        '''Move focus relative to current position away from sample.
-        Included for parity between Microscope connections.
-
-        Raises HardwareCommandNotDefinedError.
-
-        Input:
-         delta: absolute distance in mum
-
-        Output:
-         z: new position of focus drive
-        '''
-        z = self.z_relative_move(-delta)
-        return z
-
-    def z_up_relative(self, delta):
-        '''Move focus relative to current position towards sample.
-        Included for parity between Microscope connections.
-
-        Raises HardwareCommandNotDefinedError.
-
-        Input:
-         delta: absolute distance in mum
-
-        Output:
-         z: new position of focus drive
-        '''
-        z = self.z_relative_move(delta)
-        return z
-
-    def set_focus_work_position(self):
-        '''Retrieve current position and set as work position.
-
-        Input:
-         none
-
-        Output:
-         z_work: current focus position in mum
-        '''
-        z_work = self.get_focus_pos()
-        self.zWork = z_work
-
-        self.log.info('Stored current focus position as work position', str(z_work))
-
-        return z_work
-
-    def set_focus_load_position(self):
-        '''Retrieve current position and set as load position.
-
-        Input:
-         none
-
-        Output:
-         zLoad: current focus position in mum
-        '''
-        zLoad = self.get_focus_pos()
-        self.zLoad = zLoad
-
-        self.log.info('Stored current focus position as load position: %s', str(zLoad))
-
-        return zLoad
 
     def move_focus_to_load(self):
         '''Move focus to load position if defined.
@@ -1633,67 +1123,6 @@ class ConnectSlidebookDummy():
         self.log.info('moved focus to load position: %s', str(zFocus))
 
         return zFocus
-
-    ############################################################################
-    #
-    # Methods to control immersion water delivery
-    #
-    ############################################################################
-
-    def trigger_pump(self, seconds, port='COM1', baudrate=19200):
-        '''Trigger pump
-
-        Input:
-         seconds: the number of seconds pump is activated
-
-         port: com port, default = 'COM1'
-
-         baudrate: baudrate for connection, can be set on pump, typically = 19200
-
-        Output:
-         none
-        '''
-        try:
-            # connect to pump through RS232
-            pump = Braintree(port='COM1', baudrate=19200)
-
-            # activate pump
-            pump.start_pump()
-
-            # continue pumping for seconds
-            time.sleep(seconds)
-
-            # stop pump and close connection
-            pump.close_connection()
-        except Exception:
-            raise HardwareError('Error in trigger_pump.')
-
-        self.log.debug('Pump activated for : %s sec', seconds)
-
-    ############################################################################
-    #
-    # Methods to collect information about microscope
-    #
-    ############################################################################
-
-    def get_microscope_name(self):
-        '''Returns name of the microscope from hardware that is controlled by
-        this class.
-
-        Input:
-         none
-
-        Output:
-         Microscope: name of Microscope
-        '''
-
-        name = 'get_microscope_name not implemented'
-        self.log.info('This class controls the microscope: %s', name)
-        return name
-
-    def stop(self):
-        '''Stop Microscope immediately'''
-        self.log.info('Microscope operation aborted')
 
     ############################################################################
     #
