@@ -19,7 +19,8 @@ test_requirements = [
     "pytest-cov>=2.9.0",
     "pytest-raises>=0.11",
     "pytest-runner>=5.2",
-    "pytest-html>=2.1.1"
+    "pytest-html>=2.1.1",
+    "mock>=4.0.2"
 ]
 
 dev_requirements = [
@@ -37,18 +38,18 @@ dev_requirements = [
 ]
 
 requirements = [
-    'tifffile',
-    'aicsimageio',
-    'pandas',
-    'numpy',
-    'pyyaml',
-    'pyqtgraph',
-    'matplotlib',
-    'formlayout',
-    'lxml',
-    'pathlib',
-    'pyserial',
-    'scikit-image'
+    'tifffile>=2020.8.25',
+    'aicsimageio>=3.2.3',
+    'pandas>=1.1.1',
+    'numpy>=1.19.1',
+    'pyyaml>=5.3.1',
+    'pyqtgraph>=0.11.0',
+    'matplotlib>=3.3.1',
+    'formlayout>=1.2.0',
+    'lxml>=4.5.2',
+    'pathlib>=1.0.1',
+    'pyserial>=3.4',
+    'scikit-image>=0.16.2'
 ]
 
 extra_requirements = {
