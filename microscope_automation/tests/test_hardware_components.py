@@ -11,10 +11,9 @@ import numpy
 from lxml import etree
 from mock import patch
 from matplotlib.path import Path as mpl_path
-from microscope_automation_zen_blue import setup_zeiss_microscope
-from microscope_automation_slidebook import setup_3i_microscope
 import microscope_automation.preferences as preferences
 import microscope_automation.hardware_components as h_comp
+from microscope_automation.setup_dummy_microscope import setup_microscope
 from microscope_automation.connect_dummy import ExperimentDummy
 
 import os
@@ -27,10 +26,7 @@ skip_all_tests = False
 def setup_local_microscope(prefs_path):
     """Create microscope object"""
     prefs = preferences.Preferences(prefs_path)
-    if prefs_path == 'data/preferences_3i_test.yml':
-        microscope_object = setup_3i_microscope.setup_microscope(prefs)
-    else:
-        microscope_object = setup_zeiss_microscope.setup_microscope(prefs)
+    microscope_object = setup_microscope(prefs)
     return microscope_object
 
 
