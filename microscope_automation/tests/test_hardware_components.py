@@ -15,7 +15,7 @@ from microscope_automation_zen_blue import setup_zeiss_microscope
 from microscope_automation_slidebook import setup_3i_microscope
 import microscope_automation.preferences as preferences
 import microscope_automation.hardware_components as h_comp
-from microscope_automation_zen_blue.zen_experiment_info import ZenExperiment
+from microscope_automation.connect_dummy import ZenExperimentDummy
 
 import os
 os.chdir(os.path.dirname(__file__))
@@ -263,8 +263,8 @@ def test_update_tile_positions(name, path, prefs_path, x, y, z, expected):
         tree = etree.parse(experiment.experiment_path)
         root = tree.getroot()
 
-        xy = root.xpath(ZenExperiment.TAG_PATH_TILE_CENTER_XY)[0].text
-        z = root.xpath(ZenExperiment.TAG_PATH_TILE_CENTER_Z)[0].text
+        xy = root.xpath(ZenExperimentDummy.TAG_PATH_TILE_CENTER_XY)[0].text
+        z = root.xpath(ZenExperimentDummy.TAG_PATH_TILE_CENTER_Z)[0].text
 
         result = xy + "," + z
     except Exception as err:
@@ -333,9 +333,9 @@ def test_get_focus_settings(name, path, prefs_path, expected):
 @pytest.mark.skipif(skip_all_tests, reason='Exclude all tests from')
 @pytest.mark.parametrize('software, expected',
                          [('ZEN Blue Dummy',
-                           'microscope_automation_zen_blue.connect_zen_blue.ConnectMicroscope'),
+                           'microscope_automation.connect_dummy.ConnectZenBlueDummy'),
                           ('Slidebook Dummy',
-                           'microscope_automation_slidebook.connect_slidebook.ConnectMicroscope'),
+                           'microscope_automation.connect_dummy.ConnectSlidebookDummy'),
                           ('Invalid Name', 'AttributeError')])
 def test_connect_to_microscope_software(software, expected):
     control_software = setup_local_control_software(software)
