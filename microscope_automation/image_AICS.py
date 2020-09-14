@@ -8,7 +8,7 @@ Created on Jul 11, 2016
 
 import matplotlib.pyplot as plt
 from skimage import data
-from skimage.external.tifffile import imsave
+from tifffile import imsave
 import os
 
 # create logger
