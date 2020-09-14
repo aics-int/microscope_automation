@@ -139,17 +139,9 @@ def setup_local_pump(pump_id, seconds=1, port='COM1', baudrate=19200):
                            'data/Experiment Setup/WellTile_10x_true.czexp',
                            'data/preferences_ZSD_test.yml',
                            True),
-                          ('test_communication.exp.prefs',
-                           'data/SlideBook 6.0/test_communication.exp.prefs',
-                           'data/preferences_3i_test.yml',
-                           True),
                           ('WellTile_10x_true.czexp',
                            'data/SlideBook 6.0/WellTile_10x_true.czexp',
                            'data/preferences_3i_test.yml',
-                           False),
-                          ('test_communication.exp.prefs',
-                           'data/Experiment Setup/test_communication.exp.prefs',
-                           'data/preferences_ZSD_test.yml',
                            False)])
 def test_validate_experiment(name, path, prefs_path, expected):
     experiment = setup_local_experiment(name, path, prefs_path)
@@ -165,15 +157,7 @@ def test_validate_experiment(name, path, prefs_path, expected):
                           ('WellTile_10x_false.czexp',
                            'data/Experiment Setup/WellTile_10x_false.czexp',
                            'data/preferences_ZSD_test.yml',
-                           False),
-                          ('test_communication.exp.prefs',
-                           'data/Experiment Setup/test_communication.exp.prefs',
-                           'data/preferences_ZSD_test.yml',
-                           'ExperimentNotExistError'),
-                          ('test_communication.exp.prefs',
-                           'data/SlideBook 6.0/test_communication.exp.prefs',
-                           'data/preferences_3i_test.yml',
-                           'HardwareCommandNotDefinedError')])
+                           False)])
 def test_is_z_stack(name, path, prefs_path, expected):
     experiment = setup_local_experiment(name, path, prefs_path)
     try:
@@ -192,15 +176,7 @@ def test_is_z_stack(name, path, prefs_path, expected):
                           ('WellTile_10x_false.czexp',
                            'data/Experiment Setup/WellTile_10x_false.czexp',
                            'data/preferences_ZSD_test.yml',
-                           0),
-                          ('test_communication.exp.prefs',
-                           'data/Experiment Setup/test_communication.exp.prefs',
-                           'data/preferences_ZSD_test.yml',
-                           'ExperimentNotExistError'),
-                          ('test_communication.exp.prefs',
-                           'data/SlideBook 6.0/test_communication.exp.prefs',
-                           'data/preferences_3i_test.yml',
-                           'HardwareCommandNotDefinedError')])
+                           0)])
 def test_z_stack_range(name, path, prefs_path, expected):
     experiment = setup_local_experiment(name, path, prefs_path)
     try:
@@ -219,15 +195,7 @@ def test_z_stack_range(name, path, prefs_path, expected):
                           ('WellTile_10x_false.czexp',
                            'data/Experiment Setup/WellTile_10x_false.czexp',
                            'data/preferences_ZSD_test.yml',
-                           False),
-                          ('test_communication.exp.prefs',
-                           'data/Experiment Setup/test_communication.exp.prefs',
-                           'data/preferences_ZSD_test.yml',
-                           'ExperimentNotExistError'),
-                          ('test_communication.exp.prefs',
-                           'data/SlideBook 6.0/test_communication.exp.prefs',
-                           'data/preferences_3i_test.yml',
-                           'HardwareCommandNotDefinedError')])
+                           False)])
 def test_is_tile_scan(name, path, prefs_path, expected):
     experiment = setup_local_experiment(name, path, prefs_path)
     try:
@@ -242,15 +210,7 @@ def test_is_tile_scan(name, path, prefs_path, expected):
                          [('WellTile_10x_true.czexp',
                            'data/Experiment Setup/WellTile_10x_true.czexp',
                            'data/preferences_ZSD_test.yml',
-                           1000, 1000, 3, '1000,1000,3'),
-                          ('test_communication.exp.prefs',
-                           'data/Experiment Setup/test_communication.exp.prefs',
-                           'data/preferences_ZSD_test.yml', 1000, 1000, 3,
-                           'ExperimentNotExistError'),
-                          ('test_communication.exp.prefs',
-                           'data/SlideBook 6.0/test_communication.exp.prefs',
-                           'data/preferences_3i_test.yml', 1000, 1000, 3,
-                           'HardwareCommandNotDefinedError')])
+                           1000, 1000, 3, '1000,1000,3')])
 def test_update_tile_positions(name, path, prefs_path, x, y, z, expected):
     experiment = setup_local_experiment(name, path, prefs_path)
     try:
@@ -276,11 +236,7 @@ def test_update_tile_positions(name, path, prefs_path, x, y, z, expected):
                           ('test_communication.exp.prefs',
                            'data/Experiment Setup/test_communication.exp.prefs',
                            'data/preferences_ZSD_test.yml',
-                           'ExperimentNotExistError'),
-                          ('test_communication.exp.prefs',
-                           'data/SlideBook 6.0/test_communication.exp.prefs',
-                           'data/preferences_3i_test.yml',
-                           'HardwareCommandNotDefinedError')])
+                           'ExperimentNotExistError')])
 def test_get_objective_position(name, path, prefs_path, expected):
     experiment = setup_local_experiment(name, path, prefs_path)
     try:
@@ -299,11 +255,7 @@ def test_get_objective_position(name, path, prefs_path, expected):
                           ('test_communication.exp.prefs',
                            'data/Experiment Setup/test_communication.exp.prefs',
                            'data/preferences_ZSD_test.yml',
-                           'ExperimentNotExistError'),
-                          ('test_communication.exp.prefs',
-                           'data/SlideBook 6.0/test_communication.exp.prefs',
-                           'data/preferences_3i_test.yml',
-                           'HardwareCommandNotDefinedError')])
+                           'ExperimentNotExistError')])
 def test_get_focus_settings(name, path, prefs_path, expected):
     experiment = setup_local_experiment(name, path, prefs_path)
     try:
@@ -330,8 +282,6 @@ def test_get_focus_settings(name, path, prefs_path, expected):
 @pytest.mark.parametrize('software, expected',
                          [('Dummy',
                            'microscope_automation.connect_dummy.ConnectMicroscope'),
-                          # ('Slidebook Dummy',
-                          #  'microscope_automation.connect_dummy.ConnectSlidebookDummy'),
                           ('Invalid Name', 'AttributeError')])
 def test_connect_to_microscope_software(software, expected):
     control_software = setup_local_control_software(software)
@@ -666,16 +616,6 @@ def test_get_information_camera(camera_id, pixel_size, pixel_number, pixel_type,
                            'aics_Experiment': 'test_experiment'}),
                           ('Camera2 (Left)', 'Dummy', None,
                            'HardwareError')])
-                          # ('Camera2 (Left)', 'Slidebook Dummy', 'test_experiment',
-                          #  {'aics_Manufacturer': None,
-                          #   'aics_PixelType': None,
-                          #   'aics_cameraID': 'Camera2 (Left)',
-                          #   'aics_PhysicalSizeYUnit': 'mum',
-                          #   'aics_PhysicalSizeY': None, 'aics_PhysicalSizeX': None,
-                          #   'aics_Model': None, 'aics_PhysicalSizeXUnit': 'mum',
-                          #   'aics_Type': 'generic',
-                          #   'aics_SizeX': None, 'aics_SizeY': None,
-                          #   'aics_Experiment': 'test_experiment'})
 def test_snap_image(camera_id, software, experiment_name, meta_expect):
     control_software = setup_local_control_software(software)
     camera = setup_local_camera(camera_id)
@@ -697,10 +637,6 @@ def test_snap_image(camera_id, software, experiment_name, meta_expect):
                           ('Camera2 (Left)', 'Dummy', None, True, False),
                           ('Camera2 (Left)', 'Dummy',
                            'test_experiment', True, False)])
-                          # ('Camera1 (Back)', 'Slidebook Dummy',
-                          #  'test_experiment', False, 'HardwareCommandNotDefinedError'),
-                          # ('Camera1 (Back)', 'Slidebook Dummy',
-                          #  'test_experiment', True, 'HardwareCommandNotDefinedError')
 def test_live_mode_start_stop(camera_id, software, experiment_name, orig_mode, exp_mode):
     control_software = setup_local_control_software(software)
     camera = setup_local_camera(camera_id)
@@ -1380,8 +1316,6 @@ def test_get_information_focus_drive(focus_id, software, max_load_position,
 @pytest.mark.parametrize(("focus_id, software, z, expected"),
                          [('MotorizedFocus', 'Dummy', 100, 100),
                           ('MotorizedFocus', 'Dummy', None, None)])
-                          # ('MotorizedFocus', 'Slidebook Dummy', None,
-                          #  'HardwareCommandNotDefinedError')
 def test_move_to_position_focus_drive(focus_id, software, z, expected):
     control_software = setup_local_control_software(software)
     focus_drive = setup_local_focus_drive(focus_id)
@@ -1403,9 +1337,6 @@ def test_move_to_position_focus_drive(focus_id, software, z, expected):
                           ('MotorizedFocus', 'Dummy', 500, 100,
                            'data/preferences_ZSD_test.yml',
                            ['set_load'], 500)])
-                          # ('MotorizedFocus', 'Slidebook Dummy', 500, 100,
-                          #  'data/preferences_3i_test.yml', [],
-                          #  'HardwareCommandNotDefinedError')])
 def test_goto_load(focus_id, software, max_load_position, min_work_position,
                    prefs_path, action_list, expected):
     control_software = setup_local_control_software(software)
@@ -1432,9 +1363,6 @@ def test_goto_load(focus_id, software, max_load_position, min_work_position,
                           ('MotorizedFocus', 'Dummy', 500, 100,
                            'data/preferences_ZSD_test.yml',
                            ['set_work'], 500)])
-                          # ('MotorizedFocus', 'Slidebook Dummy', 500, 100,
-                          #  'data/preferences_3i_test.yml', [],
-                          #  'HardwareCommandNotDefinedError')])
 def test_goto_work(focus_id, software, max_load_position, min_work_position,
                    prefs_path, action_list, expected):
     control_software = setup_local_control_software(software)
