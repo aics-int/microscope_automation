@@ -139,14 +139,14 @@ def setup_local_pump(pump_id, seconds=1, port='COM1', baudrate=19200):
                            'data/Experiment Setup/WellTile_10x_true.czexp',
                            'data/preferences_ZSD_test.yml',
                            True),
-                          # ('test_communication.exp.prefs',
-                          #  'data/SlideBook 6.0/test_communication.exp.prefs',
-                          #  'data/preferences_3i_test.yml',
-                          #  True),
-                          # ('WellTile_10x_true.czexp',
-                          #  'data/SlideBook 6.0/WellTile_10x_true.czexp',
-                          #  'data/preferences_3i_test.yml',
-                          #  False),
+                          ('test_communication.exp.prefs',
+                           'data/SlideBook 6.0/test_communication.exp.prefs',
+                           'data/preferences_3i_test.yml',
+                           True),
+                          ('WellTile_10x_true.czexp',
+                           'data/SlideBook 6.0/WellTile_10x_true.czexp',
+                           'data/preferences_3i_test.yml',
+                           False),
                           ('test_communication.exp.prefs',
                            'data/Experiment Setup/test_communication.exp.prefs',
                            'data/preferences_ZSD_test.yml',
@@ -165,15 +165,15 @@ def test_validate_experiment(name, path, prefs_path, expected):
                           ('WellTile_10x_false.czexp',
                            'data/Experiment Setup/WellTile_10x_false.czexp',
                            'data/preferences_ZSD_test.yml',
-                           False)])
-                          # ('test_communication.exp.prefs',
-                          #  'data/Experiment Setup/test_communication.exp.prefs',
-                          #  'data/preferences_ZSD_test.yml',
-                          #  'ExperimentNotExistError'),
-                          # ('test_communication.exp.prefs',
-                          #  'data/SlideBook 6.0/test_communication.exp.prefs',
-                          #  'data/preferences_3i_test.yml',
-                          #  'HardwareCommandNotDefinedError')])
+                           False),
+                          ('test_communication.exp.prefs',
+                           'data/Experiment Setup/test_communication.exp.prefs',
+                           'data/preferences_ZSD_test.yml',
+                           'ExperimentNotExistError'),
+                          ('test_communication.exp.prefs',
+                           'data/SlideBook 6.0/test_communication.exp.prefs',
+                           'data/preferences_3i_test.yml',
+                           'HardwareCommandNotDefinedError')])
 def test_is_z_stack(name, path, prefs_path, expected):
     experiment = setup_local_experiment(name, path, prefs_path)
     try:
@@ -192,15 +192,15 @@ def test_is_z_stack(name, path, prefs_path, expected):
                           ('WellTile_10x_false.czexp',
                            'data/Experiment Setup/WellTile_10x_false.czexp',
                            'data/preferences_ZSD_test.yml',
-                           0)])
-                          # ('test_communication.exp.prefs',
-                          #  'data/Experiment Setup/test_communication.exp.prefs',
-                          #  'data/preferences_ZSD_test.yml',
-                          #  'ExperimentNotExistError'),
-                          # ('test_communication.exp.prefs',
-                          #  'data/SlideBook 6.0/test_communication.exp.prefs',
-                          #  'data/preferences_3i_test.yml',
-                          #  'HardwareCommandNotDefinedError')])
+                           0),
+                          ('test_communication.exp.prefs',
+                           'data/Experiment Setup/test_communication.exp.prefs',
+                           'data/preferences_ZSD_test.yml',
+                           'ExperimentNotExistError'),
+                          ('test_communication.exp.prefs',
+                           'data/SlideBook 6.0/test_communication.exp.prefs',
+                           'data/preferences_3i_test.yml',
+                           'HardwareCommandNotDefinedError')])
 def test_z_stack_range(name, path, prefs_path, expected):
     experiment = setup_local_experiment(name, path, prefs_path)
     try:
@@ -219,15 +219,15 @@ def test_z_stack_range(name, path, prefs_path, expected):
                           ('WellTile_10x_false.czexp',
                            'data/Experiment Setup/WellTile_10x_false.czexp',
                            'data/preferences_ZSD_test.yml',
-                           False)])
-                          # ('test_communication.exp.prefs',
-                          #  'data/Experiment Setup/test_communication.exp.prefs',
-                          #  'data/preferences_ZSD_test.yml',
-                          #  'ExperimentNotExistError'),
-                          # ('test_communication.exp.prefs',
-                          #  'data/SlideBook 6.0/test_communication.exp.prefs',
-                          #  'data/preferences_3i_test.yml',
-                          #  'HardwareCommandNotDefinedError')])
+                           False),
+                          ('test_communication.exp.prefs',
+                           'data/Experiment Setup/test_communication.exp.prefs',
+                           'data/preferences_ZSD_test.yml',
+                           'ExperimentNotExistError'),
+                          ('test_communication.exp.prefs',
+                           'data/SlideBook 6.0/test_communication.exp.prefs',
+                           'data/preferences_3i_test.yml',
+                           'HardwareCommandNotDefinedError')])
 def test_is_tile_scan(name, path, prefs_path, expected):
     experiment = setup_local_experiment(name, path, prefs_path)
     try:
@@ -242,15 +242,15 @@ def test_is_tile_scan(name, path, prefs_path, expected):
                          [('WellTile_10x_true.czexp',
                            'data/Experiment Setup/WellTile_10x_true.czexp',
                            'data/preferences_ZSD_test.yml',
-                           1000, 1000, 3, '1000,1000,3')])
-                          # ('test_communication.exp.prefs',
-                          #  'data/Experiment Setup/test_communication.exp.prefs',
-                          #  'data/preferences_ZSD_test.yml', 1000, 1000, 3,
-                          #  'ExperimentNotExistError'),
-                          # ('test_communication.exp.prefs',
-                          #  'data/SlideBook 6.0/test_communication.exp.prefs',
-                          #  'data/preferences_3i_test.yml', 1000, 1000, 3,
-                          #  'HardwareCommandNotDefinedError')])
+                           1000, 1000, 3, '1000,1000,3'),
+                          ('test_communication.exp.prefs',
+                           'data/Experiment Setup/test_communication.exp.prefs',
+                           'data/preferences_ZSD_test.yml', 1000, 1000, 3,
+                           'ExperimentNotExistError'),
+                          ('test_communication.exp.prefs',
+                           'data/SlideBook 6.0/test_communication.exp.prefs',
+                           'data/preferences_3i_test.yml', 1000, 1000, 3,
+                           'HardwareCommandNotDefinedError')])
 def test_update_tile_positions(name, path, prefs_path, x, y, z, expected):
     experiment = setup_local_experiment(name, path, prefs_path)
     try:
@@ -272,15 +272,15 @@ def test_update_tile_positions(name, path, prefs_path, x, y, z, expected):
 @pytest.mark.parametrize('name, path, prefs_path, expected',
                          [('WellTile_10x_true.czexp',
                            'data/Experiment Setup/WellTile_10x_true.czexp',
-                           'data/preferences_ZSD_test.yml', 1)])
-                          # ('test_communication.exp.prefs',
-                          #  'data/Experiment Setup/test_communication.exp.prefs',
-                          #  'data/preferences_ZSD_test.yml',
-                          #  'ExperimentNotExistError'),
-                          # ('test_communication.exp.prefs',
-                          #  'data/SlideBook 6.0/test_communication.exp.prefs',
-                          #  'data/preferences_3i_test.yml',
-                          #  'HardwareCommandNotDefinedError')])
+                           'data/preferences_ZSD_test.yml', 1),
+                          ('test_communication.exp.prefs',
+                           'data/Experiment Setup/test_communication.exp.prefs',
+                           'data/preferences_ZSD_test.yml',
+                           'ExperimentNotExistError'),
+                          ('test_communication.exp.prefs',
+                           'data/SlideBook 6.0/test_communication.exp.prefs',
+                           'data/preferences_3i_test.yml',
+                           'HardwareCommandNotDefinedError')])
 def test_get_objective_position(name, path, prefs_path, expected):
     experiment = setup_local_experiment(name, path, prefs_path)
     try:
@@ -295,15 +295,15 @@ def test_get_objective_position(name, path, prefs_path, expected):
                          [('WellTile_10x_true.czexp',
                            'data/Experiment Setup/WellTile_10x_true.czexp',
                            'data/preferences_ZSD_test.yml',
-                           'data/Experiment Setup/focus_settings.xml')])
-                          # ('test_communication.exp.prefs',
-                          #  'data/Experiment Setup/test_communication.exp.prefs',
-                          #  'data/preferences_ZSD_test.yml',
-                          #  'ExperimentNotExistError'),
-                          # ('test_communication.exp.prefs',
-                          #  'data/SlideBook 6.0/test_communication.exp.prefs',
-                          #  'data/preferences_3i_test.yml',
-                          #  'HardwareCommandNotDefinedError')])
+                           'data/Experiment Setup/focus_settings.xml'),
+                          ('test_communication.exp.prefs',
+                           'data/Experiment Setup/test_communication.exp.prefs',
+                           'data/preferences_ZSD_test.yml',
+                           'ExperimentNotExistError'),
+                          ('test_communication.exp.prefs',
+                           'data/SlideBook 6.0/test_communication.exp.prefs',
+                           'data/preferences_3i_test.yml',
+                           'HardwareCommandNotDefinedError')])
 def test_get_focus_settings(name, path, prefs_path, expected):
     experiment = setup_local_experiment(name, path, prefs_path)
     try:

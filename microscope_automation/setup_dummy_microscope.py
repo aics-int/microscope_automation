@@ -37,13 +37,10 @@ def setup_microscope(prefs):
 
     # create microscope
     microscope = specs.getPrefAsMeta('Microscope')
-    if microscope.getPref('Type') == "SpinningDisk_3i":
-        microscope_object = BaseMicroscope(control_software_object=connect_object,
-                                           name=microscope.getPref('Name'),
-                                           experiments_folder=get_experiment_path(prefs, dir=True))
-    else:
-        raise ae.HardwareDoesNotExistError("Microscope not defined in module "
-                                           "hardware_control.py")
+    microscope_object = BaseMicroscope(control_software_object=connect_object,
+                                       name=microscope.getPref('Name'),
+                                       experiments_folder=get_experiment_path(
+                                           prefs, dir=True))
 
     setup_cameras(specs, microscope_object)
     setup_safe_areas(specs, microscope_object)
