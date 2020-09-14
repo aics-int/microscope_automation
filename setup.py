@@ -44,6 +44,7 @@ requirements = [
     'numpy>=1.19.1',
     'pyyaml>=5.3.1',
     'pyqtgraph>=0.11.0',
+    'PyQt5>=5.12.3',
     'matplotlib>=3.3.1',
     'formlayout>=1.2.0',
     'lxml>=4.5.2',
