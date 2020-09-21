@@ -1,6 +1,7 @@
 '''
-Module with class ImageAICS to wrap image  data as numpy arrays and meta data as dictionaries.
-Add display methods
+Module with class ImageAICS to wrap image  data as numpy arrays and
+meta data as dictionaries. Add display methods.
+
 Created on Jul 11, 2016
 
 @author: winfriedw
@@ -89,7 +90,7 @@ class ImageAICS():
                 return None
             try:
                 data = self.meta[key]
-            except:
+            except KeyError:
                 print(('Error getting data for key {}'.format(key)))
                 raise
             # if data is a number encoded as string convert to float
@@ -223,5 +224,3 @@ if __name__ == '__main__':
     print(im.create_file_name(template))
     template = ('d:/', ['#aics_barcode', '_', '.czi'])
     print(im.create_file_name(template))
-
-#     im.show(title='Test')

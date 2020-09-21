@@ -50,7 +50,8 @@ def read_string(title, label, default, returnCode=False):
 
      default: default input
 
-     returnCode: if True, will return after cancel with code 0, otherwise will call sys.exit()
+     returnCode: if True, will return after cancel with code 0,
+     otherwise will call sys.exit()
 
     Return:
      0: User selected to abort script
@@ -58,7 +59,8 @@ def read_string(title, label, default, returnCode=False):
      1: User pressed ok
     """
 
-    datalist = [(label, default), (None, None), (None,"Press ok when done.\nPress cancel to abort script." )]
+    datalist = [(label, default), (None, None),
+                (None, "Press ok when done.\nPress cancel to abort script.")]
     result = fedit(datalist, title=title,
                    comment="")
     if result is None:
@@ -79,7 +81,8 @@ def information_message(title, message, returnCode=False):
 
      message: Message that will be displayed
 
-     returnCode: if True, will return after cancel with code 0, otherwise will call sys.exit()
+     returnCode: if True, will return after cancel with code 0,
+     otherwise will call sys.exit()
 
     Return:
      0: User selected to abort script
@@ -107,7 +110,8 @@ def setup_message(message, returnCode=False):
     Input:
      message: Message that will be displayed
 
-     returnCode: if True, will return after cancel with code 0, otherwise will call sys.exit()
+     returnCode: if True, will return after cancel with code 0,
+     otherwise will call sys.exit()
 
     Return:
      0: User selected to abort script
@@ -115,10 +119,9 @@ def setup_message(message, returnCode=False):
      1: User pressed ok
     """
     datalist = [(None, None),
-                (None, "Press ok when done.\nPress cancel to abort script.")
-                ]
+                (None, "Press ok when done.\nPress cancel to abort script.")]
     result = fedit(datalist, title="Error in setup detected",
-                    comment=message)
+                   comment=message)
     if result is None:
         if returnCode:
             return 0
@@ -135,7 +138,8 @@ def operate_message(message, returnCode=False):
     Input:
      message: Message that will be displayed
 
-     returnCode: if True, will return after cancel with code 0, otherwise will call sys.exit()
+     returnCode: if True, will return after cancel with code 0,
+     otherwise will call sys.exit()
 
     Return:
      0: User selected to abort script
@@ -163,17 +167,20 @@ def check_box_message(message, checkBoxList, returnCode=False):
     Input:
      message: Message that will be displayed
 
-     checkBoxList: list with check box names and settings in form [('Choice 1', True), ('Choice 2', False)
+     checkBoxList: list with check box names and settings in form:
+      [('Choice 1', True), ('Choice 2', False)
 
-     returnCode: if True, will return after cancel with code 0, otherwise will call sys.exit()
+     returnCode: if True, will return after cancel with code 0,
+     otherwise will call sys.exit()
 
     Return:
      0: User selected to abort script
 
      newCheckBoxList: User pressed ok result is updated checkBoxList
     """
-    datalist = checkBoxList + [(None, None), (None, '''Press ok when done. \nPress cancel to abort.''')]
-    #datalist = [(None, None),
+    datalist = checkBoxList + [(None, None),
+                               (None, "Press ok when done.\nPress cancel to abort.")]
+    # datalist = [(None, None),
     #            (None, '''Press ok when done. \nPress cancel to abort.''')
     #            ] + checkBoxList
 
@@ -197,7 +204,8 @@ def error_message(message, returnCode=False, blocking=True):
     Input:
      message: Message that will be displayed
 
-     returnCode: if True, will return after cancel with code 0, otherwise will call sys.exit()
+     returnCode: if True, will return after cancel with code 0,
+     otherwise will call sys.exit()
 
      blocking: if True use modal dialog for error reporting, otherwise print(message)
 
@@ -213,9 +221,9 @@ def error_message(message, returnCode=False, blocking=True):
         return 1
     else:
         datalist = [(None, None),
-                    (None, '''Please perform the action.\nPress ok when done.\nPress cancel to abort.'''),
-                    ('Ignore', False)
-                    ]
+                    (None, ("Please perform the action.\nPress ok when done."
+                            "\nPress cancel to abort.")),
+                    ('Ignore', False)]
         result = fedit(datalist, title="Error",
                        comment=message)
         if result:
@@ -239,7 +247,8 @@ def wait_message(message, returnCode=False):
     Input:
      message: Message that will be displayed
 
-     returnCode: if True, will return after cancel with code 0, otherwise will call sys.exit()
+     returnCode: if True, will return after cancel with code 0,
+     otherwise will call sys.exit()
 
     Return:
      0: User selected to abort script
@@ -249,9 +258,9 @@ def wait_message(message, returnCode=False):
      False: User pressed ok and want's to cancel wait times
     """
     datalist = [(None, None),
-                (None, '''Please perform the action.\nPress ok when done.\nPress cancel to abort.'''),
-                ('Continue to wait after next image', True)
-                ]
+                (None, ("Please perform the action.\nPress ok when done."
+                        "\nPress cancel to abort.")),
+                ("Continue to wait after next image", True)]
     result = fedit(datalist, title="Continue?",
                    comment=message)
     if result is None:
@@ -272,7 +281,8 @@ def select_message(message, count=None, returnCode=False):
 
      count: number of collected positions
 
-     returnCode: if True, will return after cancel with code 0, otherwise will call sys.exit()
+     returnCode: if True, will return after cancel with code 0,
+     otherwise will call sys.exit()
 
     Return:
      0: If user selected to abort script
@@ -280,19 +290,19 @@ def select_message(message, count=None, returnCode=False):
      resultDict: dictionary of form {'Include': True/False, 'Continue': True/False}
     """
     datalist = [(None, None),
-                (None, '''Please perform action(s) below.\nPress ok when done.\nPress cancel to abort.'''),
-                ('Include position in data acquisition.', True),
+                (None, ("Please perform the action(s) below.\nPress ok when done."
+                        "\nPress cancel to abort.")),
+                ("Include position in data acquisition.", True),
                 (None, None),
-                (None, 'Number of collected positions: {}'.format(count)),
-                ('Continue collecting positions.', True)
-                ]
+                (None, "Number of collected positions: {}".format(count)),
+                ("Continue collecting positions.", True)]
     result = fedit(datalist, title="Select",
                    comment=message)
     if result is None:
         if returnCode:
             return 0
         else:
-            print('User terminated program')
+            print("User terminated program")
             sys.exit()
     else:
         resultDict = {'Include': result[0], 'Continue': result[1]}
@@ -305,9 +315,11 @@ def file_select_dialog(directory, filePattern=None, comment=None, returnCode=Fal
     Input:
      directory: path to directory with files
 
-     filePattern: string with regular expression. If file matches expression it will be pre-selected.
+     filePattern: string with regular expression.
+     If file matches expression it will be pre-selected.
 
-     returnCode: if True, will return after cancel with code 0, otherwise will call sys.exit()
+     returnCode: if True, will return after cancel with code 0,
+     otherwise will call sys.exit()
 
     Output:
      filePath: path to selected file
@@ -319,10 +331,11 @@ def file_select_dialog(directory, filePattern=None, comment=None, returnCode=Fal
     allFiles = pandas.Series(listdir(directory))
     try:
         # find all filenames that match
-        colFileLocSeries = [re.search(filePattern, singleFile) is not None for singleFile in allFiles]
+        colFileLocSeries = [re.search(filePattern, singleFile) is not None
+                            for singleFile in allFiles]
         colFileLocIndex = [int(allFiles[colFileLocSeries].index.tolist()[0])]
         allFiles = list(allFiles)
-    except:
+    except Exception:
         colFileLocIndex = [0]
         allFiles = [''] + list(allFiles)
     allFiles.sort()
@@ -354,8 +367,7 @@ def pull_down_select_dialog(itemList, message):
     datalist = [('Selection:', ([0] + [str(i) for i in itemList]))]
 
     # display dialog bos
-    result = fedit(datalist, title="Selection",
-                 comment=message)
+    result = fedit(datalist, title="Selection", comment=message)
     if result is None:
         stop_script()
     selectedItem = itemList[result[0]]
@@ -363,9 +375,8 @@ def pull_down_select_dialog(itemList, message):
 
 
 def value_calibration_form(title, comment, default, *form_fields):
-    """Attribute selection dialog for value calibration
-
-    Last result value will always be True or False for whether the value(s) were acceptable
+    """Attribute selection dialog for value calibration. Last result value will
+    always be True or False for whether the value(s) were acceptable.
 
     Input:
      title: title for the form
@@ -417,45 +428,11 @@ if __name__ == '__main__':
     from .interactive_location_picker_pyqtgraph import ImageLocationPicker
     import numpy as np
     import pyqtgraph
-    # test functions to show messages
-#     if getpass.getuser() == 'mattb':
-#         direc = "C:/Users/matthewbo/Git/microscopeautomation/data/data_matthew/2017_2_2/PlateSpecifications"
-#         print(value_calibration_form("Sample title", "Fill this form out please", ('Float Value', 0.5),)
-#                                      ('Another float', 12.))
-#         exit()
-#     else:
-#         direc = 'D:\\Winfried\\Production\\Daily\\2018_10_10\\'
-#
 
     image = np.zeros((50, 50))
     app = QtGui.QApplication([])
     input('Continue')
-    ImageLocationPicker(image, app = app).plot_points('Test')
+    ImageLocationPicker(image, app=app).plot_points('Test')
     input('Continue')
     print((error_message('Test error message')))
     pyqtgraph.exit()
-#     checkBoxList =[('InitializeMicroscope', True),
-#            ('AddColonies', True),
-#            ('UpdatePlateWellZero', True),
-#            ('ImageBarcode', True),
-#            ('CalibrateWellDistance', True),
-#            ('CalibrateWellDiameter', True),
-#            ('SetupImmersionSystem', True),
-#            ('ScanWellsZero', True),
-#            ('ScanBackground', True),
-#            ('ScanPlate', True),
-#            ('PreScanColonies', True),
-#            ('ScanColonies', True),
-#            ('PreScanCells', True),
-#            ('ScanCells', True)]
-#     print(check_box_message('Select experiments to run', checkBoxList, returnCode = False))
-#     barcodeList = ['123', '456', '789']
-#     print(pull_down_select_dialog(barcodeList, 'Please select barcode for plate on microscope.'))
-#     print(file_select_dialog(directory = direc, filePattern = 'PipelineData_.*'))
-#     print(file_select_dialog(directory = direc, filePattern = None))
-#     print(information_message('Testing', 'This is an information'))
-#     print(setup_message('This is a setup message'))
-#     print(operate_message('This is an operate message'))
-#     print(read_string('Read_string message', 'Label', 'default input'))
-#     print(wait_message('Continue?'))
-#     print(select_message('Uncheck below if you do not want to include this position?'))

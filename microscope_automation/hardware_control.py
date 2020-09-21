@@ -37,14 +37,17 @@ class BaseMicroscope(object):
     def __init__(self, name=None, control_software_object=None,
                  experiments_folder=None,
                  microscope_components=None):
-        """Base class for any type of microscope (e.g. Spinng Disk 3i, ZEN Blue, ZEN Black)
+        """Base class for any type of microscope
+        (e.g. Spinning Disk 3i, ZEN Blue, ZEN Black)
 
         Input:
          name: optional string with microscope name
 
-         controlSoftwareObject: object for software connection to microscope, typically created with class ControlSoftware
+         control_software_object: object for software connection to microscope,
+         typically created with class ControlSoftware
 
-         experiments_folder: path to folder with microscope software defined experiments. Path does not include experiment
+         experiments_folder: path to folder of microscope software defined experiments.
+         Path does not include experiment
 
          microscope_components: optional list with component objects
 
@@ -95,17 +98,19 @@ class BaseMicroscope(object):
         if isinstance(error, AutofocusError):
             return_dialog = error.error_dialog()
             if return_dialog == 1:
-                # use ['no_find_surface'] for action_list to disable 'find_surface' during auto-focus initialization
+                # use ['no_find_surface'] for action_list
+                # to disable 'find_surface' during auto-focus initialization
                 self.initialize_hardware(
-                    initialize_components_ordered_dict={error.error_component.get_id(): ['no_find_surface']},
+                    initialize_components_ordered_dict={error.error_component.get_id():
+                                                        ['no_find_surface']},
                     reference_object_id=error.focus_reference_obj_id, verbose=False)
-                # self.reference_position(reference_object_id = error.focus_reference_obj_id, find_surface = False, verbose = False)
             return return_dialog
         if isinstance(error, LoadNotDefinedError):
             return_dialog = error.error_dialog()
             if return_dialog == 1:
                 self.initialize_hardware(
-                    initialize_components_ordered_dict={error.error_component.get_id(): ['set_load']},
+                    initialize_components_ordered_dict={error.error_component.get_id():
+                                                        ['set_load']},
                     reference_object_id=None, verbose=False)
             return return_dialog
         if isinstance(error, CrashDangerError):
@@ -155,8 +160,9 @@ class BaseMicroscope(object):
 
         for component_object in component_objects:
             if isinstance(component_object, hardware_components.MicroscopeComponent):
-                self.microscope_components_ordered_dict[component_object.get_id()] = component_object
-                # attach microscope to component to let component know to what microscope it belongs
+                self.microscope_components_ordered_dict[component_object.get_id()] = \
+                    component_object
+                # attach microscope to tell component what microscope it belongs to
                 component_object.microscope = self
 
     def get_microscope_object(self, component_id):
@@ -166,7 +172,8 @@ class BaseMicroscope(object):
          component_id: Unique string id for microscope component
 
         Output:
-         component_object: object of a component class (e.g. Stage, Camera) or list of component classes
+         component_object: object of a component class (e.g. Stage, Camera)
+         or list of component classes
          """
         # Test if component exists.
         # If component does note exist raise exeption
@@ -185,7 +192,8 @@ class BaseMicroscope(object):
          positions_dict: dictionary {component_id: positions}. Positions are
          dictionaries if multiple positions can be retrieved
         """
-        # create directory for default initialization for all components if component_dir is None
+        # if component_dir is None,
+        # create directory for default initialization for all components
         # empty list indicates default initializations
         if not len(components_list):
             components_list = list(self.microscope_components_ordered_dict.keys())
@@ -200,11 +208,13 @@ class BaseMicroscope(object):
         positions_dict = {}
         for component_id in components_list:
             component_instance = self.get_microscope_object(component_id)
-            positions_dict[component_id] = component_instance.get_information(communicatons_object)
+            positions_dict[component_id] = component_instance.get_information(
+                communicatons_object)
 
         return positions_dict
 
-    def setup_microscope_for_initialization(self, component_object, experiment=None, before_initialization=True):
+    def setup_microscope_for_initialization(self, component_object, experiment=None,
+                                            before_initialization=True):
         """Setup microscope before initialization of individual components.
         Method starts and stops live image mode.
 
@@ -222,9 +232,11 @@ class BaseMicroscope(object):
         if component_object.use_live_mode:
             if experiment is None:
                 experiment = component_object.get_init_experiment()
-            # record status of live mode to keep camera on after initialization if it was on
+            # record status of live mode
+            # to keep camera on after initialization if it was on
             if before_initialization:
-                self.live_mode_status = self.get_information(components_list=[component_object.default_camera])[
+                self.live_mode_status = self.get_information(components_list=[
+                    component_object.default_camera])[
                     component_object.default_camera]['live']
 
             self.live_mode(camera_id=component_object.default_camera,
@@ -232,18 +244,21 @@ class BaseMicroscope(object):
                            live=before_initialization or self.live_mode_status)
             self.last_experiment = experiment
 
-    def microscope_is_ready(self, experiment, component_dict, focus_drive_id, objective_changer_id, safety_object_id,
-                            reference_object_id=None, load=True, make_ready=True, trials=3, verbose=True):
+    def microscope_is_ready(self, experiment, component_dict, focus_drive_id,
+                            objective_changer_id, safety_object_id,
+                            reference_object_id=None, load=True, make_ready=True,
+                            trials=3, verbose=True):
         """Check if microscope is ready and setup up for data acquisition.
 
         Input:
          experiment: string with name of experiment as defined in microscope software
 
-         compenent_dict: dictionary with component_id as key and list of potential actions
+         compenent_dict: dictionary with component_id as key and list of actions
 
          focus_drive_id: string id for focus drive
 
-         objective_changer_id: string id for objective changer parfocality and parcentricity has to be calibrated
+         objective_changer_id: string id for objective changer parfocality
+         and parcentricity has to be calibrated
 
          safety_object_id: string id for safety area
 
@@ -251,10 +266,11 @@ class BaseMicroscope(object):
 
          load: move objective into load position before moving stage
 
-         make_ready: if True, make attempt to ready microscope, e.g. setup autofocus (Default: True)
+         make_ready: if True, make attempt to ready microscope, e.g. setup autofocus
+         (Default: True)
 
-         trials: maximum number of attempt to initialize microscope. Will allow user to make adjustments on microscope.
-         (Default: 3)
+         trials: maximum number of attempt to initialize microscope.
+         Will allow user to make adjustments on microscope. (Default: 3)
 
          verbose: print debug messages (Default: True)
 
@@ -289,10 +305,10 @@ class BaseMicroscope(object):
             if live:
                 camera_instance.live_mode_start(communication_object, experiment)
                 self.last_experiment = experiment
-                self.last_objective_position = communication_object.get_objective_position()
+                self.last_objective_position = communication_object.get_objective_position()  # noqa
             else:
                 camera_instance.live_mode_stop(communication_object, experiment)
-                self.last_objective_position = communication_object.get_objective_position()
+                self.last_objective_position = communication_object.get_objective_position()  # noqa
         except AutomationError as error:
             self.recover_hardware(error)
 
@@ -314,6 +330,7 @@ class BaseMicroscope(object):
          none
         """
         if reference_object_id is None:
-            raise AutofocusNoReferenceObjectError('Reference object needed to set reference_position')
+            raise AutofocusNoReferenceObjectError(
+                'Reference object needed to set reference_position')
 
         self.not_implemented('reference_position')

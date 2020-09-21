@@ -9,8 +9,8 @@ Created on Sep 6, 2016
 
 @author: winfriedw
 '''
-
 import serial
+
 
 class Braintree():
     '''Control Braintree BS-8000/9000 syringe pump through RS232.
@@ -64,12 +64,13 @@ class Braintree():
         self.stop_pump()
         self.ser.close()
 
+
 if __name__ == '__main__':
     import time
     # connect to pump through RS232
     pump = Braintree(port='COM1', baudrate=19200)
 
-    #activate pump
+    # activate pump
     pump.start_pump()
 
     # continue pumping for 5s

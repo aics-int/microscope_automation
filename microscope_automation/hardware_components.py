@@ -16,12 +16,6 @@ import matplotlib.patches as patches
 from matplotlib import cm
 import math
 import inspect
-# import modules from project MicroscopeAutomation
-# modules to connect to microscope hardware are imported in class ControlSoftware
-# from . import automation_messages_form_layout as message
-# from .automation_exceptions import AutomationError, HardwareError, \
-#     CrashDangerError, AutofocusError, AutofocusNotSetError, AutofocusObjectiveChangedError, \
-#     ObjectiveNotDefinedError, FileExistsError, LoadNotDefinedError
 from .image_AICS import ImageAICS
 from . import automation_messages_form_layout as message
 from .automation_exceptions import ExperimentNotExistError, \
@@ -50,7 +44,8 @@ def log_method(self, methodName=None):
      none
     """
     logging.debug('\nlog_method------------------------------')
-    logging.debug("Calling '{}' in module '{}'".format(self.__class__.__name__, self.__module__))
+    logging.debug("Calling '{}' in module '{}'".format(self.__class__.__name__,
+                                                       self.__module__))
     logging.debug('Method: {}'.format(methodName))
     logging.debug('Docstring: {}'.format(inspect.getdoc(self)))
 
@@ -90,7 +85,7 @@ def log_warning(message, methodName=None):
     logging.warning(message)
 
 
-################################################################################################
+#################################################################################
 
 class Experiment(object):
     """
@@ -107,7 +102,7 @@ class Experiment(object):
 
          name: Name of the experiment file
 
-         microscope_object: microscope object that contains the connection to zen blue/black
+         microscope_object: microscope object that contains the software connection
         """
         log_method(self, '__init__')
         self.experiment_name = name
@@ -126,7 +121,8 @@ class Experiment(object):
         """
         log_method(self, 'validate_experiment')
         microscope_connection = self.microscope_object.get_control_software().connection
-        valid_experiment = microscope_connection.validate_experiment(self.experiment_path, self.experiment_name)
+        valid_experiment = microscope_connection.validate_experiment(
+            self.experiment_path, self.experiment_name)
         return valid_experiment
 
     def is_z_stack(self):
@@ -144,7 +140,8 @@ class Experiment(object):
             raise ExperimentNotExistError(self.experiment_name)
 
         microscope_connection = self.microscope_object.get_control_software().connection
-        is_zstack = microscope_connection.is_z_stack(self.experiment_path, self.experiment_name)
+        is_zstack = microscope_connection.is_z_stack(
+            self.experiment_path, self.experiment_name)
         return is_zstack
 
     def z_stack_range(self):
@@ -163,7 +160,8 @@ class Experiment(object):
             raise ExperimentNotExistError(self.experiment_name)
 
         microscope_connection = self.microscope_object.get_control_software().connection
-        zstack_range = microscope_connection.z_stack_range(self.experiment_path, self.experiment_name)
+        zstack_range = microscope_connection.z_stack_range(
+            self.experiment_path, self.experiment_name)
         return zstack_range
 
     def is_tile_scan(self):
@@ -181,7 +179,8 @@ class Experiment(object):
             raise ExperimentNotExistError(self.experiment_name)
 
         microscope_connection = self.microscope_object.get_control_software().connection
-        is_tilescan = microscope_connection.is_tile_scan(self.experiment_path, self.experiment_name)
+        is_tilescan = microscope_connection.is_tile_scan(
+            self.experiment_path, self.experiment_name)
         return is_tilescan
 
     def update_tile_positions(self, x_value, y_value, z_value):
@@ -203,7 +202,8 @@ class Experiment(object):
             raise ExperimentNotExistError(self.experiment_name)
 
         microscope_connection = self.microscope_object.get_control_software().connection
-        microscope_connection.update_tile_positions(self.experiment_path, self.experiment_name,
+        microscope_connection.update_tile_positions(self.experiment_path,
+                                                    self.experiment_name,
                                                     x_value, y_value, z_value)
 
     def get_objective_position(self):
@@ -223,8 +223,8 @@ class Experiment(object):
             raise ExperimentNotExistError(self.experiment_name)
 
         microscope_connection = self.microscope_object.get_control_software().connection
-        position = microscope_connection.get_objective_position_from_experiment_file(self.experiment_path,
-                                                                                     self.experiment_name)
+        position = microscope_connection.get_objective_position_from_experiment_file(
+            self.experiment_path, self.experiment_name)
         return position
 
     def get_focus_settings(self):
@@ -242,7 +242,8 @@ class Experiment(object):
             raise ExperimentNotExistError(self.experiment_name)
 
         microscope_connection = self.microscope_object.get_control_software().connection
-        focus_settings = microscope_connection.get_focus_settings(self.experiment_path, self.experiment_name)
+        focus_settings = microscope_connection.get_focus_settings(self.experiment_path,
+                                                                  self.experiment_name)
         return focus_settings
 
 
@@ -298,7 +299,7 @@ class MicroscopeComponent(object):
          communication_object: not usesd
 
         Output:
-         init_experiment: string with experiment name as defined within microscope software
+         init_experiment: string with experiment name defined within microscope software
         """
         return self.init_experiment
 
@@ -307,11 +308,13 @@ class MicroscopeComponent(object):
         """Catch initialization method if not defined in sub class.
 
         Input:
-         communication_object: not used: Object that connects to microscope specific software
+         communication_object: Object that connects to microscope specific software
+         (not used)
 
          action_list: will not be processed
 
-         reference_object_id: ID of plate the hardware is initialized for. Used for setting up of autofocus
+         reference_object_id: ID of plate the hardware is initialized for.
+         Used for setting up of autofocus
 
          verbose: if True print debug information (Default = True)
 
@@ -337,7 +340,8 @@ class MicroscopeComponent(object):
         """Catch get_information method if not defined in sub class.
 
         Input:
-         communication_object: not used: Object that connects to microscope specific software
+         communication_object: Object that connects to microscope specific software
+         (not used)
 
         Output:
          None
@@ -345,10 +349,12 @@ class MicroscopeComponent(object):
         return None
 
 
-################################################################################################
+#################################################################################
 
 class ControlSoftware(MicroscopeComponent):
-    """Connect to software that controls specific Microscope. Import correct module based on Microscope software."""
+    """Connect to software that controls specific Microscope.
+    Import correct module based on Microscope software.
+    """
 
     def __init__(self, software):
         """Connect to microscope software
@@ -376,26 +382,26 @@ class ControlSoftware(MicroscopeComponent):
         """
         log_method(self, 'connect_to_microscope_software')
         if self.get_id() == 'ZEN Blue':
-            from microscope_automation_zen_blue.connect_zen_blue import ConnectMicroscope
+            from microscope_automation_zen_blue.connect_zen_blue import ConnectMicroscope  # noqa
             self.connection = ConnectMicroscope()
         elif self.get_id() == 'ZEN Black':
-            from microscope_automation_zen_black.connect_zen_black import ConnectMicroscope
+            from microscope_automation_zen_black.connect_zen_black import ConnectMicroscope  # noqa
             self.connection = ConnectMicroscope()
         elif self.get_id() == 'Slidebook':
-            from microscope_automation_slidebook.connect_slidebook import ConnectMicroscope
+            from microscope_automation_slidebook.connect_slidebook import ConnectMicroscope  # noqa
             self.connection = ConnectMicroscope()
         elif self.get_id() == 'ZEN Blue Dummy':
-            from microscope_automation_zen_blue.connect_zen_blue import ConnectMicroscope
+            from microscope_automation_zen_blue.connect_zen_blue import ConnectMicroscope  # noqa
             self.connection = ConnectMicroscope(connect_dll=False)
         elif self.get_id() == 'Slidebook Dummy':
-            from microscope_automation_slidebook.connect_slidebook import ConnectMicroscope
+            from microscope_automation_slidebook.connect_slidebook import ConnectMicroscope  # noqa
             self.connection = ConnectMicroscope(dummy=True)
         elif self.get_id() == 'Dummy':
             from .connect_dummy import ConnectMicroscope
             self.connection = ConnectMicroscope()
 
 
-################################################################################################
+#################################################################################
 
 class Safety(MicroscopeComponent):
     """Class with methods to avoid hardware damage of microscope.
@@ -430,7 +436,8 @@ class Safety(MicroscopeComponent):
         """
         log_method(self, 'add_safe_area')
         safe_verts = safe_vertices + [safe_vertices[0]]
-        safe_codes = [mpl_path.MOVETO] + [mpl_path.LINETO] * (len(safe_verts) - 2) + [mpl_path.CLOSEPOLY]
+        safe_codes = [mpl_path.MOVETO] + [mpl_path.LINETO] * (len(safe_verts) - 2) \
+            + [mpl_path.CLOSEPOLY]
         safe_area = {'path': mpl_path(safe_verts, safe_codes), 'z_max': z_max}
         self.safe_areas[safe_area_id] = safe_area
 
@@ -439,11 +446,13 @@ class Safety(MicroscopeComponent):
         This compound area is a union of the x-y plane's areas with the minimum z value.
 
         Input:
-         safe_area_id: unique string to identify safe area. Default: 'Compound' = combination of all safe areas
+         safe_area_id: unique string to identify safe area.
+         Default: 'Compound' = combination of all safe areas
 
         Output:
          safe_area: dictionary of the form:
           path: matplotlib path object of safe area's perimeter
+
           z_max: maximum value the microscope can safely move in the z direction
         """
         log_method(self, 'get_safe_area')
@@ -459,7 +468,8 @@ class Safety(MicroscopeComponent):
                     compound_path = safe_path
                     z_max = safe_area['z_max']
                 else:
-                    compound_path = mpl_path.make_compound_path(compound_path, safe_path)
+                    compound_path = mpl_path.make_compound_path(
+                        compound_path, safe_path)
                     z_max = min((z_max, safe_area['z_max']))
 
             safe_area = {'path': compound_path, 'z_max': z_max}
@@ -474,7 +484,8 @@ class Safety(MicroscopeComponent):
 
          z: absolute focus position in um to be tested
 
-         safe_area_id: unique string to identify safe area. Default: 'Compound' = combination of all safe areas
+         safe_area_id: unique string to identify safe area.
+         Default: 'Compound' = combination of all safe areas
 
         Output:
          is_safe: True if position is safe, otherwise False
@@ -494,7 +505,8 @@ class Safety(MicroscopeComponent):
 
          z: maximum focus position in um of the travel path
 
-         safe_area_id: unique string to identify safe area. Default: 'Compound' = combination of all safe areas
+         safe_area_id: unique string to identify safe area.
+         Default: 'Compound' = combination of all safe areas
 
          verbose: if True, show travel path and safe area. Default: True
 
@@ -513,10 +525,12 @@ class Safety(MicroscopeComponent):
             if vert[1] == mpl_path.MOVETO:
                 start = vert[0]
             if vert[1] == mpl_path.LINETO:
-                length = length + math.sqrt((vert[0][0] - start[0]) ** 2 + (vert[0][1] - start[1]) ** 2)
+                length = length + math.sqrt((vert[0][0] - start[0]) ** 2
+                                            + (vert[0][1] - start[1]) ** 2)
                 start = vert[0]
         if int(length) > 0:
-            is_safe = safe_area['path'].contains_path(path.interpolated(int(length))) and safe_area['z_max'] > z
+            is_safe = safe_area['path'].contains_path(path.interpolated(int(length))) \
+                and safe_area['z_max'] > z
         else:
             is_safe = True
 
@@ -556,7 +570,8 @@ class Safety(MicroscopeComponent):
             return False
 
         # is path in safe area?
-        if not self.is_safe_travel_path(xy_path, z_max_pos, safe_area_id, verbose=verbose):
+        if not self.is_safe_travel_path(xy_path, z_max_pos, safe_area_id,
+                                        verbose=verbose):
             return False
 
         return True
@@ -608,18 +623,13 @@ class Safety(MicroscopeComponent):
         plt.show()
 
 
-################################################################################################
+#################################################################################
 
 class Camera(MicroscopeComponent, ImageAICS):
-    """Class to describe and operate microscope camera
-    """
-
-    #     def __init__(self, cameraObject, camera_id, prefs, pixel_size = None, pixel_number=None,
-    #                  pixel_type= None, name=None,  detector_type='generic', manufacturer=None, model=None):
-    #     def __init__(self, camera_id, prefs, pixel_size = None, pixel_number=None,
-    #                  pixel_type= None, name=None,  detector_type='generic', manufacturer=None, model=None):
-    def __init__(self, camera_id, pixel_size=(None, None), pixel_number=(None, None), pixel_type=None, name=None,
-                 detector_type='generic', manufacturer=None, model=None):
+    """Class to describe and operate microscope camera"""
+    def __init__(self, camera_id, pixel_size=(None, None), pixel_number=(None, None),
+                 pixel_type=None, name=None, detector_type='generic',
+                 manufacturer=None, model=None):
         """Describe and operate camera
 
         Input:
@@ -652,27 +662,34 @@ class Camera(MicroscopeComponent, ImageAICS):
         # Names for keys are based on OME-XML
         # http://www.openmicroscopy.org/Schemas/Documentation/Generated/OME-2015-01/ome.html
         self.settings = {'aics_cameraID': camera_id,
-                         'aics_PixelType': pixel_type,  # The variable type used to represent each pixel in the image.
-                         'aics_SizeX': pixel_number[0],  # Dimensional size of pixel data array [units:none].
-                         'aics_SizeY': pixel_number[1],  # Dimensional size of pixel data array [units:none].
+                         # The variable type used to represent each pixel in the image.
+                         'aics_PixelType': pixel_type,
+                         # Dimensional size of pixel data array [units:none].
+                         'aics_SizeX': pixel_number[0],
+                         # Dimensional size of pixel data array [units:none].
+                         'aics_SizeY': pixel_number[1],
+                         # Physical size of a pixel. Units are set by PhysicalSizeXUnit.
                          'aics_PhysicalSizeX': pixel_size[0],
                          # Physical size of a pixel. Units are set by PhysicalSizeXUnit.
                          'aics_PhysicalSizeY': pixel_size[1],
-                         # Physical size of a pixel. Units are set by PhysicalSizeXUnit.
+                         # The units of the physical size of a pixel - default:microns
                          'aics_PhysicalSizeXUnit': 'mum',
-                         # The units of the physical size of a pixel - default:microns[micron].
+                         # The units of the physical size of a pixel - default:microns
                          'aics_PhysicalSizeYUnit': 'mum',
-                         # The units of the physical size of a pixel - default:microns[micron].
-                         'aics_Manufacturer': manufacturer,  # The manufacturer of the component. [plain text string]
-                         'aics_Model': model,  # The Model of the component. [plain text string]
-                         'aics_Type': detector_type}  # The Type of detector. E.g. CCD, PMT, EMCCD etc.
+                         # The manufacturer of the component. [plain text string]
+                         'aics_Manufacturer': manufacturer,
+                         # The Model of the component. [plain text string]
+                         'aics_Model': model,
+                         # The Type of detector. E.g. CCD, PMT, EMCCD etc.
+                         'aics_Type': detector_type}
 
     def get_information(self, communication_object):
         """get camera status
 
         Input:
          communication_object: Object that connects to microscope specific software.
-         Not used by Camera class, but maintained for consistency with parent class MicroscopeComponent
+         Not used by Camera class, but maintained for consistency with
+         parent class MicroscopeComponent
 
         Output:
          camera_dict: dictionary {'live': True/False, 'settings':  dict with settings}
@@ -688,11 +705,12 @@ class Camera(MicroscopeComponent, ImageAICS):
         Input:
          communication_object: Object that connects to microscope specific software
 
-         experiment: string with name of experiment as defined within Microscope software.
+         experiment: string with name of experiment defined within Microscope software.
          If None uses active/default experiment.
 
         Return:
-         image: image of class ImageAICS to hold metadata. Does not contain image data at this moment.
+         image: image of class ImageAICS to hold metadata.
+         Does not contain image data at this moment.
         """
         log_method(self, 'snap_image')
         # call snap_image method in ConnectMicroscope instance.
@@ -723,7 +741,8 @@ class Camera(MicroscopeComponent, ImageAICS):
         Input:
          communication_object: Object that connects to microscope specific software
 
-         experiment: name of ZEN experiment (default = None). If None use actual experiment.
+         experiment: name of ZEN experiment (default = None).
+         If None use actual experiment.
 
         Output:
          none
@@ -733,7 +752,7 @@ class Camera(MicroscopeComponent, ImageAICS):
         self.live_mode_on = False
 
 
-################################################################################################
+#################################################################################
 
 class Stage(MicroscopeComponent):
     """Class to describe and operate microscope stage
@@ -752,8 +771,8 @@ class Stage(MicroscopeComponent):
 
          safe_position: Position of stage that is safe
 
-         objective_changer: string with unique id for objective changer assoziated with stage
-         required for par-centrizity correction
+         objective_changer: string with unique id for objective changer assoziated
+         with stage. Required for par-centricity correction
 
          microscope_object: microscope component is attached to
 
@@ -795,10 +814,6 @@ class Stage(MicroscopeComponent):
         """
         log_method(self, 'initialize')
         # Move stage to safe position
-        # User prefers no operate message box here. Moved warning to previous dialog box
-        # message.operate_message('Stage  "{}" will move to safe position.\n
-        #                          Move objective to load position.\n
-        #                          Make sure that travel path is safe'.format(self.get_id()), returnCode = False)
         self.move_to_position(communication_object, x=self.safe_position_x,
                               y=self.safe_position_y, test=test)
 
@@ -809,7 +824,9 @@ class Stage(MicroscopeComponent):
          communication_object: Object that connects to microscope specific software
 
         Output:
-         positions_dict: dictionary {'absolute': (x, y, z), 'centricity_corrected': ()} with stage position in mum.
+         positions_dict: dictionary with stage position in mum of the form:
+          {'absolute': (x, y, z), 'centricity_corrected': ()}
+
          z is optional depending on microscope used.
         """
         log_method(self, 'get_information')
@@ -818,7 +835,8 @@ class Stage(MicroscopeComponent):
             positions = (None, None, None)
 
         if self.objective_changer:
-            obj_changer = self.microscope_object.get_microscope_object(self.objective_changer)
+            obj_changer = self.microscope_object.get_microscope_object(
+                self.objective_changer)
             obj_info = obj_changer.get_objective_information(communication_object)
             centricity_cor = (obj_info['x_offset'], obj_info['y_offset'])
         else:
@@ -826,7 +844,8 @@ class Stage(MicroscopeComponent):
 
         return {'absolute': positions, 'centricity_corrected': centricity_cor}
 
-    def move_to_position(self, communication_object, x, y, z=None, experiment=None, test=False):
+    def move_to_position(self, communication_object, x, y, z=None, experiment=None,
+                         test=False):
         """Set stage position in mum and move stage
 
         Input:
@@ -834,7 +853,8 @@ class Stage(MicroscopeComponent):
 
          x, y, z: stage position in mum
 
-         experiment: experiment (ZEN) of capture settings (Slidebook) to use when operation stage (not allways required).
+         experiment: experiment (ZEN) of capture settings (Slidebook) to use
+         when operation stage (not allways required).
          None: use default experiment
 
          test: if True return travel path and do not move stage
@@ -859,7 +879,7 @@ class Stage(MicroscopeComponent):
             return positions[0], positions[1], positions[2]
 
 
-################################################################################################
+#################################################################################
 
 class ObjectiveChanger(MicroscopeComponent):
     """Class to describe and change objectives
@@ -907,9 +927,11 @@ class ObjectiveChanger(MicroscopeComponent):
         # set experiment for initialization
         self.reference_objective = ref_objective
         if self.objective_information and self.reference_objective:
-            init_experiment = self.objective_information[self.reference_objective]['experiment']
+            init_experiment = self.objective_information[
+                self.reference_objective]['experiment']
             self.init_experiment = init_experiment
-            self.default_camera = self.objective_information[self.reference_objective]['camera']
+            self.default_camera = self.objective_information[
+                self.reference_objective]['camera']
         else:
             self.default_camera = None
             self.init_experiment = None
@@ -927,8 +949,8 @@ class ObjectiveChanger(MicroscopeComponent):
 
          action_list: list with item 'set_reference'. If empty no action.
 
-         reference_object_id: ID of plate, plate holder, or other sample object the hardware is initialized for.
-         Used for setting up of autofocus
+         reference_object_id: ID of plate, plate holder, or other sample object
+         the hardware is initialized for. Used for setting up of autofocus
 
          verbose: if True print debug information (Default = True)
 
@@ -938,18 +960,18 @@ class ObjectiveChanger(MicroscopeComponent):
         log_method(self, 'initialize')
         if 'set_reference' in action_list:
             # setup microscope to initialize ObjectiveChanger
-            self.microscope_object.setup_microscope_for_initialization(component_object=self,
-                                                                       experiment=self.get_init_experiment(),
-                                                                       before_initialization=True)
+            self.microscope_object.setup_microscope_for_initialization(
+                component_object=self, experiment=self.get_init_experiment(),
+                before_initialization=True)
 
-            self.microscope_object.reference_position(find_surface=False,
-                                                      reference_object_id=reference_object_id,
-                                                      verbose=verbose)
+            self.microscope_object.reference_position(
+                find_surface=False, reference_object_id=reference_object_id,
+                verbose=verbose)
 
             # Clean up after initialization
-            self.microscope_object.setup_microscope_for_initialization(component_object=self,
-                                                                       experiment=self.get_init_experiment(),
-                                                                       before_initialization=False)
+            self.microscope_object.setup_microscope_for_initialization(
+                component_object=self, experiment=self.get_init_experiment(),
+                before_initialization=False)
 
     def set_number_positions(self, n_positions):
         """Sets the number of objective positions.
@@ -990,7 +1012,7 @@ class ObjectiveChanger(MicroscopeComponent):
         """
         log_method(self, 'get_all_objectives')
         number_objectives = self.get_number_positions()
-        self.objectives_dict = communication_object.get_all_objectives(number_objectives)
+        self.objectives_dict = communication_object.get_all_objectives(number_objectives)  # noqa
         return self.objectives_dict
 
     def get_objectives_dict(self):
@@ -1047,13 +1069,14 @@ class ObjectiveChanger(MicroscopeComponent):
         if objective_name in self.objective_information:
             objective_information = self.objective_information[objective_name]
         else:
-            objective_information = {'x_offset': 0, 'y_offset': 0, 'z_offset': 0, 'magnification': None,
-                                     'immersion': None}
-            print(('Information for objective {} is not defined'.format(objective_name)))
+            objective_information = {'x_offset': 0, 'y_offset': 0, 'z_offset': 0,
+                                     'magnification': None, 'immersion': None}
+            print('Information for objective {} is not defined'.format(objective_name))
         objective_information['name'] = objective_name
         return objective_information
 
-    def update_objective_offset(self, communication_object, x_offset, y_offset, z_offset, objective_name=None):
+    def update_objective_offset(self, communication_object, x_offset, y_offset,
+                                z_offset, objective_name=None):
         """Update offset to correct for parfocality and parcentrality
 
         Input:
@@ -1061,7 +1084,8 @@ class ObjectiveChanger(MicroscopeComponent):
 
          x_offset, y_offset, z_offset: new offset values in absolute coordinates
 
-         objective_name: string with unique name for objective. If None use current objective
+         objective_name: string with unique name for objective.
+         If None use current objective
 
         Output:
          objective_information: dictionary for the current objective in the form:
@@ -1086,7 +1110,8 @@ class ObjectiveChanger(MicroscopeComponent):
             self.objective_information[objective_name]['y_offset'] = y_offset
             self.objective_information[objective_name]['z_offset'] = z_offset
         except KeyError:
-            raise ObjectiveNotDefinedError(message='No objective with name {} defined.'.format(objective_name))
+            raise ObjectiveNotDefinedError(
+                message='No objective with name {} defined.'.format(objective_name))
 
         return self.objective_information[objective_name]
 
@@ -1097,7 +1122,7 @@ class ObjectiveChanger(MicroscopeComponent):
          communication_object: Object that connects to microscope specific software
 
         Output:
-         name: name, magnification, and position of actual objective, objective in imaging position
+         name, magnification, position, and experiment of objective in imaging position
         """
         log_method(self, 'get_information')
         # get name of objective from hardware
@@ -1117,11 +1142,12 @@ class ObjectiveChanger(MicroscopeComponent):
 
         Input:
          magnification: magnification of selected objective as float.
-         Not well defined if multiple objectives with identical magnification are present.
+         Not well defined if multiple objectives with identical magnification exist.
 
-         sample_object: object that has safe coordinates attached. If use_safe_position == True
-         than stage and focus drive will move to this position before magnification is changed
-         to avoid collision between objective and stage.
+         sample_object: object that has safe coordinates attached.
+         If use_safe_position == True than stage and focus drive will move to
+         this position before magnification is changed to avoid collision
+         between objective and stage.
 
          use_safe_position: move stage and focus drive to safe position before switching
          magnification to minimize risk of collision (Default: True)
@@ -1138,12 +1164,14 @@ class ObjectiveChanger(MicroscopeComponent):
             objectives_dict = self.get_all_objectives(communication_object)
             objective = objectives_dict[magnification]
         except KeyError:
-            raise ObjectiveNotDefinedError('No objective with magnification {}'.format(magnification))
+            raise ObjectiveNotDefinedError(
+                'No objective with magnification {}'.format(magnification))
 
         # move to safe position before changing objective
         if use_safe_position:
             sample_object.move_to_safe(load=load, verbose=verbose)
-        objective_name = communication_object.switch_objective(objective['Position'], load=load)
+        objective_name = communication_object.switch_objective(objective['Position'],
+                                                               load=load)
         return objective_name
 
     def change_position(self, position, communication_object, load=True):
@@ -1165,7 +1193,7 @@ class ObjectiveChanger(MicroscopeComponent):
         return objective_name
 
 
-################################################################################################
+#################################################################################
 
 class FocusDrive(MicroscopeComponent):
     """Class to describe and operate focus drive
@@ -1185,8 +1213,8 @@ class FocusDrive(MicroscopeComponent):
          auto_focus_id: unique string to identify autofocus used with focus drive
          (None if no autofocus)
 
-         objective_changer: string with unique id for objective changer assoziated with stage
-         required for par-centrizity correction
+         objective_changer: string with unique id for objective changer assoziated
+         with stage required for par-centrizity correction
 
          microscope_object: microscope component is attached to
 
@@ -1202,7 +1230,8 @@ class FocusDrive(MicroscopeComponent):
         self.max_load_position = max_load_position
         self.min_work_position = min_work_position
 
-        # predefine focus load and work positions as 0 to avoid crashes between objective and stage
+        # predefine focus load and work positions as 0 to avoid crashes
+        # between objective and stage
         self.z_load = None
         self.z_work = None
 
@@ -1232,29 +1261,34 @@ class FocusDrive(MicroscopeComponent):
         log_method(self, 'initialize')
         if 'set_load' in action_list:
             if not test:
-                message.operate_message('Move focus drive {} to load position.'.format(self.get_id()), returnCode=False)
+                message.operate_message('Move focus drive {} to load position.'.format(
+                    self.get_id()), returnCode=False)
             load_pos = self.define_load_position(communication_object)
             if load_pos > self.max_load_position:
                 if test:
                     raise LoadNotDefinedError(
-                        'Load position {} is higher than allowed maximum {}.'.format(load_pos, self.max_load_position))
+                        'Load position {} is higher than allowed maximum {}.'.format(
+                            load_pos, self.max_load_position))
                 else:
-                    message_text = 'Load position {} is higher than allowed maximum {}.'.format(load_pos,
-                                                                                                self.max_load_position)
+                    message_text = \
+                        'Load position {} is higher than allowed maximum {}.'.format(
+                            load_pos, self.max_load_position)
                     return_code = message.error_message(
-                        'Please move objective to load position or cancel program.\nError message:\n"{}"'.format(
+                        'Please move objective to load position or cancel program.\nError message:\n"{}"'.format(  # noqa
                             message_text))
                     if return_code != -1:
                         raise LoadNotDefinedError(
-                            'Load position {} is higher than allowed maximum {}.'.format(load_pos, self.max_load_position))
+                            'Load position {} is higher than allowed maximum {}.'.format(  # noqa
+                                load_pos, self.max_load_position))
 
         if 'set_work' in action_list:
             if not test:
-                message.operate_message('Please move focus drive "{}" to work position.'.format(self.get_id()),
-                                        returnCode=False)
+                message.operate_message(
+                    'Please move focus drive "{}" to work position.'.format(
+                        self.get_id()), returnCode=False)
             work_pos = self.define_work_position(communication_object)
             if work_pos < self.min_work_position:
-                raise WorkNotDefinedError('Work position {} is lower than allowed minimum {}.'.format(
+                raise WorkNotDefinedError('Work position {} is lower than allowed minimum {}.'.format(  # noqa
                     work_pos, self.min_work_position))
 
     def get_abs_position(self, communication_object):
@@ -1296,7 +1330,7 @@ class FocusDrive(MicroscopeComponent):
         z = self.get_abs_position(communication_object)
 
         if self.objective_changer:
-            obj_changer = self.microscope_object.get_microscope_object(self.objective_changer)
+            obj_changer = self.microscope_object.get_microscope_object(self.objective_changer)  # noqa
             obj_info = obj_changer.get_objective_information(communication_object)
             z_focus_offset = obj_info['z_offset']
             focality_corrected = z - z_focus_offset
@@ -1345,15 +1379,6 @@ class FocusDrive(MicroscopeComponent):
         except LoadNotDefinedError as error:
             # add focus drive instance to exception
             raise LoadNotDefinedError(message=error.message, error_component=self)
-        # # move objective to load position and store for future usage
-        # # get objectives before setting work position, because changing objectives will delete focus position in Definite Focus
-        # message.operate_message("Move objective to load position." +
-        #                         '\nObjectives will start moving.' +
-        #                         '\nConfirm objective change in software or touch pad if requested')
-        #
-        # # store current position of focus as load position
-        # z_load = self.define_load_position(communication_object)
-        # z_load = communication_object.move_focus_to_load()
         return z_load
 
     def goto_work(self, communication_object):
@@ -1422,14 +1447,16 @@ class FocusDrive(MicroscopeComponent):
         return self.z_work
 
 
-################################################################################################
+#################################################################################
 
 class AutoFocus(MicroscopeComponent):
     """Class to describe and operate hardware autofocus.
     """
 
-    def __init__(self, auto_focus_id, default_camera=None, objective_changer_instance=None,
-                 default_reference_position=[[50000, 37000, 6900]], microscope_object=None):
+    def __init__(self, auto_focus_id, default_camera=None,
+                 objective_changer_instance=None,
+                 default_reference_position=[[50000, 37000, 6900]],
+                 microscope_object=None):
         """Describe and operate hardware autofocus.
 
         Input:
@@ -1439,10 +1466,11 @@ class AutoFocus(MicroscopeComponent):
 
          default_camera: camera used for live mode during auto-focus
 
-         objective_changer_instance: instance of class ObjectiveChanger connected to this autofocus
+         objective_changer_instance: instance of class ObjectiveChanger
+         which is connected to this autofocus
 
-         default_reference_position: reference position to set parfocality and parcentricity.
-         Used if no reference object (e.g. well center) is used.
+         default_reference_position: reference position to set parfocality and
+         parcentricity. Used if no reference object (e.g. well center) is used.
 
         Output:
          none
@@ -1462,7 +1490,8 @@ class AutoFocus(MicroscopeComponent):
 
         self.use_live_mode = True
 
-        # object from class ImagingSystem (module samples.py) that is used as reference (zero plane) for autofocus
+        # object from class ImagingSystem (module samples.py)
+        # that is used as reference (zero plane) for autofocus
         self.focus_reference_obj_id = None
         self.objective_changer_instance = objective_changer_instance
         self.initialized_objective = None
@@ -1471,7 +1500,8 @@ class AutoFocus(MicroscopeComponent):
         # Save position when autofocus was initialized the first time.
         # This value is used to correct for focus drift
         self._initial_autofocus_position = None
-        # Store difference between _initial_autofocus_position and autofocus position from 'Recall Focus'
+        # Store difference between _initial_autofocus_position
+        # and autofocus position from 'Recall Focus'
         self.last_delta_z = None
         self.microscope_object = microscope_object
 
@@ -1488,7 +1518,8 @@ class AutoFocus(MicroscopeComponent):
         # connect to associated objective changer and retrieve current objective
         # retrieve init_experiment for this objective
         try:
-            init_experiment = self.objective_changer_instance.get_information(communication_object)['experiment']
+            init_experiment = self.objective_changer_instance.get_information(
+                communication_object)['experiment']
             return init_experiment
         except KeyError:
             return 'Not defined'
@@ -1502,14 +1533,16 @@ class AutoFocus(MicroscopeComponent):
         Input:
          communication_object: Object that connects to microscope specific software
 
-         action_list: if list includes 'no_find_surface' auto-focus will not try to find cover slip before operator refocuses
+         action_list: if list includes 'no_find_surface' auto-focus will not try
+         to find cover slip before operator refocuses
 
          no_interaction: no user interaction, no live image
 
-         force_initialization: initialize even if already initialized. If empty no action
+         force_initialization: initialize even if already initialized.
+         If empty no action
 
-         sample_object: ID of plate, plate holder or other sample object the hardware is initialized for.
-         Used for setting up of autofocus
+         sample_object: ID of plate, plate holder or other sample object
+         the hardware is initialized for. Used for setting up of autofocus
 
          verbose: if True, print debug messages (Default: True)
 
@@ -1518,47 +1551,50 @@ class AutoFocus(MicroscopeComponent):
         """
         log_method(self, 'initialize')
         if action_list:
-            # if auto-focus is already initialized, initialize only if 'force_initialization' is set in action_list
-            if not self.get_autofocus_ready(communication_object) or 'force_initialization' in action_list:
+            # if auto-focus is already initialized, initialize
+            # only if 'force_initialization' is set in action_list
+            if not self.get_autofocus_ready(communication_object) or 'force_initialization' in action_list:  # noqa
                 # if auto-focus was on, switch off autofocus
                 auto_focus_status = self.use_autofocus
                 self.set_use_autofocus(False)
 
                 if 'no_interaction' not in action_list:
-                    self.microscope_object.setup_microscope_for_initialization(component_object=self,
-                                                                               experiment=self.get_init_experiment(
-                                                                                            communication_object),
-                                                                               before_initialization=True)
+                    self.microscope_object.setup_microscope_for_initialization(
+                        component_object=self, experiment=self.get_init_experiment(
+                            communication_object), before_initialization=True)
 
                     if reference_object_id:
-                        self.microscope_object.microscope_is_ready(experiment=self.get_init_experiment(communication_object),
-                                                                   component_dict={
-                                                                    self.microscope_object._get_objective_changer_id(
-                                                                        reference_object_id): []},
-                                                                   focus_drive_id=self.microscope_object._get_focus_id(
-                                                                       reference_object_id),
-                                                                   objective_changer_id=self.microscope_object._get_objective_changer_id(
-                                                                       reference_object_id),
-                                                                   safety_object_id=self.microscope_object._get_safety_id(
-                                                                       reference_object_id),
-                                                                   reference_object_id=reference_object_id,
-                                                                   load=False,
-                                                                   make_ready=True,
-                                                                   verbose=verbose)
+                        self.microscope_object.microscope_is_ready(
+                            experiment=self.get_init_experiment(communication_object),
+                            component_dict={
+                                self.microscope_object._get_objective_changer_id(
+                                    reference_object_id): []},
+                            focus_drive_id=self.microscope_object._get_focus_id(
+                                reference_object_id),
+                            objective_changer_id=self.microscope_object._get_objective_changer_id(  # noqa
+                                reference_object_id),
+                            safety_object_id=self.microscope_object._get_safety_id(
+                                reference_object_id),
+                            reference_object_id=reference_object_id,
+                            load=False,
+                            make_ready=True,
+                            verbose=verbose)
 
                     if 'no_find_surface' not in action_list:
                         self.find_surface(communication_object)
                     else:
-                        message.operate_message(message='Please focus on top of cover slip.', returnCode=False)
                         message.operate_message(
-                            message='1) Bring the objective to focus position using the TFT\n2) Click Find Surface in ZenBlue',
+                            message='Please focus on top of cover slip.',
+                            returnCode=False)
+                        message.operate_message(
+                            message='1) Bring the objective to focus position using the TFT\n2) Click Find Surface in ZenBlue',  # noqa
                             returnCode=False)
 
-                    self.microscope_object.setup_microscope_for_initialization(component_object=self,
-                                                                               experiment=self.get_init_experiment(
-                                                                                            communication_object),
-                                                                               before_initialization=False)
-                _z_abs = self.store_focus(communication_object, focus_reference_obj_id=reference_object_id)
+                    self.microscope_object.setup_microscope_for_initialization(
+                        component_object=self, experiment=self.get_init_experiment(
+                            communication_object), before_initialization=False)
+                _z_abs = self.store_focus(communication_object,
+                                          focus_reference_obj_id=reference_object_id)
 
                 # Save position when autofocus was initialized the first time.
                 # This value is used to correct for focus drift
@@ -1572,7 +1608,8 @@ class AutoFocus(MicroscopeComponent):
          communication_object: Object that connects to microscope specific software
 
         Output:
-         positions_dict: dictionary {'absolute': z_abs, 'focality_corrected': z_cor} with focus position in mum
+         positions_dict: dictionary with focus position in mum of the form:
+          {'absolute': z_abs, 'focality_corrected': z_cor}
         """
         log_method(self, 'get_information')
         autofocus_info = {'initial_focus': self._initial_autofocus_position,
@@ -1588,7 +1625,8 @@ class AutoFocus(MicroscopeComponent):
         """Switch on/off the use of auto-focus
 
         Input:
-         settings: dictionary {use_auto_focus: True/False}. If empty do not change setting
+         settings: dictionary {use_auto_focus: True/False}.
+         If empty do not change setting
 
         Output:
          new_settings: dictionary with updated status
@@ -1657,7 +1695,8 @@ class AutoFocus(MicroscopeComponent):
         return z
 
     def set_focus_reference_obj_id(self, focus_reference_obj_id):
-        """Set object from class ImagingSystem (module samples) used as zero plane for autofocus.
+        """Set object from class ImagingSystem (module samples)
+        used as zero plane for autofocus.
 
         Input:
          focus_reference_obj_id: Sample object used as reference for autofocus
@@ -1669,7 +1708,8 @@ class AutoFocus(MicroscopeComponent):
         self.focus_reference_obj_id = focus_reference_obj_id
 
     def get_focus_reference_obj_id(self):
-        """Get object from class ImagingSystem (module samples) used as zero plane for autofocus.
+        """Get object from class ImagingSystem (module samples)
+        used as zero plane for autofocus.
 
         Input:
          none
@@ -1695,12 +1735,14 @@ class AutoFocus(MicroscopeComponent):
         log_method(self, 'store_focus')
         z = communication_object.store_focus()
         self.set_focus_reference_obj_id(focus_reference_obj_id)
-        self.initialized_objective = self.objective_changer_instance.get_objective_information(communication_object)[
-            'name']
-        print(('Autofocus position {} stored for {}.'.format(z, self.initialized_objective)))
+        self.initialized_objective = self.objective_changer_instance.get_objective_information(  # noqa
+            communication_object)['name']
+        print('Autofocus position {} stored for {}.'.format(z,
+                                                            self.initialized_objective))
         return z
 
-    def recall_focus(self, communication_object, reference_object_id, verbose=False, pre_set_focus=True):
+    def recall_focus(self, communication_object, reference_object_id,
+                     verbose=False, pre_set_focus=True):
         """Find difference between stored focus position and actual autofocus position.
         Recall focus will move the focus drive to it's stored position.
         Will try to recover if  autofocus failed.
@@ -1708,45 +1750,53 @@ class AutoFocus(MicroscopeComponent):
         Input:
          communication_object: Object that connects to microscope specific software
 
-         reference_object_id: ID of object of Sample class used to correct for xyz offset between different objectives
+         reference_object_id: ID of object of Sample class used to correct for xyz
+         offset between different objectives
 
          verbose: if True, print debug messages (Default: False)
 
-         pre_set_focus: Move focus to previous auto-focus position. This makes definite focus more robust
+         pre_set_focus: Move focus to previous auto-focus position.
+         This makes definite focus more robust
 
         Output:
-         deltaZ: difference between stored z position of focus drive and position after recall focus
+         deltaZ: difference between stored z position of focus drive
+         and position after recall focus
         """
         log_method(self, 'recall_focus')
         if not self.get_use_autofocus():
-            # Get store difference between _initial_autofocus_position and autofocus position from last 'Recall Focus'
+            # Get store difference between _initial_autofocus_position
+            # and autofocus position from last 'Recall Focus'
             deltaZ = self.last_delta_z
             return deltaZ
 
         try:
             z = communication_object.recall_focus(pre_set_focus=pre_set_focus)
             if verbose:
-                print(('From hardware.FocusDrive.recall_focus: recall_focus = {}'.format(z)))
+                print('From hardware.FocusDrive.recall_focus: recall_focus = {}'.format(z))  # noqa
         except AutofocusNotSetError as error:
-            raise AutofocusNotSetError(message=error.message, error_component=self, focus_reference_obj_id=reference_object_id)
+            raise AutofocusNotSetError(message=error.message, error_component=self,
+                                       focus_reference_obj_id=reference_object_id)
 
         except AutofocusObjectiveChangedError as error:
-            raise AutofocusObjectiveChangedError(message=error.message, error_component=self,
-                                                 focus_reference_obj_id=reference_object_id)
+            raise AutofocusObjectiveChangedError(
+                message=error.message, error_component=self,
+                focus_reference_obj_id=reference_object_id)
 
         except AutofocusError as error:
             log_warning(error.message, 'recall_focus')
             z = communication_object.recover_focus()
             if verbose:
-                print(('From hardware.FocusDrive.recall_focus: recover_focus = {}'.format(z)))
-            z = self.store_focus(communication_object, focus_reference_obj_id=reference_object_id)
+                print('From hardware.FocusDrive.recall_focus: recover_focus = {}'.format(z))  # noqa
+            z = self.store_focus(communication_object,
+                                 focus_reference_obj_id=reference_object_id)
             if verbose:
-                print(('From hardware.FocusDrive.recall_focus: store_focus = {}'.format(z)))
+                print('From hardware.FocusDrive.recall_focus: store_focus = {}'.format(z))  # noqa
             log_message('Autofocus recoverd at {}'.format(z), 'recall_focus')
 
-        # _initial_autofocus_position was saved position when autofocus was initialized the first time.
-        # deltaZ is the difference between the recalled z-position and the saved position
-        # and is identical to focus drift or non-even sample
+        # _initial_autofocus_position was saved position when
+        # autofocus was initialized the first time.
+        # deltaZ is the difference between the recalled z-position and
+        # the saved position and is identical to focus drift or non-even sample
         if self._initial_autofocus_position is not None:
             deltaZ = z - self._initial_autofocus_position
         else:
@@ -1755,18 +1805,17 @@ class AutoFocus(MicroscopeComponent):
         # Store delta_z as backup if auto focus should not be used
         self.last_delta_z = deltaZ
         if verbose:
-            print(('From hardware.FocusDrive.recall_focus: _initial_autofocus_position, = {}, delta = {}'.format(
-                self._initial_autofocus_position, deltaZ)))
+            print(('From hardware.FocusDrive.recall_focus: '
+                   '_initial_autofocus_position, = {}, delta = {}').format(
+                       self._initial_autofocus_position, deltaZ))
         log_message(('Autofocus original position in hardware {}'
                      '\nAutofocus new position in hardware {}'
-                     '\nAutofocus delta position in hardware {}').format(self._initial_autofocus_position, z, deltaZ),
-                    methodName='recall_focus')
+                     '\nAutofocus delta position in hardware {}').format(
+            self._initial_autofocus_position, z, deltaZ), methodName='recall_focus')
         return deltaZ
 
 
-################################################################################################
-
-################################################################################################
+#################################################################################
 
 class Pump(MicroscopeComponent):
     """Class to describe and operate pump
@@ -1859,4 +1908,5 @@ class Pump(MicroscopeComponent):
         log_method(self, 'trigger_pump')
         conPar = self.get_connection()
         seconds = self.get_time()
-        communication_object.trigger_pump(seconds=seconds, port=conPar[0], baudrate=conPar[1])
+        communication_object.trigger_pump(seconds=seconds, port=conPar[0],
+                                          baudrate=conPar[1])

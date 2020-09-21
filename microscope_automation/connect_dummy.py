@@ -16,12 +16,10 @@ except ImportError:
     from pathlib2 import Path
 import os
 
-from .load_image_czi import LoadImageCzi
 from .RS232_dummy import Braintree
 from .automation_exceptions import HardwareError, AutofocusError, \
     AutofocusObjectiveChangedError, AutofocusNotSetError, LoadNotDefinedError,  \
-    WorkNotDefinedError, ExperimentError, ExperimentNotExistError, \
-    HardwareDoesNotExistError, HardwareCommandNotDefinedError
+    WorkNotDefinedError, ExperimentError, ExperimentNotExistError
 
 # if True, print out debug messages
 test_messages = False
@@ -40,8 +38,10 @@ class ConnectMicroscope():
 
         self.Zen = GetActiveObject("Zeiss.Micro.Scripting.ZenWrapperLM")
 
-        # Save stored position. We will use this position to move the objective to this position before recalling this position.
-        # If the stored position is close to the find_surface position, Definite Focus works much faster.
+        # Save stored position. We will use this position to move the objective
+        # to this position before recalling this position.
+        # If the stored position is close to the find_surface position,
+        # Definite Focus works much faster.
         self.DFObjective = None
         self.DFStoredFocus = None
         self.lastKnownFocusPosition = None
@@ -49,11 +49,11 @@ class ConnectMicroscope():
 
         self.log.info('Connected to ZEN')
 
-    ##################################################################################################################
+    ############################################################################
     #
     # Methods to acquire images
     #
-    ##################################################################################################################
+    ############################################################################
 
     def snap_image(self, experiment=None):
         """Snap image with parameters defined in experiment.
@@ -61,15 +61,14 @@ class ConnectMicroscope():
         Acquires single image from experiment (e.g. single slice of stack).
 
         Input:
-         experiment: string with name of experiment as defined within Microscope software
-         If None use active experiment.
+         experiment: string with name of experiment as defined within Microscope
+         software. If None use active experiment.
 
         Output:
          none
         """
         self.log.info('snap image using experiment ', experiment)
 
-        # if method switches objective the stored position for definite focus will be invalid.
         currentObjective = self.get_objective_name()
 
         try:
@@ -83,7 +82,7 @@ class ConnectMicroscope():
             else:
                 exp_class = self.Zen.Acquisition.Experiments.GetByName(experiment)
             # check if experiment exists
-            if exp_class is not None and self.Zen.Acquisition.Experiments.Contains(exp_class):
+            if exp_class is not None and self.Zen.Acquisition.Experiments.Contains(exp_class):  # noqa
                 self.image = self.Zen.Acquisition.AcquireImage_3(exp_class)
             else:
                 ExperimentNotExistError(experiment)
@@ -93,7 +92,7 @@ class ConnectMicroscope():
             raise HardwareError('Error in snap_image.')
 
         # set flag for definite focus if objective was changed
-        if currentObjective != self.get_objective_name() or self.get_objective_name() == '':
+        if currentObjective != self.get_objective_name() or self.get_objective_name() == '':  # noqa
             self.set_autofocus_not_ready()
 
     def live_mode_start(self, experiment=None):
@@ -105,20 +104,14 @@ class ConnectMicroscope():
         Output:
          imgLive: image of type ZenImage
         '''
-        # if method switches objective the stored position for definite focus will be invalid.
         currentObjective = self.get_objective_name()
 
         try:
             if experiment:
                 # get experiment as type ZenExperiment by name
                 exp_class = self.Zen.Acquisition.Experiments.GetByName(experiment)
-                if exp_class is None or not self.Zen.Acquisition.Experiments.Contains(exp_class):
+                if exp_class is None or not self.Zen.Acquisition.Experiments.Contains(exp_class):  # noqa
                     raise ExperimentNotExistError(experiment)
-                # Reason for the duplicate try except block: One specific experiment - WellTile_10x
-                # fails to enter live mode the first time the execution function is called. Hence, it needs
-                # a second call if the first one fails, and that seems to fix the bug.
-                # Note - This is a temporary fix. There is something messed up with the oommunication object.
-                # We will be looking into it further.
                 try:
                     imgLive = self.Zen.Acquisition.StartLive_2(exp_class)
                 except Exception:
@@ -135,7 +128,7 @@ class ConnectMicroscope():
             raise HardwareError('Error in live_mode_start.')
 
         # set flag for definite focus if objective was changed
-        if currentObjective != self.get_objective_name() or self.get_objective_name() == '':
+        if currentObjective != self.get_objective_name() or self.get_objective_name() == '':  # noqa
             self.set_autofocus_not_ready()
 
         return imgLive
@@ -152,7 +145,7 @@ class ConnectMicroscope():
         try:
             if experiment:
                 exp_class = self.Zen.Acquisition.Experiments.GetByName(experiment)
-                if exp_class is None or not self.Zen.Acquisition.Experiments.Contains(exp_class):
+                if exp_class is None or not self.Zen.Acquisition.Experiments.Contains(exp_class):  # noqa
                     raise ExperimentNotExistError(experiment)
                 self.Zen.Acquisition.StopLive_2(exp_class)
             else:
@@ -197,7 +190,8 @@ class ConnectMicroscope():
          test: if True return travel path and do not move stage
 
         Output:
-         xPos, yPos: x and y position of stage in micrometer after stage movement (if test = False)
+         xPos, yPos: x and y position of stage in micrometer after stage movement
+         (if test = False)
 
          x_path, y_path: projected travel path (if test = True)
         '''
@@ -228,7 +222,8 @@ class ConnectMicroscope():
 #
 ################################################################################
     def set_autofocus_ready(self):
-        '''Set flag that auto focus position for DF2 was stored and recall_focus should work.
+        '''Set flag that auto focus position for DF2 was stored
+        and recall_focus should work.
 
         Input:
          none
@@ -239,7 +234,8 @@ class ConnectMicroscope():
         self.autofocusReady = True
 
     def set_autofocus_not_ready(self):
-        '''Set flag that auto focus position for DF2 is not ready and recall_focus will not work.
+        '''Set flag that auto focus position for DF2 is not ready
+        and recall_focus will not work.
 
         Input:
          none
@@ -275,8 +271,9 @@ class ConnectMicroscope():
         # was objective changed since focus was stored?
         if self.DFObjective != objective_name:
             self.set_autofocus_not_ready()
-            raise AutofocusObjectiveChangedError(message='Different objective was used to set focus position.',
-                                                 error_component=objective_name)
+            raise AutofocusObjectiveChangedError(
+                message='Different objective was used to set focus position.',
+                error_component=objective_name)
         return True
 
     def set_last_known_focus_position(self, focusPostion):
@@ -331,7 +328,8 @@ class ConnectMicroscope():
 
     def store_focus(self):
         '''Store actual focus position as offset from coverslip.
-        Stored focus position is lost when switching objective, even when returning to original objective.
+        Stored focus position is lost when switching objective,
+        even when returning to original objective.
 
         Input:
          none
@@ -342,17 +340,15 @@ class ConnectMicroscope():
         # check if correct objective was selected
         if self.get_objective_name() == '':
             self.set_autofocus_not_ready()
-            raise AutofocusError(message='No objective selected to store autofocus position.')
+            raise AutofocusError(
+                message='No objective selected to store autofocus position.')
         try:
             self.Zen.Acquisition.StoreFocus()
             z = self.Zen.Devices.Focus.ActualPosition
         except Exception:
             raise HardwareError('Error in store_focus.')
-        # Get objective used to set Definite Focus (Definite Focus will lose stored focus position after change of objective)
-        self.DFObjective = self.get_objective_name()
 
-        # Save stored position. We will use this position to move the objective to this position before recalling this positions
-        # If the stored position is close to the find_surface position, Definite Focus works much faster.
+        self.DFObjective = self.get_objective_name()
         self.DFStoredFocus = z
         self.set_autofocus_ready()
 
@@ -363,26 +359,20 @@ class ConnectMicroscope():
 
     def recall_focus(self, pre_set_focus=True):
         '''Find stored focus position as offset from coverslip.
-        Stored focus position is lost when switching objective, even when returning to original objective.
+        Stored focus position is lost when switching objective,
+        even when returning to original objective.
 
         Input:
-         pre_set_focus: Move focus to previous auto-focus position. This makes definite focus more robust
+         pre_set_focus: Move focus to previous auto-focus position.
+         This makes definite focus more robust
 
         Output:
          z: position of focus drive after recall focus
         '''
-        # Zen.Acquisition.RecallFocus will fail if Zen cannot find a stored position.
-        # This can happen if the objective was switched.
-        # After each objective switch a new focus position has to be stored within Zen.
-        # We do not know a way to catch a failure directly (tired exception and time out)
-        # Therefore we try to catch common indicators that RecallFocus will fail/failed
-
         # If autofocus is not ready raise exception
         self.get_autofocus_ready()
         # Is z position after RecallFocus the same
         try:
-            # Move the objective to the stored focus position before recalling this positions
-            # If the stored position is close to the find_surface position, Definite Focus works much faster.
             if pre_set_focus:
                 self.move_focus_to(self.DFStoredFocus)
             self.Zen.Acquisition.RecallFocus()
@@ -405,7 +395,6 @@ class ConnectMicroscope():
         Output:
          zPos: position of focus drive in micrometer
         '''
-        # Get current stage position
         try:
             zPos = self.Zen.Devices.Focus.ActualPosition
             print(('Focus position is {}'.format(zPos)))
@@ -419,19 +408,12 @@ class ConnectMicroscope():
         Input:
          zPos, yPos: new focus position in micrometers.
         '''
-
-        # an alternative to set the position
         try:
             self.Zen.Devices.Focus.TargetPosition = zPos
-#             print ('2.1: ID for self.Zen.Devices.Focus.ActualPosition: {}'.format(id(self.Zen.Devices.Focus.ActualPosition)))
             self.Zen.Devices.Focus.Apply()
-#             print ('2.2: ID for self.Zen.Devices.Focus.ActualPosition: {}'.format(id(self.Zen.Devices.Focus.ActualPosition)))
-            # check new position
             zFocus = self.Zen.Devices.Focus.ActualPosition
-#             print ('2.3 ID for self.Zen.Devices.Focus.ActualPosition: {}'.format(id(self.Zen.Devices.Focus.ActualPosition)))
         except Exception:
             raise HardwareError('Error in move_focus_to.')
-        # gives type error
 
         return zFocus
 
@@ -476,11 +458,13 @@ class ConnectMicroscope():
         # check if load position is defined
         if self.zLoad is None:
             self.log.error('Load position not defined')
-            raise LoadNotDefinedError('Tried to move focus drive to load position, but load position was not defined.')
+            raise LoadNotDefinedError("Tried to move focus drive to load position,"
+                                      "but load position was not defined.")
 
         if self.zLoad > 1000:
             self.log.error('Load position too high')
-            raise LoadNotDefinedError('Tried to move focus drive to load position, but load position was too high.')
+            raise LoadNotDefinedError("Tried to move focus drive to load position,"
+                                      "but load position was too high.")
 
         # move to load position if defined
         zFocus = self.move_focus_to(self.zLoad)
@@ -501,7 +485,8 @@ class ConnectMicroscope():
         # check if load position is defined
         if self.zWork is None:
             self.log.error('Work position not defined')
-            raise WorkNotDefinedError('Tried to move focus drive to work position, but work position was not defined.')
+            raise WorkNotDefinedError("Tried to move focus drive to work position,"
+                                      "but work position was not defined.")
 
         # move to load position if defined
         zFocus = self.move_focus_to(self.zWork)
@@ -527,9 +512,7 @@ class ConnectMicroscope():
          objectives_dict: dictionary of all objectives mounted at microscope
          in form {'magnification': {'Position': position, 'Name': name}
         '''
-
         try:
-            # retrieve ZEN ObjectiveChanger object
             objective_changer = self.Zen.Devices.ObjectiveChanger
             objectives_dict = {}
 
@@ -559,33 +542,21 @@ class ConnectMicroscope():
         Output:
          objectiveName: name of new objective
         '''
-        # move focus drive to load position
         focus = self.get_focus_pos()
         if load:
             self.move_focus_to_load()
-
-        # get name of original objective. We have to let autofocus know if we really changed the objective
         originalObjectiveName = self.get_objective_name()
 
         try:
-            # retrieve ZEN ObjectiveChanger object
             objRevolver = self.Zen.Devices.ObjectiveChanger
-
-            # switch objective
             objRevolver.TargetPosition = targetPosition
             objRevolver.Apply()
-
-            # get name of new objective
             objectiveName = self.get_objective_name()
         except Exception:
             raise HardwareError('Error in switch_objective.')
 
-        # move focus drive back to original position
         self.move_focus_to(focus)
-
-        # check if objective was really changed
         if objectiveName != originalObjectiveName:
-            # because objectives where changed the stored focus position for definite focus is no longer available
             self.set_autofocus_not_ready()
 
         return objectiveName
@@ -600,10 +571,7 @@ class ConnectMicroscope():
          magnification: magnification of actual objective, objective in imaging position
         '''
         try:
-            # retrieve ZEN ObjectiveChanger object
             objRevolver = self.Zen.Devices.ObjectiveChanger
-
-            # get magnification
             magnification = objRevolver.Magnification
         except Exception:
             raise HardwareError('Error in get_objective_magnification.')
@@ -622,8 +590,8 @@ class ConnectMicroscope():
             # retrieve ZEN ObjectiveChanger object
             objRevolver = self.Zen.Devices.ObjectiveChanger
 
-            # if name == None, automation software will stop later on, using empty string instead
-            # This is a temp fix. See jira
+            # if name == None, automation software will stop later on,
+            # using empty string instead. This is a temp fix. See jira
             name = objRevolver.ActualPositionName
             if name is None:
                 name = ''
@@ -807,8 +775,9 @@ class ConnectMicroscope():
 
 class ExperimentDummy():
 
-    TAG_PATH_TILE_CENTER_XY = '/HardwareExperiment/ExperimentBlocks/AcquisitionBlock' \
-        '/SubDimensionSetups/RegionsSetup/SampleHolder/TileRegions/TileRegion/CenterPosition'
+    TAG_PATH_TILE_CENTER_XY = '/HardwareExperiment/ExperimentBlocks/' \
+        'AcquisitionBlock/SubDimensionSetups/RegionsSetup/SampleHolder/' \
+        'TileRegions/TileRegion/CenterPosition'
     TAG_PATH_TILE_CENTER_Z = '/HardwareExperiment/ExperimentBlocks/AcquisitionBlock' \
         '/SubDimensionSetups/RegionsSetup/SampleHolder/TileRegions/TileRegion/Z'
 
@@ -816,7 +785,8 @@ class ExperimentDummy():
         """Initializing the experiment class
 
         Input:
-         experiment_name: Name of the experiment as defined in the Zen software & preference file
+         experiment_name: Name of the experiment as defined in the Zen software
+         & preference file
 
         Output:
          prefs: the preference file for the workflow
@@ -829,7 +799,8 @@ class ExperimentDummy():
             self.tree = None
 
     def experiment_exists(self):
-        """Function to check if the experiment name provided in the preference file exists in the Zen software
+        """Function to check if the experiment name provided in the preference
+        file exists in the Zen software
 
         Input:
          none
@@ -837,9 +808,7 @@ class ExperimentDummy():
         Output:
          a boolean indicating if the experiment exists or not
         """
-        # log.debug("Experiment path: {}".format(self.experiment_path))
         experiment_exists = Path(self.experiment_path).exists()
-        # print('Experiment {} exists: {}'.format(self.experiment_path, experiment_exists))
         return experiment_exists
 
     def update_tag_value(self, tag_path, new_value):
@@ -859,7 +828,10 @@ class ExperimentDummy():
             tag[0].text = new_value
             self.tree.write(self.experiment_path)
         except Exception as err:
-            raise ValueError("Updating tag '{}' for experiment {} raised the error: {}".format(tag_path, self.experiment_path, err.strerror))
+            raise ValueError(("Updating tag '{}' for experiment {} "
+                             "raised the error: {}").format(tag_path,
+                                                            self.experiment_path,
+                                                            err.strerror))
 
     def is_tile_scan(self):
         '''Test if experiment is tile scan.
@@ -877,8 +849,8 @@ class ExperimentDummy():
         return is_tile_scan
 
     def update_tile_positions(self, x_value, y_value, z_value):
-        """In the tile function, correct the hard coded values of the tile region using the values from
-        the automation software
+        """In the tile function, correct the hard coded values of
+        the tile region using the values from the automation software.
 
         Input:
          x_value: float (x - coordinate)
@@ -919,7 +891,8 @@ class ExperimentDummy():
         '''
         root = self.tree.getroot()
         # retrieve all objective changers. Use only first
-        objective_changer = root.findall(".//ParameterCollection[@Id = 'MTBObjectiveChanger']")[0]
+        objective_changer = root.findall(".//ParameterCollection[@Id ="
+                                         " 'MTBObjectiveChanger']")[0]
         position = int(objective_changer.find('Position').text)
         return position
 
@@ -1022,7 +995,8 @@ class MicroscopeStatus(object):
     def objective_position(self):
         '''Get position for objective in objective changer'''
         if test_messages:
-            print(('MicroscopeStatus returned objective_position as {}'.format(self._objective_position)))
+            print(('MicroscopeStatus returned objective_position as {}'.format(
+                self._objective_position)))
         return self._objective_position
 
     @objective_position.setter
@@ -1030,13 +1004,15 @@ class MicroscopeStatus(object):
         '''Set position for objective in objective changer'''
         self._objective_position = objective_position
         if test_messages:
-            print(('MicroscopeStatus set objective_position as {}'.format(self._objective_position)))
+            print(('MicroscopeStatus set objective_position as {}'.format(
+                self._objective_position)))
 
     @property
     def objective_name(self):
         '''Get name for actual objective'''
         if test_messages:
-            print(('MicroscopeStatus returned objective_name as {}'.format(self._objective_name)))
+            print(('MicroscopeStatus returned objective_name as {}'.format(
+                self._objective_name)))
         return self._objective_name
 
     @objective_name.setter
@@ -1044,7 +1020,8 @@ class MicroscopeStatus(object):
         '''Set name for actual objective'''
         self._objective_name = objective_name
         if test_messages:
-            print(('MicroscopeStatus set objective_name as {}'.format(self._objective_name)))
+            print(('MicroscopeStatus set objective_name as {}'.format(
+                self._objective_name)))
 
 
 class Focus(object):
@@ -1192,7 +1169,8 @@ class Acquisition(object):
             self._microscope_status.objective_name = 'Plan-Apochromat 20x/0.8 M27'
             self._microscope_status.objective_position = 2
         if '100x' in experiment:
-            self._microscope_status.objective_name = 'C-Apochromat 100x/1.25 W Korr UV VIS IR'
+            self._microscope_status.objective_name = \
+                'C-Apochromat 100x/1.25 W Korr UV VIS IR'
             self._microscope_status.objective_position = 3
 
     def Execute(self, experiment):
@@ -1313,7 +1291,8 @@ class Application(object):
         print(("Test mode: Running Macro: ", macro_name))
 
     def RunMacro_2(self, macro_name, macro_params):
-        print(("Test mode: Running Macro: " + macro_name + " | Parameter: " + macro_params[0]))
+        print(("Test mode: Running Macro: " + macro_name + " | Parameter: "
+               + macro_params[0]))
 
 
 ######################################################################################

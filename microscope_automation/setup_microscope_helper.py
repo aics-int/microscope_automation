@@ -5,13 +5,6 @@ Split into it's own module: May 21, 2020
 
 @author: winfriedw
 """
-# import standard Python modules
-# import external modules written for MicroscopeAutomation
-# from . import preferences
-# from . import hardware
-# from . import samples
-# from . import automation_messages_form_layout as message
-# from .get_path import get_hardware_settings_path, get_colony_file_path
 from . import hardware_components
 
 # create logger
@@ -35,16 +28,18 @@ def setup_cameras(specs, microscope):
     if cameras:
         for name, camera in cameras.items():
             try:
-                pixel_number = (int(camera['pixelNumber_x']), int(camera['pixelNumber_x']))
+                pixel_number = (int(camera['pixelNumber_x']),
+                                int(camera['pixelNumber_x']))
             except Exception:
                 pixel_number = (0, 0)
-            camera_object = hardware_components.Camera(name,
-                                                       pixel_size=(float(camera['pixelSize_x']), float(camera['pixelSize_y'])),
-                                                       pixel_number=pixel_number,
-                                                       pixel_type=camera['pixelType'],
-                                                       name=camera['name'],
-                                                       detector_type=camera['detectorType'],
-                                                       manufacturer=camera['manufacturer'])
+            camera_object = hardware_components.Camera(
+                name,
+                pixel_size=(float(camera['pixelSize_x']), float(camera['pixelSize_y'])),
+                pixel_number=pixel_number,
+                pixel_type=camera['pixelType'],
+                name=camera['name'],
+                detector_type=camera['detectorType'],
+                manufacturer=camera['manufacturer'])
             microscope.add_microscope_object(camera_object)
 
 
@@ -84,12 +79,13 @@ def setup_stages(specs, microscope):
     stages_specifications = specs.getPref('Stages')
     if stages_specifications:
         for name, stage in stages_specifications.items():
-            stage_object = hardware_components.Stage(stage_id=name,
-                                                     safe_area=stage['SafeArea'],
-                                                     safe_position=stage['SafePosition'],
-                                                     objective_changer=stage['ObjectiveChanger'],
-                                                     default_experiment=stage['DefaultExperiment'],
-                                                     microscope_object=microscope)
+            stage_object = hardware_components.Stage(
+                stage_id=name,
+                safe_area=stage['SafeArea'],
+                safe_position=stage['SafePosition'],
+                objective_changer=stage['ObjectiveChanger'],
+                default_experiment=stage['DefaultExperiment'],
+                microscope_object=microscope)
             microscope.add_microscope_object(stage_object)
 
 
@@ -106,12 +102,13 @@ def setup_focus_drive(specs, microscope, obj_changer_id=None):
     """
     focus_specifications = specs.getPrefAsMeta('Focus')
     if focus_specifications:
-        focus_drive_object = hardware_components.FocusDrive(focus_drive_id=focus_specifications.getPref('Name'),
-                                                            max_load_position=focus_specifications.getPref('MaxLoadPosition'),
-                                                            min_work_position=focus_specifications.getPref('MinWorkPosition'),
-                                                            auto_focus_id=focus_specifications.getPref('AutoFocus'),
-                                                            objective_changer=obj_changer_id,
-                                                            microscope_object=microscope)
+        focus_drive_object = hardware_components.FocusDrive(
+            focus_drive_id=focus_specifications.getPref('Name'),
+            max_load_position=focus_specifications.getPref('MaxLoadPosition'),
+            min_work_position=focus_specifications.getPref('MinWorkPosition'),
+            auto_focus_id=focus_specifications.getPref('AutoFocus'),
+            objective_changer=obj_changer_id,
+            microscope_object=microscope)
         microscope.add_microscope_object(focus_drive_object)
 
 
@@ -119,22 +116,23 @@ def setup_obj_changer(specs, microscope):
     """Setup objective changer and add to microscope object
 
     Input:
-     specs: hardware specifications which info on objective changer will be retrieved from
+     specs: hardware specifications from which objective changer info will be retrieved
 
      microscope: microscope object which objective changer will be added to
 
     Output:
-     objective_changer_object: instance of ObjectiveChanger which was just added to microscope
+     objective_changer_object: instance of ObjectiveChanger added to microscope
     """
     obj_changer_specifications = specs.getPrefAsMeta('ObjectiveChanger')
     objective_changer_object = None
     if obj_changer_specifications:
         objective_changer_object = \
-            hardware_components.ObjectiveChanger(objective_changer_id=obj_changer_specifications.getPref('Name'),
-                                                 n_positions=obj_changer_specifications.getPref('Positions'),
-                                                 objectives=obj_changer_specifications.getPref('Objectives'),
-                                                 ref_objective=obj_changer_specifications.getPref('ReferenceObjective'),
-                                                 microscope_object=microscope)
+            hardware_components.ObjectiveChanger(
+                objective_changer_id=obj_changer_specifications.getPref('Name'),
+                n_positions=obj_changer_specifications.getPref('Positions'),
+                objectives=obj_changer_specifications.getPref('Objectives'),
+                ref_objective=obj_changer_specifications.getPref('ReferenceObjective'),
+                microscope_object=microscope)
         microscope.add_microscope_object(objective_changer_object)
 
     return objective_changer_object
@@ -155,11 +153,12 @@ def setup_autofocus(specs, microscope, obj_changer=None):
     """
     autofocus_specifications = specs.getPrefAsMeta('AutoFocus')
     if autofocus_specifications:
-        autofocus_object = hardware_components.AutoFocus(auto_focus_id=autofocus_specifications.getPref('Name'),
-                                                         default_camera=autofocus_specifications.getPref('DefaultCamera'),
-                                                         objective_changer_instance=obj_changer,
-                                                         default_reference_position=autofocus_specifications.getPref(
-                                                         'DefaultReferencePosition'))
+        autofocus_object = hardware_components.AutoFocus(
+            auto_focus_id=autofocus_specifications.getPref('Name'),
+            default_camera=autofocus_specifications.getPref('DefaultCamera'),
+            objective_changer_instance=obj_changer,
+            default_reference_position=autofocus_specifications.getPref(
+                'DefaultReferencePosition'))
 
         microscope.add_microscope_object(autofocus_object)
 
@@ -179,8 +178,9 @@ def setup_pump(specs, microscope):
     """
     pump_specifications = specs.getPrefAsMeta('Pump')
     if pump_specifications:
-        pump_object = hardware_components.Pump(pump_id=pump_specifications.getPref('Name'),
-                                               seconds=pump_specifications.getPref('TimePump'),
-                                               port=pump_specifications.getPref('ComPortPump'),
-                                               baudrate=pump_specifications.getPref('BaudratePump'))
+        pump_object = hardware_components.Pump(
+            pump_id=pump_specifications.getPref('Name'),
+            seconds=pump_specifications.getPref('TimePump'),
+            port=pump_specifications.getPref('ComPortPump'),
+            baudrate=pump_specifications.getPref('BaudratePump'))
         microscope.add_microscope_object(pump_object)

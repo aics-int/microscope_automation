@@ -1,7 +1,6 @@
 from .setup_microscope_helper import setup_cameras, setup_pump, setup_stages, \
     setup_autofocus, setup_obj_changer, setup_focus_drive, setup_safe_areas
 from . import hardware_components
-from . import automation_exceptions as ae
 from .get_path import get_hardware_settings_path, get_experiment_path
 from . import preferences
 from .hardware_control import BaseMicroscope
@@ -23,7 +22,7 @@ def setup_microscope(prefs):
     try:
         specs = preferences.Preferences(path_microscope_specs)
     except Exception as e:
-        print (e)
+        print(e)
         # use data from development environment if not using real setup
         pathMicroscopeSpecs_RD = '../GeneralSettings/microscopeSpecifications.yml'
         specs = preferences.Preferences(pathMicroscopeSpecs_RD)

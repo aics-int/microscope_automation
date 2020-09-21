@@ -23,7 +23,8 @@ class Preferences:
 
          prefDict: dictionary with preferences (Default = None)
 
-         parentPrefs: Preferences object that was source for prefDict. This will allow access to global preferences, even working with local subset.
+         parentPrefs: Preferences object that was source for prefDict.
+         This will allow access to global preferences, even working with local subset.
 
         Output:
          Object of class preferences
@@ -34,7 +35,8 @@ class Preferences:
         # check for valid input
         # We should add checking for valid filename etc.
         # Check that either one field is None or the other is None, not both (xor)
-        assert (prefPath is None) ^ (prefDict is None), 'One and only one preference option must be specified'
+        assert (prefPath is None) ^ (prefDict is None), \
+            'One and only one preference option must be specified'
 
         if prefPath is not None:
             self.logger.info('read preferences from ' + prefPath)
@@ -53,22 +55,23 @@ class Preferences:
         self.logger.info('add parent preferences set')
         self.parentPrefs = parentPrefs
 
-
     def printPrefs(self):
         print((self.prefs))
 
     def getParentPrefs(self):
-        '''preferences objects that are created from a subset of preferences, keep a reference to the original preferences set.
+        '''preferences objects that are created from a subset of preferences,
+        keep a reference to the original preferences set.
 
         Input:
          none
 
         Output:
-         parentPrefs: Object of class preferences of preferences that where source for current subset of preferences.
+         parentPrefs: Object of class preferences of preferences that where
+         source for current subset of preferences.
         '''
         return self.parentPrefs
 
-    def getPref(self, name, validValues = None):
+    def getPref(self, name, validValues=None):
         '''Return value for key 'name' in preferences.
 
         Input:
@@ -93,10 +96,10 @@ class Preferences:
         if validValues is not None:
             if isinstance(pref, list):
                 while not (set(pref) < set(validValues)):
-                    pref = [pull_down_select_dialog(validValues, "Please select valid value for preference key {},\ninstead of {}\nor exit program by pressing 'Cancel'.".format(name, pref))]
+                    pref = [pull_down_select_dialog(validValues, "Please select valid value for preference key {},\ninstead of {}\nor exit program by pressing 'Cancel'.".format(name, pref))]  # noqa
             else:
                 while pref not in validValues:
-                    pref = pull_down_select_dialog(validValues, "Please select valid value for preference key {},\ninstead of {}\nor exit program by pressing 'Cancel'.".format(name, pref))
+                    pref = pull_down_select_dialog(validValues, "Please select valid value for preference key {},\ninstead of {}\nor exit program by pressing 'Cancel'.".format(name, pref))  # noqa
         return pref
 
     def getPrefAsMeta(self, name):
@@ -120,9 +123,10 @@ class Preferences:
 
     # TODO: Add capacity to save preferences
 
+
 if __name__ == '__main__':
-    prefPath='../GeneralSettings/preferences.yml'
-    meta=Preferences(prefPath)
+    prefPath = '../GeneralSettings/preferences.yml'
+    meta = Preferences(prefPath)
     print((meta.getPref('PathMicroscopeSpecs')))
     print((meta.getPref('ExperimentsScanBackground')))
 
@@ -130,6 +134,6 @@ if __name__ == '__main__':
     print((metaObject.getPref('Execute')))
     print((metaObject.getParentPrefs()))
     print((metaObject.getPref('PathDailyFolder')))
-    print((metaObject.getPref('Tile', validValues = ['None', 'Fixed', 'Size'])))
-    print((metaObject.getPref('Tile', validValues = ['ThrowError'])))
+    print((metaObject.getPref('Tile', validValues=['None', 'Fixed', 'Size'])))
+    print((metaObject.getPref('Tile', validValues=['ThrowError'])))
     print('Done')

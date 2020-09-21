@@ -33,6 +33,7 @@ def add_suffix(filePath, suffix):
     newFilePath = split_path[0] + '_' + suffix + split_path[1]
     return newFilePath
 
+
 # TODO: This should be an object
 def set_pref_file(prefs):
     """
@@ -71,7 +72,7 @@ def get_valid_path_from_prefs(prefs, key, search_dir=True, validate=False):
 
     return_path = ''
     for path in path_list:
-        # For Zen Black implementation, there is no experiment path, hence it is left as "NA"
+        # For Zen Black implementation, there is no experiment path, hence "NA"
         if path == 'NA':
             return path
         if os.path.exists(path):
@@ -86,7 +87,8 @@ def get_valid_path_from_prefs(prefs, key, search_dir=True, validate=False):
     assert len(return_path), "No valid path found in preferences for key: " + key
     return return_path
     if validate:
-        assert return_path is not None, "No valid path found in preferences for key: " + key
+        assert return_path is not None, \
+            "No valid path found in preferences for key: " + key
     return return_path
 
 
@@ -124,10 +126,11 @@ def get_daily_folder(prefs, barcode=None):
     Output:
      folderPath: path to daily folder. No '/' at end.
     """
-    # Add the microscope name level in the folder structure ot make it more aligned with pipeline & FMS standard
+    # Add the microscope name level in the folder structure
+    # to make it more aligned with pipeline & FMS standard
     try:
         microscope_name = prefs.getPref('Info')['System']
-    except:
+    except KeyError:
         microscope_name = "000"
     if barcode is None:
         # get today's date and construct folder name
@@ -160,13 +163,11 @@ def get_position_csv_path(prefs):
     Output:
      return: filepaths for the files
     """
-    # 1. To store the list of positions in the format specific to Zen Blue software for 100X imaging.
     filename_pos = Path(prefs.getPref('PositionCsv'))
     filename_wellid = Path(filename_pos.stem + '_wellid.csv')
     filename_failed = Path('failed_wells.csv')
     position_csv_path = daily_folder_path / filename_pos
     failed_csv_path = daily_folder_path / filename_failed
-    # 2. To store positions and respective well IDs for post processing (splitting and aligning)
     position_wellid_csv_path = daily_folder_path / filename_wellid
     return position_csv_path, position_wellid_csv_path, failed_csv_path
 
@@ -180,19 +181,12 @@ def get_log_file_path(prefs):
     Output:
      logFile: path to log file
     """
-
     # get today's date and construct folder name
     today = date.today()
     file_name = str(today.year) + '_' + str(today.month) + '_' + str(today.day) + '.log'
     log_file_folder = get_valid_path_from_prefs(prefs, 'LogFilePath', search_dir=True)
     log_file_path = os.path.normpath(os.path.join(log_file_folder, file_name))
 
-    # test if folder exists, if not, create folder
-    # if prefs.getPref('LogFilePath') is None:
-    #     raise ValueError("No valid path found in preferences for key: LogFilePath")
-    # log_file_path = os.path.normpath(os.path.join(prefs.getPref('LogFilePath'), file_name))
-    # folderPath = os.path.dirname(log_file_path)
-    # test if folder exists, if not, create folder
     if not os.path.isdir(log_file_folder):
         os.makedirs(log_file_folder)
     return log_file_path
@@ -207,7 +201,8 @@ def get_meta_data_path(prefs):
     Output:
      meta_data_file: path to log file
     """
-    meta_data_file = os.path.normpath(os.path.join(daily_folder_path, prefs.getPref('MetaDataPath')))
+    meta_data_file = os.path.normpath(os.path.join(daily_folder_path,
+                                                   prefs.getPref('MetaDataPath')))
     folder_path = os.path.dirname(meta_data_file)
     # test if folder exists, if not, create folder
     if not os.path.isdir(folder_path):
@@ -227,15 +222,17 @@ def get_experiment_path(prefs, dir=False):
     Output:
      experiment_path: path to experiment
     """
-    experiment_dir_path = get_valid_path_from_prefs(prefs, 'PathExperiments', search_dir=True, validate=False)
-    # For Zen Black implementation, there is no experiment path, hence it is left as "NA"
+    experiment_dir_path = get_valid_path_from_prefs(prefs, 'PathExperiments',
+                                                    search_dir=True, validate=False)
+    # For Zen Black implementation, there is no experiment path, hence "NA"
     if experiment_dir_path == 'NA':
         return experiment_dir_path
     if dir:
         experiment_path = os.path.normpath(experiment_dir_path)
     else:
         experiment_name = prefs.getPref('Experiment')
-        experiment_path = os.path.normpath(os.path.join(experiment_dir_path, experiment_name))
+        experiment_path = os.path.normpath(os.path.join(experiment_dir_path,
+                                                        experiment_name))
 
     return experiment_path
 
@@ -263,9 +260,11 @@ def get_recovery_settings_path(prefs):
      return: file path
     """
     time_stamp = time.time()
-    formatted_time_stamp = datetime.datetime.fromtimestamp(time_stamp).strftime('%Y-%m-%d_%H-%M-%S')
+    formatted_time_stamp = datetime.datetime.fromtimestamp(
+        time_stamp).strftime('%Y-%m-%d_%H-%M-%S')
     filename = 'Plate_' + formatted_time_stamp + '.pickle'
-    file_dir = get_valid_path_from_prefs(prefs, 'RecoverySettingsFilePath', search_dir=True)
+    file_dir = get_valid_path_from_prefs(prefs, 'RecoverySettingsFilePath',
+                                         search_dir=True)
     file_path = os.path.normpath(os.path.join(file_dir, filename))
     return file_path
 
@@ -292,7 +291,8 @@ def get_colony_dir_path(prefs):
 
 
 def get_colony_remote_dir_path(prefs):
-    """Return path to directory with .csv file with colony positions and features on network.
+    """Return path to directory with .csv file with colony positions and
+    features on network.
 
     Input:
      prefs: Dictionary with preferences
@@ -300,10 +300,11 @@ def get_colony_remote_dir_path(prefs):
     Output:
      colonyRemoteDir: path to log file
     """
-    colony_dir_path = get_valid_path_from_prefs(prefs, 'ColonyFileFolder', search_dir=True)
+    colony_dir_path = get_valid_path_from_prefs(prefs, 'ColonyFileFolder',
+                                                search_dir=True)
     if colony_dir_path is None:
         colony_dir_path = ''
-    #     return os.path.normpath(os.path.join (get_daily_folder(prefs), colony_dir_path))
+
     return colony_dir_path
 
 
@@ -348,7 +349,8 @@ def get_references_path(prefs):
     Output:
      references_path: path to directory for reference images for specific well
     """
-    references_path = os.path.normpath(os.path.join(daily_folder_path, prefs.getPref('ReferenceDirPath')))
+    references_path = os.path.normpath(os.path.join(daily_folder_path,
+                                                    prefs.getPref('ReferenceDirPath')))
     # create directory if not existent
     if not os.path.isdir(references_path):
         os.makedirs(references_path)
@@ -384,7 +386,8 @@ def get_calibration_path(prefs):
     Output:
      calibration_path: path to calibration directory
     """
-    calibration_path = get_valid_path_from_prefs(prefs, key='PathCalibration', search_dir=True)
+    calibration_path = get_valid_path_from_prefs(prefs, key='PathCalibration',
+                                                 search_dir=True)
     return calibration_path
 
 

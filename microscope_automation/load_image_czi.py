@@ -26,11 +26,14 @@ class LoadImageCzi():
         file_path = image.get_meta('aics_filePath')
         importer = AICSImage(file_path)
         # Reason for getting the XY slice and in that order
-        # In the current version of the automation software, we are processing only single channel 2D images.
+        # In the current version of the automation software,
+        # we are processing only single channel 2D images.
         # When this functionality is extended, it will be added to this file as well.
-        # Essentially ImageAICS is a specific use case of aicsimage module (2D single channel czi images)
-        # As for the ordering the microscope, camera, stage and automation software all have their versions of the
-        # ordering. This ordering currently works best for image acquisition and tiling.
+        # Essentially ImageAICS is a specific use case of aicsimage module
+        # (2D single channel czi images)
+        # As for the ordering the microscope, camera, stage, and
+        # automation software all have their versions of the ordering.
+        # This ordering currently works best for image acquisition and tiling.
         image_data = importer.get_image_data('XY')
         image.add_data(image_data)
         if get_meta_data:
@@ -56,8 +59,8 @@ class LoadImageCzi():
 
 
 if __name__ == '__main__':
-    meta_data = {'aics_filePath': 'D:\Winfried\Eclipse_workspace_012419\microscopeautomation\data\B10_0002_00.czi'}
-    image = ImageAICS(meta = meta_data)
+    meta_data = {'aics_filePath': 'D:\Winfried\Eclipse_workspace_012419\microscopeautomation\data\B10_0002_00.czi'}  # noqa
+    image = ImageAICS(meta=meta_data)
     rz = LoadImageCzi()
     image = rz.load_image(image, True)
     plt.imshow(image.get_data())
