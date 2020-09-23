@@ -14,15 +14,15 @@ import numpy as np
 import matplotlib.pyplot as plt
 
 # import modules from project MicroscopeAutomation
-from automation_exceptions import HardwareError, LoadNotDefinedError, WorkNotDefinedError, \
+from .automation_exceptions import HardwareError, LoadNotDefinedError, WorkNotDefinedError, \
     HardwareCommandNotDefinedError, ExperimentNotExistError
-from slidebook_experiment_info import SlidebookExperiment
+from .slidebook_experiment_info import SlidebookExperiment
 from microscope_automation.image_AICS import ImageAICS
 
 try:
-    from RS232 import Braintree
+    from .RS232 import Braintree
 except ImportError:
-    from RS232_dummy import Braintree
+    from .RS232_dummy import Braintree
 
 # Create Logger
 log = logging.getLogger('microscopeAutomation connect_slidebook')
