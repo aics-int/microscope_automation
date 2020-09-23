@@ -1,0 +1,16 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Script Version="1.0">
+  <Language>Python</Language>
+  <Text># *************** Find Focus ************************
+Zen.Acquisition.FindSurface()
+Zen.Acquisition.FindAutofocus(Zen.Acquisition.Experiments.ActiveExperiment)
+Zen.Acquisition.StoreFocus()
+# *************** End of Code Block *****************
+</Text>
+  <Author></Author>
+  <Description></Description>
+  <ApplicationName></ApplicationName>
+  <Keywords></Keywords>
+  <Row>6</Row>
+  <Column>1</Column>
+</Script>

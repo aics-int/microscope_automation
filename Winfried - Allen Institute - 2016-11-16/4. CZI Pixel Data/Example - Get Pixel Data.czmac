@@ -1,0 +1,49 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Script Version="1.0">
+  <Language>Python</Language>
+  <Text># Example - Get Pixel Data.czmac
+# v0.1  2016-11-16  JSM
+
+#--- get active image ---
+image = Zen.Application.Documents.ActiveDocument
+pixType = image.Metadata.PixelType
+
+#if((image != None) and (image.IsZenImage)):
+#--- Get pixel values of the entire image ---
+#pixelValues = image.CopyPixelsToArray(ZenPixelType.Gray8)
+pixelValues = image.CopyPixelsToArray(pixType)
+sizeImagePixels = pixelValues.Length
+
+#--- Get pixel values of an image region (upper-left quadrant) ---
+width = image.Bounds.SizeX
+height = image.Bounds.SizeY
+#right = (image.Bounds.SizeX / 2) - 1
+#bottom = (image.Bounds.SizeY / 2) - 1
+right = (image.Bounds.SizeX / 2)
+bottom = (image.Bounds.SizeY / 2)
+#--- Create XY Image Sub Region Strings (e.g. "X(0-234)|Y(0-238)") ---
+strRegion = "X(0-" + str(right) + ")|Y(0-" + str(bottom) + ")"
+#--- Get the pixel data ---
+pixelValues_Region = image.CopyPixelsToArray(strRegion, pixType)
+sizeImagePixels_Region = pixelValues_Region.Length
+
+strInfo = "PIXEL SIZES\nEntire Image: " + str(sizeImagePixels) + " bytes"
+strInfo += "\nImage Dimensions: " + str(width) + "x" + str(height)
+strInfo += "\nImage Region: " + str(sizeImagePixels_Region) + " bytes"
+strInfo += "\nRegion String: " + strRegion
+strInfo += "\n" + str(sizeImagePixels) + " / 4 = " + str(sizeImagePixels / 4)
+if(sizeImagePixels_Region == (sizeImagePixels / 4)):
+    strInfo += " (as expected)"
+else:
+    strInfo += " (unexpected)"
+strInfo += "\nPixel Type = " + str(pixType)
+print strInfo
+Zen.Application.Pause(strInfo)
+</Text>
+  <Author></Author>
+  <Description></Description>
+  <ApplicationName></ApplicationName>
+  <Keywords></Keywords>
+  <Row>1</Row>
+  <Column>12</Column>
+</Script>

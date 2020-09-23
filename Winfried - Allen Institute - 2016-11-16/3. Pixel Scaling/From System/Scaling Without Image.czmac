@@ -1,0 +1,48 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Script Version="1.0">
+  <Language>Python</Language>
+  <Text># Scaling Without Image.czmac
+# Version 1.0  2016-09-21  BW, JSM
+#-----------------------------------------
+# This macro requires the custom DLL named
+# "Scaling.dll" that must be placed in the
+# same folder as Zen.exe.
+#-----------------------------------------
+
+import clr
+clr.AddReference('Scaling.dll')
+import Scaling
+
+strError = "ERROR: Only meter (m) scaling units are supported"
+
+#--- X ---
+xScale = Scaling.ActiveScaling.Value(0)
+strXScaleUnits = Scaling.ActiveScaling.Unit(0)
+print "--- Scaling X ---"
+print xScale, strXScaleUnits
+#--- Convert Meters to Microns ---
+xScaleUM = 1.0
+if(strXScaleUnits == "m"):
+    xScaleUM = 1000000 * xScale
+    print xScaleUM, "µm"
+else:
+    print strError
+
+#--- Y ---
+yScale = Scaling.ActiveScaling.Value(1)
+strYScaleUnits = Scaling.ActiveScaling.Unit(1)
+print "--- Scaling Y ---"
+print yScale, strYScaleUnits
+#--- Convert Meters to Microns ---
+yScaleUM = 1.0
+if(strYScaleUnits == "m"):
+    yScaleUM = 1000000 * yScale
+    print yScaleUM, "µm"
+else:
+    print strError
+
+</Text>
+  <Author></Author>
+  <Description></Description>
+  <Keywords></Keywords>
+</Script>

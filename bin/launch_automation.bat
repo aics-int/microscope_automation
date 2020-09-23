@@ -1,0 +1,1 @@
+activate pipeline && microscopeAutomation -p %1 && pause

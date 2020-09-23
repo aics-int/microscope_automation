@@ -1,0 +1,612 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>automation_exceptions &#8212; Microscope Automation 0.0 documentation</title>
+    <link rel="stylesheet" href="_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <script type="text/javascript" src="_static/language_data.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="automation_messages_form_layout" href="automation_messages_form_layout.html" />
+    <link rel="prev" title="get_path" href="get_path.html" />
+   
+  <link rel="stylesheet" href="_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head><body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          
+
+          <div class="body" role="main">
+            
+  <div class="contents topic" id="contents">
+<p class="topic-title first">Contents</p>
+<ul class="simple">
+<li><a class="reference internal" href="#automation-exceptions" id="id2">automation_exceptions</a><ul>
+<li><a class="reference internal" href="#base-exception" id="id3">Base Exception</a></li>
+<li><a class="reference internal" href="#hardware-exceptions" id="id4">Hardware Exceptions</a></li>
+<li><a class="reference internal" href="#autofocus-exceptions" id="id5">Autofocus Exceptions</a></li>
+<li><a class="reference internal" href="#focus-drive-exceptions" id="id6">Focus Drive Exceptions</a></li>
+<li><a class="reference internal" href="#objective-changer-exceptions" id="id7">Objective Changer Exceptions</a></li>
+<li><a class="reference internal" href="#experiment-exceptions" id="id8">Experiment Exceptions</a></li>
+<li><a class="reference internal" href="#i-o-exceptions" id="id9">I/O Exceptions</a></li>
+<li><a class="reference internal" href="#program-flow-exceptions" id="id10">Program Flow Exceptions</a></li>
+<li><a class="reference internal" href="#helper-functions" id="id11">Helper Functions</a></li>
+</ul>
+</li>
+</ul>
+</div>
+<div class="section" id="automation-exceptions">
+<span id="id1"></span><h1><a class="toc-backref" href="#id2">automation_exceptions</a><a class="headerlink" href="#automation-exceptions" title="Permalink to this headline">¶</a></h1>
+<p>This module consists of a various classes of exceptions which are used throughout
+the project.</p>
+<div class="section" id="base-exception">
+<span id="automation-exceptions-automationerror"></span><h2><a class="toc-backref" href="#id3">Base Exception</a><a class="headerlink" href="#base-exception" title="Permalink to this headline">¶</a></h2>
+<p><code class="docutils literal notranslate"><span class="pre">AutomationError</span></code> is the base class for all exceptions in this package.</p>
+<dl class="class">
+<dt id="microscope_automation.automation_exceptions.AutomationError">
+<em class="property">class </em><code class="descclassname">microscope_automation.automation_exceptions.</code><code class="descname">AutomationError</code><span class="sig-paren">(</span><em>message=None</em>, <em>error_component=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/microscope_automation/automation_exceptions.html#AutomationError"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#microscope_automation.automation_exceptions.AutomationError" title="Permalink to this definition">¶</a></dt>
+<dd><p>Base exception for all errors in package microscopeautomation</p>
+</dd></dl>
+
+</div>
+<div class="section" id="hardware-exceptions">
+<span id="automation-exceptions-hardwareerror"></span><h2><a class="toc-backref" href="#id4">Hardware Exceptions</a><a class="headerlink" href="#hardware-exceptions" title="Permalink to this headline">¶</a></h2>
+<p>The following exceptions are used for hardware-related errors. The first,
+<code class="docutils literal notranslate"><span class="pre">HardwareError</span></code>, extends <a class="reference internal" href="#automation-exceptions-automationerror"><span class="std std-ref">Base Exception</span></a> and is
+the base class for the others.</p>
+<dl class="class">
+<dt id="microscope_automation.automation_exceptions.HardwareError">
+<em class="property">class </em><code class="descclassname">microscope_automation.automation_exceptions.</code><code class="descname">HardwareError</code><span class="sig-paren">(</span><em>message=None</em>, <em>error_component=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/microscope_automation/automation_exceptions.html#HardwareError"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#microscope_automation.automation_exceptions.HardwareError" title="Permalink to this definition">¶</a></dt>
+<dd><p>Exception for failures in hardware.</p>
+<dl class="method">
+<dt id="microscope_automation.automation_exceptions.HardwareError.error_dialog">
+<code class="descname">error_dialog</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/microscope_automation/automation_exceptions.html#HardwareError.error_dialog"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#microscope_automation.automation_exceptions.HardwareError.error_dialog" title="Permalink to this definition">¶</a></dt>
+<dd><p>Show error message to user.</p>
+<dl class="docutils">
+<dt>Input:</dt>
+<dd>none</dd>
+<dt>Output:</dt>
+<dd>none</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="microscope_automation.automation_exceptions.HardwareDoesNotExistError">
+<em class="property">class </em><code class="descclassname">microscope_automation.automation_exceptions.</code><code class="descname">HardwareDoesNotExistError</code><span class="sig-paren">(</span><em>message=None</em>, <em>error_component=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/microscope_automation/automation_exceptions.html#HardwareDoesNotExistError"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#microscope_automation.automation_exceptions.HardwareDoesNotExistError" title="Permalink to this definition">¶</a></dt>
+<dd><p>Exception if hardware was not defined.</p>
+<dl class="method">
+<dt id="microscope_automation.automation_exceptions.HardwareDoesNotExistError.error_dialog">
+<code class="descname">error_dialog</code><span class="sig-paren">(</span><em>advice=''</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/microscope_automation/automation_exceptions.html#HardwareDoesNotExistError.error_dialog"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#microscope_automation.automation_exceptions.HardwareDoesNotExistError.error_dialog" title="Permalink to this definition">¶</a></dt>
+<dd><p>Show error message to user.</p>
+<dl class="docutils">
+<dt>Input:</dt>
+<dd>none</dd>
+<dt>Output:</dt>
+<dd>none</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="microscope_automation.automation_exceptions.CrashDangerError">
+<em class="property">class </em><code class="descclassname">microscope_automation.automation_exceptions.</code><code class="descname">CrashDangerError</code><span class="sig-paren">(</span><em>message=None</em>, <em>error_component=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/microscope_automation/automation_exceptions.html#CrashDangerError"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#microscope_automation.automation_exceptions.CrashDangerError" title="Permalink to this definition">¶</a></dt>
+<dd><p>Exception if danger for hardware was detected.</p>
+<dl class="method">
+<dt id="microscope_automation.automation_exceptions.CrashDangerError.error_dialog">
+<code class="descname">error_dialog</code><span class="sig-paren">(</span><em>advice=''</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/microscope_automation/automation_exceptions.html#CrashDangerError.error_dialog"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#microscope_automation.automation_exceptions.CrashDangerError.error_dialog" title="Permalink to this definition">¶</a></dt>
+<dd><p>Show error message to user.</p>
+<dl class="docutils">
+<dt>Input:</dt>
+<dd>advice: str with advice to user of how to avoid crash.</dd>
+<dt>Output:</dt>
+<dd>none</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="microscope_automation.automation_exceptions.HardwareNotReadyError">
+<em class="property">class </em><code class="descclassname">microscope_automation.automation_exceptions.</code><code class="descname">HardwareNotReadyError</code><span class="sig-paren">(</span><em>message=None</em>, <em>error_component=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/microscope_automation/automation_exceptions.html#HardwareNotReadyError"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#microscope_automation.automation_exceptions.HardwareNotReadyError" title="Permalink to this definition">¶</a></dt>
+<dd><p>Exception if hardware is not ready for experiment.</p>
+<dl class="method">
+<dt id="microscope_automation.automation_exceptions.HardwareNotReadyError.error_dialog">
+<code class="descname">error_dialog</code><span class="sig-paren">(</span><em>advice=''</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/microscope_automation/automation_exceptions.html#HardwareNotReadyError.error_dialog"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#microscope_automation.automation_exceptions.HardwareNotReadyError.error_dialog" title="Permalink to this definition">¶</a></dt>
+<dd><p>Show error message to user.</p>
+<dl class="docutils">
+<dt>Input:</dt>
+<dd>advice: str with advice to user of how to avoid crash.</dd>
+<dt>Output:</dt>
+<dd>none</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="microscope_automation.automation_exceptions.HardwareCommandNotDefinedError">
+<em class="property">class </em><code class="descclassname">microscope_automation.automation_exceptions.</code><code class="descname">HardwareCommandNotDefinedError</code><span class="sig-paren">(</span><em>message=None</em>, <em>error_component=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/microscope_automation/automation_exceptions.html#HardwareCommandNotDefinedError"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#microscope_automation.automation_exceptions.HardwareCommandNotDefinedError" title="Permalink to this definition">¶</a></dt>
+<dd><p>Exception if experiment is not defined for this microscope.</p>
+<dl class="method">
+<dt id="microscope_automation.automation_exceptions.HardwareCommandNotDefinedError.error_dialog">
+<code class="descname">error_dialog</code><span class="sig-paren">(</span><em>advice=''</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/microscope_automation/automation_exceptions.html#HardwareCommandNotDefinedError.error_dialog"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#microscope_automation.automation_exceptions.HardwareCommandNotDefinedError.error_dialog" title="Permalink to this definition">¶</a></dt>
+<dd><p>Show error message to user.</p>
+<dl class="docutils">
+<dt>Input:</dt>
+<dd>advice: str with advice to user of how to avoid crash.</dd>
+<dt>Output:</dt>
+<dd>none</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="autofocus-exceptions">
+<h2><a class="toc-backref" href="#id5">Autofocus Exceptions</a><a class="headerlink" href="#autofocus-exceptions" title="Permalink to this headline">¶</a></h2>
+<p>The following exceptions are used for autofocus-related errors. The first,
+<code class="docutils literal notranslate"><span class="pre">AutofocusError</span></code>, extends <a class="reference internal" href="#automation-exceptions-hardwareerror"><span class="std std-ref">Hardware Exceptions</span></a> and is
+the base class for the others.</p>
+<dl class="class">
+<dt id="microscope_automation.automation_exceptions.AutofocusError">
+<em class="property">class </em><code class="descclassname">microscope_automation.automation_exceptions.</code><code class="descname">AutofocusError</code><span class="sig-paren">(</span><em>message=None</em>, <em>error_component=None</em>, <em>focus_reference_obj_id=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/microscope_automation/automation_exceptions.html#AutofocusError"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#microscope_automation.automation_exceptions.AutofocusError" title="Permalink to this definition">¶</a></dt>
+<dd><p>Exception if autofocus failed</p>
+<dl class="method">
+<dt id="microscope_automation.automation_exceptions.AutofocusError.error_dialog">
+<code class="descname">error_dialog</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/microscope_automation/automation_exceptions.html#AutofocusError.error_dialog"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#microscope_automation.automation_exceptions.AutofocusError.error_dialog" title="Permalink to this definition">¶</a></dt>
+<dd><p>Show error message to user.</p>
+<dl class="docutils">
+<dt>Input:</dt>
+<dd>none</dd>
+<dt>Output:</dt>
+<dd>none</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="microscope_automation.automation_exceptions.AutofocusError.get_focus_reference_obj_id">
+<code class="descname">get_focus_reference_obj_id</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/microscope_automation/automation_exceptions.html#AutofocusError.get_focus_reference_obj_id"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#microscope_automation.automation_exceptions.AutofocusError.get_focus_reference_obj_id" title="Permalink to this definition">¶</a></dt>
+<dd><p>Retrieve object (typcially plate) that is used as reference for autofocus offset.</p>
+<dl class="docutils">
+<dt>Input:</dt>
+<dd>None</dd>
+<dt>Output:</dt>
+<dd>focus_reference_obj_id: Sample object used as reference for autofocus</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="microscope_automation.automation_exceptions.AutofocusError.set_focus_reference_obj_id">
+<code class="descname">set_focus_reference_obj_id</code><span class="sig-paren">(</span><em>focus_reference_obj_id</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/microscope_automation/automation_exceptions.html#AutofocusError.set_focus_reference_obj_id"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#microscope_automation.automation_exceptions.AutofocusError.set_focus_reference_obj_id" title="Permalink to this definition">¶</a></dt>
+<dd><p>Set object (typcially plate) that is used as reference for autofocus offset.</p>
+<dl class="docutils">
+<dt>Input:</dt>
+<dd>focus_reference_obj_id: Sample object used as reference for autofocus</dd>
+<dt>Output:</dt>
+<dd>None</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="microscope_automation.automation_exceptions.AutofocusObjectiveChangedError">
+<em class="property">class </em><code class="descclassname">microscope_automation.automation_exceptions.</code><code class="descname">AutofocusObjectiveChangedError</code><span class="sig-paren">(</span><em>message=None</em>, <em>error_component=None</em>, <em>focus_reference_obj_id=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/microscope_automation/automation_exceptions.html#AutofocusObjectiveChangedError"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#microscope_automation.automation_exceptions.AutofocusObjectiveChangedError" title="Permalink to this definition">¶</a></dt>
+<dd><p>Exception if objective was changed since autofocus was initialized</p>
+<dl class="docutils">
+<dt>Input:</dt>
+<dd><p class="first">focus_reference_obj_id: Sample object used as reference for autofocus</p>
+<p class="last">message: Test to display as error message</p>
+</dd>
+</dl>
+<dl class="method">
+<dt id="microscope_automation.automation_exceptions.AutofocusObjectiveChangedError.error_dialog">
+<code class="descname">error_dialog</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/microscope_automation/automation_exceptions.html#AutofocusObjectiveChangedError.error_dialog"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#microscope_automation.automation_exceptions.AutofocusObjectiveChangedError.error_dialog" title="Permalink to this definition">¶</a></dt>
+<dd><p>Show error message to user.</p>
+<dl class="docutils">
+<dt>Input:</dt>
+<dd>none</dd>
+<dt>Output:</dt>
+<dd>none</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="microscope_automation.automation_exceptions.AutofocusNotSetError">
+<em class="property">class </em><code class="descclassname">microscope_automation.automation_exceptions.</code><code class="descname">AutofocusNotSetError</code><span class="sig-paren">(</span><em>message=None</em>, <em>error_component=None</em>, <em>focus_reference_obj_id=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/microscope_automation/automation_exceptions.html#AutofocusNotSetError"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#microscope_automation.automation_exceptions.AutofocusNotSetError" title="Permalink to this definition">¶</a></dt>
+<dd><p>Exception if objective was changed since autofocus was initialized</p>
+<dl class="docutils">
+<dt>Input:</dt>
+<dd><p class="first">focus_reference_obj_id: Sample object used as reference for autofocus</p>
+<p class="last">message: Test to display as error message</p>
+</dd>
+</dl>
+<dl class="method">
+<dt id="microscope_automation.automation_exceptions.AutofocusNotSetError.error_dialog">
+<code class="descname">error_dialog</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/microscope_automation/automation_exceptions.html#AutofocusNotSetError.error_dialog"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#microscope_automation.automation_exceptions.AutofocusNotSetError.error_dialog" title="Permalink to this definition">¶</a></dt>
+<dd><p>Show error message to user.</p>
+<dl class="docutils">
+<dt>Input:</dt>
+<dd>none</dd>
+<dt>Output:</dt>
+<dd>none</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="microscope_automation.automation_exceptions.AutofocusNoReferenceObjectError">
+<em class="property">class </em><code class="descclassname">microscope_automation.automation_exceptions.</code><code class="descname">AutofocusNoReferenceObjectError</code><span class="sig-paren">(</span><em>message=None</em>, <em>error_component=None</em>, <em>focus_reference_obj_id=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/microscope_automation/automation_exceptions.html#AutofocusNoReferenceObjectError"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#microscope_automation.automation_exceptions.AutofocusNoReferenceObjectError" title="Permalink to this definition">¶</a></dt>
+<dd><p>Exception if no reference object was selected for autofocus</p>
+<dl class="docutils">
+<dt>Input:</dt>
+<dd><p class="first">focus_reference_obj_id: Sample object used as reference for autofocus</p>
+<p class="last">message: Test to display as error message</p>
+</dd>
+</dl>
+<dl class="method">
+<dt id="microscope_automation.automation_exceptions.AutofocusNoReferenceObjectError.error_dialog">
+<code class="descname">error_dialog</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/microscope_automation/automation_exceptions.html#AutofocusNoReferenceObjectError.error_dialog"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#microscope_automation.automation_exceptions.AutofocusNoReferenceObjectError.error_dialog" title="Permalink to this definition">¶</a></dt>
+<dd><p>Show error message to user.</p>
+<dl class="docutils">
+<dt>Input:</dt>
+<dd>none</dd>
+<dt>Output:</dt>
+<dd>none</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="focus-drive-exceptions">
+<h2><a class="toc-backref" href="#id6">Focus Drive Exceptions</a><a class="headerlink" href="#focus-drive-exceptions" title="Permalink to this headline">¶</a></h2>
+<p>The following exceptions are used for focus drive related errors. They
+extend <a class="reference internal" href="#automation-exceptions-hardwareerror"><span class="std std-ref">Hardware Exceptions</span></a>.</p>
+<dl class="class">
+<dt id="microscope_automation.automation_exceptions.LoadNotDefinedError">
+<em class="property">class </em><code class="descclassname">microscope_automation.automation_exceptions.</code><code class="descname">LoadNotDefinedError</code><span class="sig-paren">(</span><em>message=None</em>, <em>error_component=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/microscope_automation/automation_exceptions.html#LoadNotDefinedError"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#microscope_automation.automation_exceptions.LoadNotDefinedError" title="Permalink to this definition">¶</a></dt>
+<dd><p>Exception if load position for focus drive is not defined.</p>
+<dl class="method">
+<dt id="microscope_automation.automation_exceptions.LoadNotDefinedError.error_dialog">
+<code class="descname">error_dialog</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/microscope_automation/automation_exceptions.html#LoadNotDefinedError.error_dialog"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#microscope_automation.automation_exceptions.LoadNotDefinedError.error_dialog" title="Permalink to this definition">¶</a></dt>
+<dd><p>Show error message to user.</p>
+<dl class="docutils">
+<dt>Input:</dt>
+<dd>none</dd>
+<dt>Output:</dt>
+<dd>none</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="microscope_automation.automation_exceptions.WorkNotDefinedError">
+<em class="property">class </em><code class="descclassname">microscope_automation.automation_exceptions.</code><code class="descname">WorkNotDefinedError</code><span class="sig-paren">(</span><em>message=None</em>, <em>error_component=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/microscope_automation/automation_exceptions.html#WorkNotDefinedError"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#microscope_automation.automation_exceptions.WorkNotDefinedError" title="Permalink to this definition">¶</a></dt>
+<dd><p>Exception if work position for focus drive is not defined.</p>
+<dl class="method">
+<dt id="microscope_automation.automation_exceptions.WorkNotDefinedError.error_dialog">
+<code class="descname">error_dialog</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/microscope_automation/automation_exceptions.html#WorkNotDefinedError.error_dialog"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#microscope_automation.automation_exceptions.WorkNotDefinedError.error_dialog" title="Permalink to this definition">¶</a></dt>
+<dd><p>Show error message to user.</p>
+<dl class="docutils">
+<dt>Input:</dt>
+<dd>none</dd>
+<dt>Output:</dt>
+<dd>none</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="objective-changer-exceptions">
+<h2><a class="toc-backref" href="#id7">Objective Changer Exceptions</a><a class="headerlink" href="#objective-changer-exceptions" title="Permalink to this headline">¶</a></h2>
+<p>The following exception is used for objective changer related errors. It extends
+<a class="reference internal" href="#automation-exceptions-hardwareerror"><span class="std std-ref">Hardware Exceptions</span></a>.</p>
+<dl class="class">
+<dt id="microscope_automation.automation_exceptions.ObjectiveNotDefinedError">
+<em class="property">class </em><code class="descclassname">microscope_automation.automation_exceptions.</code><code class="descname">ObjectiveNotDefinedError</code><span class="sig-paren">(</span><em>message=None</em>, <em>error_component=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/microscope_automation/automation_exceptions.html#ObjectiveNotDefinedError"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#microscope_automation.automation_exceptions.ObjectiveNotDefinedError" title="Permalink to this definition">¶</a></dt>
+<dd><p>Exception if selected objective was not defined.</p>
+<dl class="method">
+<dt id="microscope_automation.automation_exceptions.ObjectiveNotDefinedError.error_dialog">
+<code class="descname">error_dialog</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/microscope_automation/automation_exceptions.html#ObjectiveNotDefinedError.error_dialog"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#microscope_automation.automation_exceptions.ObjectiveNotDefinedError.error_dialog" title="Permalink to this definition">¶</a></dt>
+<dd><p>Show error message to user.</p>
+<dl class="docutils">
+<dt>Input:</dt>
+<dd>none</dd>
+<dt>Output:</dt>
+<dd>none</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="experiment-exceptions">
+<h2><a class="toc-backref" href="#id8">Experiment Exceptions</a><a class="headerlink" href="#experiment-exceptions" title="Permalink to this headline">¶</a></h2>
+<p>he following exceptions are used for experiment-related errors. The first,
+<code class="docutils literal notranslate"><span class="pre">ExperimentError</span></code>, extends <a class="reference internal" href="#automation-exceptions-hardwareerror"><span class="std std-ref">Hardware Exceptions</span></a> and is
+the base class for the others.</p>
+<dl class="class">
+<dt id="microscope_automation.automation_exceptions.ExperimentError">
+<em class="property">class </em><code class="descclassname">microscope_automation.automation_exceptions.</code><code class="descname">ExperimentError</code><span class="sig-paren">(</span><em>message=None</em>, <em>error_component=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/microscope_automation/automation_exceptions.html#ExperimentError"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#microscope_automation.automation_exceptions.ExperimentError" title="Permalink to this definition">¶</a></dt>
+<dd><p>Exception for failures experiment execution.</p>
+<dl class="method">
+<dt id="microscope_automation.automation_exceptions.ExperimentError.error_dialog">
+<code class="descname">error_dialog</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/microscope_automation/automation_exceptions.html#ExperimentError.error_dialog"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#microscope_automation.automation_exceptions.ExperimentError.error_dialog" title="Permalink to this definition">¶</a></dt>
+<dd><p>Show error message to user.</p>
+<dl class="docutils">
+<dt>Input:</dt>
+<dd>none</dd>
+<dt>Output:</dt>
+<dd>none</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="microscope_automation.automation_exceptions.ExperimentNotExistError">
+<em class="property">class </em><code class="descclassname">microscope_automation.automation_exceptions.</code><code class="descname">ExperimentNotExistError</code><span class="sig-paren">(</span><em>message=None</em>, <em>error_component=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/microscope_automation/automation_exceptions.html#ExperimentNotExistError"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#microscope_automation.automation_exceptions.ExperimentNotExistError" title="Permalink to this definition">¶</a></dt>
+<dd><p>Exception for failures experiment execution.</p>
+<dl class="method">
+<dt id="microscope_automation.automation_exceptions.ExperimentNotExistError.error_dialog">
+<code class="descname">error_dialog</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/microscope_automation/automation_exceptions.html#ExperimentNotExistError.error_dialog"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#microscope_automation.automation_exceptions.ExperimentNotExistError.error_dialog" title="Permalink to this definition">¶</a></dt>
+<dd><p>Show error message to user.</p>
+<dl class="docutils">
+<dt>Input:</dt>
+<dd>none</dd>
+<dt>Output:</dt>
+<dd>none</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="i-o-exceptions">
+<h2><a class="toc-backref" href="#id9">I/O Exceptions</a><a class="headerlink" href="#i-o-exceptions" title="Permalink to this headline">¶</a></h2>
+<p>The following exceptions are used for read and write errors. The first,
+<code class="docutils literal notranslate"><span class="pre">IOError</span></code>, extends <a class="reference internal" href="#automation-exceptions-automationerror"><span class="std std-ref">Base Exception</span></a> and is
+the base class for the others.</p>
+<dl class="class">
+<dt id="microscope_automation.automation_exceptions.IOError">
+<em class="property">class </em><code class="descclassname">microscope_automation.automation_exceptions.</code><code class="descname">IOError</code><span class="sig-paren">(</span><em>message=None</em>, <em>error_component=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/microscope_automation/automation_exceptions.html#IOError"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#microscope_automation.automation_exceptions.IOError" title="Permalink to this definition">¶</a></dt>
+<dd><p>Exception for I/O errors.</p>
+<dl class="method">
+<dt id="microscope_automation.automation_exceptions.IOError.error_dialog">
+<code class="descname">error_dialog</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/microscope_automation/automation_exceptions.html#IOError.error_dialog"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#microscope_automation.automation_exceptions.IOError.error_dialog" title="Permalink to this definition">¶</a></dt>
+<dd><p>Show error message to user.</p>
+<dl class="docutils">
+<dt>Input:</dt>
+<dd>none</dd>
+<dt>Output:</dt>
+<dd>none</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="microscope_automation.automation_exceptions.FileExistsError">
+<em class="property">class </em><code class="descclassname">microscope_automation.automation_exceptions.</code><code class="descname">FileExistsError</code><span class="sig-paren">(</span><em>message=None</em>, <em>error_component=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/microscope_automation/automation_exceptions.html#FileExistsError"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#microscope_automation.automation_exceptions.FileExistsError" title="Permalink to this definition">¶</a></dt>
+<dd><p>Exception if file exists to prevent overriding it.</p>
+<dl class="method">
+<dt id="microscope_automation.automation_exceptions.FileExistsError.error_dialog">
+<code class="descname">error_dialog</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/microscope_automation/automation_exceptions.html#FileExistsError.error_dialog"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#microscope_automation.automation_exceptions.FileExistsError.error_dialog" title="Permalink to this definition">¶</a></dt>
+<dd><p>Show error message to user.</p>
+<dl class="docutils">
+<dt>Input:</dt>
+<dd>none</dd>
+<dt>Output:</dt>
+<dd>none</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="microscope_automation.automation_exceptions.MetaDataNotSavedError">
+<em class="property">class </em><code class="descclassname">microscope_automation.automation_exceptions.</code><code class="descname">MetaDataNotSavedError</code><span class="sig-paren">(</span><em>message=None</em>, <em>error_component=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/microscope_automation/automation_exceptions.html#MetaDataNotSavedError"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#microscope_automation.automation_exceptions.MetaDataNotSavedError" title="Permalink to this definition">¶</a></dt>
+<dd><p>Exception if data could not be saved to meta data file.</p>
+<dl class="method">
+<dt id="microscope_automation.automation_exceptions.MetaDataNotSavedError.error_dialog">
+<code class="descname">error_dialog</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/microscope_automation/automation_exceptions.html#MetaDataNotSavedError.error_dialog"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#microscope_automation.automation_exceptions.MetaDataNotSavedError.error_dialog" title="Permalink to this definition">¶</a></dt>
+<dd><p>Show error message to user.</p>
+<dl class="docutils">
+<dt>Input:</dt>
+<dd>none</dd>
+<dt>Output:</dt>
+<dd>none</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="program-flow-exceptions">
+<h2><a class="toc-backref" href="#id10">Program Flow Exceptions</a><a class="headerlink" href="#program-flow-exceptions" title="Permalink to this headline">¶</a></h2>
+<p>The following exception, which extends <a class="reference internal" href="#automation-exceptions-automationerror"><span class="std std-ref">Base Exception</span></a>
+is thrown when the automated workflow is stopped and images are no longer being taken.</p>
+<dl class="class">
+<dt id="microscope_automation.automation_exceptions.StopCollectingError">
+<em class="property">class </em><code class="descclassname">microscope_automation.automation_exceptions.</code><code class="descname">StopCollectingError</code><span class="sig-paren">(</span><em>message=None</em>, <em>error_component=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/microscope_automation/automation_exceptions.html#StopCollectingError"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#microscope_automation.automation_exceptions.StopCollectingError" title="Permalink to this definition">¶</a></dt>
+<dd><p>Stop collecting sample positions.</p>
+<dl class="method">
+<dt id="microscope_automation.automation_exceptions.StopCollectingError.error_dialog">
+<code class="descname">error_dialog</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/microscope_automation/automation_exceptions.html#StopCollectingError.error_dialog"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#microscope_automation.automation_exceptions.StopCollectingError.error_dialog" title="Permalink to this definition">¶</a></dt>
+<dd><p>Show error message to user.</p>
+<dl class="docutils">
+<dt>Input:</dt>
+<dd>none</dd>
+<dt>Output:</dt>
+<dd>none</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="helper-functions">
+<h2><a class="toc-backref" href="#id11">Helper Functions</a><a class="headerlink" href="#helper-functions" title="Permalink to this headline">¶</a></h2>
+<dl class="function">
+<dt id="microscope_automation.automation_exceptions.set_error_blocking">
+<code class="descclassname">microscope_automation.automation_exceptions.</code><code class="descname">set_error_blocking</code><span class="sig-paren">(</span><em>block</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/microscope_automation/automation_exceptions.html#set_error_blocking"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#microscope_automation.automation_exceptions.set_error_blocking" title="Permalink to this definition">¶</a></dt>
+<dd><p>Set blocking behavior of error dialogs.</p>
+<dl class="docutils">
+<dt>Input:</dt>
+<dd>block: if True use modal dialog for error reporting, otherwise print message</dd>
+<dt>Output:</dt>
+<dd>None</dd>
+</dl>
+</dd></dl>
+
+<dl class="function">
+<dt id="microscope_automation.automation_exceptions.get_error_blocking">
+<code class="descclassname">microscope_automation.automation_exceptions.</code><code class="descname">get_error_blocking</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/microscope_automation/automation_exceptions.html#get_error_blocking"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#microscope_automation.automation_exceptions.get_error_blocking" title="Permalink to this definition">¶</a></dt>
+<dd><p>Retrieve blocking behavior of error dialogs.</p>
+<dl class="docutils">
+<dt>Input:</dt>
+<dd>none</dd>
+<dt>Output:</dt>
+<dd>blocking: if True use modal dialog for error reporting, otherwise print message</dd>
+<dt>Output:</dt>
+<dd>None</dd>
+</dl>
+</dd></dl>
+
+</div>
+</div>
+
+
+          </div>
+          
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<h1 class="logo"><a href="index.html">Microscope Automation</a></h1>
+
+
+
+
+
+
+
+
+<h3>Navigation</h3>
+<p class="caption"><span class="caption-text">Overview</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="index.html">README</a></li>
+<li class="toctree-l1"><a class="reference internal" href="installation.html">Installation</a></li>
+</ul>
+<p class="caption"><span class="caption-text">Hardware</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="hardware_components.html">hardware_components</a></li>
+<li class="toctree-l1"><a class="reference internal" href="hardware_control.html">hardware_control</a></li>
+<li class="toctree-l1"><a class="reference internal" href="image_AICS.html">image_AICS</a></li>
+<li class="toctree-l1"><a class="reference internal" href="load_image_czi.html">load_image_czi</a></li>
+<li class="toctree-l1"><a class="reference internal" href="preferences.html">preferences</a></li>
+<li class="toctree-l1"><a class="reference internal" href="setup_microscope.html">setup_microscope</a></li>
+<li class="toctree-l1"><a class="reference internal" href="RS232.html">RS232</a></li>
+<li class="toctree-l1"><a class="reference internal" href="samples.html">samples</a></li>
+</ul>
+<p class="caption"><span class="caption-text">Zeiss Microscopes</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="hardware_control_zeiss.html">hardware_control_zeiss</a></li>
+<li class="toctree-l1"><a class="reference internal" href="connect_zen_blue.html">connect_zen_blue</a></li>
+<li class="toctree-l1"><a class="reference internal" href="connect_zen_black.html">connect_zen_black</a></li>
+<li class="toctree-l1"><a class="reference internal" href="zen_experiment_info.html">zen_experiment_info</a></li>
+</ul>
+<p class="caption"><span class="caption-text">3i Microscopes</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="hardware_control_3i.html">hardware_control_3i</a></li>
+<li class="toctree-l1"><a class="reference internal" href="connect_slidebook.html">connect_slidebook</a></li>
+<li class="toctree-l1"><a class="reference internal" href="slidebook_experiment_info.html">slidebook_experiment_info</a></li>
+</ul>
+<p class="caption"><span class="caption-text">General Methods</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="get_path.html">get_path</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">automation_exceptions</a></li>
+<li class="toctree-l1"><a class="reference internal" href="automation_messages_form_layout.html">automation_messages_form_layout</a></li>
+<li class="toctree-l1"><a class="reference internal" href="error_handling.html">error_handling</a></li>
+</ul>
+<p class="caption"><span class="caption-text">Reference Docs</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="CONTRIBUTING.html">Allen Institute Contribution Agreement</a></li>
+<li class="toctree-l1"><a class="reference internal" href="LICENSE.html">LICENSE</a></li>
+</ul>
+
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="index.html">Documentation overview</a><ul>
+      <li>Previous: <a href="get_path.html" title="previous chapter">get_path</a></li>
+      <li>Next: <a href="automation_messages_form_layout.html" title="next chapter">automation_messages_form_layout</a></li>
+  </ul></li>
+</ul>
+</div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    </div>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+
+
+
+
+
+
+
+
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2020, Allen Institute.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.8.5</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.12</a>
+      
+      |
+      <a href="_sources/automation_exceptions.rst.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+
+    
+  </body>
+</html>

@@ -1,0 +1,945 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>microscope_automation.connect_slidebook &#8212; Microscope Automation 0.0 documentation</title>
+    <link rel="stylesheet" href="../../_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+    <script type="text/javascript" id="documentation_options" data-url_root="../../" src="../../_static/documentation_options.js"></script>
+    <script type="text/javascript" src="../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../_static/doctools.js"></script>
+    <script type="text/javascript" src="../../_static/language_data.js"></script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" />
+   
+  <link rel="stylesheet" href="../../_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head><body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          
+
+          <div class="body" role="main">
+            
+  <h1>Source code for microscope_automation.connect_slidebook</h1><div class="highlight"><pre>
+<span></span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">Communication layer for 3i Slidebook</span>
+<span class="sd">This layer sends http commands to a command and data servers.</span>
+<span class="sd">Slidebook calls a MatLab library that pulls the commands from the server queue</span>
+
+<span class="sd">Date Created: January 26, 2020</span>
+<span class="sd">&quot;&quot;&quot;</span>
+
+<span class="kn">import</span> <span class="nn">time</span>
+<span class="kn">import</span> <span class="nn">os.path</span>
+<span class="kn">import</span> <span class="nn">logging</span>
+<span class="kn">import</span> <span class="nn">requests</span>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">import</span> <span class="nn">matplotlib.pyplot</span> <span class="k">as</span> <span class="nn">plt</span>
+
+<span class="c1"># import modules from project MicroscopeAutomation</span>
+<span class="kn">from</span> <span class="nn">automation_exceptions</span> <span class="kn">import</span> <span class="n">HardwareError</span><span class="p">,</span> <span class="n">LoadNotDefinedError</span><span class="p">,</span> <span class="n">WorkNotDefinedError</span><span class="p">,</span> \
+    <span class="n">HardwareCommandNotDefinedError</span><span class="p">,</span> <span class="n">ExperimentNotExistError</span>
+<span class="kn">from</span> <span class="nn">slidebook_experiment_info</span> <span class="kn">import</span> <span class="n">SlidebookExperiment</span>
+<span class="kn">from</span> <span class="nn">microscope_automation.image_AICS</span> <span class="kn">import</span> <span class="n">ImageAICS</span>
+
+<span class="k">try</span><span class="p">:</span>
+    <span class="kn">from</span> <span class="nn">RS232</span> <span class="kn">import</span> <span class="n">Braintree</span>
+<span class="k">except</span> <span class="ne">ImportError</span><span class="p">:</span>
+    <span class="kn">from</span> <span class="nn">RS232_dummy</span> <span class="kn">import</span> <span class="n">Braintree</span>
+
+<span class="c1"># Create Logger</span>
+<span class="n">log</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="s1">&#39;microscopeAutomation connect_slidebook&#39;</span><span class="p">)</span>
+
+
+<span class="k">def</span> <span class="nf">show_image</span><span class="p">(</span><span class="n">image</span><span class="p">,</span> <span class="n">meta_data</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Show image&quot;&quot;&quot;</span>
+    <span class="n">plt</span><span class="o">.</span><span class="n">imshow</span><span class="p">(</span><span class="n">image</span><span class="p">)</span>
+    <span class="n">plt</span><span class="o">.</span><span class="n">title</span><span class="p">(</span><span class="n">meta_data</span><span class="p">[</span><span class="s1">&#39;time_stamp&#39;</span><span class="p">])</span>
+    <span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+
+
+<div class="viewcode-block" id="ConnectMicroscope"><a class="viewcode-back" href="../../connect_slidebook.html#microscope_automation.connect_slidebook.ConnectMicroscope">[docs]</a><span class="k">class</span> <span class="nc">ConnectMicroscope</span><span class="p">():</span>
+    <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">    &#39;&#39;&#39;</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">cmd_url</span><span class="o">=</span><span class="s1">&#39;http://127.0.0.1:5000&#39;</span><span class="p">,</span>
+                 <span class="n">data_url</span><span class="o">=</span><span class="s1">&#39;http://127.0.0.1:5100&#39;</span><span class="p">,</span>
+                 <span class="n">microscope</span><span class="o">=</span><span class="s1">&#39;3iW1-0&#39;</span><span class="p">,</span> <span class="n">dummy</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">        Connect to command and data services that function as bridge to the MatLab macro that controls 3i Slidebook</span>
+
+<span class="sd">        Input:</span>
+<span class="sd">            cmd_url: url for command server. Typical localhost at port 5000</span>
+
+<span class="sd">            data_url: url for data (image) server. Typical localhost at port 51000</span>
+
+<span class="sd">            microscope: microscope that should have connected to command and data server</span>
+
+<span class="sd">        Output:</span>
+<span class="sd">         none</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">cmd_url</span> <span class="o">=</span> <span class="n">cmd_url</span> <span class="o">+</span> <span class="s1">&#39;/cmd&#39;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">data_url</span> <span class="o">=</span> <span class="n">data_url</span> <span class="o">+</span> <span class="s1">&#39;/data&#39;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">microscope</span> <span class="o">=</span> <span class="n">microscope</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">dummy</span> <span class="o">=</span> <span class="n">dummy</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">dummy</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">default_experiment</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;experiment_id&#39;</span><span class="p">:</span> <span class="s1">&#39;&#39;</span><span class="p">,</span>
+                                       <span class="s1">&#39;microscope&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">microscope</span><span class="p">,</span>
+                                       <span class="s1">&#39;number_positions&#39;</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span>
+                                       <span class="s1">&#39;stage_locations&#39;</span><span class="p">:</span> <span class="p">[(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">)],</span>
+                                       <span class="s1">&#39;stage_locations_filter&#39;</span><span class="p">:</span> <span class="p">[</span><span class="kc">True</span><span class="p">],</span>
+                                       <span class="s1">&#39;capture_settings&#39;</span><span class="p">:</span> <span class="p">[</span><span class="s1">&#39;No_experiment&#39;</span><span class="p">],</span>
+                                       <span class="s1">&#39;centers_of_interest&#39;</span><span class="p">:</span> <span class="p">[(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">)],</span>
+                                       <span class="s1">&#39;objective&#39;</span><span class="p">:</span> <span class="s1">&#39;Apo_10x&#39;</span><span class="p">,</span>
+                                       <span class="s1">&#39;time_stamp&#39;</span><span class="p">:</span> <span class="s1">&#39;&#39;</span><span class="p">,</span>
+                                       <span class="s1">&#39;microscope_action&#39;</span><span class="p">:</span> <span class="s1">&#39;exit&#39;</span><span class="p">,</span>
+                                       <span class="s1">&#39;id_counter&#39;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span>
+                                       <span class="s1">&#39;status&#39;</span><span class="p">:</span> <span class="s1">&#39;none&#39;</span>
+                                       <span class="p">}</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">zLoad</span> <span class="o">=</span> <span class="mi">500</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">zWork</span> <span class="o">=</span> <span class="mi">500</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Running in Test Mode - Connecting to Simulated hardware&#39;</span><span class="p">)</span>
+            <span class="k">return</span>
+
+        <span class="c1"># test connections and get information about servers</span>
+
+        <span class="c1"># Test commands server. This server send commands to the microscope.</span>
+        <span class="c1"># The commands are stored in a queue and worked on in the order they were posted</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">cmd_response</span> <span class="o">=</span> <span class="n">requests</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">cmd_url</span> <span class="o">+</span> <span class="s1">&#39;/about&#39;</span><span class="p">)</span>
+            <span class="c1"># Raise if bad status code</span>
+            <span class="n">cmd_response</span><span class="o">.</span><span class="n">raise_for_status</span><span class="p">()</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">cmd_server_info</span> <span class="o">=</span> <span class="n">cmd_response</span><span class="o">.</span><span class="n">json</span><span class="p">()</span>
+        <span class="k">except</span> <span class="n">requests</span><span class="o">.</span><span class="n">exceptions</span><span class="o">.</span><span class="n">RequestException</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+            <span class="c1"># catastrophic error. bail.</span>
+            <span class="k">raise</span> <span class="ne">SystemExit</span><span class="p">(</span><span class="n">e</span><span class="p">)</span>
+
+        <span class="c1"># Test data server. This server will receive images form microscope and store them in a queue.</span>
+        <span class="n">data_response</span> <span class="o">=</span> <span class="n">requests</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">data_url</span> <span class="o">+</span> <span class="s1">&#39;/about&#39;</span><span class="p">)</span>
+        <span class="c1"># Raise if bad status code</span>
+        <span class="n">data_response</span><span class="o">.</span><span class="n">raise_for_status</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">data_server_info</span> <span class="o">=</span> <span class="n">data_response</span><span class="o">.</span><span class="n">json</span><span class="p">()</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">microscope</span> <span class="o">=</span> <span class="n">microscope</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">default_experiment</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;experiment_id&#39;</span><span class="p">:</span> <span class="s1">&#39;&#39;</span><span class="p">,</span>
+                                   <span class="s1">&#39;microscope&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">microscope</span><span class="p">,</span>
+                                   <span class="s1">&#39;number_positions&#39;</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span>
+                                   <span class="s1">&#39;stage_locations&#39;</span><span class="p">:</span> <span class="p">[(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">)],</span>
+                                   <span class="s1">&#39;stage_locations_filter&#39;</span><span class="p">:</span> <span class="p">[</span><span class="kc">True</span><span class="p">],</span>
+                                   <span class="s1">&#39;capture_settings&#39;</span><span class="p">:</span> <span class="p">[</span><span class="s1">&#39;No_experiment&#39;</span><span class="p">],</span>
+                                   <span class="s1">&#39;centers_of_interest&#39;</span><span class="p">:</span> <span class="p">[(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">)],</span>
+                                   <span class="s1">&#39;objective&#39;</span><span class="p">:</span> <span class="s1">&#39;Apo_10x&#39;</span><span class="p">,</span>
+                                   <span class="s1">&#39;time_stamp&#39;</span><span class="p">:</span> <span class="s1">&#39;&#39;</span><span class="p">,</span>
+                                   <span class="s1">&#39;microscope_action&#39;</span><span class="p">:</span> <span class="s1">&#39;exit&#39;</span><span class="p">,</span>
+                                   <span class="s1">&#39;id_counter&#39;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span>
+                                   <span class="s1">&#39;status&#39;</span><span class="p">:</span> <span class="s1">&#39;none&#39;</span>
+                                   <span class="p">}</span>
+
+<div class="viewcode-block" id="ConnectMicroscope.not_implemented"><a class="viewcode-back" href="../../connect_slidebook.html#microscope_automation.connect_slidebook.ConnectMicroscope.not_implemented">[docs]</a>    <span class="k">def</span> <span class="nf">not_implemented</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">method_name</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;Raise exception if method is not implemented.</span>
+
+<span class="sd">        Input:</span>
+<span class="sd">         method_name: method that calls this method</span>
+
+<span class="sd">        Output:</span>
+<span class="sd">         none</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+        <span class="k">raise</span> <span class="n">HardwareCommandNotDefinedError</span><span class="p">(</span><span class="n">method_name</span> <span class="o">+</span> <span class="s1">&#39; is not supported for Slidebook microscope&#39;</span><span class="p">)</span></div>
+
+    <span class="c1">##################################################################################################################</span>
+    <span class="c1">#</span>
+    <span class="c1"># Methods to handle Capture Settings</span>
+    <span class="c1">#</span>
+    <span class="c1">##################################################################################################################</span>
+
+<div class="viewcode-block" id="ConnectMicroscope.create_experiment_path"><a class="viewcode-back" href="../../connect_slidebook.html#microscope_automation.connect_slidebook.ConnectMicroscope.create_experiment_path">[docs]</a>    <span class="k">def</span> <span class="nf">create_experiment_path</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">experiment</span><span class="p">,</span> <span class="n">experiment_folder</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Creates complete path to capture settings.</span>
+<span class="sd">        Raises exception if experiment does not exist.</span>
+
+<span class="sd">        Input:</span>
+<span class="sd">         experiment: string with name of capture settings (with or w/o extension .exp.prefs)</span>
+
+<span class="sd">         experiment_folder: folder for capture settings</span>
+
+<span class="sd">        Output:</span>
+<span class="sd">         experiment_path: path to experiment</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># make sure that experiment has proper extension</span>
+        <span class="n">name_1</span><span class="p">,</span> <span class="n">extension_prefs</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">splitext</span><span class="p">(</span><span class="n">experiment</span><span class="p">)</span>
+        <span class="n">name</span><span class="p">,</span> <span class="n">extension_exp</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">splitext</span><span class="p">(</span><span class="n">name_1</span><span class="p">)</span>
+        <span class="c1"># experiment_corrected = name + &#39;.exp.prefs&#39;</span>
+        <span class="n">experiment_path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">normpath</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">experiment_folder</span><span class="p">,</span> <span class="n">experiment</span><span class="p">))</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">experiment_path</span><span class="p">):</span>
+            <span class="k">raise</span> <span class="n">ExperimentNotExistError</span><span class="p">(</span><span class="s1">&#39;Could not create experiment path </span><span class="si">{}</span><span class="s1">.&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">experiment_path</span><span class="p">),</span> <span class="n">experiment</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">experiment_path</span></div>
+
+    <span class="c1">##################################################################################################################</span>
+    <span class="c1">#</span>
+    <span class="c1"># Methods to get information about command and data services</span>
+    <span class="c1">#</span>
+    <span class="c1">##################################################################################################################</span>
+
+<div class="viewcode-block" id="ConnectMicroscope.get_about_command_service"><a class="viewcode-back" href="../../connect_slidebook.html#microscope_automation.connect_slidebook.ConnectMicroscope.get_about_command_service">[docs]</a>    <span class="k">def</span> <span class="nf">get_about_command_service</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;Retrieve information about command service&#39;&#39;&#39;</span>
+
+        <span class="n">about_response</span> <span class="o">=</span> <span class="n">requests</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">cmd_url</span> <span class="o">+</span> <span class="s1">&#39;/about&#39;</span><span class="p">)</span>
+        <span class="c1"># Raise if bad status code</span>
+        <span class="n">about_response</span><span class="o">.</span><span class="n">raise_for_status</span><span class="p">()</span>
+        <span class="k">return</span> <span class="n">about_response</span><span class="o">.</span><span class="n">json</span><span class="p">()</span></div>
+
+<div class="viewcode-block" id="ConnectMicroscope.get_about_data_service"><a class="viewcode-back" href="../../connect_slidebook.html#microscope_automation.connect_slidebook.ConnectMicroscope.get_about_data_service">[docs]</a>    <span class="k">def</span> <span class="nf">get_about_data_service</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;Retrieve information about data service&#39;&#39;&#39;</span>
+
+        <span class="n">about_response</span> <span class="o">=</span> <span class="n">requests</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">data_url</span> <span class="o">+</span> <span class="s1">&#39;/about&#39;</span><span class="p">)</span>
+        <span class="c1"># Raise if bad status code</span>
+        <span class="n">about_response</span><span class="o">.</span><span class="n">raise_for_status</span><span class="p">()</span>
+        <span class="k">return</span> <span class="n">about_response</span><span class="o">.</span><span class="n">json</span><span class="p">()</span></div>
+
+    <span class="c1">##################################################################################################################</span>
+    <span class="c1">#</span>
+    <span class="c1"># Methods to save and load images and meta data</span>
+    <span class="c1">#</span>
+    <span class="c1">##################################################################################################################</span>
+
+<div class="viewcode-block" id="ConnectMicroscope.save_image"><a class="viewcode-back" href="../../connect_slidebook.html#microscope_automation.connect_slidebook.ConnectMicroscope.save_image">[docs]</a>    <span class="k">def</span> <span class="nf">save_image</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">fileName</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;save last acquired ImageAICS in original file format using microscope software</span>
+
+<span class="sd">        Raises HardwareCommandNotDefinedError</span>
+
+<span class="sd">        Input:</span>
+<span class="sd">         file: file name and path for ImageAICS save</span>
+
+<span class="sd">        Output:</span>
+<span class="sd">         none</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">not_implemented</span><span class="p">(</span><span class="s1">&#39;save_image&#39;</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="ConnectMicroscope.load_image"><a class="viewcode-back" href="../../connect_slidebook.html#microscope_automation.connect_slidebook.ConnectMicroscope.load_image">[docs]</a>    <span class="k">def</span> <span class="nf">load_image</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">image</span><span class="p">,</span> <span class="n">get_meta_data</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Load most recent image from data service and return it a class ImageAICS</span>
+
+<span class="sd">        Input:</span>
+<span class="sd">         image: image object of class ImageAICS.</span>
+
+<span class="sd">         get_meta: if true, retrieve meta data from file. Default is False</span>
+
+<span class="sd">        Output:</span>
+<span class="sd">         image: image with data and meta data as ImageAICS class</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># Retrieve most recent meta data from data queue</span>
+        <span class="n">meta_response</span> <span class="o">=</span> <span class="n">requests</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">data_url</span> <span class="o">+</span> <span class="s1">&#39;/last&#39;</span><span class="p">)</span>
+        <span class="c1"># Raise if bad status code</span>
+        <span class="n">meta_response</span><span class="o">.</span><span class="n">raise_for_status</span><span class="p">()</span>
+
+        <span class="k">if</span> <span class="n">meta_response</span><span class="o">.</span><span class="n">status_code</span> <span class="o">==</span> <span class="mi">200</span><span class="p">:</span>
+            <span class="c1"># get meta data</span>
+            <span class="n">meta_data</span> <span class="o">=</span> <span class="n">meta_response</span><span class="o">.</span><span class="n">json</span><span class="p">()</span>
+
+            <span class="c1"># get image and decode</span>
+            <span class="n">response</span> <span class="o">=</span> <span class="n">requests</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">data_url</span> <span class="o">+</span> <span class="s1">&#39;/binary/&#39;</span> <span class="o">+</span> <span class="n">meta_data</span><span class="p">[</span><span class="s1">&#39;data_id&#39;</span><span class="p">])</span>
+
+            <span class="c1"># image_data = np.frombuffer(response.content, dtype=meta_data[&#39;format&#39;]).reshape(meta_data[&#39;image_dimensions&#39;])</span>
+
+            <span class="n">image_data</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">frombuffer</span><span class="p">(</span><span class="n">response</span><span class="o">.</span><span class="n">content</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">meta_data</span><span class="p">[</span><span class="s1">&#39;format&#39;</span><span class="p">])</span> \
+                <span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="n">meta_data</span><span class="p">[</span><span class="s1">&#39;image_dimensions&#39;</span><span class="p">])</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">image_data</span> <span class="o">=</span> <span class="kc">None</span>
+            <span class="n">meta_data</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="c1"># show_image(image_data, meta_data)</span>
+        <span class="k">if</span> <span class="n">image</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">image</span> <span class="o">=</span> <span class="n">ImageAICS</span><span class="p">(</span><span class="n">data</span><span class="o">=</span><span class="n">image_data</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">image</span><span class="o">.</span><span class="n">add_data</span><span class="p">(</span><span class="n">image_data</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">get_meta_data</span> <span class="ow">and</span> <span class="n">meta_data</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="c1"># add additional meta data</span>
+            <span class="k">if</span> <span class="n">get_meta_data</span><span class="p">:</span>
+                <span class="n">meta</span> <span class="o">=</span> <span class="p">{}</span>
+                <span class="n">physical_size</span> <span class="o">=</span> <span class="n">meta_data</span><span class="p">[</span><span class="s1">&#39;xy_pixel_size&#39;</span><span class="p">]</span>
+                <span class="c1"># Slidebook returns pixel size in  micrometers</span>
+                <span class="n">meta</span><span class="p">[</span><span class="s1">&#39;PhysicalSizeX&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">physical_size</span>
+                <span class="n">meta</span><span class="p">[</span><span class="s1">&#39;PhysicalSizeXUnit&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="s1">&#39;mum&#39;</span>
+                <span class="n">meta</span><span class="p">[</span><span class="s1">&#39;PhysicalSizeY&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">physical_size</span>
+                <span class="n">meta</span><span class="p">[</span><span class="s1">&#39;PhysicalSizeYUnit&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="s1">&#39;mum&#39;</span>
+                <span class="n">meta</span><span class="p">[</span><span class="s1">&#39;PhysicalSizeZ&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">meta_data</span><span class="p">[</span><span class="s1">&#39;z_spacing&#39;</span><span class="p">]</span>
+                <span class="n">meta</span><span class="p">[</span><span class="s1">&#39;PhysicalSizeZUnit&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="s1">&#39;mum&#39;</span>
+                <span class="c1"># TODO: Handle multi channel image</span>
+                <span class="n">channel_size</span> <span class="o">=</span> <span class="mi">1</span>
+                <span class="c1"># Test the channel stuff</span>
+                <span class="k">for</span> <span class="n">c</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">channel_size</span><span class="p">):</span>
+                    <span class="n">meta</span><span class="p">[</span><span class="s1">&#39;Channel_&#39;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">c</span><span class="p">)]</span> <span class="o">=</span> <span class="s1">&#39;Channel_&#39;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">c</span><span class="p">)</span>
+                <span class="n">meta</span><span class="p">[</span><span class="s1">&#39;Type&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">meta_data</span><span class="p">[</span><span class="s1">&#39;format&#39;</span><span class="p">]</span>
+                <span class="n">meta</span><span class="p">[</span><span class="s1">&#39;Microscope&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">meta_data</span><span class="p">[</span><span class="s1">&#39;microscope&#39;</span><span class="p">]</span>
+                <span class="n">meta</span><span class="p">[</span><span class="s1">&#39;StageLocationX&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">meta_data</span><span class="p">[</span><span class="s1">&#39;stage_location&#39;</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span>
+                <span class="n">meta</span><span class="p">[</span><span class="s1">&#39;StageLocationY&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">meta_data</span><span class="p">[</span><span class="s1">&#39;stage_location&#39;</span><span class="p">][</span><span class="mi">1</span><span class="p">]</span>
+                <span class="n">meta</span><span class="p">[</span><span class="s1">&#39;StageLocationZ&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">meta_data</span><span class="p">[</span><span class="s1">&#39;stage_location&#39;</span><span class="p">][</span><span class="mi">2</span><span class="p">]</span>
+                <span class="n">meta</span><span class="p">[</span><span class="s1">&#39;TimeStamp&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">meta_data</span><span class="p">[</span><span class="s1">&#39;time_stamp&#39;</span><span class="p">]</span>
+                <span class="n">meta</span><span class="p">[</span><span class="s1">&#39;StageDirectionX&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">meta_data</span><span class="p">[</span><span class="s1">&#39;x_stage_direction&#39;</span><span class="p">]</span>
+                <span class="n">meta</span><span class="p">[</span><span class="s1">&#39;StageDirectionY&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">meta_data</span><span class="p">[</span><span class="s1">&#39;y_stage_direction&#39;</span><span class="p">]</span>
+                <span class="n">meta</span><span class="p">[</span><span class="s1">&#39;StageDirectionZ&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">meta_data</span><span class="p">[</span><span class="s1">&#39;z_stage_direction&#39;</span><span class="p">]</span>
+                <span class="n">meta</span><span class="p">[</span><span class="s1">&#39;IdCounter&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">meta_data</span><span class="p">[</span><span class="s1">&#39;id_counter&#39;</span><span class="p">]</span>
+                <span class="n">meta</span><span class="p">[</span><span class="s1">&#39;DataId&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">meta_data</span><span class="p">[</span><span class="s1">&#39;data_id&#39;</span><span class="p">]</span>
+                <span class="n">meta</span><span class="p">[</span><span class="s1">&#39;TmpPath&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">meta_data</span><span class="p">[</span><span class="s1">&#39;tmp_path&#39;</span><span class="p">]</span>
+                <span class="n">image</span><span class="o">.</span><span class="n">add_meta</span><span class="p">(</span><span class="n">meta</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">image</span></div>
+
+<div class="viewcode-block" id="ConnectMicroscope.remove_all"><a class="viewcode-back" href="../../connect_slidebook.html#microscope_automation.connect_slidebook.ConnectMicroscope.remove_all">[docs]</a>    <span class="k">def</span> <span class="nf">remove_all</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Remove all images from queue at data service.</span>
+
+<span class="sd">        Input:</span>
+<span class="sd">         none</span>
+
+<span class="sd">        Output:</span>
+<span class="sd">         none</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">response</span> <span class="o">=</span> <span class="n">requests</span><span class="o">.</span><span class="n">delete</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">data_url</span> <span class="o">+</span> <span class="s1">&#39;/clear&#39;</span><span class="p">)</span>
+        <span class="c1"># Raise if bad status code</span>
+        <span class="n">response</span><span class="o">.</span><span class="n">raise_for_status</span><span class="p">()</span></div>
+
+    <span class="c1">##################################################################################################################</span>
+    <span class="c1">#</span>
+    <span class="c1"># Methods to manipulate commands queue</span>
+    <span class="c1">#</span>
+    <span class="c1">##################################################################################################################</span>
+<div class="viewcode-block" id="ConnectMicroscope.clear_experiments"><a class="viewcode-back" href="../../connect_slidebook.html#microscope_automation.connect_slidebook.ConnectMicroscope.clear_experiments">[docs]</a>    <span class="k">def</span> <span class="nf">clear_experiments</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;Clear experiments queue&#39;&#39;&#39;</span>
+        <span class="n">experiments_response</span> <span class="o">=</span> <span class="n">requests</span><span class="o">.</span><span class="n">delete</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">cmd_url</span> <span class="o">+</span> <span class="s1">&#39;/experiments/clear&#39;</span><span class="p">)</span>
+        <span class="c1"># Raise if bad status code</span>
+        <span class="n">experiments_response</span><span class="o">.</span><span class="n">raise_for_status</span><span class="p">()</span></div>
+
+<div class="viewcode-block" id="ConnectMicroscope.count_experiments"><a class="viewcode-back" href="../../connect_slidebook.html#microscope_automation.connect_slidebook.ConnectMicroscope.count_experiments">[docs]</a>    <span class="k">def</span> <span class="nf">count_experiments</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;Return number of experiments inqueue&#39;&#39;&#39;</span>
+        <span class="n">experiments_response</span> <span class="o">=</span> <span class="n">requests</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">cmd_url</span> <span class="o">+</span> <span class="s1">&#39;/experiments/count&#39;</span><span class="p">)</span>
+        <span class="c1"># Raise if bad status code</span>
+        <span class="n">experiments_response</span><span class="o">.</span><span class="n">raise_for_status</span><span class="p">()</span>
+        <span class="k">return</span> <span class="n">experiments_response</span><span class="o">.</span><span class="n">json</span><span class="p">()</span></div>
+
+<div class="viewcode-block" id="ConnectMicroscope.post_experiment"><a class="viewcode-back" href="../../connect_slidebook.html#microscope_automation.connect_slidebook.ConnectMicroscope.post_experiment">[docs]</a>    <span class="k">def</span> <span class="nf">post_experiment</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">experiment</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;Post experiment as last entry on queue and return updated experiment&#39;&#39;&#39;</span>
+        <span class="n">experiments_response</span> <span class="o">=</span> <span class="n">requests</span><span class="o">.</span><span class="n">post</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">cmd_url</span> <span class="o">+</span> <span class="s1">&#39;/experiments&#39;</span><span class="p">,</span> <span class="n">json</span><span class="o">=</span><span class="n">experiment</span><span class="p">)</span>
+        <span class="c1"># Raise if bad status code</span>
+        <span class="n">experiments_response</span><span class="o">.</span><span class="n">raise_for_status</span><span class="p">()</span>
+        <span class="k">return</span> <span class="n">experiments_response</span><span class="o">.</span><span class="n">json</span><span class="p">()</span></div>
+
+<div class="viewcode-block" id="ConnectMicroscope.get_next_experiment"><a class="viewcode-back" href="../../connect_slidebook.html#microscope_automation.connect_slidebook.ConnectMicroscope.get_next_experiment">[docs]</a>    <span class="k">def</span> <span class="nf">get_next_experiment</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;Return next (oldest) experiments in queue&#39;&#39;&#39;</span>
+        <span class="n">experiments_response</span> <span class="o">=</span> <span class="n">requests</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">cmd_url</span> <span class="o">+</span> <span class="s1">&#39;/experiments/next&#39;</span><span class="p">)</span>
+        <span class="c1"># Raise if bad status code</span>
+        <span class="n">experiments_response</span><span class="o">.</span><span class="n">raise_for_status</span><span class="p">()</span>
+        <span class="k">if</span> <span class="n">experiments_response</span><span class="o">.</span><span class="n">status_code</span> <span class="o">==</span> <span class="mi">204</span><span class="p">:</span>
+            <span class="k">return</span> <span class="kc">None</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">experiments_response</span><span class="o">.</span><span class="n">json</span><span class="p">()</span></div>
+
+<div class="viewcode-block" id="ConnectMicroscope.get_experiment"><a class="viewcode-back" href="../../connect_slidebook.html#microscope_automation.connect_slidebook.ConnectMicroscope.get_experiment">[docs]</a>    <span class="k">def</span> <span class="nf">get_experiment</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">experiment_id</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;Return experiment by id&#39;&#39;&#39;</span>
+        <span class="n">experiments_response</span> <span class="o">=</span> <span class="n">requests</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">cmd_url</span> <span class="o">+</span> <span class="s1">&#39;/experiments/&#39;</span> <span class="o">+</span> <span class="n">experiment_id</span><span class="p">)</span>
+        <span class="c1"># Raise if bad status code</span>
+        <span class="n">experiments_response</span><span class="o">.</span><span class="n">raise_for_status</span><span class="p">()</span>
+        <span class="k">return</span> <span class="n">experiments_response</span><span class="o">.</span><span class="n">json</span><span class="p">()</span></div>
+
+<div class="viewcode-block" id="ConnectMicroscope.delete_experiment"><a class="viewcode-back" href="../../connect_slidebook.html#microscope_automation.connect_slidebook.ConnectMicroscope.delete_experiment">[docs]</a>    <span class="k">def</span> <span class="nf">delete_experiment</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">experiment_id</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;Delete experiment by id&#39;&#39;&#39;</span>
+        <span class="n">experiments_response</span> <span class="o">=</span> <span class="n">requests</span><span class="o">.</span><span class="n">delete</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">cmd_url</span> <span class="o">+</span> <span class="s1">&#39;/experiments/&#39;</span> <span class="o">+</span> <span class="n">experiment_id</span><span class="p">)</span>
+        <span class="c1"># Raise if bad status code</span>
+        <span class="n">experiments_response</span><span class="o">.</span><span class="n">raise_for_status</span><span class="p">()</span>
+        <span class="k">return</span> <span class="n">experiments_response</span><span class="o">.</span><span class="n">json</span><span class="p">()</span></div>
+
+<div class="viewcode-block" id="ConnectMicroscope.get_experiment_dict"><a class="viewcode-back" href="../../connect_slidebook.html#microscope_automation.connect_slidebook.ConnectMicroscope.get_experiment_dict">[docs]</a>    <span class="k">def</span> <span class="nf">get_experiment_dict</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;Retrieve dictionary with all experiments on queue&#39;&#39;&#39;</span>
+        <span class="n">experiments_response</span> <span class="o">=</span> <span class="n">requests</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">cmd_url</span> <span class="o">+</span> <span class="s1">&#39;/experiments&#39;</span><span class="p">)</span>
+        <span class="c1"># Raise if bad status code</span>
+        <span class="n">experiments_response</span><span class="o">.</span><span class="n">raise_for_status</span><span class="p">()</span>
+        <span class="k">return</span> <span class="n">experiments_response</span><span class="o">.</span><span class="n">json</span><span class="p">()</span></div>
+
+    <span class="c1">##################################################################################################################</span>
+    <span class="c1">#</span>
+    <span class="c1"># Methods to acquire images</span>
+    <span class="c1">#</span>
+    <span class="c1">##################################################################################################################</span>
+
+<div class="viewcode-block" id="ConnectMicroscope.snap_image"><a class="viewcode-back" href="../../connect_slidebook.html#microscope_automation.connect_slidebook.ConnectMicroscope.snap_image">[docs]</a>    <span class="k">def</span> <span class="nf">snap_image</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">capture_settings</span><span class="p">,</span> <span class="n">objective</span><span class="o">=</span><span class="s1">&#39;&#39;</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Snap image with parameters defined in experiment at current location.</span>
+<span class="sd">        Raise exception if request was not successful</span>
+
+<span class="sd">        Input:</span>
+<span class="sd">         capture_settings: string with name of capture_settings as defined within Microscope software</span>
+<span class="sd">         objective: objective used to acquire image. If none keep objective.</span>
+
+<span class="sd">        Return:</span>
+<span class="sd">         response: Return dictionary with response from commands microservice</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">experiment</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">default_experiment</span>
+        <span class="n">experiment</span><span class="p">[</span><span class="s1">&#39;objective&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">objective</span>
+        <span class="n">experiment</span><span class="p">[</span><span class="s1">&#39;microscope_action&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="s1">&#39;snap&#39;</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">dummy</span><span class="p">:</span>
+            <span class="k">return</span> <span class="p">{</span><span class="s1">&#39;microscope&#39;</span><span class="p">:</span> <span class="s1">&#39;&#39;</span><span class="p">}</span>
+
+        <span class="n">response</span> <span class="o">=</span> <span class="n">requests</span><span class="o">.</span><span class="n">post</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">cmd_url</span> <span class="o">+</span> <span class="s1">&#39;/experiments&#39;</span><span class="p">,</span> <span class="n">json</span><span class="o">=</span><span class="n">experiment</span><span class="p">)</span>
+        <span class="c1"># raise exception if request was not successful</span>
+        <span class="n">response</span><span class="o">.</span><span class="n">raise_for_status</span><span class="p">()</span>
+        <span class="k">return</span> <span class="n">response</span><span class="o">.</span><span class="n">json</span><span class="p">()</span></div>
+
+<div class="viewcode-block" id="ConnectMicroscope.execute_experiment"><a class="viewcode-back" href="../../connect_slidebook.html#microscope_automation.connect_slidebook.ConnectMicroscope.execute_experiment">[docs]</a>    <span class="k">def</span> <span class="nf">execute_experiment</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">capture_settings</span><span class="p">,</span> <span class="n">locations</span><span class="p">,</span> <span class="n">objective</span><span class="o">=</span><span class="s1">&#39;&#39;</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Execute experiments with parameters defined in experiment on multiple positions.</span>
+
+<span class="sd">        Input:</span>
+<span class="sd">         capture_settings: string with name of experiment as defined within Microscope software</span>
+<span class="sd">         objective: objective used to acquire image. If none keep objective.</span>
+<span class="sd">         locations: list with (x,y,z) stage locations</span>
+<span class="sd">        Output:</span>
+<span class="sd">         success: True when experiment was successfully posted on command server</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">experiment</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">default_experiment</span>
+        <span class="n">experiment</span><span class="p">[</span><span class="s1">&#39;stage_locations&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">locations</span>
+        <span class="n">experiment</span><span class="p">[</span><span class="s1">&#39;capture_settings&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span><span class="n">capture_settings</span><span class="p">]</span> <span class="o">*</span> <span class="nb">len</span><span class="p">(</span><span class="n">locations</span><span class="p">)</span>
+        <span class="n">experiment</span><span class="p">[</span><span class="s1">&#39;centers_of_interest&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">locations</span>
+        <span class="n">experiment</span><span class="p">[</span><span class="s1">&#39;objective&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">objective</span>
+        <span class="n">experiment</span><span class="p">[</span><span class="s1">&#39;microscope_action&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="s1">&#39;move_snap&#39;</span>
+
+        <span class="n">response</span> <span class="o">=</span> <span class="n">requests</span><span class="o">.</span><span class="n">post</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">cmd_url</span> <span class="o">+</span> <span class="s1">&#39;/experiments&#39;</span><span class="p">,</span> <span class="n">json</span><span class="o">=</span><span class="n">experiment</span><span class="p">)</span>
+        <span class="n">success</span> <span class="o">=</span> <span class="n">response</span><span class="o">.</span><span class="n">status_code</span> <span class="o">==</span> <span class="n">requests</span><span class="o">.</span><span class="n">codes</span><span class="o">.</span><span class="n">ok</span>
+        <span class="k">return</span> <span class="n">success</span></div>
+
+<div class="viewcode-block" id="ConnectMicroscope.live_mode_start"><a class="viewcode-back" href="../../connect_slidebook.html#microscope_automation.connect_slidebook.ConnectMicroscope.live_mode_start">[docs]</a>    <span class="k">def</span> <span class="nf">live_mode_start</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">experiment</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;Start live mode.</span>
+<span class="sd">        Included for parity between Microscope connections.</span>
+
+<span class="sd">        Raises HardwareCommandNotDefinedError.</span>
+
+<span class="sd">        Input:</span>
+<span class="sd">         experiment: name of experiment</span>
+
+<span class="sd">        Output:</span>
+<span class="sd">         none</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">not_implemented</span><span class="p">(</span><span class="s1">&#39;live_mode_start&#39;</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="ConnectMicroscope.live_mode_stop"><a class="viewcode-back" href="../../connect_slidebook.html#microscope_automation.connect_slidebook.ConnectMicroscope.live_mode_stop">[docs]</a>    <span class="k">def</span> <span class="nf">live_mode_stop</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">experiment</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;Stop live mode.</span>
+<span class="sd">        Included for parity between Microscope connections.</span>
+
+<span class="sd">        Raises HardwareCommandNotDefinedError.</span>
+
+<span class="sd">        Input:</span>
+<span class="sd">         experiment: name of experiment</span>
+
+<span class="sd">        Output:</span>
+<span class="sd">         none</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">not_implemented</span><span class="p">(</span><span class="s1">&#39;live_mode_stop&#39;</span><span class="p">)</span></div>
+
+    <span class="c1">##################################################################################################################</span>
+    <span class="c1">#</span>
+    <span class="c1"># Methods to control motorized xy stage</span>
+    <span class="c1">#</span>
+    <span class="c1">##################################################################################################################</span>
+
+<div class="viewcode-block" id="ConnectMicroscope.get_stage_pos"><a class="viewcode-back" href="../../connect_slidebook.html#microscope_automation.connect_slidebook.ConnectMicroscope.get_stage_pos">[docs]</a>    <span class="k">def</span> <span class="nf">get_stage_pos</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">repetitions</span><span class="o">=</span><span class="mi">5</span><span class="p">,</span> <span class="n">wait</span><span class="o">=</span><span class="mi">1</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Return most recent position of Microscope stage.</span>
+
+<span class="sd">        Input:</span>
+<span class="sd">         repetitions: number of times to try to get a response</span>
+
+<span class="sd">         wait: wait time per repetition in sec</span>
+
+<span class="sd">        Output:</span>
+<span class="sd">         xPos, yPos, zPos: x and y position of stage in micrometer</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">repetitions</span><span class="p">):</span>
+            <span class="n">response</span> <span class="o">=</span> <span class="n">requests</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">cmd_url</span> <span class="o">+</span> <span class="s1">&#39;/recent_position&#39;</span><span class="p">)</span>
+            <span class="c1"># Raise if bad status code</span>
+            <span class="n">response</span><span class="o">.</span><span class="n">raise_for_status</span><span class="p">()</span>
+            <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">response</span><span class="o">.</span><span class="n">json</span><span class="p">())</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+                <span class="k">return</span> <span class="n">response</span><span class="o">.</span><span class="n">json</span><span class="p">()[</span><span class="s1">&#39;stage_location&#39;</span><span class="p">]</span>
+            <span class="n">time</span><span class="o">.</span><span class="n">sleep</span><span class="p">(</span><span class="n">wait</span><span class="p">)</span>
+        <span class="k">raise</span> <span class="n">requests</span><span class="o">.</span><span class="n">exceptions</span><span class="o">.</span><span class="n">Timeout</span><span class="p">()</span></div>
+
+<div class="viewcode-block" id="ConnectMicroscope.move_stage_to"><a class="viewcode-back" href="../../connect_slidebook.html#microscope_automation.connect_slidebook.ConnectMicroscope.move_stage_to">[docs]</a>    <span class="k">def</span> <span class="nf">move_stage_to</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">xPos</span><span class="p">,</span> <span class="n">yPos</span><span class="p">,</span> <span class="n">zPos</span><span class="p">,</span> <span class="n">capture_settings</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">test</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Move stage to new position.</span>
+
+<span class="sd">        Input:</span>
+<span class="sd">         xPos, yPos, zPos: new stage and objective position in micrometers.</span>
+
+<span class="sd">         capture_settings: capture settings in Slidebook Capture dialog to move stage</span>
+
+<span class="sd">         test: not used but included for consistency with ZEN Blue API</span>
+
+<span class="sd">        Output:</span>
+<span class="sd">         xPos, yPos, zPos: new stage and objective position in micrometers</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">xPos</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">or</span> <span class="n">yPos</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">or</span> <span class="n">zPos</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="n">HardwareError</span><span class="p">(</span><span class="s1">&#39;Position not defined in move_stage_to.&#39;</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">test</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="n">HardwareCommandNotDefinedError</span><span class="p">(</span><span class="s1">&#39;move_stage_to method does not support testing with Slidebook microscope&#39;</span><span class="p">)</span>
+
+        <span class="n">xPos</span><span class="p">,</span> <span class="n">yPos</span><span class="p">,</span> <span class="n">zPos</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="nb">round</span><span class="p">(</span><span class="n">xPos</span><span class="p">)),</span> <span class="nb">int</span><span class="p">(</span><span class="nb">round</span><span class="p">(</span><span class="n">yPos</span><span class="p">)),</span> <span class="nb">int</span><span class="p">(</span><span class="nb">round</span><span class="p">(</span><span class="n">zPos</span><span class="p">))</span>
+        <span class="n">experiment</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">default_experiment</span>
+        <span class="k">if</span> <span class="n">capture_settings</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">experiment</span><span class="p">[</span><span class="s1">&#39;capture_settings&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">capture_settings</span>
+        <span class="n">experiment</span><span class="p">[</span><span class="s1">&#39;stage_locations&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="p">[(</span><span class="n">xPos</span><span class="p">,</span> <span class="n">yPos</span><span class="p">,</span> <span class="n">zPos</span><span class="p">)]</span>
+        <span class="n">experiment</span><span class="p">[</span><span class="s1">&#39;microscope_action&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="s1">&#39;move&#39;</span>
+        <span class="n">experiment</span><span class="p">[</span><span class="s1">&#39;capture_settings&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
+
+        <span class="n">requests</span><span class="o">.</span><span class="n">post</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">cmd_url</span> <span class="o">+</span> <span class="s1">&#39;/experiments&#39;</span><span class="p">,</span> <span class="n">json</span><span class="o">=</span><span class="n">experiment</span><span class="p">)</span>
+        <span class="k">return</span> <span class="p">[</span><span class="n">xPos</span><span class="p">,</span> <span class="n">yPos</span><span class="p">,</span> <span class="n">zPos</span><span class="p">]</span></div>
+
+<span class="c1">##################################################################################################################</span>
+<span class="c1">#</span>
+<span class="c1"># Methods to control focus</span>
+<span class="c1">#</span>
+<span class="c1">##################################################################################################################</span>
+<div class="viewcode-block" id="ConnectMicroscope.get_focus_pos"><a class="viewcode-back" href="../../connect_slidebook.html#microscope_automation.connect_slidebook.ConnectMicroscope.get_focus_pos">[docs]</a>    <span class="k">def</span> <span class="nf">get_focus_pos</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Return current position of focus drive.</span>
+
+<span class="sd">        Input:</span>
+<span class="sd">         none</span>
+
+<span class="sd">        Output:</span>
+<span class="sd">         zPos: position of focus drive in micrometer</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">positions</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_stage_pos</span><span class="p">()</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">positions</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="k">return</span> <span class="kc">None</span>
+        <span class="k">return</span> <span class="n">positions</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span></div>
+
+<div class="viewcode-block" id="ConnectMicroscope.move_focus_to"><a class="viewcode-back" href="../../connect_slidebook.html#microscope_automation.connect_slidebook.ConnectMicroscope.move_focus_to">[docs]</a>    <span class="k">def</span> <span class="nf">move_focus_to</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">zPos</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;Move focus to new position.</span>
+<span class="sd">        Included for parity between Microscope connections.</span>
+
+<span class="sd">        Raises HardwareCommandNotDefinedError.</span>
+
+<span class="sd">        Input:</span>
+<span class="sd">         zPos, yPos: new focus position in micrometers.</span>
+
+<span class="sd">        Output:</span>
+<span class="sd">         zFocus: new position of focus drive</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">not_implemented</span><span class="p">(</span><span class="s1">&#39;move_focus_to&#39;</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="ConnectMicroscope.z_relative_move"><a class="viewcode-back" href="../../connect_slidebook.html#microscope_automation.connect_slidebook.ConnectMicroscope.z_relative_move">[docs]</a>    <span class="k">def</span> <span class="nf">z_relative_move</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">delta</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;Move focus relative to current position.</span>
+<span class="sd">        Included for parity between Microscope connections.</span>
+
+<span class="sd">        Raises HardwareCommandNotDefinedError.</span>
+
+<span class="sd">        Input:</span>
+<span class="sd">         delta: distance in mum</span>
+
+<span class="sd">        Output:</span>
+<span class="sd">         z: new position of focus drive</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">not_implemented</span><span class="p">(</span><span class="s1">&#39;z_relative_move&#39;</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="ConnectMicroscope.z_down_relative"><a class="viewcode-back" href="../../connect_slidebook.html#microscope_automation.connect_slidebook.ConnectMicroscope.z_down_relative">[docs]</a>    <span class="k">def</span> <span class="nf">z_down_relative</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">delta</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;Move focus relative to current position away from sample.</span>
+<span class="sd">        Included for parity between Microscope connections.</span>
+
+<span class="sd">        Raises HardwareCommandNotDefinedError.</span>
+
+<span class="sd">        Input:</span>
+<span class="sd">         delta: absolute distance in mum</span>
+
+<span class="sd">        Output:</span>
+<span class="sd">         z: new position of focus drive</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+        <span class="n">z</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">z_relative_move</span><span class="p">(</span><span class="o">-</span><span class="n">delta</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">z</span></div>
+
+<div class="viewcode-block" id="ConnectMicroscope.z_up_relative"><a class="viewcode-back" href="../../connect_slidebook.html#microscope_automation.connect_slidebook.ConnectMicroscope.z_up_relative">[docs]</a>    <span class="k">def</span> <span class="nf">z_up_relative</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">delta</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;Move focus relative to current position towards sample.</span>
+<span class="sd">        Included for parity between Microscope connections.</span>
+
+<span class="sd">        Raises HardwareCommandNotDefinedError.</span>
+
+<span class="sd">        Input:</span>
+<span class="sd">         delta: absolute distance in mum</span>
+
+<span class="sd">        Output:</span>
+<span class="sd">         z: new position of focus drive</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+        <span class="n">z</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">z_relative_move</span><span class="p">(</span><span class="n">delta</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">z</span></div>
+
+<div class="viewcode-block" id="ConnectMicroscope.set_focus_work_position"><a class="viewcode-back" href="../../connect_slidebook.html#microscope_automation.connect_slidebook.ConnectMicroscope.set_focus_work_position">[docs]</a>    <span class="k">def</span> <span class="nf">set_focus_work_position</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;Retrieve current position and set as work position.</span>
+
+<span class="sd">        Input:</span>
+<span class="sd">         none</span>
+
+<span class="sd">        Output:</span>
+<span class="sd">         z_work: current focus position in mum</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+        <span class="n">z_work</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_focus_pos</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">zWork</span> <span class="o">=</span> <span class="n">z_work</span>
+
+        <span class="n">log</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s1">&#39;Stored current focus position as work position&#39;</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="n">z_work</span><span class="p">))</span>
+
+        <span class="k">return</span> <span class="n">z_work</span></div>
+
+<div class="viewcode-block" id="ConnectMicroscope.set_focus_load_position"><a class="viewcode-back" href="../../connect_slidebook.html#microscope_automation.connect_slidebook.ConnectMicroscope.set_focus_load_position">[docs]</a>    <span class="k">def</span> <span class="nf">set_focus_load_position</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;Retrieve current position and set as load position.</span>
+
+<span class="sd">        Input:</span>
+<span class="sd">         none</span>
+
+<span class="sd">        Output:</span>
+<span class="sd">         zLoad: current focus position in mum</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+        <span class="n">zLoad</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_focus_pos</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">zLoad</span> <span class="o">=</span> <span class="n">zLoad</span>
+
+        <span class="n">log</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s1">&#39;Stored current focus position as load position: </span><span class="si">%s</span><span class="s1">&#39;</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="n">zLoad</span><span class="p">))</span>
+
+        <span class="k">return</span> <span class="n">zLoad</span></div>
+
+<div class="viewcode-block" id="ConnectMicroscope.move_focus_to_load"><a class="viewcode-back" href="../../connect_slidebook.html#microscope_automation.connect_slidebook.ConnectMicroscope.move_focus_to_load">[docs]</a>    <span class="k">def</span> <span class="nf">move_focus_to_load</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;Move focus to load position if defined.</span>
+
+<span class="sd">        Input:</span>
+<span class="sd">         zPos, yPos: new focus position in micrometers.</span>
+
+<span class="sd">        Output:</span>
+<span class="sd">         zFocus: new position of focus drive</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+        <span class="c1"># check if load position is defined</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">zLoad</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">log</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="s1">&#39;Load position not defined&#39;</span><span class="p">)</span>
+            <span class="k">raise</span> <span class="n">LoadNotDefinedError</span><span class="p">(</span>
+                <span class="s1">&#39;Tried to move focus drive to load position, but load position was not defined.&#39;</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">zLoad</span> <span class="o">&gt;</span> <span class="mi">1000</span><span class="p">:</span>
+            <span class="n">log</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="s1">&#39;Load position too high&#39;</span><span class="p">)</span>
+            <span class="k">raise</span> <span class="n">LoadNotDefinedError</span><span class="p">(</span><span class="s1">&#39;Tried to move focus drive to load position, but load position was too high.&#39;</span><span class="p">)</span>
+
+        <span class="c1"># move to load position if defined</span>
+        <span class="n">zFocus</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">move_focus_to</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">zLoad</span><span class="p">)</span>
+
+        <span class="n">log</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s1">&#39;moved focus to load position: </span><span class="si">%s</span><span class="s1">&#39;</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="n">zFocus</span><span class="p">))</span>
+
+        <span class="k">return</span> <span class="n">zFocus</span></div>
+
+<div class="viewcode-block" id="ConnectMicroscope.move_focus_to_work"><a class="viewcode-back" href="../../connect_slidebook.html#microscope_automation.connect_slidebook.ConnectMicroscope.move_focus_to_work">[docs]</a>    <span class="k">def</span> <span class="nf">move_focus_to_work</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;Move focus to work position if defined.</span>
+
+<span class="sd">        Input:</span>
+<span class="sd">         zPos, yPos: new focus position in micrometers.</span>
+
+<span class="sd">        Output:</span>
+<span class="sd">         zFocus: new position of focus drive</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+        <span class="c1"># check if load position is defined</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">zWork</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">log</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="s1">&#39;Work position not defined&#39;</span><span class="p">)</span>
+            <span class="k">raise</span> <span class="n">WorkNotDefinedError</span><span class="p">(</span><span class="s1">&#39;Tried to move focus drive to work position, but work position was not defined.&#39;</span><span class="p">)</span>
+
+        <span class="c1"># move to load position if defined</span>
+        <span class="n">zFocus</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">move_focus_to</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">zWork</span><span class="p">)</span>
+
+        <span class="n">log</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s1">&#39;moved focus to load position: </span><span class="si">%s</span><span class="s1">&#39;</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="n">zFocus</span><span class="p">))</span>
+
+        <span class="k">return</span> <span class="n">zFocus</span></div>
+
+    <span class="c1">##################################################################################################################</span>
+    <span class="c1">#</span>
+    <span class="c1"># Methods to control immersion water delivery</span>
+    <span class="c1">#</span>
+    <span class="c1">##################################################################################################################</span>
+
+<div class="viewcode-block" id="ConnectMicroscope.trigger_pump"><a class="viewcode-back" href="../../connect_slidebook.html#microscope_automation.connect_slidebook.ConnectMicroscope.trigger_pump">[docs]</a>    <span class="k">def</span> <span class="nf">trigger_pump</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">seconds</span><span class="p">,</span> <span class="n">port</span><span class="o">=</span><span class="s1">&#39;COM1&#39;</span><span class="p">,</span> <span class="n">baudrate</span><span class="o">=</span><span class="mi">19200</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;Trigger pump</span>
+
+<span class="sd">        Input:</span>
+<span class="sd">         seconds: the number of seconds pump is activated</span>
+
+<span class="sd">         port: com port, default = &#39;COM1&#39;</span>
+
+<span class="sd">         baudrate: baudrate for connection, can be set on pump, typically = 19200</span>
+
+<span class="sd">        Output:</span>
+<span class="sd">         none</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="c1"># connect to pump through RS232</span>
+            <span class="n">pump</span> <span class="o">=</span> <span class="n">Braintree</span><span class="p">(</span><span class="n">port</span><span class="o">=</span><span class="s1">&#39;COM1&#39;</span><span class="p">,</span> <span class="n">baudrate</span><span class="o">=</span><span class="mi">19200</span><span class="p">)</span>
+
+            <span class="c1"># activate pump</span>
+            <span class="n">pump</span><span class="o">.</span><span class="n">start_pump</span><span class="p">()</span>
+
+            <span class="c1"># continue pumping for seconds</span>
+            <span class="n">time</span><span class="o">.</span><span class="n">sleep</span><span class="p">(</span><span class="n">seconds</span><span class="p">)</span>
+
+            <span class="c1"># stop pump and close connection</span>
+            <span class="n">pump</span><span class="o">.</span><span class="n">close_connection</span><span class="p">()</span>
+        <span class="k">except</span> <span class="ne">Exception</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="n">HardwareError</span><span class="p">(</span><span class="s1">&#39;Error in trigger_pump.&#39;</span><span class="p">)</span>
+
+        <span class="n">log</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s1">&#39;Pump activated for : </span><span class="si">%s</span><span class="s1"> sec&#39;</span><span class="p">,</span> <span class="n">seconds</span><span class="p">)</span></div>
+
+    <span class="c1">##################################################################################################################</span>
+    <span class="c1">#</span>
+    <span class="c1"># Methods to collect information about microscope</span>
+    <span class="c1">#</span>
+    <span class="c1">##################################################################################################################</span>
+
+<div class="viewcode-block" id="ConnectMicroscope.get_microscope_name"><a class="viewcode-back" href="../../connect_slidebook.html#microscope_automation.connect_slidebook.ConnectMicroscope.get_microscope_name">[docs]</a>    <span class="k">def</span> <span class="nf">get_microscope_name</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;Returns name of the microscope from hardware that is controlled by this class.</span>
+
+<span class="sd">        Input:</span>
+<span class="sd">         none</span>
+
+<span class="sd">        Output:</span>
+<span class="sd">         Microscope: name of Microscope</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+
+        <span class="n">name</span> <span class="o">=</span> <span class="s1">&#39;get_microscope_name not implemented&#39;</span>
+        <span class="n">log</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s1">&#39;This class controls the microscope: </span><span class="si">%s</span><span class="s1">&#39;</span><span class="p">,</span> <span class="n">name</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">name</span></div>
+
+<div class="viewcode-block" id="ConnectMicroscope.stop"><a class="viewcode-back" href="../../connect_slidebook.html#microscope_automation.connect_slidebook.ConnectMicroscope.stop">[docs]</a>    <span class="k">def</span> <span class="nf">stop</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;Stop Microscope immediately&#39;&#39;&#39;</span>
+        <span class="n">log</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s1">&#39;Microscope operation aborted&#39;</span><span class="p">)</span></div>
+
+    <span class="c1">##################################################################################################################</span>
+    <span class="c1">#</span>
+    <span class="c1"># Methods to collect information about experiments</span>
+    <span class="c1">#</span>
+    <span class="c1">##################################################################################################################</span>
+
+<div class="viewcode-block" id="ConnectMicroscope.validate_experiment"><a class="viewcode-back" href="../../connect_slidebook.html#microscope_automation.connect_slidebook.ConnectMicroscope.validate_experiment">[docs]</a>    <span class="k">def</span> <span class="nf">validate_experiment</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">experiment_path</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">experiment_name</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Function to check if the experiment is defined in the Slidebook software</span>
+
+<span class="sd">        Input:</span>
+<span class="sd">         experiment_path: path of the experiment file - does not matter for Zen Black</span>
+
+<span class="sd">         experiment_name: name of the experiment</span>
+
+<span class="sd">        Output:</span>
+<span class="sd">         valid_experiment: bool describing if the experiment is valid</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">slidebook_experiment</span> <span class="o">=</span> <span class="n">SlidebookExperiment</span><span class="p">(</span><span class="n">experiment_path</span><span class="p">,</span> <span class="n">experiment_name</span><span class="p">)</span>
+        <span class="n">valid_experiment</span> <span class="o">=</span> <span class="n">slidebook_experiment</span><span class="o">.</span><span class="n">experiment_exists</span><span class="p">()</span>
+        <span class="k">return</span> <span class="n">valid_experiment</span></div>
+
+<div class="viewcode-block" id="ConnectMicroscope.get_focus_settings"><a class="viewcode-back" href="../../connect_slidebook.html#microscope_automation.connect_slidebook.ConnectMicroscope.get_focus_settings">[docs]</a>    <span class="k">def</span> <span class="nf">get_focus_settings</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">experiment_path</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">experiment_name</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Get focus settings.</span>
+<span class="sd">        Included for parity between Microscope connections.</span>
+
+<span class="sd">        Raises HardwareCommandNotDefinedError.</span>
+
+<span class="sd">        Input:</span>
+<span class="sd">         experiment_path: path of the experiment file</span>
+
+<span class="sd">         experiment_name: name of the experiment</span>
+
+<span class="sd">        Output:</span>
+<span class="sd">         none</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">not_implemented</span><span class="p">(</span><span class="s1">&#39;get_focus_settings&#39;</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="ConnectMicroscope.get_objective_position_from_experiment_file"><a class="viewcode-back" href="../../connect_slidebook.html#microscope_automation.connect_slidebook.ConnectMicroscope.get_objective_position_from_experiment_file">[docs]</a>    <span class="k">def</span> <span class="nf">get_objective_position_from_experiment_file</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">experiment_path</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">experiment_name</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Function to get the position of the objective used in the experiment</span>
+<span class="sd">        Included for parity between Microscope connections.</span>
+
+<span class="sd">        Raises HardwareCommandNotDefinedError.</span>
+
+<span class="sd">        Input:</span>
+<span class="sd">         experiment_path: path of the experiment file</span>
+
+<span class="sd">         experiment_name: name of the experiment</span>
+
+<span class="sd">        Output:</span>
+<span class="sd">         none</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">not_implemented</span><span class="p">(</span><span class="s1">&#39;get_objective_position_from_experiment_file&#39;</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="ConnectMicroscope.is_z_stack"><a class="viewcode-back" href="../../connect_slidebook.html#microscope_automation.connect_slidebook.ConnectMicroscope.is_z_stack">[docs]</a>    <span class="k">def</span> <span class="nf">is_z_stack</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">experiment_path</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">experiment_name</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Function to check if the experiment contains z-stack acquisition.</span>
+<span class="sd">        Included for parity between Microscope connections.</span>
+
+<span class="sd">        Raises HardwareCommandNotDefinedError.</span>
+
+<span class="sd">        Input:</span>
+<span class="sd">         experiment_path: path of the experiment file</span>
+
+<span class="sd">         experiment_name: name of the experiment</span>
+
+<span class="sd">        Output:</span>
+<span class="sd">         none</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">not_implemented</span><span class="p">(</span><span class="s1">&#39;is_z_stack&#39;</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="ConnectMicroscope.z_stack_range"><a class="viewcode-back" href="../../connect_slidebook.html#microscope_automation.connect_slidebook.ConnectMicroscope.z_stack_range">[docs]</a>    <span class="k">def</span> <span class="nf">z_stack_range</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">experiment_path</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">experiment_name</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Function to  get the range of first z-stack in experiment.</span>
+<span class="sd">        Included for parity between Microscope connections.</span>
+
+<span class="sd">        Raises HardwareCommandNotDefinedError.</span>
+
+<span class="sd">        Input:</span>
+<span class="sd">         experiment_path: path of the experiment file</span>
+
+<span class="sd">         experiment_name: name of the experiment</span>
+
+<span class="sd">        Output:</span>
+<span class="sd">         none</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">not_implemented</span><span class="p">(</span><span class="s1">&#39;z_stack_range&#39;</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="ConnectMicroscope.is_tile_scan"><a class="viewcode-back" href="../../connect_slidebook.html#microscope_automation.connect_slidebook.ConnectMicroscope.is_tile_scan">[docs]</a>    <span class="k">def</span> <span class="nf">is_tile_scan</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">experiment_path</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">experiment_name</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Function to check if the experiment is a tile scan.</span>
+<span class="sd">        Included for parity between Microscope connections.</span>
+
+<span class="sd">        Raises HardwareCommandNotDefinedError.</span>
+
+<span class="sd">        Input:</span>
+<span class="sd">         experiment_path: path of the experiment file</span>
+
+<span class="sd">         experiment_name: name of the experiment</span>
+
+<span class="sd">        Output:</span>
+<span class="sd">         none</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">not_implemented</span><span class="p">(</span><span class="s1">&#39;is_tile_scan&#39;</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="ConnectMicroscope.update_tile_positions"><a class="viewcode-back" href="../../connect_slidebook.html#microscope_automation.connect_slidebook.ConnectMicroscope.update_tile_positions">[docs]</a>    <span class="k">def</span> <span class="nf">update_tile_positions</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">experiment_path</span><span class="p">,</span> <span class="n">experiment_name</span><span class="p">,</span> <span class="n">x_value</span><span class="p">,</span> <span class="n">y_value</span><span class="p">,</span> <span class="n">z_value</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Function to define the position of the tile.</span>
+<span class="sd">        Included for parity between Microscope connections.</span>
+
+<span class="sd">        Raises HardwareCommandNotDefinedError.</span>
+
+<span class="sd">        Input:</span>
+<span class="sd">         experiment_path: path of the experiment file</span>
+
+<span class="sd">         experiment_name: name of the experiment</span>
+
+<span class="sd">         x_value: float (x - coordinate)</span>
+
+<span class="sd">         y_value: float (y - coordinate)</span>
+
+<span class="sd">         z_value: float (z - coordinate)</span>
+
+<span class="sd">        Output:</span>
+<span class="sd">         none</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">not_implemented</span><span class="p">(</span><span class="s1">&#39;update_tile_positions&#39;</span><span class="p">)</span></div></div>
+</pre></div>
+
+          </div>
+          
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<h1 class="logo"><a href="../../index.html">Microscope Automation</a></h1>
+
+
+
+
+
+
+
+
+<h3>Navigation</h3>
+<p class="caption"><span class="caption-text">Overview</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../index.html">README</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../installation.html">Installation</a></li>
+</ul>
+<p class="caption"><span class="caption-text">Hardware</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../hardware_components.html">hardware_components</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../hardware_control.html">hardware_control</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../image_AICS.html">image_AICS</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../load_image_czi.html">load_image_czi</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../preferences.html">preferences</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../setup_microscope.html">setup_microscope</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../RS232.html">RS232</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../samples.html">samples</a></li>
+</ul>
+<p class="caption"><span class="caption-text">Zeiss Microscopes</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../hardware_control_zeiss.html">hardware_control_zeiss</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../connect_zen_blue.html">connect_zen_blue</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../connect_zen_black.html">connect_zen_black</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../zen_experiment_info.html">zen_experiment_info</a></li>
+</ul>
+<p class="caption"><span class="caption-text">3i Microscopes</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../hardware_control_3i.html">hardware_control_3i</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../connect_slidebook.html">connect_slidebook</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../slidebook_experiment_info.html">slidebook_experiment_info</a></li>
+</ul>
+<p class="caption"><span class="caption-text">General Methods</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../get_path.html">get_path</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../automation_exceptions.html">automation_exceptions</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../automation_messages_form_layout.html">automation_messages_form_layout</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../error_handling.html">error_handling</a></li>
+</ul>
+<p class="caption"><span class="caption-text">Reference Docs</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../CONTRIBUTING.html">Allen Institute Contribution Agreement</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../LICENSE.html">LICENSE</a></li>
+</ul>
+
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="../../index.html">Documentation overview</a><ul>
+  <li><a href="../index.html">Module code</a><ul>
+  </ul></li>
+  </ul></li>
+</ul>
+</div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../../search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    </div>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+
+
+
+
+
+
+
+
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2020, Allen Institute.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.8.5</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.12</a>
+      
+    </div>
+
+    
+
+    
+  </body>
+</html>

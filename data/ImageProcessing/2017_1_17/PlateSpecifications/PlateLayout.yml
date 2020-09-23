@@ -1,0 +1,138 @@
+# Plate layout 
+# Dimensions of plate
+Rows: 8
+Columns: 12
+Pitch: 9000
+Diameter: 6220
+
+# Approximate position of well A1 on plate holder
+# The automation software will refine this position
+xA1Pos: 0
+yA1Pos: 0
+zA1Pos: 0
+
+# Is coordinate system of plate flipped relative to plate holder (Flip = -1, otherwise Flip = 1)
+xFlipPlate: 1
+yFlipPlate: 1
+zFlipPlate: 1
+
+# Adjustements for differences in calibration between plate coordinates and plate holder coordinates
+xCorrectionPlate: 1
+yCorrectionPlate: 1
+zCorrectionPlate: 1
+
+# Is coordinate system of wells flipped relative to plate (Flip = -1, otherwise Flip = 1)
+xFlipWell: 1
+yFlipWell: -1
+zFlipWell: 1
+
+# Adjustements for differences in calibration between well coordinates and plate coordinates
+xCorrectionWell: 1
+yCorrectionWell: 1
+zCorrectionWell: 1
+
+# Is coordinate system of colonies flipped relative to well (Flip = -1, otherwise Flip = 1)
+xFlipColony: 1
+yFlipColony: 1
+zFlipColony: 1
+
+# Adjustements for differences in calibration between colony coordinates and well coordinates
+xCorrectionColony: 1
+yCorrectionColony: 1
+zCorrectionColony: 1
+
+# Position of barcode within well in well coordinates (origin in center of well) in mum
+xBarcodePos: 0
+yBarcodePos: 0
+zBarcodePos: 0
+
+# Is coordinate system of barcode flipped relative to well (Flip = -1, otherwise Flip = 1)
+xFlipBarcode: 1
+yFlipBarcode: 1
+zFlipBarcode: 1
+
+# Adjustements for differences in calibration between barcode coordinates and well coordinates
+xCorrectionBarcode: 1
+yCorrectionBarcode: 1
+zCorrectionBarcode: 1
+
+empty:
+ label: Empty well
+ color: none
+
+barcode:
+ label: Barcode
+ color: grey
+
+wt:
+ label: Wild type control
+ color: lightcoral
+
+control:
+ label: Tubulin control
+ color: brown
+ 
+beads:
+ label: Resolution and alignment beads
+ color: magenta
+
+flat:
+ label: Flatfield correction
+ color: white
+
+blue:
+ label: Flatfield correction
+ color: blue
+
+green:
+ label: Flatfield correction
+ color: green
+
+red:
+ label: Flatfield correction
+ color: red
+ 
+cl_xl:
+ label: Clone (very low density)
+ type: well
+ color: palegreen
+
+cl_l:
+ label: Clone (low density)
+ color: lightgreen
+
+cl_m:
+ label: Clone (medium density)
+ color: green
+
+cl_h:
+ label: Clone (high density)
+ color: darkgreen
+    
+# Legend
+Legend: [[title, 'Biological Controls:'],
+        [entry, wt],
+        [entry, control],
+        [title, 'Technical Controls:'],
+        [entry, barcode],
+        [entry, beads],
+        [entry, flat],
+        [entry, blue],
+        [entry, green],
+        [entry, red],
+        [title, 'Samples:'],
+        [entry, cl_xl],
+        [entry, cl_l],
+        [entry, cl_m],
+        [entry, cl_h]]
+        
+# content of wells
+Wells: [[empty, empty, empty, empty, empty, empty, empty, empty, empty, empty, empty ,empty],
+        [empty, wt, wt, wt, wt, beads, wt, wt, wt, wt, beads, empty],
+        [empty, cl_xl, cl_xl, cl_xl, cl_xl, flat, cl_xl, cl_xl, cl_xl, cl_xl, flat, empty],
+        [empty, cl_l, cl_l, cl_l, cl_l, blue, cl_l, cl_l, cl_l, cl_l, blue, empty],
+        [empty,  wt, wt, wt, wt, red,  wt, wt, wt, wt, red, empty],
+        [empty, cl_m, cl_m, cl_m, cl_m, red, cl_m, cl_m, cl_m, cl_m, empty],
+        [empty, cl_h, cl_h, cl_h, cl_h, red, cl_h, cl_h, cl_h, barcode, empty],
+        [empty, empty, empty, empty, empty, empty, empty, empty, empty, empty, empty ,empty]]
+

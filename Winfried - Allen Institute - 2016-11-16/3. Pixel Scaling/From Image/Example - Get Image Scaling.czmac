@@ -1,0 +1,173 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Script Version="1.0">
+  <Language>Python</Language>
+  <Text># Example - Get Image Scaling.czmac
+# 2016-07-28  v1.0  JSM
+#----------------------------------------------
+# Requires the following CZIAS files:
+# 1. Example - Get Image Scaling.czias
+# 2. Example - Get Image Scaling (08-bit).czias
+# 3. Example - Get Image Scaling (16-bit).czias
+#----------------------------------------------
+
+#------------------------------------------------
+#--- Get the scaling from the image metadata. ---
+#------------------------------------------------
+def GetScalingFromMetadata(imgIn):
+    xScale = 1.0
+    yScale = 1.0
+    strUnits = "pixels"
+    #--- Get Metadata ---
+    strScaleAsText = ""
+    info = imgIn.Metadata.GetAllMetadata()
+    for i in info:
+        #--- Format: "1.29 um x 1.29 um" ---
+        if(i.Key == "ScalingInfo"):
+            strScaleAsText = i.Value
+    if(len(strScaleAsText) &gt; 0):
+        scalingWords = strScaleAsText.split(" ") #--- e.g. "0.325 um x 0.325 um"
+        if(scalingWords.Count == 5):
+            #--- Scale X ---
+            strScaleX = scalingWords[0]
+            xScale = float(strScaleX)
+            #xScale = float("%.3f" % scaleX)
+            #--- Scale Y ---
+            strScaleY = scalingWords[3]
+            yScale = float(strScaleY)
+            #scaleY = float("%.3f" % scaleY)
+            #--- Units ---
+            strUnits = scalingWords[1]
+    #--- Return the scaling values ---
+    return xScale, yScale, strUnits
+
+
+#------------------------------------------------
+#--- Get the scaling from the image metadata. ---
+#------------------------------------------------
+def GetScalingUnitsFromMetadata(imgIn):
+    strUnits = "pixels"
+    #--- Get Metadata ---
+    strScaleAsText = ""
+    info = imgIn.Metadata.GetAllMetadata()
+    for i in info:
+        #--- Format: "1.29 um x 1.29 um" ---
+        if(i.Key == "ScalingInfo"):
+            strScaleAsText = i.Value
+    if(len(strScaleAsText) &gt; 0):
+        scalingWords = strScaleAsText.split(" ") #--- e.g. "0.325 um x 0.325 um"
+        if(scalingWords.Count == 5):
+            #--- Units ---
+            strUnits = scalingWords[1]
+    #--- Return the scaling values ---
+    return strUnits
+
+
+#------------------------------------------------
+#--- Get the scaling from the image metadata. ---
+#------------------------------------------------
+def GetScalingFromMeas(imgIn):
+    fDebug = False
+    xScale = 1.0
+    yScale = 1.0
+    strUnits = "pixels"
+    #--- Limit the size of the region to be measured ---
+    w = imgIn.Bounds.SizeX
+    if(w &gt; 1000):
+        w = 1000
+    h = imgIn.Bounds.SizeX
+    if(h &gt; 1000):
+        h = 1000
+    #strSubImage = "C(1)|X(0-999)|Y(0-999)"
+    strSubImage = "C(1)|X(0-" + str(w-1) + ")|Y(0-" + str(h-1) + ")"
+    #--- Extract just the first channel as "C1" (so it matches the IAS) ---
+    imgC1 = Zen.Processing.Utilities.CreateSubset(imgIn, strSubImage, False, False)
+    imgC1.SetChannelName(0, "C1")
+    if(fDebug):
+        Zen.Application.Documents.Add(imgC1)
+        imgC1.Name = imgIn.Name + " (C1)"
+    
+    #--- Handle common pixel types ---
+    pixelType = img.Metadata.PixelType
+    if((pixelType == ZenPixelType.Bgr24) or (pixelType == ZenPixelType.Bgr48)):
+        #--- Split RGB channels ---
+        imagesRGB = Zen.Processing.Utilities.SplitRgb(imgC1, ZenPixelType.Gray8)
+        imgToMeas = imagesRGB[0]
+        if(fDebug):
+            Zen.Application.Documents.Add(imgToMeas)
+            imgC1.Name = imgIn.Name + " (C1, 8-bit)"
+        imagesRGB[1].Close()
+        imagesRGB[2].Close()
+        imgC1.Close()
+        pixelType = ZenPixelType.Gray8
+    else:
+        imgToMeas = imgC1
+    strPixelType = ""
+    if(pixelType == ZenPixelType.Gray8):
+        strPixelType = " (08-bit)"
+    elif(pixelType == ZenPixelType.Gray16):
+        strPixelType = " (16-bit)"
+    
+    #--- Measure the image to get the scaled width and height of the entire image ---
+    strAnalysis = "Example - Get Image Scaling" + strPixelType
+    ias = ZenImageAnalysisSetting()
+    ias.Load(strAnalysis)
+    Zen.Analyzing.Analyze(imgToMeas, ias)
+    
+    #--- Get the measured data ---
+    table = Zen.Analyzing.CreateRegionTable(imgToMeas, "Class1")
+    if(fDebug):
+        Zen.Application.Documents.Add(table)
+        table.Name = "Scaled Dimensions"
+    wScaled = table.GetValue(0, 1)
+    hScaled = table.GetValue(0, 2)
+    
+    #--- Calculate the scaling ---
+    wPixels = imgToMeas.Bounds.SizeX
+    hPixels = imgToMeas.Bounds.SizeY
+    xScale = float(wScaled) / float(wPixels)
+    yScale = float(hScaled) / float(hPixels)
+    
+    #--- Get scaling units ---
+    strUnits = GetScalingUnitsFromMetadata(imgIn)
+    
+    #--- Clean up ---
+    imgToMeas.Close()
+    table.Close()
+    
+    #--- Return the scaling values ---
+    return xScale, yScale, strUnits
+
+
+#-------------------------------
+#--- Show ZEN scaling window ---
+#-------------------------------
+def ShowScalingWindow():
+    Zen.Application.ShowWindow(ZenApplicationWindows.Scaling)
+
+
+#---------------
+#--- M A I N ---
+#---------------
+
+#--- Get active image ---
+img = Zen.Application.Documents.ActiveDocument
+
+#--- Get scaling from metadata ---
+x, y, strScaleUnits = GetScalingFromMetadata(img)
+strInfo = "Scaling from Metadata:\n   Scale X: " + str(x) + "\n   Scale Y: " + str(y)
+strInfo += "\n   Units:   " + strScaleUnits
+
+#--- Get scaling from measurement ---
+x, y, strScaleUnits = GetScalingFromMeas(img)
+strInfo += "\n\nScaling from Measurement:\n   Scale X: " + str(x) + "\n   Scale Y: " + str(y)
+strInfo += "\n   Units:   " + strScaleUnits
+
+#--- Display scaling information ---
+Zen.Application.Pause(strInfo)
+
+</Text>
+  <Author></Author>
+  <Description></Description>
+  <Keywords></Keywords>
+  <Row>72</Row>
+</Script>

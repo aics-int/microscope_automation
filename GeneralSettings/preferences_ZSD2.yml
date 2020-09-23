@@ -1,0 +1,560 @@
+# Describes parameters for pipeline experiment to measure hIPS cells
+# Used by Python script MicroscopeAutomation.py to control different types of microscopes
+#
+# based on yaml specification Version 1.2
+# http://www.yaml.org/spec/1.2/spec.html
+#
+#
+
+# Author and version of this file
+Info:
+ Author: Winfried Wiegraebe
+ Date: 07/27/2018
+ Version: 072718_1
+ System: Zeiss SD 2
+ Type: Workflow
+ Note: Get overview images of wells and select manually positions
+
+# Workflow
+# Dictionary with experiments.
+# The experiments are defined below and can have free defined names. They will call a function that is defined in the software.
+# Repetitions defines how often this experiment will be repeated. That allow e.g. a time lapse experiment that images 10 cells and than returns to the first one.
+# Input is the name of the dictionary with objects that will be imaged (typically created in an earlier experiment)
+# Output defines the new dictionary created in this experiment.
+# Output is a dictionary with a name (key) and the type of the detected object (Colony, Cell)
+Workflow: [
+           #{'Experiment': 'InitializeMicroscope', 'Repetitions': 1, 'Input': None, 'Output': {}},
+           #{'Experiment': 'AddColonies', 'Repetitions': 1, 'Input': None, 'Output': {}},
+           #{'Experiment': 'SetUpObjectives', 'Repetitions': 1, 'Input': None, 'Output': {}},
+           #{'Experiment': 'UpdatePlateWellZero', 'Repetitions': 1, 'Input': None, 'Output': {}},
+           #{'Experiment': 'ImageBarcode', 'Repetitions': 1, 'Input': None, 'Output': {}},
+           #{'Experiment': 'CalibrateWellDistance', 'Repetitions': 1, 'Input': None, 'Output': {}},
+           #{'Experiment': 'CalibrateWellDiameter', 'Repetitions': 1, 'Input': None, 'Output': {}},
+           #{'Experiment': 'SetupImmersionSystem', 'Repetitions': 1, 'Input': None, 'Output': {}},
+           # {'Experiment': 'ScanWellsZero', 'Repetitions': 1, 'Input': None, 'Output': {}},
+           # {'Experiment': 'ScanBackground', 'Repetitions': 1, 'Input': None, 'Output': {}},
+           # {'Experiment': 'PreScanPlate', 'Repetitions': 1, 'Input': None, 'Output': {}},
+           {'Experiment': 'ScanPlate', 'Repetitions': 1, 'Input': Wells, 'Output': {Cells_Selected: Cell}},
+           #{'Experiment': 'PreScanColonies', 'Repetitions': 1, 'Input': Colonies_Selected, 'Output': {Cells_Selected: Cell}},
+           #{'Experiment': 'ScanColonies', 'Repetitions': 5, 'Input': Colonies_Selected, 'Output': {Cells_Selected: Cell}},
+           {'Experiment': 'PreScanCells', 'Repetitions': 1, 'Input': Cells_Selected, 'Output': {Cells_Refined: Cell}},
+           {'Experiment': 'ScanCells', 'Repetitions': 5, 'Input': Cells_Refined, 'Output': None}
+           ]
+
+# Path to specifications for microscope hardware and software
+PathMicroscopeSpecs: ['J:\Winfried\Production\GeneralSettings\microscopeSpecifications_ZSD2.yml', '../GeneralSettings/microscopeSpecifications_ZSD2.yml']
+
+# Path to daily folder
+PathDailyFolder: ['J:\Winfried\Production\Daily\', '/Users/winfriedw/Documents/Documents - OSXLT4G8WM/Programming/Production/Daily', '/home/mattb/git/microscopeautomation/data/test_data_matthew/', '/home/shailjad/git/microscopeautomation/data/test_data_shailja/']
+
+# Path to calibration information
+PathCalibration: ['J:\Winfried\Production\GeneralSettings\Calibration\', '/Users/winfriedw/Documents/Documents - OSXLT4G8WM/Programming/Production/GeneralSettings/Calibration/', '/home/mattb/git/microscopeautomation/GeneralSettings/Calibration/', '/home/shailjad/git/microscopeautomation/GeneralSettings/Calibration/']
+
+# Sample Information in daily folder. Do not use '/' at end of directory.
+# All paths are relative to daily folder
+ColonyDirPath: &ColonyDirPathRef CeligoColonyData
+ReferenceDirPath: References
+LogFilePath: LogFiles\MicroscopeAutomation.log
+
+# Whether to show all dialog boxes or less depending on the user's skill level
+LessDialog: False                                # Set "False": All diag boxes (default)   |   Set "True": Minimal diag boxes
+
+# Settings to initialize microscope
+InitializeMicroscope:
+ FunctionName: initialize_microscope              # Name of function in Python code in module microscopeAutomation that will process this experiment
+ NumberTrials: 3                                  # How often a user is given the chance to set up the system in a correct way
+ SetupFolders: True                               # Setup image folder
+ CopyColonyFile: False                            # Copy colony file
+ ColonyFileFolder: ['\\allen\aics\microscopy\PRODUCTION\Summary\CeligoDailyScans', '../PlateSpecifications']   # Network folder with colony file
+ ColonyDirPath: *ColonyDirPathRef
+ FindLoad: True                                   # Ask user to move objective in load position and save
+ MaxLoadPosition: 50                              # Maximum focus position that will be accepted as load
+ LaserSafety: True                                # Enable laser safety
+ Koehler: True                                    # Set Koehler illumination
+ StageID: Marzhauser                              # Name of stage used to set up Koehler illumination
+ FocusID: MotorizedFocus                          # Name of focus drive used to set up Koehler illumination
+ SaveAreaID: ZSD_01_plate                         # Name of save area used to avoid hardware collisions
+ xSetupKoehler: 24054                             # x position for stage in um to set up Koehler illumination
+ ySetupKoehler: 34462                             # x position for stage in um to set up Koehler illumination
+ zSetupKoehler: 9150                              # x position for stage in um to set up Koehler illumination
+
+# Settings for colonies
+AddColonies:
+ FunctionName: none                               # Name of function in Python code in module microscopeAutomation that will process this experiment
+ NextName: ColonyPreScan                          # name of next experiment. Objects selected during this experiment will be added to the next one.
+ ColonyDirPath: *ColonyDirPathRef
+ FileName: 'PipelineData_.*'                      # Regular expression to preselect file
+ # include only colonies from wells listed below in analysis
+ # this is a dictornary of dictionaries in the form {'Well': maxPositions}
+ # Wells: {'C4': 1, 'C5': 1, 'C6': 1, 'C7': 1, 'C8': 1,
+  # 'D4': 1, 'D5': 1, 'D6': 1, 'D7': 1, 'D8': 1,
+  # 'E4': 5, 'E5': 5, 'E6': 5, 'E7': 5, 'E8': 5,
+  # 'F4': 5, 'F5': 5, 'F6': 5, 'F7': 5, 'F8': 5}
+ Wells: {'D4': 2, 'D5': 2}
+ # Columns from colonies file to include in analysis
+ # Dictionary in the form {'original-name-in-file': 'new-name-inside-software'}
+ ColonyColumns: {'PlateID': 'PlateID',
+  'contents': 'Contents',
+  'CellLine': 'CellLine',
+  'clone_id': 'CloneID',
+  'PlateLayout_well_type': 'Type',
+  'PlateLayout_dyes_applied': 'Dye',
+  'Celigo_Colony_AreaShape_Orientation': 'Orientation',
+  'Celigo_Colony_Math_Colony_Area_um2': 'Area',
+  'Celigo_Colony_Math_Colony_LocationRelativeToCenter_um_X': 'Center_X',
+  'Celigo_Colony_Math_Colony_LocationRelativeToCenter_um_Y': 'Center_Y',
+  'Celigo_Colony_Math_Colony_MajorAxisLength_um': 'ColonyMajorAxis',
+  'Celigo_Colony_Math_Colony_MinorAxisLength_um': 'ColonyMinorAxis',
+  'Celigo_Colony_ObjectNumber': 'ColonyNumber',
+  'Celigo_Image_ImageNumber': 'ImageNumber',
+  'Celigo_Image_Metadata_WellRow': 'WellRow',
+  'Celigo_Image_Metadata_WellColumn': 'WellColumn',
+  'Celigo_Well_Math_Well_Location_um_X': 'WellCenter_ImageCoordinates_X',
+  'Celigo_Well_Math_Well_Location_um_Y': 'WellCenter_ImageCoordinates_Y',
+  'Celigo_Well_Math_Well_MajorAxisLength_um': 'WellMajorAxis',
+  'Celigo_Well_Math_Well_MinorAxisLength_um': 'WellMinorAxis'}
+
+ MinAreaColonies: 1                           # scan only colonies that are larger than MinAreaColonies based on Celigo measurements in mum^2
+ MaxAreaColonies: 10000000                    # scan only colonies that are smaller than MinAreaColonies based on Celigo measurements in mum^2
+ MaxDistanceToCenter: 10000                   # scan only colonies that are within a circle around the well center with radius MaxDistanceToCenter based on Celigo measurements in mum
+ MinCountPerWell: 1                           # minimum number of colonies in a give well before filtering
+ MaxCountPerWell: 500                         # maximum number of colonies in a give well before filtering
+ MaxColoniesScanColonies: 300                 # maximum number of colonies to visit during experiment. If more colonies where found, select random subset
+
+
+# Information about meta data file and content
+MetaDataPath: MetaData.csv
+MetaDataFormat: csv
+
+# Retrieve information about objectives.
+SetUpObjectives:
+ FunctionName: set_up_objectives                            # Name of function in Python code in module microscopeAutomation that will process this experiment
+ Verbose: False                                             # print debug messages?
+ Blocking: True                                             # open modal dialog in case of error
+ xSetUpObjectives: 61415                                    # x stage coordinates in um to set-up objectives
+ ySetUpObjectives: 30694                                    # y stage coordinates in um to set-up objectives
+ zSetUpObjectives: 0                                        # z focus position in um to set-up objectives
+ ExperimentSetUpObjectives: ImageFindWellCenter_10x.czexp
+ CameraSetUpObjectives: Camera1 (Back)
+
+# Set work and load positions for focus drive.
+# Set z-zero positions for plate and wells
+UpdatePlateWellZero:
+ FunctionName: update_plate_well_zZero          # Name of function in Python code in module microscopeAutomation that will process this experiment
+ Verbose: False                                 # print debug messages?
+ Blocking: True                                 # open modal dialog in case of error
+ xUpdatePlateWellZero: 60500                    # x stage coordinates in um to define z positions
+ yUpdatePlateWellZero: 32100                    # y stage coordinates in um to define z positions
+ zUpdatePlateWellPlateZero: 9074                # z focus position um for plate, typically objective side of cover slip
+ zUpdatePlateWellWellZero: 0                    # z focus position um for well, typically thickness of cover slip or 0 if upper side of coverslip was choosen as reference
+ UseAutoFocus: True                             # use autofocus instead of values based on calibration
+ Experiment: ScanWell_10x.czexp
+ Camera: Camera1 (Back)
+ AddImmersionWater: False                       # Add immersion water to objective after a predefined number of images
+ NameImmersionSystem: BraintreeScientific       # Name for immersion delivery system
+ UsePump: False                                 # Use pump to add immersion water
+ WellsBeforeAddImmersionWater: 2                # Number of wells to be imaged before water is added to objective. Water will be added before first well.
+
+# Experiment Settings
+# Settings for imaging barcode
+ImageBarcode:
+ FunctionName: read_barcode                                                  # Name of function in Python code in module microscopeAutomation that will process this experiment                                                      # True, if barcode should be read, evaluated and compared to plateID in PlateFile
+ Verbose: False                                                              # print debug messages?
+ Blocking: True                                                              # open modal dialog in case of error
+ WellBarcode: B2                                                             # well the barcode is attached to
+ NameBarcode: PlateID                                                        # Name of specific barcode
+ UseAutoFocus: True                             # use autofocus instead of values based on calibration
+ ExperimentBarcode: ImageBarcode.czexp                                       # name of imaging parameters as defined in microscope software to image barcode
+ CameraBarcode: Camera1 (Back)
+ SaveBarcode: True                                                           # True, if barcode image should be saved
+ FilePathBarcode: /Users/winfriedw/Documents/Programming/ResultTestImages/   # path to directory that will hold barcode images
+ AddImmersionWater: False                                                    # Add immersion water to objective after a predefined number of images
+ NameImmersionSystem: BraintreeScientific                                    # Name for immersion delivery system
+ UsePump: False                                                              # Use pump to add immersion water
+ WellsBeforeAddImmersionWater: 2                                             # Number of wells to be imaged before water is added to objective. Water will be added before first well.
+
+# Calibrate wells
+# The calibration between different systems and/or specifications might be slightly off.
+# These calibration steps will correct for this.
+CalibrateWellDistance:
+ FunctionName: calculate_plate_correction            # Name of function in Python code in module microscopeAutomation that will process this experiment
+ Verbose: False                                      # print debug messages?
+ Blocking: True                                      # open modal dialog in case of error
+ WellCalibrateWell_1: &WellCalibrateWell_1_ref B2    # used to calculate zero position of plate on plate holder. Used for correction factor in  x and slope z
+ WellCalibrateWell_2: &WellCalibrateWell_2_ref B11   # distance to well_1 will determine correction factor for x. Used for correction factor in  y and slope z
+ WellCalibrateWell_3: &WellCalibrateWell_3_ref G11   # distance to well_2 will determine correction factor for y. Used for correction factor slope z
+ UseAutoFocus: True                                  # use autofocus instead of values based on calibration
+ Experiment: ScanWell_10x.czexp
+ Camera: Camera1 (Back)
+ WellDiameterCalibrateWell: 6134                  # diameter in mum
+ Load: False                                      # Load between objects
+ AddImmersionWater: False                         # Add immersion water to objective after a predefined number of images
+ NameImmersionSystem: BraintreeScientific         # Name for immersion delivery system
+ UsePump: False                                   # Use pump to add immersion water
+ WellsBeforeAddImmersionWater: 2                  # Number of wells to be imaged before water is added to objective. Water will be added before first well.
+
+CalibrateWellDiameter:
+ FunctionName: calculate_all_wells_correction     # Name of function in Python code in module microscopeAutomation that will process this experiment
+ Verbose: False                                   # print debug messages?
+ Blocking: True                                   # open modal dialog in case of error
+ WellCalibrateWell_1: *WellCalibrateWell_1_ref    # used to calculate zero position of plate on plate holder. Used for correction factor in  x and slope z
+ WellCalibrateWell_2: *WellCalibrateWell_2_ref    # distance to well_1 will determine correction factor for x. Used for correction factor in  y and slope z
+ WellCalibrateWell_3: *WellCalibrateWell_3_ref    # distance to well_2 will determine correction factor for y. Used for correction factor slope z
+
+# Set up immersion water delivery system
+SetupImmersionSystem:
+ FunctionName: setup_immersion_system                           # Name of function in Python code in module microscopeAutomation that will process this experiment
+ Verbose: False                                                 # print debug messages?
+ Blocking: True                                                 # open modal dialog in case of error
+ NameImmersionSystem: BraintreeScientific                       # Name for immersion delivery system
+ ExperimentSetupImmersionSystem: ImageFindWellCenter_10x.czexp
+ CameraSetupImmersionSystem: Camera1 (Back)
+# DeliverWaterSetupImmersionSystem: True                         # Deliver water to objective after setup
+ xImmersionSystem: 5722                                          # x position of immersion water outlet in stage mum
+ yImmersionSystem: 84762                                         # Y position of immersion water outlet in stage mum
+# MaginificationImmersionSystem: 100.0                           # Magnification of water immersion objective
+ CameraDeliverSystem: Camera1 (Back)
+
+# Image center of selected wells
+# This method is mainly used for test purposes
+ScanWellsZero:
+ FunctionName: scan_wells_zero                                # Name of function in Python code in module microscopeAutomation that will process this experiment
+ Verbose: True                                                # print debug messages?
+ Blocking: True                                               # open modal dialog in case of error
+ WellsScanWellsZero: B3, C3, D3,  B4, C4, D4
+ # WellsScanWellsZero: G10
+ UseAutoFocus: True                                           # use autofocus instead of values based on calibration
+ ExperimentScanWellsZero: ScanWell_10x.czexp
+ CameraScanWellsZero: Camera1 (Back)
+ AddImmersionWater: False                                     # Add immersion water to objective after a predefined number of images
+ NameImmersionSystem: BraintreeScientific                     # Name for immersion delivery system
+ UsePump: False                                               # Use pump to add immersion water
+ WellsBeforeAddImmersionWater: 2                              # Number of wells to be imaged before water is added to objective. Water will be added before first well.
+
+# Select focus plane for well before plate scan
+PreScanPlate:
+ FunctionName: scan_plate                       # Name of function in Python code in module microscopeAutomation that will process this experiment
+ Name: ScanPlate                                # name of experiment
+ NextName: CellScan                             # name of next experiment. Objects selected during this experiment will be added to the next one.
+ Verbose: False                                 # print debug messages?
+ Blocking: True                                 # open modal dialog in case of error
+ # Wells: &ScanPlateWells [C4, C5, C6, C7, C8,
+  # D4, D5, D6, D7, D8,
+  # E4, E5, E6, E7, E8,
+  # F4, F5, F6, F7, F8]
+ Wells: &ScanPlateWells [E5, E6]
+
+ Experiment: ScanWell_10x.czexp
+ Camera: Camera1 (Back)
+ Folder: wellScan                               # images of colonies will be stored within this folder
+                                                # create file name: list with string parts that will be concatinated
+                                                # entries that start with '#' will be replaced with meta data values with the same key
+ FileName: ['prescan', '_', '#aics_barcode', '_', '#aics_objectiveMagnification', 'X_', '#aics_dateStartShort', '_','#aics_well','.czi']
+ UseAutoFocus: True                             # use autofocus instead of values based on calibration
+ ManualRefocus: True                            # give user option to manually refocus
+ ManualRefocusAfterRepetitions: 0               # manually refocus after n repetitions (0: no refocus)
+ SnapImage: True                                # take image and save it, not required for pre-scans
+ Wait:                                                        # Wait for user input after imaging and before removing image from display
+  Image: False                                                 # Wait after each image
+  Plate: False                                                 # Reset wait status after each plate
+  Repetition: False                                            # Reset wait status after each repetition
+ Load: False                                    # Load between objects
+ LoadBetweenWells: False                        # Bring focus drive into load position when moving from one well to another
+ AddImmersionWater: False                       # Add immersion water to objective after a predefined number of images
+ NameImmersionSystem: BraintreeScientific       # Name for immersion delivery system
+ UsePump: False                                 # Use pump to add immersion water
+ WellsBeforeAddImmersionWater: 10               # Number of wells to be imaged before water is added to objective. Water will be added before first well.
+ ChannelDefinitions:
+    - {Name: Transmitted, BackgroundCorrection: BackgroundTransmitted10x, BlackReference: BlackReferenceTransmitted10x}
+    - {Name: eGFP, BackgroundCorrection: BackgroundGreen_10x}
+ Tile: NoTiling                                 # Define how to tile
+                                                # - NoTiling:  no tiling
+                                                # - Fixed: use predifined number of tiles
+                                                # - ColonySize:  based on size of colony
+                                                # - Well:  image whole well (if only part of well set PercentageWell to value smaller 100)
+ CorrectBackground: False                       # Apply illumination correction before tiling?
+ FindObjects: 'Interactive'                     # Type of objects to find ('None', 'Cells', 'Colonies', 'Interactive')
+ TypeFindCells: False                           # Method used to determine imaging location
+                                                # - False: do not find cells
+                                                # - CenterMassCellProfiler: use center of mass as defined in cell profiler
+                                                # - TwofoldDistanceMap: use the twofold distance map to locate smooth areas
+
+# Take overview images of selected wells
+ScanPlate:
+ FunctionName: scan_plate                       # Name of function in Python code in module microscopeAutomation that will process this experiment
+ Name: ScanPlate                                # name of experiment
+ NextName: ScanCells                            # name of next experiment. Objects selected during this experiment will be added to the next one.
+ Verbose: False                                 # print debug messages?
+ Blocking: False                                # open modal dialog in case of error
+ Wells: *ScanPlateWells
+ Experiment: ScanWell_10x.czexp
+ Camera: Camera1 (Back)
+ Folder: wellScan                               # images of colonies will be stored within this folder
+                                                # create file name: list with string parts that will be concatinated
+                                                # entries that start with '#' will be replaced with meta data values with the same key
+ FileName: ['#aics_repetition', '_', '#aics_barcode', '_', '#aics_objectiveMagnification', 'X_', '#aics_dateStartShort', '_','#aics_well','.czi']
+ UseAutoFocus: True                             # use autofocus instead of values based on calibration
+ ManualRefocus: True                            # give user option to manually refocus
+ ManualRefocusAfterRepetitions: 0               # manually refocus after n repetitions (0: no refocus)
+ SnapImage: True                                # take image and save it, not required for pre-scans
+ Wait:                                                        # Wait for user input after imaging and before removing image from display
+  Image: False                                                 # Wait after each image
+  Plate: False                                                 # Reset wait status after each plate
+  Repetition: False                                            # Reset wait status after each repetition
+ Load: False                                    # Load between objects
+ LoadBetweenWells: False                        # Bring focus drive into load position when moving from one well to another
+ AddImmersionWater: False                       # Add immersion water to objective after a predefined number of images
+ NameImmersionSystem: BraintreeScientific       # Name for immersion delivery system
+ UsePump: False                                 # Use pump to add immersion water
+ WellsBeforeAddImmersionWater: 10               # Number of wells to be imaged before water is added to objective. Water will be added before first well.
+ ChannelDefinitions:
+    - {Name: Transmitted, BackgroundCorrection: BackgroundTransmitted10x, BlackReference: BlackReferenceTransmitted10x}
+    - {Name: eGFP, BackgroundCorrection: BackgroundGreen_10x}
+ Tile: Well                                     # Define how to tile
+                                                # - NoTiling:  no tiling
+                                                # - Fixed: use predifined number of tiles
+                                                # - ColonySize:  based on size of colony
+                                                # - Well:  image whole well (if only part of well set PercentageWell to value smaller 100)
+ CorrectBackground: False                       # Apply illumination correction before tiling?
+ xPitchTile: 1000                               # x size of tile in um
+ yPitchTile: 756.17                             # y size of tile in um
+ RotationTile: 0                                # Rotation of field of tiles in degree
+ PercentageWell: 10                             # Percentage of well to be imaged when using 'Well' tiling method
+ TileFolder: wellScan
+ TileFileName: ['#aics_repetition', '_', '#aics_barcode', '_', '#aics_objectiveMagnification', 'X_','#aics_dateStartShort', '_', '#aics_well','.tif']
+ CorrectBackground: False                       # Apply illumination correction before tiling?
+ FindType: 'Interactive'                        # Method used to determine imaging location
+                                                  # - Interactive: Use the UI to image objects (on well object for now)
+                                                  # - Copy
+                                                  # - None
+                                                  # - CenterMassCellProfiler: use center of mass as defined in cell profiler (on colony objects for now)
+                                                  # - TwofoldDistanceMap: use the twofold distance map to locate smooth areas (on colony objects for now)
+
+# Settings to acquire images for background correction
+ScanBackground:
+ FunctionName: scan_background                   # Name of function in Python code in module microscopeAutomation that will process this experiment
+ Verbose: False                                  # print debug messages?
+ Blocking: True                                  # open modal dialog in case of error
+ UseAutoFocus: True                              # use autofocus instead of values based on calibration
+ Experiments: [{Name: BackgroundTransmitted_10x, Experiment: BackgroundTransmitted_10x.czexp, Well: C9, zOffset: 500, Camera: Camera1 (Back)},
+  {Name: BackgroundBlue_10x, Experiment: BackgroundBlue_10x.czexp, Well: E9, zOffset: 500, Camera: Camera1 (Back)},
+  {Name: BackgroundGreen_10x, Experiment: BackgroundGreen_10x.czexp, Well: F9, zOffset: 500, Camera: Camera1 (Back)},
+  {Name: BackgroundRed_10x, Experiment: BackgroundRed_10x.czexp, Well: D9, zOffset: 500, Camera: Camera1 (Back)}]
+ BlackReference: [{Name: BlackReferenceTransmitted10x}, {Name: BlackReferenceGreen10x}]
+ DefaultImages:
+    - {Name: BackgroundTransmitted10x, CalibrationFolder: True, Type: "background", FileType: ".czi"}
+    - {Name: BlackReferenceTransmitted10x, CalibrationFolder: True, Type: "blackreference", FileType: ".czi"}
+ Wait:                                                        # Wait for user input after imaging and before removing image from display
+  Image: True                                                 # Wait after each image
+  Plate: False                                                 # Reset wait status after each plate
+  Repetition: True                                             # Reset wait status after each repetition
+ LoadBetweenWells: False                         # Bring focus drive into load position when moving from one well to another
+ AddImmersionWater: False                        # Add immersion water to objective after a predefined number of images
+ NameImmersionSystem: BraintreeScientific        # Name for immersion delivery system
+ UsePump: False                                  # Use pump to add immersion water
+ WellsBeforeAddImmersionWater: 2                 # Number of wells to be imaged before water is added to objective. Water will be added before first well.
+ nColTile: 2                                     # Number of images in x direction
+ nRowTile: 2                                     # Number of images in y direction
+ xPitchTileTile: 1000                            # Distance of images in x direction in mum
+ yPitchTileTile: 1000                            # Distance of images in y direction in mum
+
+# Settings to scan colonies
+# Pre-scan colonies to varify center postion
+PreScanColonies:
+ FunctionName: scan_samples                      # Name of function in Python code in module microscopeAutomation that will process this experiment
+ Name: ColonyPreScan                             # name of experiment
+ NextName: CellScan                              # name of next experiment. Objects selected during this experiment will be added to the next one.
+ Verbose: False                                  # print debug messages?
+ Blocking: True                                  # open modal dialog in case of error
+ Experiment: ScanColonies_10x.czexp
+ Camera: Camera1 (Back)
+ Folder: 10Xcolonyscan                           # images of colonies will be stored within this folder
+                                                 # create file name: list with string parts that will be concatinated
+                                                 # entries that start with '#' will be replaced with meta data values with the same key
+ FileName: ['#aics_barcode', '_', '#aics_objectiveMagnification', 'X_', '#aics_dateStartShort', '_','#aics_well', '_', '#aics_colonyCellLine', '_', '#aics_colonyClone', '_', '#aics_objectName', '.czi']
+ UseAutoFocus: True                              # use autofocus instead of values based on calibration
+ ManualRefocus: True                             # give user option to manually refocus
+ ManualRefocusAfterRepetitions: 0                # manually refocus after n repetitions (0: no refocus)
+ SnapImage: False                                # take image and save it, not required for pre-scans
+ Wait:                                                        # Wait for user input after imaging and before removing image from display
+  Image: True                                                 # Wait after each image
+  Plate: False                                                 # Reset wait status after each plate
+  Repetition: True                                             # Reset wait status after each repetition
+ Load: False                                     # Load between objects
+ LoadBetweenWells: False                         # Bring focus drive into load position when moving from one well to another
+ AddImmersionWater: False                        # Add immersion water to objective after a predefined number of images
+ NameImmersionSystem: BraintreeScientific        # Name for immersion delivery system
+ UsePump: False                                  # Use pump to add immersion water
+ WellsBeforeAddImmersionWater: 10                # Number of wells to be imaged before water is added to objective. Water will be added before first well.
+ ChannelDefinitions:
+    - {Name: Transmitted, BackgroundCorrection: BackgroundTransmitted10x, BlackReference: BlackReferenceTransmitted10x}
+    - {Name: eGFP, BackgroundCorrection: BackgroundGreen_10x}
+ Tile: NoTiling                                  # Define how to tile
+                                                  # - NoTiling:  no tiling
+                                                  # - Fixed: use predifined number of tiles
+                                                  # - ColonySize:  based on size of colony
+                                                  # - Well:  image whole well (if only part of well set PercentageWell to value smaller 100)
+ CorrectBackground: False                        # Apply illumination correction before tiling?
+ RotationTile: 0                                 # Rotation of field of tiles in degree
+ nColTile: 2
+ nRowTile: 2
+ xPitchTile: 1000
+ yPitchTile: 676
+ FindObjects: 'Cells'                            # Type of objects to find ('None', 'Cells', 'Colonies')
+ TypeFindCells: CenterMassCellProfiler           # Method used to determine imaging location
+                                                  # - False: do not find cells
+                                                  # - CenterMassCellProfiler: use center of mass as defined in cell profiler
+                                                  # - TwofoldDistanceMap: use the twofold distance map to locate smooth areas
+
+# Actual scan of cells
+ScanColonies:
+ FunctionName: scan_samples                      # Name of function in Python code in module microscopeAutomation that will process this experiment
+ Name: ColonyScan                                # name of experiment
+ NextName: CellScan                              # name of next experiment. Objects selected during this experiment will be added to the next one.
+ Verbose: False                                  # print debug messages?
+ Blocking: False                                 # open modal dialog in case of error
+ Experiment: ScanWell_10x.czexp
+ Camera: Camera1 (Back)
+ Folder: 10Xcolonyscan                           # images of colonies will be stored within this folder
+                                                 # create file name: list with string parts that will be concatinated
+                                                 # entries that start with '#' will be replaced with meta data values with the same key
+ FileName: ['#aics_repetition', '_', '#aics_barcode', '_', '#aics_objectiveMagnification', 'X_', '#aics_dateStartShort', '_', '#aics_well', '_','#aics_colonyCellLine', '_', '#aics_colonyClone', '_', '#aics_objectName', '.czi']
+ UseAutoFocus: True                              # use autofocus instead of values based on calibration
+ ManualRefocus: False                            # give user option to manually refocus
+ ManualRefocusAfterRepetitions: 0                # manually refocus after n repetitions (0: no refocus)
+ SnapImage: True                                 # take image and save it, not required for pre-scans
+ Wait:                                                        # Wait for user input after imaging and before removing image from display
+  Image: True                                                 # Wait after each image
+  Plate: False                                                 # Reset wait status after each plate
+  Repetition: True                                             # Reset wait status after each repetition
+ Load: False                                     # Load between objects
+ LoadBetweenWells: False                         # Bring focus drive into load position when moving from one well to another
+ AddImmersionWater: False                        # Add immersion water to objective after a predefined number of images
+ NameImmersionSystem: BraintreeScientific        # Name for immersion delivery system
+ UsePump: False                                  # Use pump to add immersion water
+ WellsBeforeAddImmersionWater: 2                 # Number of wells to be imaged before water is added to objective. Water will be added before first well.
+ ChannelDefinitions: [{Name: Transmitted, BackgroundCorrection: BackgroundTransmitted_10x},
+  {Name: eGFP, BackgroundCorrection: BackgroundGreen_10x}]
+ Tile: NoTiling                                  # Define how to tile
+                                                  # - NoTiling:  no tiling
+                                                  # - Fixed: use predifined number of tiles
+                                                  # - ColonySize:  based on size of colony
+                                                  # - Well:  image whole well (if only part of well set PercentageWell to value smaller 100)
+ CorrectBackground: False                        # Apply illumination correction before tiling?
+ nColTile: 2
+ nRowTile: 2
+ xPitchTile: 1000
+ yPitchTile: 676
+ RotationTile: 0                                 # Rotation of field of tiles in degree
+ FindType: 'CenterMassCellProfiler'              # Method used to determine imaging location
+                                                  # - False: do not find cells
+                                                  # - CenterMassCellProfiler: use center of mass as defined in cell profiler
+                                                  # - TwofoldDistanceMap: use the twofold distance map to locate smooth areas
+
+
+# Preferences to find cells that should be imaged within colony
+# Implemented options:
+#
+# FindObjects: 'TwofoldDistanceMap'                             # Type of objects to find ('None', 'Cells', 'Colonies')
+
+CellFinder:
+  Calibrate: True                                             # Calibrate cellfinder values on first imaging run
+  DevCalibration: False                                       # Continuous calibration
+  ImageViewer: "C:\\Programs\\Picasa3\\PicasaPhotoViewer.exe" # Photo viewer program
+  ImageIndex: 0                                               # Brightfield channel in image
+  SigmoidThreshold: 0.5                                       # Threshold for sigmoid contrast correction
+  SigmoidGain: 10                                             # Gain for sigmoid contrast correction
+  Gamma: 0.8                                                  # Gain for gamma brightness correction
+  Canny1Sigma: 0.3                                            # Threshold for first canny edge detection
+  ClearEdges: True                                            # Remove edges of tiled image during edge detection step
+  DilationSize: 3                                             # Initial edge dilation size
+  UseOutlier: False                                           # Use outlier function for filtering
+  FilterBy: Center                                            # Filtering criteria: Size = largest object, Center = object in center (only for colony pre-scan)
+  OutlierThreshold: 50                                        # Threshold for outlier function
+  SizeThreshold: 100000                                       # Minimum size of colony to image
+  Canny2Sigma: 0                                              # Threshold for second canny edge detection
+  FindSmoothAreas: True                                       # Smooth the image for twofold distance mapping
+  DistanceMin: 0.5                                            # Minimum distance from colony edge
+  DistanceMax: 1.0                                            # Maximum distance from colony edge
+  GaussianFilter: 0.8                                         # Gaussian filter sigma value
+  Canny3Sigma: 0.8                                            # Final edge detection threshold (debugging only)
+  PreScanVerify: True                                         # View imaging point to verify each position
+
+# Settings to scan cells
+# Pre-scan cells to varify center postion
+PreScanCells:
+ FunctionName: scan_samples                                   # Name of function in Python code in module microscopeAutomation that will process this experiment
+ Name: CellPreScan                                            # name of experiment
+ NextName: CellScan                                           # name of next experiment. Objects selected during this experiment will be added to the next one.
+ Verbose: False                                               # print debug messages?
+ Blocking: True                                               # open modal dialog in case of error
+ Experiment: PreScanCells_100x.czexp
+ Camera: Camera1 (Back)
+ Folder: 100X_zstack                                          # images of colonies will be stored within this folder
+                                                              # create file name: list with string parts that will be concatinated
+                                                              # entries that start with '#' will be replaced with meta data values with the same key
+ FileName: ['#aics_barcode', '_', '#aics_objectiveMagnification', 'X_', '#aics_dateStartShort', '#aics_well', '_','#aics_cellCellLine', '_', '#aics_cellClone', '_', '#aics_objectName', '.czi']
+ UseAutoFocus: True                                           # use autofocus instead of stored values from colony scan
+ ManualRefocus: True                                          # give user option to manually refocus
+ ManualRefocusAfterRepetitions: 0                             # manually refocus after n repetitions (0: no refocus)
+ SnapImage: False                                             # take image and save it, not required for pre-scans
+ Wait:                                                        # Wait for user input after imaging and before removing image from display
+  Image: False                                                 # Wait after each image
+  Plate: False                                                 # Reset wait status after each plate
+  Repetition: False                                            # Reset wait status after each repetition
+ Load: False                                                  # Load between objects
+ LoadBetweenWells: False                                      # Bring focus drive into load position when moving from one well to another
+ AddImmersionWater: False                                     # Add immersion water to objective after a predefined number of images
+ NameImmersionSystem: BraintreeScientific                     # Name for immersion delivery system
+ UsePump: False                                               # Use pump to add immersion water
+ WellsBeforeAddImmersionWater: 2                              # Number of wells to be imaged before water is added to objective. Water will be added before first well.
+ Tile: NoTiling                                               # Define how to tile
+                                                               # - NoTiling:  no tiling
+                                                               # - Fixed: use predifined number of tiles
+                                                               # - ColonySize:  based on size of colony
+                                                               # - Well:  image whole well (if only part of well set PercentageWell to value smaller 100)
+ CorrectBackground: False                                     # Apply illumination correction before tiling?
+ nColTile: 2
+ nRowTile: 2
+ xPitchTile: 499.20
+ yPitchTile: 499.20
+ FindType: 'Copy'
+
+# Actual scan of cells
+ScanCells:
+ FunctionName: scan_samples                                   # Name of function in Python code in module microscopeAutomation that will process this experiment
+ Name: CellScan                                               # name of experiment
+ NextName:                                                    # name of next experiment. Objects selected during this experiment will be added to the next one.
+ Verbose: False                                               # print debug messages?
+ Blocking: False                                              # open modal dialog in case of error
+ Experiment: ScanCells_100x.czexp
+ Camera: Camera1 (Back)
+ Folder: 100X_zstack                                          # images of colonies will be stored within this folder
+                                                              # create file name: list with string parts that will be concatinated
+                                                              # entries that start with '#' will be replaced with meta data values with the same key
+ FileName: ['#aics_barcode', '_', '#aics_objectiveMagnification', 'X_','#aics_dateStartShort', '_', '#aics_well', '_', '#aics_cellClone', '_', '#aics_cellCellLine', '_', 'aics_objectName', '.czi']
+ UseAutoFocus: True                                           # use autofocus instead of stored values from colony scan
+ ManualRefocus: False                                         # give user option to manually refocus
+ ManualRefocusAfterRepetitions: 0                             # manually refocus after n repetitions (0: no refocus)
+ SnapImage: True                                              # take image and save it, not required for pre-scans
+ Wait:                                                        # Wait for user input after imaging and before removing image from display
+  Image: True                                                  # Wait after each image
+  Plate: False                                                 # Reset wait status after each plate
+  Repetition: True                                             # Reset wait status after each repetition
+ Load: False                                                  # Load between objects
+ LoadBetweenWells: False                                      # Bring focus drive into load position when moving from one well to another
+ AddImmersionWater: False                                     # Add immersion water to objective after a predefined number of images
+ NameImmersionSystem: BraintreeScientific                     # Name for immersion delivery system
+ UsePump: True                                                # Use pump to add immersion water
+ WellsBeforeAddImmersionWater: 2                              # Number of wells to be imaged before water is added to objective. Water will be added before first well.
+
+ Tile: NoTiling                                               # Define how to tile
+                                                               # - NoTiling:  no tiling
+                                                               # - Fixed: use predifined number of tiles
+                                                               # - ColonySize:  based on size of colony
+                                                               # - Well:  image whole well (if only part of well set PercentageWell to value smaller 100)
+ CorrectBackground: False                                    # Apply illumination correction before tiling?
+ nRowTile: 2
+ xPitchTile: 499.20
+ yPitchTile: 499.20
+ FindType: 'None'

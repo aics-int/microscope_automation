@@ -1,0 +1,119 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Script Version="1.0">
+  <Language>Python</Language>
+  <Text># Example - Experiment Reuse.czmac
+# v0.1  2016-11-17  JSM
+
+
+#--- Activate IO libraries ---
+from System.IO import File, Directory, FileInfo
+
+
+#------------------------------------------------------------
+#--- Split a full filename with path into its components. ---
+#------------------------------------------------------------
+#--- Example: "C:\Folder\SubFolder\FileName.czi" returns: ---
+#---          "C:\Folder\SubFolder" (1st returned value)  ---
+#---          "FileName"            (2nd returned value)  ---
+#---          ".czi"                (3rd returned value)  ---
+#------------------------------------------------------------
+def SplitFullFilename(strFullFilename):
+    fileInfo = FileInfo(strFullFilename)
+    strFolder = fileInfo.DirectoryName
+    strExt = fileInfo.Extension
+    if(len(strExt) &gt; 0):
+        strName = fileInfo.Name.Replace(strExt, "")
+    else:
+        strName = fileInfo.Name
+    return strFolder, strName, strExt
+
+
+#------------------------------------------------------------
+#--- Get list of existing settings files and index of the ---
+#--- file designated in the "strFileToSelect" parameter.  ---
+#------------------------------------------------------------
+def GetAvailableZenFiles(strFileToSelect, strSubFolder, strFileTypeExt):
+    nSelected = 0
+    
+    #--- Get Settings Folder ---
+    strUserDocsFolder = Zen.Application.Environment.GetFolderPath(ZenSpecialFolder.UserDocuments)
+    #strIasDocsFolder = strUserDocsFolder + "\\Image Analysis Settings"
+    strSettingsDocsFolder = strUserDocsFolder + "\\" + strSubFolder
+    
+    #--- Get list of settings files and 0-based index of the initially selected file ---
+    #files = Directory.GetFiles(strIasDocsFolder,"*czias")
+    files = Directory.GetFiles(strSettingsDocsFolder, strFileTypeExt)
+    listSettings = []
+    for i in range(0, files.Length):
+        #--- Get the next CZIAS filename ---
+        file = files[i]
+        strFolder, strName, strExt = SplitFullFilename(file)
+        #--- Add the settings filename to the list (no path, no extensiion) ---
+        listSettings.append(strName)
+        #--- Get 0-based index of the initially selected file ---
+        if(strName == strFileToSelect):
+            nSelected = i
+    
+    #--- Return the list of CZIAS files (no path or ext) ---
+    #--- and the index of the designated CZIAS.          ---
+    return listSettings, nSelected
+
+
+#----------------------------------------
+#--- Display a window for user input. ---
+#----------------------------------------
+def GetUserInput(strSetting, strSubFolder, strFileTypeExt):
+    #--- To detect "Cancel" button press ---
+    success = False
+    #--- Get settings file Info ---
+    #listCzias, nSelected = GetAvailableCziasFiles(strAnalysis)
+    listSettings, nSelected = GetAvailableZenFiles(strSetting, strSubFolder, strFileTypeExt)
+    #--- Initialize GUI ---
+    mainWindow = ZenWindow()
+    mainWindow.Initialize("Select Experiment")
+    mainWindow.AddDropDown("textboxSetting", "Experiment:", listSettings, nSelected)
+    #--- Display GUI ---
+    result = mainWindow.Show()
+    #--- Process GUI Inputs ---
+    if result.Contains('textboxSetting'):
+        strSetting = result.GetValue('textboxSetting')
+        success = True
+    #--- Return User Input ---
+    return success, strSetting
+
+
+expActive = Zen.Acquisition.Experiments.ActiveExperiment
+strFolder, strName, strExt = SplitFullFilename(expActive.Name)
+success, strExpName = GetUserInput(strName, "Experiment Setups", "*czexp")
+if(success):
+    #--- Explicit use of the selected experiment ---
+    expSelected = Zen.Acquisition.Experiments.GetByName(strExpName)
+    img1 = Zen.Acquisition.AcquireImage(expSelected)
+    Zen.Application.Documents.Add(img1)
+    img1.Name = "1"
+    
+    #--- Use of the selected experiment as the active experiment ---
+    Zen.Acquisition.Experiments.ActiveExperiment = expSelected
+    img2 = Zen.Acquisition.AcquireImage(Zen.Acquisition.Experiments.ActiveExperiment)
+    Zen.Application.Documents.Add(img2)
+    img2.Name = "2"
+    
+    #--- And again... ---
+    img3 = Zen.Acquisition.AcquireImage(Zen.Acquisition.Experiments.ActiveExperiment)
+    Zen.Application.Documents.Add(img3)
+    img3.Name = "3"
+
+
+
+</Text>
+  <Author></Author>
+  <Description></Description>
+  <ApplicationName></ApplicationName>
+  <Keywords></Keywords>
+  <Row>3</Row>
+  <Column>1</Column>
+  <WatchVariables>
+    <Watch>exp</Watch>
+    <Watch>strName</Watch>
+  </WatchVariables>
+</Script>

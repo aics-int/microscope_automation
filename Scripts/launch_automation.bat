@@ -1,0 +1,2 @@
+call D:\Automation\Anaconda\Scripts\activate.bat D:\Automation\Anaconda
+conda activate D:\Automation\Anaconda\envs\pipeline && python D:\Automation\microscopeautomation\microscope_automation\microscopeAutomation.py -p %1 || pause && pause

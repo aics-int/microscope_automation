@@ -1,0 +1,51 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Script Version="1.0">
+  <Language>Python</Language>
+  <Text># Example - Diagonal Stage Moves.czmac
+# v0.1  2016-11-16  JSM
+
+
+#--- The currently active experiment must be set correctly to acquire images ---
+exp = Zen.Acquisition.Experiments.ActiveExperiment
+
+#--- Read and capture 1st position (1a) ---
+imgLive = Zen.Acquisition.StartLive(exp)
+Zen.Application.Pause("Manually move to position 1 of 2")
+x1= Zen.Devices.Stage.ActualPositionX
+y1= Zen.Devices.Stage.ActualPositionY
+Zen.Acquisition.StopLive(exp)
+#imgLive.Close()
+img1a = Zen.Acquisition.AcquireImage(exp)
+Zen.Application.Documents.Add(img1a)
+img1a.Name = "1a"
+
+#--- Read and capture 2nd position (2a) ---
+imgLive = Zen.Acquisition.StartLive(exp)
+Zen.Application.Pause("Manually move to position 2 of 2")
+x2= Zen.Devices.Stage.ActualPositionX
+y2= Zen.Devices.Stage.ActualPositionY
+Zen.Acquisition.StopLive(exp)
+#imgLive.Close()
+img2a = Zen.Acquisition.AcquireImage(exp)
+Zen.Application.Documents.Add(img2a)
+img2a.Name = "2a"
+
+#--- Return to 1st position and capture (1b) ---
+Zen.Devices.Stage.MoveTo(x1, y1)
+img1b = Zen.Acquisition.AcquireImage(exp)
+Zen.Application.Documents.Add(img1b)
+img1b.Name = "1b"
+
+#--- Return to 1st position and capture (2b) ---
+Zen.Devices.Stage.MoveTo(x2, y2)
+img2b = Zen.Acquisition.AcquireImage(exp)
+Zen.Application.Documents.Add(img2b)
+img2b.Name = "2b"
+</Text>
+  <Author></Author>
+  <Description></Description>
+  <ApplicationName></ApplicationName>
+  <Keywords></Keywords>
+  <Row>34</Row>
+  <Column>8</Column>
+</Script>

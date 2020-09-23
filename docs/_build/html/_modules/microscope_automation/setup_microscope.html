@@ -1,0 +1,418 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>microscope_automation.setup_microscope &#8212; Microscope Automation 0.0 documentation</title>
+    <link rel="stylesheet" href="../../_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+    <script type="text/javascript" id="documentation_options" data-url_root="../../" src="../../_static/documentation_options.js"></script>
+    <script type="text/javascript" src="../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../_static/doctools.js"></script>
+    <script type="text/javascript" src="../../_static/language_data.js"></script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" />
+   
+  <link rel="stylesheet" href="../../_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head><body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          
+
+          <div class="body" role="main">
+            
+  <h1>Source code for microscope_automation.setup_microscope</h1><div class="highlight"><pre>
+<span></span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">Function to setup microscope hardware based on reference files</span>
+<span class="sd">Created on Aug 1, 2016</span>
+<span class="sd">Split into it&#39;s own module: May 21, 2020</span>
+
+<span class="sd">@author: winfriedw</span>
+<span class="sd">&quot;&quot;&quot;</span>
+
+<span class="kn">import</span> <span class="nn">preferences</span>
+<span class="kn">from</span> <span class="nn">hardware_control_zeiss</span> <span class="kn">import</span> <span class="n">SpinningDiskZeiss</span>
+<span class="kn">from</span> <span class="nn">hardware_control_3i</span> <span class="kn">import</span> <span class="n">SpinningDisk3i</span>
+<span class="kn">import</span> <span class="nn">hardware_components</span>
+<span class="kn">import</span> <span class="nn">automation_exceptions</span> <span class="k">as</span> <span class="nn">ae</span>
+<span class="kn">from</span> <span class="nn">get_path</span> <span class="kn">import</span> <span class="n">get_hardware_settings_path</span><span class="p">,</span> <span class="n">get_experiment_path</span>
+<span class="c1"># create logger</span>
+<span class="kn">import</span> <span class="nn">logging</span>
+
+<span class="n">logger</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="s1">&#39;microscopeAutomation&#39;</span><span class="p">)</span>
+
+
+<div class="viewcode-block" id="setup_cameras"><a class="viewcode-back" href="../../setup_microscope.html#microscope_automation.setup_microscope.setup_cameras">[docs]</a><span class="k">def</span> <span class="nf">setup_cameras</span><span class="p">(</span><span class="n">specs</span><span class="p">,</span> <span class="n">microscope</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Setup cameras and add to microscope object</span>
+
+<span class="sd">    Input:</span>
+<span class="sd">     specs: hardware specifications which info on cameras will be retrieved from</span>
+
+<span class="sd">     microscope: microscope object which cameras will be added to</span>
+
+<span class="sd">    Output:</span>
+<span class="sd">     none</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">cameras</span> <span class="o">=</span> <span class="n">specs</span><span class="o">.</span><span class="n">getPref</span><span class="p">(</span><span class="s1">&#39;Cameras&#39;</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">cameras</span><span class="p">:</span>
+        <span class="k">for</span> <span class="n">name</span><span class="p">,</span> <span class="n">camera</span> <span class="ow">in</span> <span class="n">cameras</span><span class="o">.</span><span class="n">iteritems</span><span class="p">():</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="n">pixel_number</span> <span class="o">=</span> <span class="p">(</span><span class="nb">int</span><span class="p">(</span><span class="n">camera</span><span class="p">[</span><span class="s1">&#39;pixelNumber_x&#39;</span><span class="p">]),</span> <span class="nb">int</span><span class="p">(</span><span class="n">camera</span><span class="p">[</span><span class="s1">&#39;pixelNumber_x&#39;</span><span class="p">]))</span>
+            <span class="k">except</span> <span class="ne">Exception</span><span class="p">:</span>
+                <span class="n">pixel_number</span> <span class="o">=</span> <span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
+            <span class="n">camera_object</span> <span class="o">=</span> <span class="n">hardware_components</span><span class="o">.</span><span class="n">Camera</span><span class="p">(</span><span class="n">name</span><span class="p">,</span>
+                                                       <span class="n">pixel_size</span><span class="o">=</span><span class="p">(</span><span class="nb">float</span><span class="p">(</span><span class="n">camera</span><span class="p">[</span><span class="s1">&#39;pixelSize_x&#39;</span><span class="p">]),</span> <span class="nb">float</span><span class="p">(</span><span class="n">camera</span><span class="p">[</span><span class="s1">&#39;pixelSize_y&#39;</span><span class="p">])),</span>
+                                                       <span class="n">pixel_number</span><span class="o">=</span><span class="n">pixel_number</span><span class="p">,</span>
+                                                       <span class="n">pixel_type</span><span class="o">=</span><span class="n">camera</span><span class="p">[</span><span class="s1">&#39;pixelType&#39;</span><span class="p">],</span>
+                                                       <span class="n">name</span><span class="o">=</span><span class="n">camera</span><span class="p">[</span><span class="s1">&#39;name&#39;</span><span class="p">],</span>
+                                                       <span class="n">detector_type</span><span class="o">=</span><span class="n">camera</span><span class="p">[</span><span class="s1">&#39;detectorType&#39;</span><span class="p">],</span>
+                                                       <span class="n">manufacturer</span><span class="o">=</span><span class="n">camera</span><span class="p">[</span><span class="s1">&#39;manufacturer&#39;</span><span class="p">])</span>
+            <span class="n">microscope</span><span class="o">.</span><span class="n">add_microscope_object</span><span class="p">(</span><span class="n">camera_object</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="setup_safe_areas"><a class="viewcode-back" href="../../setup_microscope.html#microscope_automation.setup_microscope.setup_safe_areas">[docs]</a><span class="k">def</span> <span class="nf">setup_safe_areas</span><span class="p">(</span><span class="n">specs</span><span class="p">,</span> <span class="n">microscope</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Setup safe area to prevent crashes between stage and objective.</span>
+<span class="sd">    Adds safe areas to microscope object</span>
+
+<span class="sd">    Input:</span>
+<span class="sd">     specs: hardware specifications which info on safe areas will be retrieved from</span>
+
+<span class="sd">     microscope: microscope object which safe areas will be added to</span>
+
+<span class="sd">    Output:</span>
+<span class="sd">     none</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">safe_areas</span> <span class="o">=</span> <span class="n">specs</span><span class="o">.</span><span class="n">getPref</span><span class="p">(</span><span class="s1">&#39;SafeAreas&#39;</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">safe_areas</span><span class="p">:</span>
+        <span class="k">for</span> <span class="n">name</span><span class="p">,</span> <span class="n">areas</span> <span class="ow">in</span> <span class="n">safe_areas</span><span class="o">.</span><span class="n">iteritems</span><span class="p">():</span>
+            <span class="n">safe_area_object</span> <span class="o">=</span> <span class="n">hardware_components</span><span class="o">.</span><span class="n">Safety</span><span class="p">(</span><span class="n">name</span><span class="p">)</span>
+            <span class="k">for</span> <span class="n">safe_area_id</span><span class="p">,</span> <span class="n">area</span> <span class="ow">in</span> <span class="n">areas</span><span class="o">.</span><span class="n">iteritems</span><span class="p">():</span>
+                <span class="n">safe_area_object</span><span class="o">.</span><span class="n">add_safe_area</span><span class="p">(</span><span class="n">area</span><span class="p">[</span><span class="s1">&#39;area&#39;</span><span class="p">],</span> <span class="n">safe_area_id</span><span class="p">,</span> <span class="n">area</span><span class="p">[</span><span class="s1">&#39;zMax&#39;</span><span class="p">])</span>
+
+            <span class="n">microscope</span><span class="o">.</span><span class="n">add_microscope_object</span><span class="p">(</span><span class="n">safe_area_object</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="setup_stages"><a class="viewcode-back" href="../../setup_microscope.html#microscope_automation.setup_microscope.setup_stages">[docs]</a><span class="k">def</span> <span class="nf">setup_stages</span><span class="p">(</span><span class="n">specs</span><span class="p">,</span> <span class="n">microscope</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Setup stages and add to microscope object</span>
+
+<span class="sd">    Input:</span>
+<span class="sd">     specs: hardware specifications which info on stages will be retrieved from</span>
+
+<span class="sd">     microscope: microscope object which stages will be added to</span>
+
+<span class="sd">    Output:</span>
+<span class="sd">     none</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">stages_specifications</span> <span class="o">=</span> <span class="n">specs</span><span class="o">.</span><span class="n">getPref</span><span class="p">(</span><span class="s1">&#39;Stages&#39;</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">stages_specifications</span><span class="p">:</span>
+        <span class="k">for</span> <span class="n">name</span><span class="p">,</span> <span class="n">stage</span> <span class="ow">in</span> <span class="n">stages_specifications</span><span class="o">.</span><span class="n">iteritems</span><span class="p">():</span>
+            <span class="n">stage_object</span> <span class="o">=</span> <span class="n">hardware_components</span><span class="o">.</span><span class="n">Stage</span><span class="p">(</span><span class="n">stage_id</span><span class="o">=</span><span class="n">name</span><span class="p">,</span>
+                                                     <span class="n">safe_area</span><span class="o">=</span><span class="n">stage</span><span class="p">[</span><span class="s1">&#39;SafeArea&#39;</span><span class="p">],</span>
+                                                     <span class="n">safe_position</span><span class="o">=</span><span class="n">stage</span><span class="p">[</span><span class="s1">&#39;SafePosition&#39;</span><span class="p">],</span>
+                                                     <span class="n">objective_changer</span><span class="o">=</span><span class="n">stage</span><span class="p">[</span><span class="s1">&#39;ObjectiveChanger&#39;</span><span class="p">],</span>
+                                                     <span class="n">default_experiment</span><span class="o">=</span><span class="n">stage</span><span class="p">[</span><span class="s1">&#39;DefaultExperiment&#39;</span><span class="p">],</span>
+                                                     <span class="n">microscope_object</span><span class="o">=</span><span class="n">microscope</span><span class="p">)</span>
+            <span class="n">microscope</span><span class="o">.</span><span class="n">add_microscope_object</span><span class="p">(</span><span class="n">stage_object</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="setup_focus_drive"><a class="viewcode-back" href="../../setup_microscope.html#microscope_automation.setup_microscope.setup_focus_drive">[docs]</a><span class="k">def</span> <span class="nf">setup_focus_drive</span><span class="p">(</span><span class="n">specs</span><span class="p">,</span> <span class="n">microscope</span><span class="p">,</span> <span class="n">obj_changer_id</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Setup focus drive and add to microscope object</span>
+
+<span class="sd">    Input:</span>
+<span class="sd">     specs: hardware specifications which info on focus drive will be retrieved from</span>
+
+<span class="sd">     microscope: microscope object which focus drive will be added to</span>
+
+<span class="sd">    Output:</span>
+<span class="sd">     none</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">focus_specifications</span> <span class="o">=</span> <span class="n">specs</span><span class="o">.</span><span class="n">getPrefAsMeta</span><span class="p">(</span><span class="s1">&#39;Focus&#39;</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">focus_specifications</span><span class="p">:</span>
+        <span class="n">focus_drive_object</span> <span class="o">=</span> <span class="n">hardware_components</span><span class="o">.</span><span class="n">FocusDrive</span><span class="p">(</span><span class="n">focus_drive_id</span><span class="o">=</span><span class="n">focus_specifications</span><span class="o">.</span><span class="n">getPref</span><span class="p">(</span><span class="s1">&#39;Name&#39;</span><span class="p">),</span>
+                                                            <span class="n">max_load_position</span><span class="o">=</span><span class="n">focus_specifications</span><span class="o">.</span><span class="n">getPref</span><span class="p">(</span><span class="s1">&#39;MaxLoadPosition&#39;</span><span class="p">),</span>
+                                                            <span class="n">min_work_position</span><span class="o">=</span><span class="n">focus_specifications</span><span class="o">.</span><span class="n">getPref</span><span class="p">(</span><span class="s1">&#39;MinWorkPosition&#39;</span><span class="p">),</span>
+                                                            <span class="n">auto_focus_id</span><span class="o">=</span><span class="n">focus_specifications</span><span class="o">.</span><span class="n">getPref</span><span class="p">(</span><span class="s1">&#39;AutoFocus&#39;</span><span class="p">),</span>
+                                                            <span class="n">objective_changer</span><span class="o">=</span><span class="n">obj_changer_id</span><span class="p">,</span>
+                                                            <span class="n">microscope_object</span><span class="o">=</span><span class="n">microscope</span><span class="p">)</span>
+        <span class="n">microscope</span><span class="o">.</span><span class="n">add_microscope_object</span><span class="p">(</span><span class="n">focus_drive_object</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="setup_obj_changer"><a class="viewcode-back" href="../../setup_microscope.html#microscope_automation.setup_microscope.setup_obj_changer">[docs]</a><span class="k">def</span> <span class="nf">setup_obj_changer</span><span class="p">(</span><span class="n">specs</span><span class="p">,</span> <span class="n">microscope</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Setup objective changer and add to microscope object</span>
+
+<span class="sd">    Input:</span>
+<span class="sd">     specs: hardware specifications which info on objective changer will be retrieved from</span>
+
+<span class="sd">     microscope: microscope object which objective changer will be added to</span>
+
+<span class="sd">    Output:</span>
+<span class="sd">     objective_changer_object: instance of ObjectiveChanger which was just added to microscope</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">obj_changer_specifications</span> <span class="o">=</span> <span class="n">specs</span><span class="o">.</span><span class="n">getPrefAsMeta</span><span class="p">(</span><span class="s1">&#39;ObjectiveChanger&#39;</span><span class="p">)</span>
+    <span class="n">objective_changer_object</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="k">if</span> <span class="n">obj_changer_specifications</span><span class="p">:</span>
+        <span class="n">objective_changer_object</span> <span class="o">=</span> \
+            <span class="n">hardware_components</span><span class="o">.</span><span class="n">ObjectiveChanger</span><span class="p">(</span><span class="n">objective_changer_id</span><span class="o">=</span><span class="n">obj_changer_specifications</span><span class="o">.</span><span class="n">getPref</span><span class="p">(</span><span class="s1">&#39;Name&#39;</span><span class="p">),</span>
+                                                 <span class="n">n_positions</span><span class="o">=</span><span class="n">obj_changer_specifications</span><span class="o">.</span><span class="n">getPref</span><span class="p">(</span><span class="s1">&#39;Positions&#39;</span><span class="p">),</span>
+                                                 <span class="n">objectives</span><span class="o">=</span><span class="n">obj_changer_specifications</span><span class="o">.</span><span class="n">getPref</span><span class="p">(</span><span class="s1">&#39;Objectives&#39;</span><span class="p">),</span>
+                                                 <span class="n">ref_objective</span><span class="o">=</span><span class="n">obj_changer_specifications</span><span class="o">.</span><span class="n">getPref</span><span class="p">(</span><span class="s1">&#39;ReferenceObjective&#39;</span><span class="p">),</span>
+                                                 <span class="n">microscope_object</span><span class="o">=</span><span class="n">microscope</span><span class="p">)</span>
+        <span class="n">microscope</span><span class="o">.</span><span class="n">add_microscope_object</span><span class="p">(</span><span class="n">objective_changer_object</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">objective_changer_object</span></div>
+
+
+<div class="viewcode-block" id="setup_autofocus"><a class="viewcode-back" href="../../setup_microscope.html#microscope_automation.setup_microscope.setup_autofocus">[docs]</a><span class="k">def</span> <span class="nf">setup_autofocus</span><span class="p">(</span><span class="n">specs</span><span class="p">,</span> <span class="n">microscope</span><span class="p">,</span> <span class="n">obj_changer</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Setup autofocus and add to microscope object</span>
+
+<span class="sd">    Input:</span>
+<span class="sd">     specs: hardware specifications which info on autofocus will be retrieved from</span>
+
+<span class="sd">     microscope: microscope object which autofocus will be added to</span>
+
+<span class="sd">     obj_changer: objective changer object to attach to this autofocus (Defult: None)</span>
+
+<span class="sd">    Output:</span>
+<span class="sd">     none</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">autofocus_specifications</span> <span class="o">=</span> <span class="n">specs</span><span class="o">.</span><span class="n">getPrefAsMeta</span><span class="p">(</span><span class="s1">&#39;AutoFocus&#39;</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">autofocus_specifications</span><span class="p">:</span>
+        <span class="n">autofocus_object</span> <span class="o">=</span> <span class="n">hardware_components</span><span class="o">.</span><span class="n">AutoFocus</span><span class="p">(</span><span class="n">auto_focus_id</span><span class="o">=</span><span class="n">autofocus_specifications</span><span class="o">.</span><span class="n">getPref</span><span class="p">(</span><span class="s1">&#39;Name&#39;</span><span class="p">),</span>
+                                                         <span class="n">default_camera</span><span class="o">=</span><span class="n">autofocus_specifications</span><span class="o">.</span><span class="n">getPref</span><span class="p">(</span><span class="s1">&#39;DefaultCamera&#39;</span><span class="p">),</span>
+                                                         <span class="n">objective_changer_instance</span><span class="o">=</span><span class="n">obj_changer</span><span class="p">,</span>
+                                                         <span class="n">default_reference_position</span><span class="o">=</span><span class="n">autofocus_specifications</span><span class="o">.</span><span class="n">getPref</span><span class="p">(</span>
+                                                         <span class="s1">&#39;DefaultReferencePosition&#39;</span><span class="p">))</span>
+
+        <span class="n">microscope</span><span class="o">.</span><span class="n">add_microscope_object</span><span class="p">(</span><span class="n">autofocus_object</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="setup_pump"><a class="viewcode-back" href="../../setup_microscope.html#microscope_automation.setup_microscope.setup_pump">[docs]</a><span class="k">def</span> <span class="nf">setup_pump</span><span class="p">(</span><span class="n">specs</span><span class="p">,</span> <span class="n">microscope</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Setup autofocus and add to microscope object</span>
+
+<span class="sd">    Input:</span>
+<span class="sd">     specs: hardware specifications which info on autofocus will be retrieved from</span>
+
+<span class="sd">     microscope: microscope object which autofocus will be added to</span>
+
+<span class="sd">     obj_changer: objective changer object to attach to this autofocus (Defult: None)</span>
+
+<span class="sd">    Output:</span>
+<span class="sd">     none</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">pump_specifications</span> <span class="o">=</span> <span class="n">specs</span><span class="o">.</span><span class="n">getPrefAsMeta</span><span class="p">(</span><span class="s1">&#39;Pump&#39;</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">pump_specifications</span><span class="p">:</span>
+        <span class="n">pump_object</span> <span class="o">=</span> <span class="n">hardware_components</span><span class="o">.</span><span class="n">Pump</span><span class="p">(</span><span class="n">pump_id</span><span class="o">=</span><span class="n">pump_specifications</span><span class="o">.</span><span class="n">getPref</span><span class="p">(</span><span class="s1">&#39;Name&#39;</span><span class="p">),</span>
+                                               <span class="n">seconds</span><span class="o">=</span><span class="n">pump_specifications</span><span class="o">.</span><span class="n">getPref</span><span class="p">(</span><span class="s1">&#39;TimePump&#39;</span><span class="p">),</span>
+                                               <span class="n">port</span><span class="o">=</span><span class="n">pump_specifications</span><span class="o">.</span><span class="n">getPref</span><span class="p">(</span><span class="s1">&#39;ComPortPump&#39;</span><span class="p">),</span>
+                                               <span class="n">baudrate</span><span class="o">=</span><span class="n">pump_specifications</span><span class="o">.</span><span class="n">getPref</span><span class="p">(</span><span class="s1">&#39;BaudratePump&#39;</span><span class="p">))</span>
+        <span class="n">microscope</span><span class="o">.</span><span class="n">add_microscope_object</span><span class="p">(</span><span class="n">pump_object</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="setup_microscope"><a class="viewcode-back" href="../../setup_microscope.html#microscope_automation.setup_microscope.setup_microscope">[docs]</a><span class="k">def</span> <span class="nf">setup_microscope</span><span class="p">(</span><span class="n">prefs</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Create object of class Microscope from module hardware.</span>
+
+<span class="sd">    Input:</span>
+<span class="sd">     prefs: preferences with information about microscope hardware</span>
+
+<span class="sd">    Output:</span>
+<span class="sd">     microscope: object of class Microscope</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="c1"># get description about microscope</span>
+    <span class="n">path_microscope_specs</span> <span class="o">=</span> <span class="n">get_hardware_settings_path</span><span class="p">(</span><span class="n">prefs</span><span class="p">)</span>
+
+    <span class="c1"># load specs for hardware</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="n">specs</span> <span class="o">=</span> <span class="n">preferences</span><span class="o">.</span><span class="n">Preferences</span><span class="p">(</span><span class="n">path_microscope_specs</span><span class="p">)</span>
+    <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+        <span class="nb">print</span><span class="p">(</span><span class="n">e</span><span class="p">)</span>
+        <span class="c1"># use data from development environment if not using real setup</span>
+        <span class="n">pathMicroscopeSpecs_RD</span> <span class="o">=</span> <span class="s1">&#39;../GeneralSettings/microscopeSpecifications.yml&#39;</span>
+        <span class="n">specs</span> <span class="o">=</span> <span class="n">preferences</span><span class="o">.</span><span class="n">Preferences</span><span class="p">(</span><span class="n">pathMicroscopeSpecs_RD</span><span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Could not read microscope specifications from </span><span class="si">{}</span><span class="s1">.</span><span class="se">\n</span><span class="s1">Read from R&amp;D environment from </span><span class="si">{}</span><span class="s1">.&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
+            <span class="n">path_microscope_specs</span><span class="p">,</span> <span class="n">pathMicroscopeSpecs_RD</span><span class="p">))</span>
+
+    <span class="c1"># get object to connect to software based on software name</span>
+    <span class="n">software</span> <span class="o">=</span> <span class="n">specs</span><span class="o">.</span><span class="n">getPref</span><span class="p">(</span><span class="s1">&#39;Software&#39;</span><span class="p">)</span>
+    <span class="n">connect_object</span> <span class="o">=</span> <span class="n">hardware_components</span><span class="o">.</span><span class="n">ControlSoftware</span><span class="p">(</span><span class="n">software</span><span class="p">)</span>
+
+    <span class="c1"># create microscope</span>
+    <span class="n">microscope</span> <span class="o">=</span> <span class="n">specs</span><span class="o">.</span><span class="n">getPrefAsMeta</span><span class="p">(</span><span class="s1">&#39;Microscope&#39;</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">microscope</span><span class="o">.</span><span class="n">getPref</span><span class="p">(</span><span class="s1">&#39;Type&#39;</span><span class="p">)</span> <span class="o">==</span> <span class="s2">&quot;SpinningDisk_Zeiss&quot;</span><span class="p">:</span>
+        <span class="n">microscope_object</span> <span class="o">=</span> <span class="n">SpinningDiskZeiss</span><span class="p">(</span><span class="n">control_software_object</span><span class="o">=</span><span class="n">connect_object</span><span class="p">,</span>
+                                              <span class="n">name</span><span class="o">=</span><span class="n">microscope</span><span class="o">.</span><span class="n">getPref</span><span class="p">(</span><span class="s1">&#39;Name&#39;</span><span class="p">),</span>
+                                              <span class="n">experiments_folder</span><span class="o">=</span><span class="n">get_experiment_path</span><span class="p">(</span><span class="n">prefs</span><span class="p">,</span> <span class="nb">dir</span><span class="o">=</span><span class="kc">True</span><span class="p">))</span>
+    <span class="k">elif</span> <span class="n">microscope</span><span class="o">.</span><span class="n">getPref</span><span class="p">(</span><span class="s1">&#39;Type&#39;</span><span class="p">)</span> <span class="o">==</span> <span class="s2">&quot;SpinningDisk_3i&quot;</span><span class="p">:</span>
+        <span class="n">microscope_object</span> <span class="o">=</span> <span class="n">SpinningDisk3i</span><span class="p">(</span><span class="n">control_software_object</span><span class="o">=</span><span class="n">connect_object</span><span class="p">,</span>
+                                           <span class="n">name</span><span class="o">=</span><span class="n">microscope</span><span class="o">.</span><span class="n">getPref</span><span class="p">(</span><span class="s1">&#39;Name&#39;</span><span class="p">),</span>
+                                           <span class="n">experiments_folder</span><span class="o">=</span><span class="n">get_experiment_path</span><span class="p">(</span><span class="n">prefs</span><span class="p">,</span> <span class="nb">dir</span><span class="o">=</span><span class="kc">True</span><span class="p">))</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="n">ae</span><span class="o">.</span><span class="n">HardwareDoesNotExistError</span><span class="p">(</span><span class="s1">&#39;Microscope not defined in module hardware_control.py&#39;</span><span class="p">)</span>
+
+    <span class="n">setup_cameras</span><span class="p">(</span><span class="n">specs</span><span class="p">,</span> <span class="n">microscope_object</span><span class="p">)</span>
+    <span class="n">setup_safe_areas</span><span class="p">(</span><span class="n">specs</span><span class="p">,</span> <span class="n">microscope_object</span><span class="p">)</span>
+    <span class="n">setup_stages</span><span class="p">(</span><span class="n">specs</span><span class="p">,</span> <span class="n">microscope_object</span><span class="p">)</span>
+    <span class="n">obj_changer</span> <span class="o">=</span> <span class="n">setup_obj_changer</span><span class="p">(</span><span class="n">specs</span><span class="p">,</span> <span class="n">microscope_object</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">obj_changer</span><span class="p">:</span>
+        <span class="n">setup_focus_drive</span><span class="p">(</span><span class="n">specs</span><span class="p">,</span> <span class="n">microscope_object</span><span class="p">,</span> <span class="n">obj_changer</span><span class="o">.</span><span class="n">get_id</span><span class="p">())</span>
+        <span class="n">setup_autofocus</span><span class="p">(</span><span class="n">specs</span><span class="p">,</span> <span class="n">microscope_object</span><span class="p">,</span> <span class="n">obj_changer</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">setup_focus_drive</span><span class="p">(</span><span class="n">specs</span><span class="p">,</span> <span class="n">microscope_object</span><span class="p">)</span>
+        <span class="n">setup_autofocus</span><span class="p">(</span><span class="n">specs</span><span class="p">,</span> <span class="n">microscope_object</span><span class="p">)</span>
+    <span class="n">setup_pump</span><span class="p">(</span><span class="n">specs</span><span class="p">,</span> <span class="n">microscope_object</span><span class="p">)</span>
+
+    <span class="c1"># initialize microscope hardware moved to initialize_microscope in module microscopeAutomation.py</span>
+    <span class="c1">#     microscopeObject.initialize_hardware()</span>
+    <span class="k">return</span> <span class="n">microscope_object</span></div>
+
+
+<span class="c1">###########################################################################</span>
+<span class="c1">#</span>
+<span class="c1"># Test functions</span>
+<span class="c1">#</span>
+<span class="c1">############################################################################</span>
+
+<span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s1">&#39;__main__&#39;</span><span class="p">:</span>
+    <span class="c1"># get all information about experiment</span>
+
+    <span class="k">try</span><span class="p">:</span>
+        <span class="c1"># location of preferences file on Mac</span>
+        <span class="n">prefsFile</span> <span class="o">=</span> <span class="s1">&#39;../GeneralSettings/preferences.yml&#39;</span>
+        <span class="n">dirPath</span> <span class="o">=</span> <span class="s1">&#39;/Users/winfriedw/Documents/Programming/ResultTestImages/&#39;</span>
+        <span class="n">barcode</span> <span class="o">=</span> <span class="s1">&#39;3500000077&#39;</span>
+        <span class="n">colonyFile</span> <span class="o">=</span> <span class="s1">&#39;PipelineData_Celigo.csv&#39;</span>
+
+        <span class="n">colonyPath</span> <span class="o">=</span> <span class="s1">&#39;../PlateSpecifications/PipelineData_Celigo.csv&#39;</span>
+        <span class="c1"># test function setup_microscope</span>
+        <span class="n">prefs</span> <span class="o">=</span> <span class="n">preferences</span><span class="o">.</span><span class="n">Preferences</span><span class="p">(</span><span class="n">prefsFile</span><span class="p">)</span>
+    <span class="k">except</span> <span class="ne">Exception</span><span class="p">:</span>
+        <span class="c1"># location of preferences file on Zeiss SD 1</span>
+        <span class="n">prefsFile</span> <span class="o">=</span> <span class="s1">&#39;D:</span><span class="se">\\</span><span class="s1">Winfried</span><span class="se">\\</span><span class="s1">Production</span><span class="se">\\</span><span class="s1">GeneralSettings</span><span class="se">\\</span><span class="s1">preferences_ZSD3_drugScreen_Winfried.yml&#39;</span>
+        <span class="n">dirPath</span> <span class="o">=</span> <span class="s1">&#39;D:</span><span class="se">\\</span><span class="s1">Winfried</span><span class="se">\\</span><span class="s1">Production</span><span class="se">\\</span><span class="s1">&#39;</span>
+        <span class="n">barcode</span> <span class="o">=</span> <span class="s1">&#39;3500000093&#39;</span>
+        <span class="n">colonyFile</span> <span class="o">=</span> <span class="s1">&#39;3500000860_ColonyDATA.csv&#39;</span>
+        <span class="n">colonyPath</span> <span class="o">=</span> <span class="s1">&#39;D:</span><span class="se">\\</span><span class="s1">Winfried</span><span class="se">\\</span><span class="s1">Production</span><span class="se">\\</span><span class="s1">Daily</span><span class="se">\\</span><span class="s1">2017_5_10</span><span class="se">\\</span><span class="s1">PlateSpecifications</span><span class="se">\\</span><span class="s1">3500000860_ColonyDATA.csv&#39;</span>
+
+        <span class="c1"># test function setup_microscope</span>
+        <span class="n">prefs</span> <span class="o">=</span> <span class="n">preferences</span><span class="o">.</span><span class="n">Preferences</span><span class="p">(</span><span class="n">prefsFile</span><span class="p">)</span>
+
+    <span class="n">microscopeObject</span> <span class="o">=</span> <span class="n">setup_microscope</span><span class="p">(</span><span class="n">prefs</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Microscope Object created&#39;</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="n">microscopeObject</span><span class="p">)</span>
+</pre></div>
+
+          </div>
+          
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<h1 class="logo"><a href="../../index.html">Microscope Automation</a></h1>
+
+
+
+
+
+
+
+
+<h3>Navigation</h3>
+<p class="caption"><span class="caption-text">Overview</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../index.html">README</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../installation.html">Installation</a></li>
+</ul>
+<p class="caption"><span class="caption-text">Hardware</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../hardware_components.html">hardware_components</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../hardware_control.html">hardware_control</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../image_AICS.html">image_AICS</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../load_image_czi.html">load_image_czi</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../preferences.html">preferences</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../setup_microscope.html">setup_microscope</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../RS232.html">RS232</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../samples.html">samples</a></li>
+</ul>
+<p class="caption"><span class="caption-text">Zeiss Microscopes</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../hardware_control_zeiss.html">hardware_control_zeiss</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../connect_zen_blue.html">connect_zen_blue</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../connect_zen_black.html">connect_zen_black</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../zen_experiment_info.html">zen_experiment_info</a></li>
+</ul>
+<p class="caption"><span class="caption-text">3i Microscopes</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../hardware_control_3i.html">hardware_control_3i</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../connect_slidebook.html">connect_slidebook</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../slidebook_experiment_info.html">slidebook_experiment_info</a></li>
+</ul>
+<p class="caption"><span class="caption-text">General Methods</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../get_path.html">get_path</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../automation_exceptions.html">automation_exceptions</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../automation_messages_form_layout.html">automation_messages_form_layout</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../error_handling.html">error_handling</a></li>
+</ul>
+<p class="caption"><span class="caption-text">Reference Docs</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../CONTRIBUTING.html">Allen Institute Contribution Agreement</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../LICENSE.html">LICENSE</a></li>
+</ul>
+
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="../../index.html">Documentation overview</a><ul>
+  <li><a href="../index.html">Module code</a><ul>
+  </ul></li>
+  </ul></li>
+</ul>
+</div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../../search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    </div>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+
+
+
+
+
+
+
+
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2020, Allen Institute.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.8.5</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.12</a>
+      
+    </div>
+
+    
+
+    
+  </body>
+</html>

@@ -1,0 +1,8 @@
+.. contents::
+
+.. _samples:
+
+samples
+=======
+
+Classes to interact with samples mounted on a microscope.

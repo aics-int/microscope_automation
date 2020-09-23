@@ -1,0 +1,533 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>microscope_automation.get_path &#8212; Microscope Automation 0.0 documentation</title>
+    <link rel="stylesheet" href="../../_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+    <script type="text/javascript" id="documentation_options" data-url_root="../../" src="../../_static/documentation_options.js"></script>
+    <script type="text/javascript" src="../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../_static/doctools.js"></script>
+    <script type="text/javascript" src="../../_static/language_data.js"></script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" />
+   
+  <link rel="stylesheet" href="../../_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head><body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          
+
+          <div class="body" role="main">
+            
+  <h1>Source code for microscope_automation.get_path</h1><div class="highlight"><pre>
+<span></span><span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">Collection of functions to return path for settings, logfile, and data</span>
+<span class="sd">Created on Aug 8, 2016</span>
+
+<span class="sd">@author: winfriedw</span>
+<span class="sd">&#39;&#39;&#39;</span>
+<span class="c1"># import Python modules</span>
+<span class="kn">import</span> <span class="nn">datetime</span>
+<span class="kn">import</span> <span class="nn">time</span>
+<span class="kn">from</span> <span class="nn">datetime</span> <span class="kn">import</span> <span class="n">date</span>
+<span class="kn">import</span> <span class="nn">os</span>
+<span class="kn">from</span> <span class="nn">pathlib</span> <span class="kn">import</span> <span class="n">Path</span>
+<span class="c1"># import modules that are part of package MicroscopeAutomation</span>
+<span class="c1"># module to read preference files</span>
+<span class="c1"># from .preferences import Preferences</span>
+<span class="kn">from</span> <span class="nn">preferences</span> <span class="kn">import</span> <span class="n">Preferences</span>
+
+<span class="n">pref_path</span> <span class="o">=</span> <span class="kc">None</span>
+
+
+<div class="viewcode-block" id="add_suffix"><a class="viewcode-back" href="../../get_path.html#microscope_automation.get_path.add_suffix">[docs]</a><span class="k">def</span> <span class="nf">add_suffix</span><span class="p">(</span><span class="n">filePath</span><span class="p">,</span> <span class="n">suffix</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Add suffix to end of file name.</span>
+
+<span class="sd">    Input:</span>
+<span class="sd">     filePath: path to file name</span>
+<span class="sd">     suffix: suffix to put between end of filename and file extension</span>
+
+<span class="sd">    Output:</span>
+<span class="sd">     newFilePath: filePath with suffix</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">split_path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">splitext</span><span class="p">(</span><span class="n">filePath</span><span class="p">)</span>
+    <span class="n">newFilePath</span> <span class="o">=</span> <span class="n">split_path</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">+</span> <span class="s1">&#39;_&#39;</span> <span class="o">+</span> <span class="n">suffix</span> <span class="o">+</span> <span class="n">split_path</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+    <span class="k">return</span> <span class="n">newFilePath</span></div>
+
+
+<div class="viewcode-block" id="set_pref_file"><a class="viewcode-back" href="../../get_path.html#microscope_automation.get_path.set_pref_file">[docs]</a><span class="k">def</span> <span class="nf">set_pref_file</span><span class="p">(</span><span class="n">prefs</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Set the preferences file location for the application during runtime</span>
+<span class="sd">    TODO: This should be an object</span>
+<span class="sd">    :param prefs: file location</span>
+<span class="sd">    :return:</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">global</span> <span class="n">pref_path</span>
+    <span class="n">pref_path</span> <span class="o">=</span> <span class="n">prefs</span></div>
+
+
+<div class="viewcode-block" id="get_valid_path_from_prefs"><a class="viewcode-back" href="../../get_path.html#microscope_automation.get_path.get_valid_path_from_prefs">[docs]</a><span class="k">def</span> <span class="nf">get_valid_path_from_prefs</span><span class="p">(</span><span class="n">prefs</span><span class="p">,</span> <span class="n">key</span><span class="p">,</span> <span class="n">search_dir</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">validate</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Read list of paths from prefs and return first valid match.</span>
+
+<span class="sd">    Input:</span>
+<span class="sd">     prefs:  Dictionary with preferences</span>
+
+<span class="sd">     key: key for pathlist in preferences.yml</span>
+
+<span class="sd">     search_dir: if True search for directory, otherwise for file</span>
+
+<span class="sd">    Output:</span>
+<span class="sd">     return_path: path to valid file or directory</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">path_list</span> <span class="o">=</span> <span class="n">prefs</span><span class="o">.</span><span class="n">getPref</span><span class="p">(</span><span class="n">key</span><span class="p">)</span>
+    <span class="c1"># To catch non-list inputs</span>
+    <span class="k">if</span> <span class="nb">type</span><span class="p">(</span><span class="n">path_list</span><span class="p">)</span> <span class="ow">is</span> <span class="ow">not</span> <span class="nb">list</span><span class="p">:</span>
+        <span class="k">if</span> <span class="nb">type</span><span class="p">(</span><span class="n">path_list</span><span class="p">)</span> <span class="ow">is</span> <span class="nb">str</span><span class="p">:</span>
+            <span class="n">path_list</span> <span class="o">=</span> <span class="p">[</span><span class="n">path_list</span><span class="p">]</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;No valid path found in preferences for key: &quot;</span> <span class="o">+</span> <span class="n">key</span><span class="p">)</span>
+
+    <span class="n">return_path</span> <span class="o">=</span> <span class="s1">&#39;&#39;</span>
+    <span class="k">for</span> <span class="n">path</span> <span class="ow">in</span> <span class="n">path_list</span><span class="p">:</span>
+        <span class="c1"># For Zen Black implementation, there is no experiment path, hence it is left as &quot;NA&quot;</span>
+        <span class="k">if</span> <span class="n">path</span> <span class="o">==</span> <span class="s1">&#39;NA&#39;</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">path</span>
+        <span class="k">if</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">path</span><span class="p">):</span>
+            <span class="k">if</span> <span class="n">search_dir</span><span class="p">:</span>
+                <span class="k">if</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">isdir</span><span class="p">(</span><span class="n">path</span><span class="p">):</span>
+                    <span class="n">return_path</span> <span class="o">=</span> <span class="n">path</span>
+                    <span class="k">break</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="k">if</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">isfile</span><span class="p">(</span><span class="n">path</span><span class="p">):</span>
+                    <span class="n">return_path</span> <span class="o">=</span> <span class="n">path</span>
+                    <span class="k">break</span>
+    <span class="k">assert</span> <span class="nb">len</span><span class="p">(</span><span class="n">return_path</span><span class="p">),</span> <span class="s2">&quot;No valid path found in preferences for key: &quot;</span> <span class="o">+</span> <span class="n">key</span>
+    <span class="k">return</span> <span class="n">return_path</span>
+    <span class="k">if</span> <span class="n">validate</span><span class="p">:</span>
+        <span class="k">assert</span> <span class="n">return_path</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">,</span> <span class="s2">&quot;No valid path found in preferences for key: &quot;</span> <span class="o">+</span> <span class="n">key</span>
+    <span class="k">return</span> <span class="n">return_path</span></div>
+
+
+<div class="viewcode-block" id="set_up_subfolders"><a class="viewcode-back" href="../../get_path.html#microscope_automation.get_path.set_up_subfolders">[docs]</a><span class="k">def</span> <span class="nf">set_up_subfolders</span><span class="p">(</span><span class="n">parent_folder_path</span><span class="p">,</span> <span class="n">subfolder</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Set the Subfolders for imaging folder - eg. TapeOnly and Failed QC</span>
+
+<span class="sd">    Input:</span>
+<span class="sd">     parent_folder_path: Image Folder Path</span>
+<span class="sd">     subfolder: folder to create, can be list of multiple folders</span>
+
+<span class="sd">    Output:</span>
+<span class="sd">     sub_folder_path: full path of subfolder</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">subfolder</span><span class="p">,</span> <span class="nb">list</span><span class="p">):</span>
+        <span class="n">subfolder</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">subfolder</span><span class="p">)</span>
+
+    <span class="k">for</span> <span class="n">folder</span> <span class="ow">in</span> <span class="n">subfolder</span><span class="p">:</span>
+        <span class="n">sub_folder_path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">normpath</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">parent_folder_path</span><span class="p">,</span> <span class="n">folder</span><span class="p">))</span>
+        <span class="c1"># test if folder exists, if not, create folder</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">isdir</span><span class="p">(</span><span class="n">sub_folder_path</span><span class="p">):</span>
+            <span class="n">os</span><span class="o">.</span><span class="n">makedirs</span><span class="p">(</span><span class="n">sub_folder_path</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">sub_folder_path</span></div>
+
+
+<div class="viewcode-block" id="get_daily_folder"><a class="viewcode-back" href="../../get_path.html#microscope_automation.get_path.get_daily_folder">[docs]</a><span class="k">def</span> <span class="nf">get_daily_folder</span><span class="p">(</span><span class="n">prefs</span><span class="p">,</span> <span class="n">barcode</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Find folder for daily settings and results. Create folder if not existing.</span>
+
+<span class="sd">    Input:</span>
+<span class="sd">     prefs: Dictionary with preferences</span>
+<span class="sd">     barcode: Use the plate barcode to make the folder</span>
+<span class="sd">    Output:</span>
+<span class="sd">     folderPath: path to daily folder. No &#39;/&#39; at end.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="c1"># Add the microscope name level in the folder structure ot make it more aligned with pipeline &amp; FMS standard</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="n">microscope_name</span> <span class="o">=</span> <span class="n">prefs</span><span class="o">.</span><span class="n">getPref</span><span class="p">(</span><span class="s1">&#39;Info&#39;</span><span class="p">)[</span><span class="s1">&#39;System&#39;</span><span class="p">]</span>
+    <span class="k">except</span><span class="p">:</span>
+        <span class="n">microscope_name</span> <span class="o">=</span> <span class="s2">&quot;000&quot;</span>
+    <span class="k">if</span> <span class="n">barcode</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="c1"># get today&#39;s date and construct folder name</span>
+        <span class="n">today</span> <span class="o">=</span> <span class="n">date</span><span class="o">.</span><span class="n">today</span><span class="p">()</span>
+        <span class="n">folderName</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">today</span><span class="o">.</span><span class="n">year</span><span class="p">)</span> <span class="o">+</span> <span class="s1">&#39;_&#39;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">today</span><span class="o">.</span><span class="n">month</span><span class="p">)</span> <span class="o">+</span> <span class="s1">&#39;_&#39;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">today</span><span class="o">.</span><span class="n">day</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">folderName</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">barcode</span><span class="p">)</span>
+
+    <span class="c1"># find path to daily folder. Should reside in settings file.</span>
+    <span class="c1"># read list with possible paths for daily folder from preferences.yml</span>
+    <span class="n">dailyFolder</span> <span class="o">=</span> <span class="n">get_valid_path_from_prefs</span><span class="p">(</span><span class="n">prefs</span><span class="p">,</span> <span class="s1">&#39;PathDailyFolder&#39;</span><span class="p">)</span>
+    <span class="n">dailyPath</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">normpath</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">dailyFolder</span><span class="p">,</span> <span class="n">folderName</span><span class="p">,</span> <span class="n">microscope_name</span><span class="p">))</span>
+
+    <span class="c1"># test if folder exists, if not, create folder</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">isdir</span><span class="p">(</span><span class="n">dailyPath</span><span class="p">):</span>
+        <span class="n">os</span><span class="o">.</span><span class="n">makedirs</span><span class="p">(</span><span class="n">dailyPath</span><span class="p">)</span>
+    <span class="k">global</span> <span class="n">daily_folder_path</span>
+    <span class="n">daily_folder_path</span> <span class="o">=</span> <span class="n">dailyPath</span>
+    <span class="k">return</span> <span class="n">dailyPath</span></div>
+
+
+<div class="viewcode-block" id="get_position_csv_path"><a class="viewcode-back" href="../../get_path.html#microscope_automation.get_path.get_position_csv_path">[docs]</a><span class="k">def</span> <span class="nf">get_position_csv_path</span><span class="p">(</span><span class="n">prefs</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Function to get the file path for the csv files where all the positions are stored after segmentation</span>
+
+<span class="sd">    Input:</span>
+<span class="sd">     prefs: preferences</span>
+
+<span class="sd">    Output:</span>
+<span class="sd">     return: filepaths for the files</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="c1"># 1. To store the list of positions in the format specific to Zen Blue software for 100X imaging.</span>
+    <span class="n">filename_pos</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">prefs</span><span class="o">.</span><span class="n">getPref</span><span class="p">(</span><span class="s1">&#39;PositionCsv&#39;</span><span class="p">))</span>
+    <span class="n">filename_wellid</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">filename_pos</span><span class="o">.</span><span class="n">stem</span> <span class="o">+</span> <span class="s1">&#39;_wellid.csv&#39;</span><span class="p">)</span>
+    <span class="n">filename_failed</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="s1">&#39;failed_wells.csv&#39;</span><span class="p">)</span>
+    <span class="n">position_csv_path</span> <span class="o">=</span> <span class="n">daily_folder_path</span> <span class="o">/</span> <span class="n">filename_pos</span>
+    <span class="n">failed_csv_path</span> <span class="o">=</span> <span class="n">daily_folder_path</span> <span class="o">/</span> <span class="n">filename_failed</span>
+    <span class="c1"># 2. To store positions and respective well IDs for post processing (splitting and aligning)</span>
+    <span class="n">position_wellid_csv_path</span> <span class="o">=</span> <span class="n">daily_folder_path</span> <span class="o">/</span> <span class="n">filename_wellid</span>
+    <span class="k">return</span> <span class="n">position_csv_path</span><span class="p">,</span> <span class="n">position_wellid_csv_path</span><span class="p">,</span> <span class="n">failed_csv_path</span></div>
+
+
+<div class="viewcode-block" id="get_log_file_path"><a class="viewcode-back" href="../../get_path.html#microscope_automation.get_path.get_log_file_path">[docs]</a><span class="k">def</span> <span class="nf">get_log_file_path</span><span class="p">(</span><span class="n">prefs</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Return path to log file.</span>
+
+<span class="sd">    Input:</span>
+<span class="sd">     prefs: Dictionary with preferences</span>
+
+<span class="sd">    Output:</span>
+<span class="sd">     logFile: path to log file</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="c1"># get today&#39;s date and construct folder name</span>
+    <span class="n">today</span> <span class="o">=</span> <span class="n">date</span><span class="o">.</span><span class="n">today</span><span class="p">()</span>
+    <span class="n">file_name</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">today</span><span class="o">.</span><span class="n">year</span><span class="p">)</span> <span class="o">+</span> <span class="s1">&#39;_&#39;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">today</span><span class="o">.</span><span class="n">month</span><span class="p">)</span> <span class="o">+</span> <span class="s1">&#39;_&#39;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">today</span><span class="o">.</span><span class="n">day</span><span class="p">)</span> <span class="o">+</span> <span class="s1">&#39;.log&#39;</span>
+    <span class="n">log_file_folder</span> <span class="o">=</span> <span class="n">get_valid_path_from_prefs</span><span class="p">(</span><span class="n">prefs</span><span class="p">,</span> <span class="s1">&#39;LogFilePath&#39;</span><span class="p">,</span> <span class="n">search_dir</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="n">log_file_path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">normpath</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">log_file_folder</span><span class="p">,</span> <span class="n">file_name</span><span class="p">))</span>
+
+    <span class="c1"># test if folder exists, if not, create folder</span>
+    <span class="c1"># if prefs.getPref(&#39;LogFilePath&#39;) is None:</span>
+    <span class="c1">#     raise ValueError(&quot;No valid path found in preferences for key: LogFilePath&quot;)</span>
+    <span class="c1"># log_file_path = os.path.normpath(os.path.join(prefs.getPref(&#39;LogFilePath&#39;), file_name))</span>
+    <span class="c1"># folderPath = os.path.dirname(log_file_path)</span>
+    <span class="c1"># test if folder exists, if not, create folder</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">isdir</span><span class="p">(</span><span class="n">log_file_folder</span><span class="p">):</span>
+        <span class="n">os</span><span class="o">.</span><span class="n">makedirs</span><span class="p">(</span><span class="n">log_file_folder</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">log_file_path</span></div>
+
+
+<div class="viewcode-block" id="get_meta_data_path"><a class="viewcode-back" href="../../get_path.html#microscope_automation.get_path.get_meta_data_path">[docs]</a><span class="k">def</span> <span class="nf">get_meta_data_path</span><span class="p">(</span><span class="n">prefs</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Return path for meta data.</span>
+
+<span class="sd">    Input:</span>
+<span class="sd">     prefs: Dictionary with preferences</span>
+
+<span class="sd">    Output:</span>
+<span class="sd">     meta_data_file: path to log file</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">meta_data_file</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">normpath</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">daily_folder_path</span><span class="p">,</span> <span class="n">prefs</span><span class="o">.</span><span class="n">getPref</span><span class="p">(</span><span class="s1">&#39;MetaDataPath&#39;</span><span class="p">)))</span>
+    <span class="n">folder_path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">dirname</span><span class="p">(</span><span class="n">meta_data_file</span><span class="p">)</span>
+    <span class="c1"># test if folder exists, if not, create folder</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">isdir</span><span class="p">(</span><span class="n">folder_path</span><span class="p">):</span>
+        <span class="n">os</span><span class="o">.</span><span class="n">makedirs</span><span class="p">(</span><span class="n">folder_path</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">meta_data_file</span></div>
+
+
+<div class="viewcode-block" id="get_experiment_path"><a class="viewcode-back" href="../../get_path.html#microscope_automation.get_path.get_experiment_path">[docs]</a><span class="k">def</span> <span class="nf">get_experiment_path</span><span class="p">(</span><span class="n">prefs</span><span class="p">,</span> <span class="nb">dir</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Return path to experiment.</span>
+
+<span class="sd">    Input:</span>
+<span class="sd">     prefs: Dictionary with preferences</span>
+
+<span class="sd">     dir: if true return path to experiments directory, otherwise to experiment file</span>
+<span class="sd">     default: False</span>
+
+<span class="sd">    Output:</span>
+<span class="sd">     experiment_path: path to experiment</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">experiment_dir_path</span> <span class="o">=</span> <span class="n">get_valid_path_from_prefs</span><span class="p">(</span><span class="n">prefs</span><span class="p">,</span> <span class="s1">&#39;PathExperiments&#39;</span><span class="p">,</span> <span class="n">search_dir</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">validate</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+    <span class="c1"># For Zen Black implementation, there is no experiment path, hence it is left as &quot;NA&quot;</span>
+    <span class="k">if</span> <span class="n">experiment_dir_path</span> <span class="o">==</span> <span class="s1">&#39;NA&#39;</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">experiment_dir_path</span>
+    <span class="k">if</span> <span class="nb">dir</span><span class="p">:</span>
+        <span class="n">experiment_path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">normpath</span><span class="p">(</span><span class="n">experiment_dir_path</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">experiment_name</span> <span class="o">=</span> <span class="n">prefs</span><span class="o">.</span><span class="n">getPref</span><span class="p">(</span><span class="s1">&#39;Experiment&#39;</span><span class="p">)</span>
+        <span class="n">experiment_path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">normpath</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">experiment_dir_path</span><span class="p">,</span> <span class="n">experiment_name</span><span class="p">))</span>
+
+    <span class="k">return</span> <span class="n">experiment_path</span></div>
+
+
+<div class="viewcode-block" id="get_prefs_path"><a class="viewcode-back" href="../../get_path.html#microscope_automation.get_path.get_prefs_path">[docs]</a><span class="k">def</span> <span class="nf">get_prefs_path</span><span class="p">():</span>
+    <span class="sd">&quot;&quot;&quot;Return path to preferences file.</span>
+
+<span class="sd">    Input:</span>
+<span class="sd">     none</span>
+
+<span class="sd">    Output:</span>
+<span class="sd">     prefsFile: path to preferences file</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">return</span> <span class="n">pref_path</span></div>
+
+
+<div class="viewcode-block" id="get_recovery_settings_path"><a class="viewcode-back" href="../../get_path.html#microscope_automation.get_path.get_recovery_settings_path">[docs]</a><span class="k">def</span> <span class="nf">get_recovery_settings_path</span><span class="p">(</span><span class="n">prefs</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Returns the file path to save the pickled dictionary after interruption</span>
+
+<span class="sd">    Input:</span>
+<span class="sd">     prefs: Dictionary with preferences</span>
+
+<span class="sd">    Output:</span>
+<span class="sd">     file_path: path to recovery settings</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">time_stamp</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span>
+    <span class="n">formatted_time_stamp</span> <span class="o">=</span> <span class="n">datetime</span><span class="o">.</span><span class="n">datetime</span><span class="o">.</span><span class="n">fromtimestamp</span><span class="p">(</span><span class="n">time_stamp</span><span class="p">)</span><span class="o">.</span><span class="n">strftime</span><span class="p">(</span><span class="s1">&#39;%Y-%m-</span><span class="si">%d</span><span class="s1">_%H-%M-%S&#39;</span><span class="p">)</span>
+    <span class="n">filename</span> <span class="o">=</span> <span class="s1">&#39;Plate_&#39;</span> <span class="o">+</span> <span class="n">formatted_time_stamp</span> <span class="o">+</span> <span class="s1">&#39;.pickle&#39;</span>
+    <span class="n">file_dir</span> <span class="o">=</span> <span class="n">get_valid_path_from_prefs</span><span class="p">(</span><span class="n">prefs</span><span class="p">,</span> <span class="s1">&#39;RecoverySettingsFilePath&#39;</span><span class="p">,</span> <span class="n">search_dir</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="n">file_path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">normpath</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">file_dir</span><span class="p">,</span> <span class="n">filename</span><span class="p">))</span>
+    <span class="k">return</span> <span class="n">file_path</span></div>
+
+
+<div class="viewcode-block" id="get_colony_dir_path"><a class="viewcode-back" href="../../get_path.html#microscope_automation.get_path.get_colony_dir_path">[docs]</a><span class="k">def</span> <span class="nf">get_colony_dir_path</span><span class="p">(</span><span class="n">prefs</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Return path to directory with .csv file with colony positions and features.</span>
+
+<span class="sd">    Input:</span>
+<span class="sd">     prefs: Dictionary with preferences</span>
+
+<span class="sd">    Output:</span>
+<span class="sd">     colonyDir: path to log file</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">colony_dir_path</span> <span class="o">=</span> <span class="n">prefs</span><span class="o">.</span><span class="n">getPref</span><span class="p">(</span><span class="s1">&#39;colony_dir_path&#39;</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">colony_dir_path</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">colony_dir_path</span> <span class="o">=</span> <span class="s1">&#39;&#39;</span>
+
+    <span class="n">folderPath</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">normpath</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">daily_folder_path</span><span class="p">,</span> <span class="n">colony_dir_path</span><span class="p">))</span>
+    <span class="c1"># test if folder exists, if not, create folder</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">isdir</span><span class="p">(</span><span class="n">folderPath</span><span class="p">):</span>
+        <span class="n">os</span><span class="o">.</span><span class="n">makedirs</span><span class="p">(</span><span class="n">folderPath</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">folderPath</span></div>
+
+
+<div class="viewcode-block" id="get_colony_remote_dir_path"><a class="viewcode-back" href="../../get_path.html#microscope_automation.get_path.get_colony_remote_dir_path">[docs]</a><span class="k">def</span> <span class="nf">get_colony_remote_dir_path</span><span class="p">(</span><span class="n">prefs</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Return path to directory with .csv file with colony positions and features on network.</span>
+
+<span class="sd">    Input:</span>
+<span class="sd">     prefs: Dictionary with preferences</span>
+
+<span class="sd">    Output:</span>
+<span class="sd">     colonyRemoteDir: path to log file</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">colony_dir_path</span> <span class="o">=</span> <span class="n">get_valid_path_from_prefs</span><span class="p">(</span><span class="n">prefs</span><span class="p">,</span> <span class="s1">&#39;ColonyFileFolder&#39;</span><span class="p">,</span> <span class="n">search_dir</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">colony_dir_path</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">colony_dir_path</span> <span class="o">=</span> <span class="s1">&#39;&#39;</span>
+    <span class="c1">#     return os.path.normpath(os.path.join (get_daily_folder(prefs), colony_dir_path))</span>
+    <span class="k">return</span> <span class="n">colony_dir_path</span></div>
+
+
+<div class="viewcode-block" id="get_colony_file_path"><a class="viewcode-back" href="../../get_path.html#microscope_automation.get_path.get_colony_file_path">[docs]</a><span class="k">def</span> <span class="nf">get_colony_file_path</span><span class="p">(</span><span class="n">prefs</span><span class="p">,</span> <span class="n">colony_file</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Return path to file with colony information typically produced by CellProfiler based on Celigo platescanner data.</span>
+
+<span class="sd">    Input:</span>
+<span class="sd">     prefs: Dictionary with preferences</span>
+<span class="sd">     colony_file: path to .csv file with colony data</span>
+
+<span class="sd">    Output:</span>
+<span class="sd">     colony_file_path: complete path to colony file</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">dir_path</span> <span class="o">=</span> <span class="n">get_colony_dir_path</span><span class="p">(</span><span class="n">prefs</span><span class="p">)</span>
+    <span class="n">colony_file_path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">normpath</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">dir_path</span><span class="p">,</span> <span class="n">colony_file</span><span class="p">))</span>
+
+    <span class="k">return</span> <span class="n">colony_file_path</span></div>
+
+
+<div class="viewcode-block" id="get_hardware_settings_path"><a class="viewcode-back" href="../../get_path.html#microscope_automation.get_path.get_hardware_settings_path">[docs]</a><span class="k">def</span> <span class="nf">get_hardware_settings_path</span><span class="p">(</span><span class="n">prefs</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Return path to .yml file with microscope specifications from preferences file.</span>
+
+<span class="sd">    Input:</span>
+<span class="sd">     prefs: Dictionary with preferences</span>
+
+<span class="sd">    Output:</span>
+<span class="sd">     hardwarePath: path to layout file</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="n">get_valid_path_from_prefs</span><span class="p">(</span><span class="n">prefs</span><span class="p">,</span> <span class="s1">&#39;PathMicroscopeSpecs&#39;</span><span class="p">,</span> <span class="n">search_dir</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">validate</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="get_references_path"><a class="viewcode-back" href="../../get_path.html#microscope_automation.get_path.get_references_path">[docs]</a><span class="k">def</span> <span class="nf">get_references_path</span><span class="p">(</span><span class="n">prefs</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Return path to directory for reference images. Create directory if not available</span>
+
+<span class="sd">    Input:</span>
+<span class="sd">     prefs: Dictionary with preferences</span>
+
+<span class="sd">    Output:</span>
+<span class="sd">     references_path: path to directory for reference images for specific well</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">references_path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">normpath</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">daily_folder_path</span><span class="p">,</span> <span class="n">prefs</span><span class="o">.</span><span class="n">getPref</span><span class="p">(</span><span class="s1">&#39;ReferenceDirPath&#39;</span><span class="p">)))</span>
+    <span class="c1"># create directory if not existent</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">isdir</span><span class="p">(</span><span class="n">references_path</span><span class="p">):</span>
+        <span class="n">os</span><span class="o">.</span><span class="n">makedirs</span><span class="p">(</span><span class="n">references_path</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">references_path</span></div>
+
+
+<div class="viewcode-block" id="get_images_path"><a class="viewcode-back" href="../../get_path.html#microscope_automation.get_path.get_images_path">[docs]</a><span class="k">def</span> <span class="nf">get_images_path</span><span class="p">(</span><span class="n">prefs</span><span class="p">,</span> <span class="n">sub_dir</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Return path to directory for images. Create directory if not available</span>
+
+<span class="sd">    Input:</span>
+<span class="sd">     sub_dir: Sub-directory for images. Will create folder with this name</span>
+
+<span class="sd">    Output:</span>
+<span class="sd">     references_path: path to directory for reference images for specific well</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="n">sub_dir</span><span class="p">:</span>
+        <span class="n">references_path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">daily_folder_path</span><span class="p">,</span> <span class="n">sub_dir</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">references_path</span> <span class="o">=</span> <span class="n">daily_folder_path</span>
+
+    <span class="c1"># create directory if not existent</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">isdir</span><span class="p">(</span><span class="n">references_path</span><span class="p">):</span>
+        <span class="n">os</span><span class="o">.</span><span class="n">makedirs</span><span class="p">(</span><span class="n">references_path</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">references_path</span></div>
+
+
+<div class="viewcode-block" id="get_calibration_path"><a class="viewcode-back" href="../../get_path.html#microscope_automation.get_path.get_calibration_path">[docs]</a><span class="k">def</span> <span class="nf">get_calibration_path</span><span class="p">(</span><span class="n">prefs</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Return path to calibration information e.g. blackreference images</span>
+
+<span class="sd">    Input:</span>
+<span class="sd">     prefs: dictionary with preferences</span>
+
+<span class="sd">    Output:</span>
+<span class="sd">     calibration_path: path to calibration directory</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">calibration_path</span> <span class="o">=</span> <span class="n">get_valid_path_from_prefs</span><span class="p">(</span><span class="n">prefs</span><span class="p">,</span> <span class="n">key</span><span class="o">=</span><span class="s1">&#39;PathCalibration&#39;</span><span class="p">,</span> <span class="n">search_dir</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">calibration_path</span></div>
+
+
+<span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s1">&#39;__main__&#39;</span><span class="p">:</span>
+    <span class="n">prefsPath</span> <span class="o">=</span> <span class="n">get_prefs_path</span><span class="p">()</span>
+    <span class="nb">print</span> <span class="n">prefsPath</span>
+    <span class="n">prefs</span> <span class="o">=</span> <span class="n">Preferences</span><span class="p">(</span><span class="n">prefsPath</span><span class="p">)</span>
+
+    <span class="nb">print</span> <span class="n">get_daily_folder</span><span class="p">(</span><span class="n">prefs</span><span class="p">)</span>
+    <span class="nb">print</span> <span class="n">get_log_file_path</span><span class="p">(</span><span class="n">prefs</span><span class="p">)</span>
+    <span class="nb">print</span> <span class="n">get_colony_dir_path</span><span class="p">(</span><span class="n">prefs</span><span class="p">)</span>
+    <span class="c1">#     print get_plate_layout_path(prefs)</span>
+    <span class="nb">print</span> <span class="n">get_hardware_settings_path</span><span class="p">(</span><span class="n">prefs</span><span class="p">)</span>
+    <span class="nb">print</span> <span class="n">get_references_path</span><span class="p">(</span><span class="n">prefs</span><span class="p">)</span>
+    <span class="n">imagesPath</span> <span class="o">=</span> <span class="n">get_images_path</span><span class="p">(</span><span class="n">prefs</span><span class="p">)</span>
+    <span class="nb">print</span> <span class="n">imagesPath</span>
+    <span class="nb">print</span> <span class="n">add_suffix</span><span class="p">(</span><span class="n">imagesPath</span> <span class="o">+</span> <span class="s1">&#39;image.czi&#39;</span><span class="p">,</span> <span class="n">suffix</span><span class="o">=</span><span class="s1">&#39;top&#39;</span><span class="p">)</span>
+</pre></div>
+
+          </div>
+          
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<h1 class="logo"><a href="../../index.html">Microscope Automation</a></h1>
+
+
+
+
+
+
+
+
+<h3>Navigation</h3>
+<p class="caption"><span class="caption-text">Overview</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../index.html">README</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../installation.html">Installation</a></li>
+</ul>
+<p class="caption"><span class="caption-text">Hardware</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../hardware_components.html">hardware_components</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../hardware_control.html">hardware_control</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../image_AICS.html">image_AICS</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../load_image_czi.html">load_image_czi</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../preferences.html">preferences</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../setup_microscope.html">setup_microscope</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../RS232.html">RS232</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../samples.html">samples</a></li>
+</ul>
+<p class="caption"><span class="caption-text">Zeiss Microscopes</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../hardware_control_zeiss.html">hardware_control_zeiss</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../connect_zen_blue.html">connect_zen_blue</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../connect_zen_black.html">connect_zen_black</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../zen_experiment_info.html">zen_experiment_info</a></li>
+</ul>
+<p class="caption"><span class="caption-text">3i Microscopes</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../hardware_control_3i.html">hardware_control_3i</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../connect_slidebook.html">connect_slidebook</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../slidebook_experiment_info.html">slidebook_experiment_info</a></li>
+</ul>
+<p class="caption"><span class="caption-text">General Methods</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../get_path.html">get_path</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../automation_exceptions.html">automation_exceptions</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../automation_messages_form_layout.html">automation_messages_form_layout</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../error_handling.html">error_handling</a></li>
+</ul>
+<p class="caption"><span class="caption-text">Reference Docs</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../CONTRIBUTING.html">Allen Institute Contribution Agreement</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../LICENSE.html">LICENSE</a></li>
+</ul>
+
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="../../index.html">Documentation overview</a><ul>
+  <li><a href="../index.html">Module code</a><ul>
+  </ul></li>
+  </ul></li>
+</ul>
+</div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../../search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    </div>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+
+
+
+
+
+
+
+
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2020, Allen Institute.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.8.5</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.12</a>
+      
+    </div>
+
+    
+
+    
+  </body>
+</html>

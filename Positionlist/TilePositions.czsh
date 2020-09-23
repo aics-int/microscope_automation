@@ -1,0 +1,83 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<SampleHolder>
+  <Overlap>0.1</Overlap>
+  <ScanMode>Meander</ScanMode>
+  <PositionedRegionsScanMode>FirstYThenX</PositionedRegionsScanMode>
+  <TemplateShapesScanMode>Meander</TemplateShapesScanMode>
+  <IsConstantTiles>false</IsConstantTiles>
+  <TileRegionAnchorMode>Center</TileRegionAnchorMode>
+  <StageReferencePoint>0,0</StageReferencePoint>
+  <UseStageBacklashCorrection>true</UseStageBacklashCorrection>
+  <UseFocusBacklashCorrection>true</UseFocusBacklashCorrection>
+  <IsOptimizedPositionedRegionsSorting>true</IsOptimizedPositionedRegionsSorting>
+  <IsOptimizedTemplateShapesSorting>true</IsOptimizedTemplateShapesSorting>
+  <UseStageContinualSpeed>false</UseStageContinualSpeed>
+  <StageContinualSpeed>0.8</StageContinualSpeed>
+  <UseStageContinualAcceleration>false</UseStageContinualAcceleration>
+  <StageContinualAcceleration>0.5</StageContinualAcceleration>
+  <MoveToLoadPositionBetweenRegions>false</MoveToLoadPositionBetweenRegions>
+  <MoveToLoadPositionBetweenShapes>false</MoveToLoadPositionBetweenShapes>
+  <SplitScenesInSeparateFiles>false</SplitScenesInSeparateFiles>
+  <TileRegionCoveringMode>AlignedToLocalTileRegion</TileRegionCoveringMode>
+  <TemplateShapesFillMode>FillGrade</TemplateShapesFillMode>
+  <TemplateShapesFillGrade>0.25</TemplateShapesFillGrade>
+  <TemplateShapesFillWidth>10</TemplateShapesFillWidth>
+  <TemplateShapesFillHeight>10</TemplateShapesFillHeight>
+  <IsOnlineStitchingEnabled>false</IsOnlineStitchingEnabled>
+  <IsOnlinePyramidEnabled>true</IsOnlinePyramidEnabled>
+  <GlobalInterpolationExpansionDegree>2</GlobalInterpolationExpansionDegree>
+  <LocalInterpolationExpansionDegree>2</LocalInterpolationExpansionDegree>
+  <IsFocusSurfaceOutlierRemovingEnabled>true</IsFocusSurfaceOutlierRemovingEnabled>
+  <FocusSurfaceOutlierExpansionDegree>1</FocusSurfaceOutlierExpansionDegree>
+  <FocusSurfaceOutlierThresholdSigma>2.75</FocusSurfaceOutlierThresholdSigma>
+  <UseDefaultSurfaceFit>true</UseDefaultSurfaceFit>
+  <UsedSurfaceFitTypeName></UsedSurfaceFitTypeName>
+  <DelayAfterStageMove>0</DelayAfterStageMove>
+  <TileDimension>
+    <Width>1001</Width>
+    <Height>676</Height>
+    <CenterOffsetX>-2.166667</CenterOffsetX>
+    <CenterOffsetY>0</CenterOffsetY>
+  </TileDimension>
+  <OnlineStitchingParameter>
+    <UseFocusReferenceChannel>true</UseFocusReferenceChannel>
+    <ReferenceChannelId>0</ReferenceChannelId>
+  </OnlineStitchingParameter>
+  <AllowedScanArea IsActivated="false">
+    <ContourType>Rectangle</ContourType>
+    <Center>0,0</Center>
+    <Size>0,0</Size>
+  </AllowedScanArea>
+  <TileRegions>
+    <TileRegion Name="TR1" Id="636995010115069475">
+      <CenterPosition>60631,40886.5</CenterPosition>
+      <ContourSize>4604.6,4604.6</ContourSize>
+      <Columns>5</Columns>
+      <Rows>8</Rows>
+      <Z>9892.36</Z>
+      <TemplateShapeId></TemplateShapeId>
+      <IsUsedForAcquisition>true</IsUsedForAcquisition>
+      <IsProtected>false</IsProtected>
+      <AreSupportPointsOutsideContourAllowed>false</AreSupportPointsOutsideContourAllowed>
+      <PreferSupportPointsZ>false</PreferSupportPointsZ>
+      <IsContourAreaLocked>false</IsContourAreaLocked>
+      <Contour Type="Ellipse" />
+      <SupportPoints />
+    </TileRegion>
+  </TileRegions>
+  <SingleTileRegions>
+    <SingleTileRegion Name="P1" Id="636997734481060681">
+      <X>60631</X>
+      <Y>40886.5</Y>
+      <Z>9892.36</Z>
+      <IsUsedForAcquisition>true</IsUsedForAcquisition>
+    </SingleTileRegion>
+    <SingleTileRegion Name="P2" Id="636997734581570682">
+      <X>59000.038</X>
+      <Y>40886.5</Y>
+      <Z>9892.36</Z>
+      <IsUsedForAcquisition>true</IsUsedForAcquisition>
+    </SingleTileRegion>
+  </SingleTileRegions>
+  <SingleTileRegionArrays />
+</SampleHolder>

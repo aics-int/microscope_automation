@@ -1,0 +1,35 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Script Version="1.0">
+  <Language>Python</Language>
+  <Text>#Example - Get Objective List
+# 2015-11-16  v1.0  JSM
+
+def GetObjectiveList():
+    listObj = []
+    for o in range(1, 10):
+        mag = Zen.Devices.ObjectiveChanger.GetMagnificationByPosition(o)
+        if(mag &gt; 1):
+            name = Zen.Devices.ObjectiveChanger.GetNameByPosition(o)
+            listObj.Add(name)
+    return listObj
+
+#--- M A I N ---
+listObj = GetObjectiveList()
+strObjectives = ""
+for o in range(0, listObj.Count):
+    strObjCurrent = listObj[o]
+    if(o &gt; 0):
+        strObjectives += "\n"
+    strObjectives += strObjCurrent
+Zen.Application.Pause(strObjectives)
+
+#--- Position Objective (1-based) ---
+#Zen.Devices.ObjectiveChanger.TargetPosition = 1
+#Zen.Devices.ObjectiveChanger.Apply()
+
+</Text>
+  <Author></Author>
+  <Description></Description>
+  <Keywords></Keywords>
+  <Row>3</Row>
+</Script>
