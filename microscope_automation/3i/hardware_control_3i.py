@@ -11,15 +11,15 @@ Split into hardware_control and hardware_control_3i on Aug. 15, 2020 by Winfried
 import os
 import collections
 import datetime
-from image_AICS import ImageAICS
-from automation_exceptions import AutomationError, HardwareError, \
+from .image_AICS import ImageAICS
+from .automation_exceptions import AutomationError, HardwareError, \
     HardwareDoesNotExistError, AutofocusNoReferenceObjectError, FileExistsError
-import hardware_components
-from hardware_control import BaseMicroscope
+from . import hardware_components
+from .hardware_control import BaseMicroscope
 
 # setup logging
 import logging
-import automation_messages_form_layout as message
+from . import automation_messages_form_layout as message
 
 logger = logging
 
@@ -117,7 +117,7 @@ class SpinningDisk3i(BaseMicroscope):
          """
         # Test if component exists.
         # If component does note exist raise exeption
-        if component_id not in self.microscope_components_ordered_dict.keys():
+        if component_id not in list(self.microscope_components_ordered_dict.keys()):
             raise HardwareDoesNotExistError(error_component=component_id)
         return self.microscope_components_ordered_dict[component_id]
 
@@ -170,14 +170,14 @@ class SpinningDisk3i(BaseMicroscope):
         # create directory for default initialization for all components if component_dir is None
         # empty dictionary indicates default initializations
         if initialize_components_ordered_dict is None:
-            component_names = self.microscope_components_ordered_dict.keys()
+            component_names = list(self.microscope_components_ordered_dict.keys())
             initialize_components_ordered_dict = collections.OrderedDict((name, []) for name in component_names)
 
         # get communications object as link to microscope hardware
         communicatons_object = self._get_control_software().connection
         # initialize all components
         # if a component has no initialize method, it is handed to default method of super class MicroscopeComponent
-        for component_id, action_list in initialize_components_ordered_dict.iteritems():
+        for component_id, action_list in initialize_components_ordered_dict.items():
             component_object = self._get_microscope_object(component_id)
             trials_count = trials
             while trials_count > 0:
@@ -209,7 +209,7 @@ class SpinningDisk3i(BaseMicroscope):
          new_settings_dict: return all current settings
         """
         new_settings_dict = {}
-        for component_id, settings in settings_dict.iteritems():
+        for component_id, settings in settings_dict.items():
             component_object = self._get_microscope_object(component_id)
             settings = component_object.set_component(settings)
             new_settings_dict[component_id] = settings
@@ -228,7 +228,7 @@ class SpinningDisk3i(BaseMicroscope):
         # create directory for default initialization for all components if component_dir is None
         # empty list indicates default initializations
         if not len(components_list):
-            components_list = self.microscope_components_ordered_dict.keys()
+            components_list = list(self.microscope_components_ordered_dict.keys())
 
         # create list if components_list is only a single string
         if isinstance(components_list, str):

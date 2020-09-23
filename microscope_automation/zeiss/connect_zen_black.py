@@ -3,11 +3,11 @@
 # USE DLL to connect to the ZEN Black API
 import win32com.client
 import logging
-from load_image_czi import LoadImageCzi
-from automation_exceptions import HardwareError, AutofocusError, AutofocusObjectiveChangedError, \
+from .load_image_czi import LoadImageCzi
+from .automation_exceptions import HardwareError, AutofocusError, AutofocusObjectiveChangedError, \
     AutofocusNotSetError, HardwareCommandNotDefinedError, LoadNotDefinedError, ExperimentNotExistError  # noqa
 import os
-from image_AICS import ImageAICS
+from .image_AICS import ImageAICS
 # Create Logger
 log = logging.getLogger('connect_zen_black')
 
@@ -904,7 +904,7 @@ class ConnectMicroscope():
                 objinfo = objinfo + ' ' + format(position)
                 objinfo = objinfo + '\t' + format(magnification)
                 objinfo = objinfo + '\t' + name
-                print objinfo
+                print(objinfo)
         except Exception:
             raise HardwareError('Error in get_all_objectives.')
         return objectives_dict

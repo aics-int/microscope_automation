@@ -6,12 +6,12 @@ Split into it's own module: May 21, 2020
 @author: winfriedw
 """
 
-import preferences
-from hardware_control_zeiss import SpinningDiskZeiss
-from hardware_control_3i import SpinningDisk3i
-import hardware_components
-import automation_exceptions as ae
-from get_path import get_hardware_settings_path, get_experiment_path
+from . import preferences
+from .hardware_control_zeiss import SpinningDiskZeiss
+from .hardware_control_3i import SpinningDisk3i
+from . import hardware_components
+from . import automation_exceptions as ae
+from .get_path import get_hardware_settings_path, get_experiment_path
 # create logger
 import logging
 
@@ -31,7 +31,7 @@ def setup_cameras(specs, microscope):
     """
     cameras = specs.getPref('Cameras')
     if cameras:
-        for name, camera in cameras.iteritems():
+        for name, camera in cameras.items():
             try:
                 pixel_number = (int(camera['pixelNumber_x']), int(camera['pixelNumber_x']))
             except Exception:
@@ -60,9 +60,9 @@ def setup_safe_areas(specs, microscope):
     """
     safe_areas = specs.getPref('SafeAreas')
     if safe_areas:
-        for name, areas in safe_areas.iteritems():
+        for name, areas in safe_areas.items():
             safe_area_object = hardware_components.Safety(name)
-            for safe_area_id, area in areas.iteritems():
+            for safe_area_id, area in areas.items():
                 safe_area_object.add_safe_area(area['area'], safe_area_id, area['zMax'])
 
             microscope.add_microscope_object(safe_area_object)
@@ -81,7 +81,7 @@ def setup_stages(specs, microscope):
     """
     stages_specifications = specs.getPref('Stages')
     if stages_specifications:
-        for name, stage in stages_specifications.iteritems():
+        for name, stage in stages_specifications.items():
             stage_object = hardware_components.Stage(stage_id=name,
                                                      safe_area=stage['SafeArea'],
                                                      safe_position=stage['SafePosition'],
@@ -204,8 +204,8 @@ def setup_microscope(prefs):
         # use data from development environment if not using real setup
         pathMicroscopeSpecs_RD = '../GeneralSettings/microscopeSpecifications.yml'
         specs = preferences.Preferences(pathMicroscopeSpecs_RD)
-        print('Could not read microscope specifications from {}.\nRead from R&D environment from {}.'.format(
-            path_microscope_specs, pathMicroscopeSpecs_RD))
+        print(('Could not read microscope specifications from {}.\nRead from R&D environment from {}.'.format(
+            path_microscope_specs, pathMicroscopeSpecs_RD)))
 
     # get object to connect to software based on software name
     software = specs.getPref('Software')

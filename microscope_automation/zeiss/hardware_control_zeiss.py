@@ -12,8 +12,8 @@ import datetime
 import time
 import os
 import collections
-import automation_messages_form_layout as message
-from hardware_control import BaseMicroscope
+from . import automation_messages_form_layout as message
+from .hardware_control import BaseMicroscope
 from . import hardware_components
 from . import test_zen_experiment
 from . import zen_experiment_info
@@ -21,7 +21,7 @@ from microscope_automation.automation_exceptions import HardwareError, \
     AutofocusError, CrashDangerError, LoadNotDefinedError, AutomationError, \
     HardwareDoesNotExistError, AutofocusNoReferenceObjectError, \
     FileExistsError, HardwareNotReadyError
-from image_AICS import ImageAICS
+from .image_AICS import ImageAICS
 
 # setup logging
 import logging
@@ -203,7 +203,7 @@ class SpinningDiskZeiss(BaseMicroscope):
         try:
             experiment_objective_pos = experiment_object.get_objective_position()
         except Exception as e:
-            print('Could not find objective for experiment {}'.format(experiment))
+            print(('Could not find objective for experiment {}'.format(experiment)))
             raise e
 
         trials_count = trials
@@ -425,7 +425,7 @@ class SpinningDiskZeiss(BaseMicroscope):
             try:
                 objective_position = experiment_object.get_objective_position()
             except:
-                print('Could not find objective for experiment {}'.format(experiment_object.experiment_name))
+                print(('Could not find objective for experiment {}'.format(experiment_object.experiment_name)))
                 raise
 
             # if objective will be changed auto-focus has to be set new
@@ -490,7 +490,7 @@ class SpinningDiskZeiss(BaseMicroscope):
         try:
             objective_position = experiment_object.get_objective_position()
         except Exception as e:
-            print('Could not find objective for experiment {}'.format(experiment))
+            print(('Could not find objective for experiment {}'.format(experiment)))
             raise e
 
         # get objects for components that are used for initializations
@@ -505,14 +505,14 @@ class SpinningDiskZeiss(BaseMicroscope):
         # before the components are initialized individually. In some cases the components are intialized
         # indirectly through other components (eg. DF can be initialized in objectiveChanger if it fails
         # and goes to recovery). In that case the component should have the correct init_experiment.
-        for component_id, action in component_dict.iteritems():
+        for component_id, action in component_dict.items():
             component = self._get_microscope_object(component_id)
             # Save the original init_experiments and restore them after the specific initialization is done
             current_init_experiment_dict[component_id] = component.get_init_experiment(communication_object)
             self._get_microscope_object(component_id).set_init_experiment(experiment)
 
         is_ready = {}
-        for component_id, action in component_dict.iteritems():
+        for component_id, action in component_dict.items():
             component = self._get_microscope_object(component_id)
 
             # use type and not isinstance because we want to exclude subclasses
@@ -632,7 +632,7 @@ class SpinningDiskZeiss(BaseMicroscope):
          """
         # Test if component exists.
         # If component does note exist raise exeption
-        if component_id not in self.microscope_components_ordered_dict.keys():
+        if component_id not in list(self.microscope_components_ordered_dict.keys()):
             raise HardwareDoesNotExistError(error_component=component_id)
         return self.microscope_components_ordered_dict[component_id]
 
@@ -684,14 +684,14 @@ class SpinningDiskZeiss(BaseMicroscope):
         # create directory for default initialization for all components if component_dir is None
         # empty dictionary indicates default initializations
         if initialize_components_ordered_dict is None:
-            component_names = self.microscope_components_ordered_dict.keys()
+            component_names = list(self.microscope_components_ordered_dict.keys())
             initialize_components_ordered_dict = collections.OrderedDict((name, []) for name in component_names)
 
         # get communications object as link to microscope hardware
         communicatons_object = self._get_control_software().connection
         # initialize all components
         # if a component has no initialize method, it is handed to default method of super class MicroscopeComponent
-        for component_id, action_list in initialize_components_ordered_dict.iteritems():
+        for component_id, action_list in initialize_components_ordered_dict.items():
             component_object = self._get_microscope_object(component_id)
             trials_count = trials
             while trials_count > 0:
@@ -723,7 +723,7 @@ class SpinningDiskZeiss(BaseMicroscope):
          new_settings_dict: return all current settings
         """
         new_settings_dict = {}
-        for component_id, settings in settings_dict.iteritems():
+        for component_id, settings in settings_dict.items():
             component_object = self._get_microscope_object(component_id)
             settings = component_object.set_component(settings)
             new_settings_dict[component_id] = settings
@@ -742,7 +742,7 @@ class SpinningDiskZeiss(BaseMicroscope):
         # create directory for default initialization for all components if component_dir is None
         # empty list indicates default initializations
         if not len(components_list):
-            components_list = self.microscope_components_ordered_dict.keys()
+            components_list = list(self.microscope_components_ordered_dict.keys())
 
         # create list if components_list is only a single string
         if isinstance(components_list, str):

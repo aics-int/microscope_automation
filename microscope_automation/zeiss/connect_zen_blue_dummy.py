@@ -36,7 +36,7 @@ class MicroscopeStatus(object):
     def xPos(self):
         '''Get absolute x position for stage'''
         if test_messages:
-            print ('MicroscopeStatus returned x as {}'.format(self._xPos))
+            print(('MicroscopeStatus returned x as {}'.format(self._xPos)))
         return self._xPos
 
     @xPos.setter
@@ -44,13 +44,13 @@ class MicroscopeStatus(object):
         '''Set absolute x position for stage'''
         self._xPos = x
         if test_messages:
-            print ('MicroscopeStatus set x as {}'.format(self._xPos))
+            print(('MicroscopeStatus set x as {}'.format(self._xPos)))
 
     @property
     def yPos(self):
         '''Get absolute y position for stage'''
         if test_messages:
-            print ('MicroscopeStatus returned y as {}'.format(self._yPos))
+            print(('MicroscopeStatus returned y as {}'.format(self._yPos)))
         return self._yPos
 
     @yPos.setter
@@ -58,13 +58,13 @@ class MicroscopeStatus(object):
         '''Set absolute y position for stage'''
         self._yPos = y
         if test_messages:
-            print ('MicroscopeStatus set y as {}'.format(self._yPos))
+            print(('MicroscopeStatus set y as {}'.format(self._yPos)))
 
     @property
     def zPos(self):
         '''Get absolute z position for focus drive'''
         if test_messages:
-            print ('MicroscopeStatus returned z as {}'.format(self._zPos))
+            print(('MicroscopeStatus returned z as {}'.format(self._zPos)))
         return self._zPos
 
     @zPos.setter
@@ -72,13 +72,13 @@ class MicroscopeStatus(object):
         '''Set absolute z position for focus drive'''
         self._zPos = z
         if test_messages:
-            print ('MicroscopeStatus set z as {}'.format(self._zPos))
+            print(('MicroscopeStatus set z as {}'.format(self._zPos)))
 
     @property
     def objective_position(self):
         '''Get position for objective in objective changer'''
         if test_messages:
-            print ('MicroscopeStatus returned objective_position as {}'.format(self._objective_position))
+            print(('MicroscopeStatus returned objective_position as {}'.format(self._objective_position)))
         return self._objective_position
 
     @objective_position.setter
@@ -86,13 +86,13 @@ class MicroscopeStatus(object):
         '''Set position for objective in objective changer'''
         self._objective_position = objective_position
         if test_messages:
-            print ('MicroscopeStatus set objective_position as {}'.format(self._objective_position))
+            print(('MicroscopeStatus set objective_position as {}'.format(self._objective_position)))
 
     @property
     def objective_name(self):
         '''Get name for actual objective'''
         if test_messages:
-            print ('MicroscopeStatus returned objective_name as {}'.format(self._objective_name))
+            print(('MicroscopeStatus returned objective_name as {}'.format(self._objective_name)))
         return self._objective_name
 
     @objective_name.setter
@@ -100,7 +100,7 @@ class MicroscopeStatus(object):
         '''Set name for actual objective'''
         self._objective_name = objective_name
         if test_messages:
-            print ('MicroscopeStatus set objective_name as {}'.format(self._objective_name))
+            print(('MicroscopeStatus set objective_name as {}'.format(self._objective_name)))
 
 
 class Focus(object):
@@ -366,10 +366,10 @@ class Application(object):
         pass
 
     def RunMacro(self, macro_name):
-        print("Test mode: Running Macro: ", macro_name)
+        print(("Test mode: Running Macro: ", macro_name))
 
     def RunMacro_2(self, macro_name, macro_params):
-        print("Test mode: Running Macro: " + macro_name + " | Parameter: " + macro_params[0])
+        print(("Test mode: Running Macro: " + macro_name + " | Parameter: " + macro_params[0]))
 
 
 ######################################################################################
@@ -393,4 +393,4 @@ class GetActiveObject(object):
 
 
 if __name__ == '__main__':
-    print GetActiveObject('connect_zen_blue')
+    print(GetActiveObject('connect_zen_blue'))

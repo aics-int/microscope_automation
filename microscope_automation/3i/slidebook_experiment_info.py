@@ -17,7 +17,8 @@ class SlidebookExperiment(object):
         Initializing the experiment class
 
         Input:
-         experiment_name: Name of the experiment as defined in the Zen software & preference file
+         experiment_name: Name of the experiment as defined in the Zen software
+         & preference file
 
          prefs: the preference file for the workflow
 
@@ -28,7 +29,8 @@ class SlidebookExperiment(object):
         self.experiment_name = experiment_name
 
     def experiment_exists(self):
-        """Function to check if the experiment name provided in the preference file exists in the Slidebook software
+        """Function to check if the experiment name provided in the preference
+        file exists in the Slidebook software
 
         Input:
          none
@@ -38,5 +40,4 @@ class SlidebookExperiment(object):
         """
         # log.debug("Experiment path: {}".format(self.experiment_path))
         experiment_exists = Path(self.experiment_path).exists()
-        # print('Experiment {} exists: {}'.format(self.experiment_path, experiment_exists))
         return experiment_exists

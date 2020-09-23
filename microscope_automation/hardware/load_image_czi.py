@@ -2,7 +2,7 @@
 from aicsimageio import AICSImage
 # import aicsimageio as io
 # import modules from project MicroscopeAutomation
-from image_AICS import ImageAICS
+from .image_AICS import ImageAICS
 import matplotlib.pyplot as plt
 
 

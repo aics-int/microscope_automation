@@ -22,15 +22,15 @@ import inspect
 # from .automation_exceptions import AutomationError, HardwareError, \
 #     CrashDangerError, AutofocusError, AutofocusNotSetError, AutofocusObjectiveChangedError, \
 #     ObjectiveNotDefinedError, FileExistsError, LoadNotDefinedError
-from image_AICS import ImageAICS
-import automation_messages_form_layout as message
-from automation_exceptions import ExperimentNotExistError, \
+from .image_AICS import ImageAICS
+from . import automation_messages_form_layout as message
+from .automation_exceptions import ExperimentNotExistError, \
     AutofocusError, AutofocusNotSetError, AutofocusObjectiveChangedError, \
     ObjectiveNotDefinedError, LoadNotDefinedError, WorkNotDefinedError
 
 # setup logging
 import logging
-import automation_messages_form_layout
+from . import automation_messages_form_layout
 
 logger = logging
 
@@ -377,21 +377,21 @@ class ControlSoftware(MicroscopeComponent):
         """
         log_method(self, 'connect_to_microscope_software')
         if self.get_id() == 'ZEN Blue':
-            from connect_zen_blue import ConnectMicroscope
+            from .connect_zen_blue import ConnectMicroscope
             self.connection = ConnectMicroscope()
         elif self.get_id() == 'ZEN Black':
-            from connect_zen_black import ConnectMicroscope
+            from .connect_zen_black import ConnectMicroscope
             self.connection = ConnectMicroscope()
         elif self.get_id() == 'Slidebook':
-            from connect_slidebook import ConnectMicroscope
+            from .connect_slidebook import ConnectMicroscope
             self.connection = ConnectMicroscope()
         elif self.get_id() == 'ZEN Blue Dummy':
             # create microscope Zeiss spinning disk simulation
             # Uses same module as standard Zen Blue microscope, but without dll
-            from connect_zen_blue import ConnectMicroscope
+            from .connect_zen_blue import ConnectMicroscope
             self.connection = ConnectMicroscope(connect_dll=False)
         elif self.get_id() == 'Slidebook Dummy':
-            from connect_slidebook import ConnectMicroscope
+            from .connect_slidebook import ConnectMicroscope
             self.connection = ConnectMicroscope(dummy=True)
 
         # logger.info('selected software: %s', self.get_id())
@@ -449,13 +449,13 @@ class Safety(MicroscopeComponent):
           z_max: maximum value the microscope can safely move in the z direction
         """
         log_method(self, 'get_safe_area')
-        if safe_area_id in self.safe_areas.keys():
+        if safe_area_id in list(self.safe_areas.keys()):
             return self.safe_areas[safe_area_id]
 
         if safe_area_id == 'Compound':
             # create compound area out of all existing safe areas
             compound_path = None
-            for safe_area_name, safe_area in self.safe_areas.iteritems():
+            for safe_area_name, safe_area in self.safe_areas.items():
                 safe_path = safe_area['path']
                 if compound_path is None:
                     compound_path = safe_path
@@ -581,7 +581,7 @@ class Safety(MicroscopeComponent):
         cmap = cm.get_cmap('Spectral')
         # add all safe areas to figure
         compound_path = None
-        for i, (safe_area_name, safe_area) in enumerate(self.safe_areas.iteritems()):
+        for i, (safe_area_name, safe_area) in enumerate(self.safe_areas.items()):
             safe_path = safe_area['path']
             color = cmap(1.0 / (i + 1))
             patch = patches.PathPatch(safe_path, facecolor=color, lw=2)
@@ -1051,7 +1051,7 @@ class ObjectiveChanger(MicroscopeComponent):
         else:
             objective_information = {'x_offset': 0, 'y_offset': 0, 'z_offset': 0, 'magnification': None,
                                      'immersion': None}
-            print('Information for objective {} is not defined'.format(objective_name))
+            print(('Information for objective {} is not defined'.format(objective_name)))
         objective_information['name'] = objective_name
         return objective_information
 
@@ -1699,7 +1699,7 @@ class AutoFocus(MicroscopeComponent):
         self.set_focus_reference_obj_id(focus_reference_obj_id)
         self.initialized_objective = self.objective_changer_instance.get_objective_information(communication_object)[
             'name']
-        print('Autofocus position {} stored for {}.'.format(z, self.initialized_objective))
+        print(('Autofocus position {} stored for {}.'.format(z, self.initialized_objective)))
         return z
 
     def recall_focus(self, communication_object, reference_object_id, verbose=False, pre_set_focus=True):
@@ -1728,7 +1728,7 @@ class AutoFocus(MicroscopeComponent):
         try:
             z = communication_object.recall_focus(pre_set_focus=pre_set_focus)
             if verbose:
-                print ('From hardware.FocusDrive.recall_focus: recall_focus = {}'.format(z))
+                print(('From hardware.FocusDrive.recall_focus: recall_focus = {}'.format(z)))
         except AutofocusNotSetError as error:
             raise AutofocusNotSetError(message=error.message, error_component=self, focus_reference_obj_id=reference_object_id)
 
@@ -1740,10 +1740,10 @@ class AutoFocus(MicroscopeComponent):
             log_warning(error.message, 'recall_focus')
             z = communication_object.recover_focus()
             if verbose:
-                print ('From hardware.FocusDrive.recall_focus: recover_focus = {}'.format(z))
+                print(('From hardware.FocusDrive.recall_focus: recover_focus = {}'.format(z)))
             z = self.store_focus(communication_object, focus_reference_obj_id=reference_object_id)
             if verbose:
-                print ('From hardware.FocusDrive.recall_focus: store_focus = {}'.format(z))
+                print(('From hardware.FocusDrive.recall_focus: store_focus = {}'.format(z)))
             log_message('Autofocus recoverd at {}'.format(z), 'recall_focus')
 
         # _initial_autofocus_position was saved position when autofocus was initialized the first time.
@@ -1757,8 +1757,8 @@ class AutoFocus(MicroscopeComponent):
         # Store delta_z as backup if auto focus should not be used
         self.last_delta_z = deltaZ
         if verbose:
-            print ('From hardware.FocusDrive.recall_focus: _initial_autofocus_position, = {}, delta = {}'.format(
-                self._initial_autofocus_position, deltaZ))
+            print(('From hardware.FocusDrive.recall_focus: _initial_autofocus_position, = {}, delta = {}'.format(
+                self._initial_autofocus_position, deltaZ)))
         log_message(('Autofocus original position in hardware {}'
                      '\nAutofocus new position in hardware {}'
                      '\nAutofocus delta position in hardware {}').format(self._initial_autofocus_position, z, deltaZ),

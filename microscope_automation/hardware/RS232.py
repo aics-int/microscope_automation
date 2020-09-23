@@ -1,9 +1,16 @@
 '''
-Dummy functions to replace RS232 for dummy functions
-Created on Sep 23, 2016
+Communicate with RS232 interface
+Based on pySerial
+Install with pip install pyserial
+https://pypi.python.org/pypi/pyserial/2.7
+http://pythonhosted.org/pyserial/
+
+Created on Sep 6, 2016
 
 @author: winfriedw
 '''
+import serial
+
 
 class Braintree():
     '''Control Braintree BS-8000/9000 syringe pump through RS232.
@@ -21,7 +28,7 @@ class Braintree():
          none
         '''
         # open serial port
-        print 'Simulation: Connect to RS232'
+        self.ser = serial.Serial(port=port, baudrate=baudrate)
 
     def start_pump(self):
         '''Start pump.
@@ -32,7 +39,7 @@ class Braintree():
         Output:
          none
         '''
-        print 'Simulation: Start pump'
+        self.ser.write(b'RUN\r')
 
     def stop_pump(self):
         '''Stop pump.
@@ -43,7 +50,7 @@ class Braintree():
         Output:
          none
         '''
-        print 'Simulation: Stop pump'
+        self.ser.write(b'STP\r')
 
     def close_connection(self):
         '''Stop pump and close connection.
@@ -54,4 +61,23 @@ class Braintree():
         Output:
          none
         '''
-        print 'Simulation: Stop connection to pump.'
+        self.stop_pump()
+        self.ser.close()
+
+
+if __name__ == '__main__':
+    import time
+    # connect to pump through RS232
+    pump = Braintree(port='COM1', baudrate=19200)
+
+    # activate pump
+    pump.start_pump()
+
+    # continue pumping for 5s
+    time.sleep(5)
+
+    # stop pump
+    pump.stop_pump()
+
+    # close connection
+    pump.close_connection()

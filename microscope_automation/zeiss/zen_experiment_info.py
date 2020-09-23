@@ -10,7 +10,7 @@ except ImportError:
 try:
     from . import preferences
 except:
-    import preferences
+    from . import preferences
 
 import logging
 
@@ -203,7 +203,7 @@ if __name__ == '__main__':
     experiment_name = 'ScanWell_10x.czexp'
 #     experiment_path = os.path.normpath(os.path.join(prefs.getPref('PathExperiments'),
 #                                                     experiment_name))
-    experiment_path = 'D:\Users\winfriedw\Documents\Carl Zeiss\ZEN\Documents\Experiment Setups/ScanWell_10x.czexp'
+    experiment_path = 'D:\\Users\winfriedw\Documents\Carl Zeiss\ZEN\Documents\Experiment Setups/ScanWell_10x.czexp'
     test_object = ZenExperiment(experiment_path, experiment_name)
 
     # Test 1 - Experiment exists
@@ -214,7 +214,7 @@ if __name__ == '__main__':
     #tag_value = test_object.get_tag_value('/HardwareExperiment/ExperimentBlocks/AcquisitionBlock/SubDimensionSetups'
                                           #'/RegionsSetup/SampleHolder/TileRegions/TileRegion/CenterPosition')
     # Test 3 - Update Tag Value
-    print('Experiment acquires tile scan: {}'.format(test_object.is_tile_scan()))
+    print(('Experiment acquires tile scan: {}'.format(test_object.is_tile_scan())))
     test_object.update_tag_value('/HardwareExperiment/ExperimentBlocks/AcquisitionBlock/SubDimensionSetups'
                                  '/RegionsSetup/SampleHolder/TileRegions/TileRegion/CenterPosition', '5000,7800')
 
@@ -222,8 +222,8 @@ if __name__ == '__main__':
     #test_object.update_tile_positions(3600, 7600, 4)
 
     # Test 5: Get objective name
-    print('Objective position used in experiment: {}'.format(test_object.get_objective_position()))
+    print(('Objective position used in experiment: {}'.format(test_object.get_objective_position())))
 
     # Test 6: Return z-stack information
-    print('Experiment acquires z-stack: {}'.format(test_object.is_z_stack()))
-    print('Range for z-stack: {}'.format(test_object.z_stack_range()))
+    print(('Experiment acquires z-stack: {}'.format(test_object.is_z_stack())))
+    print(('Range for z-stack: {}'.format(test_object.z_stack_range())))

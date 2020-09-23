@@ -7,7 +7,7 @@ Split into hardware_control and hardware_components on May 25, 2020
 """
 
 import collections
-from automation_exceptions import HardwareError, AutofocusError, \
+from .automation_exceptions import HardwareError, AutofocusError, \
     HardwareCommandNotDefinedError, LoadNotDefinedError, CrashDangerError
 
 from . import hardware_components
@@ -141,7 +141,7 @@ class BaseMicroscope(object):
         """
         is_ready = {}
         # Test if com
-        for component_id, action in component_dict.iteritems():
+        for component_id, action in component_dict.items():
             is_ready[component_id] = True
         is_ready['Microscope'] = all(is_ready.values())
         return is_ready

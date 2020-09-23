@@ -8,16 +8,16 @@ import time
 import os.path
 import logging
 # import modules from project MicroscopeAutomation
-from load_image_czi import LoadImageCzi
-from automation_exceptions import HardwareError, AutofocusError, AutofocusObjectiveChangedError, \
+from .load_image_czi import LoadImageCzi
+from .automation_exceptions import HardwareError, AutofocusError, AutofocusObjectiveChangedError, \
     AutofocusNotSetError, LoadNotDefinedError, WorkNotDefinedError, ExperimentError, ExperimentNotExistError
-from experiment_info import ZenExperiment
-from __builtin__ import True
+from .experiment_info import ZenExperiment
+from builtins import True
 
 try:
-    from RS232 import Braintree
+    from .RS232 import Braintree
 except ImportError:
-    from RS232_dummy import Braintree
+    from .RS232_dummy import Braintree
 
 # Create Logger
 log = logging.getLogger('microscopeAutomation connect_zen_blue')
@@ -62,14 +62,14 @@ class ConnectMicroscope():
         # setup logging
         # Import the ZEN OAD Scripting into Python
         if not connect_dll:
-            import connect_zen_blue_dummy as microscopeConnection
+            from . import connect_zen_blue_dummy as microscopeConnection
             print('Running in Test Mode - Connecting to Simulated hardware')
         else:
             try:
                 import win32com.client as microscopeConnection
                 print ('Connected to microscope hardware - Zen Blue')
             except ImportError:
-                import connect_zen_blue_dummy as microscopeConnection
+                from . import connect_zen_blue_dummy as microscopeConnection
                 print('Failed to connect to Zen Blue Production SW, connecting to simulated hardware')
 
         self.Zen = microscopeConnection.GetActiveObject("Zeiss.Micro.Scripting.ZenWrapperLM")
@@ -420,7 +420,7 @@ class ConnectMicroscope():
         '''
         try:
             if self.image is None:
-                print 'No active image in ZEN Blue software'
+                print('No active image in ZEN Blue software')
             else:
                 self.Zen.Application.Documents.Add(self.image)
         except Exception:
@@ -724,7 +724,7 @@ class ConnectMicroscope():
         # Get current stage position
         try:
             zPos = self.Zen.Devices.Focus.ActualPosition
-            print('Focus position is {}'.format(zPos))
+            print(('Focus position is {}'.format(zPos)))
         except Exception:
             raise HardwareError('Error in get_focus_pos.')
         return zPos
@@ -1220,7 +1220,7 @@ def test_definite_focus(microscope, interactive=False):
     Output:
      success: True when test was passed
     '''
-    print 'Start test_definite_focus'
+    print('Start test_definite_focus')
     if interactive:
         print('Use interactive mode')
     success = True
@@ -1230,16 +1230,16 @@ def test_definite_focus(microscope, interactive=False):
 
     # Initialize autofocus
     z_auto_focus = microscope.find_surface()
-    print ('Auto-focus found surface at {}'.format(z_auto_focus))
+    print(('Auto-focus found surface at {}'.format(z_auto_focus)))
 
     if interactive:
-        raw_input('Focus on surface and hit Enter')
+        input('Focus on surface and hit Enter')
         z_after_move = microscope.get_focus_pos()
     else:
         z_after_move = microscope.z_up_relative(10)
-    print ('Moved focus up 10 um to new position {}'.format(z_after_move))
+    print(('Moved focus up 10 um to new position {}'.format(z_after_move)))
     z_after_store = microscope.store_focus()
-    print ('Store new focus position at {}'.format(z_after_store))
+    print(('Store new focus position at {}'.format(z_after_store)))
 
     print ('Test stage movement without and with auto-focus')
     path = [[34000, 40000, z_after_move], [35000, 40000, z_after_move], [35000, 41000, z_after_move],
@@ -1250,7 +1250,7 @@ def test_definite_focus(microscope, interactive=False):
     #        .format(id(microscope.Zen.Devices.Focus.ActualPosition)))
     for auto_focus_flag in [False, True]:
         for x, y, z in path:
-            print ('\nMove stage to ({}, {}, {}) with auto_focus_flag = {}'.format(x, y, z, auto_focus_flag))
+            print(('\nMove stage to ({}, {}, {}) with auto_focus_flag = {}'.format(x, y, z, auto_focus_flag)))
             xStage, yStage = microscope.move_stage_to(x, y)
             # print('2:ID for microscope.Zen.Devices.Focus.ActualPosition: {}'\
             #       .format(id(microscope.Zen.Devices.Focus.ActualPosition)))
@@ -1261,13 +1261,13 @@ def test_definite_focus(microscope, interactive=False):
                 z_after_recall = microscope.recall_focus()
                 # print('4: ID for microscope.Zen.Devices.Focus.ActualPosition: {}'
                 #       .format(id(microscope.Zen.Devices.Focus.ActualPosition)))
-                print('Focus after recall: {}'.format(z_after_recall))
+                print(('Focus after recall: {}'.format(z_after_recall)))
 
             x_new, y_new = microscope.get_stage_pos()
             # print('5: ID for microscope.Zen.Devices.Focus.ActualPosition: {}'
             #       .format(id(microscope.Zen.Devices.Focus.ActualPosition)))
             z_new = microscope.get_focus_pos()
-            print('6: New position: {}, {}, {}'.format(x_new, y_new, z_new))
+            print(('6: New position: {}, {}, {}'.format(x_new, y_new, z_new)))
             # print('ID for microscope.Zen.Devices.Focus.ActualPosition: {}'
             #       .format(id(microscope.Zen.Devices.Focus.ActualPosition)))
 
@@ -1288,37 +1288,37 @@ def test_connect_zen_blue(
     success = True
     experiment = 'Setup_10x'
     experiment_multi_pos = 'MultiPos_10x'
-    print 'Start test suite'
-    from image_AICS import ImageAICS
+    print('Start test suite')
+    from .image_AICS import ImageAICS
     # test class ConnectMicroscope
     # get instance of type ConnectMicroscope
     # connect via .com to Zeiss ZEN blue software
-    print 'Connect to microscope'
+    print('Connect to microscope')
     m = ConnectMicroscope()
 
     # test Definite Focus 2
     if 'test_definite_focus' in test:
         if test_definite_focus(m, interactive=False):
-            print 'test_definite_focus passed test'
+            print('test_definite_focus passed test')
         else:
-            print 'test_definite_focus failed test'
+            print('test_definite_focus failed test')
 
     # test Definite Focus 2
     if 'test_definite_focus_interactive' in test:
         if test_definite_focus(m, interactive=True):
-            print 'test_definite_focus passed test'
+            print('test_definite_focus passed test')
         else:
-            print 'test_definite_focus failed test'
+            print('test_definite_focus failed test')
 
     # Acquire an ImageAICS using settings defined within the Zeiss ZEN software (requires ZEN 2.3
     if 'execute_experiment' in test:
         try:
             print('Start test execute_experiment')
-            print('Experiment: ', experiment)
+            print(('Experiment: ', experiment))
             m.execute_experiment(experiment)
             print('Experiment: None')
             m.execute_experiment()
-            print('Execute experiment {} at multiple positions'.format(experiment_multi_pos))
+            print(('Execute experiment {} at multiple positions'.format(experiment_multi_pos)))
             pos_list = [(59597, 40896, 9941), (0, 59939, 40946, 9941)]
             m.execute_experiment(experiment_multi_pos, pos_list)
             # display ImageAICS within ZEN software
@@ -1332,81 +1332,81 @@ def test_connect_zen_blue(
             return False
 
     if 'snap_image' in test:
-        print 'Start test snap_image'
-        print 'Experiment: ', experiment
+        print('Start test snap_image')
+        print('Experiment: ', experiment)
         success = m.snap_image(experiment)
-        print 'Experiment: None'
+        print('Experiment: None')
         success = m.snap_image()
 
         # display ImageAICS within ZEN software
         m.show_image()
         if success:
-            print 'snap_image passed test'
+            print('snap_image passed test')
         else:
-            print 'snap_image failed test'
+            print('snap_image failed test')
 
     if 'live_mode' in test:
-        print 'Start test live_mode'
-        print 'Experiment: ', experiment
-        print 'Start live mode for 5 sec'
+        print('Start test live_mode')
+        print('Experiment: ', experiment)
+        print('Start live mode for 5 sec')
         image = m.live_mode_start(experiment)
         time.sleep(5)
         m.live_mode_stop(experiment)
-        print 'Live mode stopped'
+        print('Live mode stopped')
 
 #     test objective changer
     if 'get_all_objectives' in test:
-        print 'Start test get_all_objectives'
+        print('Start test get_all_objectives')
     #     retrieve the names and magnification of all objectives
-        print 'Mounted objectives: \n', m.get_all_objectives(6)
+        print('Mounted objectives: \n', m.get_all_objectives(6))
 
-        print 'get_all_objectives passed test'
+        print('get_all_objectives passed test')
 
 #     retrieve objective information
     if 'get_objective_information' in test:
-        print 'Start retrieve information about objectives'
+        print('Start retrieve information about objectives')
     #     retrieve the names and magnification of objective in imaging position
-        print 'Magnification: ', m.get_objective_magnification()
-        print 'Name: ', m.get_objective_name()
+        print('Magnification: ', m.get_objective_magnification())
+        print('Name: ', m.get_objective_name())
 
-        print 'get_objective_magnification and get_objective_name passed test'
+        print('get_objective_magnification and get_objective_name passed test')
 
     if 'trigger_pump' in test:
-        print 'Start test trigger_pump'
+        print('Start test trigger_pump')
     #     operate pump for 5 sec
         m.trigger_pump(seconds=5, port='COM1', baudrate=19200)
-        print 'Pump triggered'
+        print('Pump triggered')
 
     if 'test_focus' in test:
-        print 'Start test test_focus'
+        print('Start test test_focus')
         # retrieve focus position
         zPos = m.get_focus_pos()
-        print 'Focus position: ', zPos
+        print('Focus position: ', zPos)
 
         # move focus to new position
         zPos = m.move_focus_to(zPos - 10)
-        print 'New focus position: ', zPos
+        print('New focus position: ', zPos)
 
         # store current focus position as work position
         zPos = m.set_focus_work_position()
-        print 'Focus work position: ', zPos
+        print('Focus work position: ', zPos)
 
         # store current focus position as load position
         zPos = m.set_focus_load_position()
-        print 'Focus load position: ', zPos
+        print('Focus load position: ', zPos)
 
         # move focus to work position
         zPos = m.move_focus_to_work()
-        print 'New focus position: ', zPos
+        print('New focus position: ', zPos)
 
         # move focus to load position
         zPos = m.move_focus_to_load()
-        print 'New focus position: ', zPos
+        print('New focus position: ', zPos)
 
-        print 'test_focus passed test'
+        print('test_focus passed test')
 
     if 'save_image' in test:
-        print 'Start test save_image'
+        print('Start test save_image')
         #     save ImageAICS from within Zeiss software to disk (in czi format)
         #     filePath="F:\\Winfried\\Testdata\\testImage.czi"
         filePath = "../data/testImages/testImage.czi"
@@ -1420,15 +1420,15 @@ def test_connect_zen_blue(
         image = m.load_image(imageTest, getMeta=True)
         image.show(filePath)
 
-        print 'save_image passed test'
+        print('save_image passed test')
 
     if 'test_stage' in test:
-        print 'Start test test_stage'
+        print('Start test test_stage')
         x, y = m.get_stage_pos()  # retrieve stage position in mum
-        print 'Stage position x: ', x, 'y: ', y
+        print('Stage position x: ', x, 'y: ', y)
         m.move_stage_to(x+10, y+20.5)  # move stage to specified position in mum
 
-        print 'test_stage passed test'
+        print('test_stage passed test')
 
     if 'test_macro' in test:
         macro_name = 'TestMacro'
@@ -1447,6 +1447,6 @@ if __name__ == '__main__':
     #         'trigger_pump', 'test_focus', 'save_image', 'test_stage', 'test_macro']
     test = ['test_macro']
     if test_connect_zen_blue(test=test):
-        print 'Tests performed successful: ', test
+        print('Tests performed successful: ', test)
     else:
-        print 'Test stopped without  success'
+        print('Test stopped without  success')

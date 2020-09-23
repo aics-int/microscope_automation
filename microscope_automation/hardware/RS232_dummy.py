@@ -1,16 +1,9 @@
 '''
-Communicate with RS232 interface
-Based on pySerial
-Install with pip install pyserial
-https://pypi.python.org/pypi/pyserial/2.7
-http://pythonhosted.org/pyserial/
-
-Created on Sep 6, 2016
+Dummy functions to replace RS232 for dummy functions
+Created on Sep 23, 2016
 
 @author: winfriedw
 '''
-
-import serial
 
 class Braintree():
     '''Control Braintree BS-8000/9000 syringe pump through RS232.
@@ -19,65 +12,46 @@ class Braintree():
     '''
     def __init__(self, port='COM1', baudrate=19200):
         '''Opens RS232 connection to syringe pump.
-        
+
         Input:
          port: com port, default = 'COM1'
          baudrate: baudrate for connection, can be set on pump, typically = 19200
-         
+
         Output:
          none
         '''
         # open serial port
-        self.ser=serial.Serial(port=port, baudrate=baudrate)
-        
+        print('Simulation: Connect to RS232')
+
     def start_pump(self):
         '''Start pump.
-        
+
         Input:
          none
-         
+
         Output:
          none
         '''
-        self.ser.write(b'RUN\r')
-        
+        print('Simulation: Start pump')
+
     def stop_pump(self):
         '''Stop pump.
-        
+
         Input:
          none
-         
+
         Output:
          none
         '''
-        self.ser.write(b'STP\r')
+        print('Simulation: Stop pump')
 
     def close_connection(self):
         '''Stop pump and close connection.
-        
+
         Input:
          none
-         
+
         Output:
          none
         '''
-        self.stop_pump()
-        self.ser.close()
-        
-if __name__ == '__main__':
-    import time
-    # connect to pump through RS232
-    pump=Braintree(port='COM1', baudrate=19200)
-
-    #activate pump
-    pump.start_pump()
-    
-    # continue pumping for 5s
-    time.sleep(5)
-    
-    # stop pump
-    pump.stop_pump()
-    
-    # close connection
-    pump.close_connection()
-    
+        print('Simulation: Stop connection to pump.')
