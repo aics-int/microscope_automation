@@ -7,8 +7,6 @@ import time
 import os.path
 import logging
 from serial.serialutil import SerialException
-
-# import modules from project MicroscopeAutomation
 from ..load_image_czi import LoadImageCzi
 from ..automation_exceptions import (
     HardwareError,

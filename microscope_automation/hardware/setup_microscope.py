@@ -30,7 +30,11 @@ def setup_cameras(specs, microscope):
     Output:
      none
     """
+<<<<<<< HEAD
     cameras = specs.get_pref("Cameras")
+=======
+    cameras = specs.get_pref('Cameras')
+>>>>>>> 7c234a8... Got all tests to pass with new file structure
     if cameras:
         for name, camera in cameras.items():
             try:
@@ -64,7 +68,11 @@ def setup_safe_areas(specs, microscope):
     Output:
      none
     """
+<<<<<<< HEAD
     safe_areas = specs.get_pref("SafeAreas")
+=======
+    safe_areas = specs.get_pref('SafeAreas')
+>>>>>>> 7c234a8... Got all tests to pass with new file structure
     if safe_areas:
         for name, areas in safe_areas.items():
             safe_area_object = hardware_components.Safety(name)
@@ -85,7 +93,11 @@ def setup_stages(specs, microscope):
     Output:
      none
     """
+<<<<<<< HEAD
     stages_specifications = specs.get_pref("Stages")
+=======
+    stages_specifications = specs.get_pref('Stages')
+>>>>>>> 7c234a8... Got all tests to pass with new file structure
     if stages_specifications:
         for name, stage in stages_specifications.items():
             stage_object = hardware_components.Stage(
@@ -110,6 +122,7 @@ def setup_focus_drive(specs, microscope, obj_changer_id=None):
     Output:
      none
     """
+<<<<<<< HEAD
     focus_specifications = specs.get_pref_as_meta("Focus")
     if focus_specifications:
         focus_drive_object = hardware_components.FocusDrive(
@@ -120,6 +133,16 @@ def setup_focus_drive(specs, microscope, obj_changer_id=None):
             objective_changer=obj_changer_id,
             microscope_object=microscope,
         )
+=======
+    focus_specifications = specs.get_pref_as_meta('Focus')
+    if focus_specifications:
+        focus_drive_object = hardware_components.FocusDrive(focus_drive_id=focus_specifications.get_pref('Name'),
+                                                            max_load_position=focus_specifications.get_pref('MaxLoadPosition'),
+                                                            min_work_position=focus_specifications.get_pref('MinWorkPosition'),
+                                                            auto_focus_id=focus_specifications.get_pref('AutoFocus'),
+                                                            objective_changer=obj_changer_id,
+                                                            microscope_object=microscope)
+>>>>>>> 7c234a8... Got all tests to pass with new file structure
         microscope.add_microscope_object(focus_drive_object)
 
 
@@ -135,6 +158,7 @@ def setup_obj_changer(specs, microscope):
      objective_changer_object: instance of ObjectiveChanger which was
      just added to microscope
     """
+<<<<<<< HEAD
     obj_changer_specifications = specs.get_pref_as_meta("ObjectiveChanger")
     objective_changer_object = None
     if obj_changer_specifications:
@@ -145,6 +169,17 @@ def setup_obj_changer(specs, microscope):
             ref_objective=obj_changer_specifications.get_pref("ReferenceObjective"),
             microscope_object=microscope,
         )
+=======
+    obj_changer_specifications = specs.get_pref_as_meta('ObjectiveChanger')
+    objective_changer_object = None
+    if obj_changer_specifications:
+        objective_changer_object = \
+            hardware_components.ObjectiveChanger(objective_changer_id=obj_changer_specifications.get_pref('Name'),
+                                                 n_positions=obj_changer_specifications.get_pref('Positions'),
+                                                 objectives=obj_changer_specifications.get_pref('Objectives'),
+                                                 ref_objective=obj_changer_specifications.get_pref('ReferenceObjective'),
+                                                 microscope_object=microscope)
+>>>>>>> 7c234a8... Got all tests to pass with new file structure
         microscope.add_microscope_object(objective_changer_object)
 
     return objective_changer_object
@@ -163,6 +198,7 @@ def setup_autofocus(specs, microscope, obj_changer=None):
     Output:
      none
     """
+<<<<<<< HEAD
     autofocus_specifications = specs.get_pref_as_meta("AutoFocus")
     if autofocus_specifications:
         autofocus_object = hardware_components.AutoFocus(
@@ -173,6 +209,15 @@ def setup_autofocus(specs, microscope, obj_changer=None):
                 "DefaultReferencePosition"
             ),
         )
+=======
+    autofocus_specifications = specs.get_pref_as_meta('AutoFocus')
+    if autofocus_specifications:
+        autofocus_object = hardware_components.AutoFocus(auto_focus_id=autofocus_specifications.get_pref('Name'),
+                                                         default_camera=autofocus_specifications.get_pref('DefaultCamera'),
+                                                         objective_changer_instance=obj_changer,
+                                                         default_reference_position=autofocus_specifications.get_pref(
+                                                         'DefaultReferencePosition'))
+>>>>>>> 7c234a8... Got all tests to pass with new file structure
 
         microscope.add_microscope_object(autofocus_object)
 
@@ -190,6 +235,7 @@ def setup_pump(specs, microscope):
     Output:
      none
     """
+<<<<<<< HEAD
     pump_specifications = specs.get_pref_as_meta("Pump")
     if pump_specifications:
         pump_object = hardware_components.Pump(
@@ -198,6 +244,14 @@ def setup_pump(specs, microscope):
             port=pump_specifications.get_pref("ComPortPump"),
             baudrate=pump_specifications.get_pref("BaudratePump"),
         )
+=======
+    pump_specifications = specs.get_pref_as_meta('Pump')
+    if pump_specifications:
+        pump_object = hardware_components.Pump(pump_id=pump_specifications.get_pref('Name'),
+                                               seconds=pump_specifications.get_pref('TimePump'),
+                                               port=pump_specifications.get_pref('ComPortPump'),
+                                               baudrate=pump_specifications.get_pref('BaudratePump'))
+>>>>>>> 7c234a8... Got all tests to pass with new file structure
         microscope.add_microscope_object(pump_object)
 
 
@@ -230,6 +284,7 @@ def setup_microscope(prefs):
         )
 
     # get object to connect to software based on software name
+<<<<<<< HEAD
     software = specs.get_pref("Software")
     connect_object = hardware_components.ControlSoftware(software)
 
@@ -247,6 +302,21 @@ def setup_microscope(prefs):
             name=microscope.get_pref("Name"),
             experiments_folder=get_experiment_path(prefs, dir=True),
         )
+=======
+    software = specs.get_pref('Software')
+    connect_object = hardware_components.ControlSoftware(software)
+
+    # create microscope
+    microscope = specs.get_pref_as_meta('Microscope')
+    if microscope.get_pref('Type') == "SpinningDisk_Zeiss":
+        microscope_object = SpinningDiskZeiss(control_software_object=connect_object,
+                                              name=microscope.get_pref('Name'),
+                                              experiments_folder=get_experiment_path(prefs, dir=True))
+    elif microscope.get_pref('Type') == "SpinningDisk_3i":
+        microscope_object = SpinningDisk3i(control_software_object=connect_object,
+                                           name=microscope.get_pref('Name'),
+                                           experiments_folder=get_experiment_path(prefs, dir=True))
+>>>>>>> 7c234a8... Got all tests to pass with new file structure
     else:
         raise ae.HardwareDoesNotExistError(
             "Microscope not defined in module hardware_control.py"

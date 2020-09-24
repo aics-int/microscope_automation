@@ -119,7 +119,7 @@ class ZenExperiment(object):
          x_value: float (x - coordinate)
 
          y_value: float (y - coordinate)
-         
+
          z_value: float (z - coordinate)
 
         Output:

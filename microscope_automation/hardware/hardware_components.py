@@ -16,6 +16,7 @@ import matplotlib.patches as patches
 from matplotlib import cm
 import math
 import inspect
+<<<<<<< HEAD
 
 # import modules from project microscope_automation
 from ..image_AICS import ImageAICS
@@ -29,6 +30,19 @@ from ..automation_exceptions import (
     LoadNotDefinedError,
     WorkNotDefinedError,
 )
+=======
+# import modules from project MicroscopeAutomation
+# modules to connect to microscope hardware are imported in class ControlSoftware
+# from . import automation_messages_form_layout as message
+# from .automation_exceptions import AutomationError, HardwareError, \
+#     CrashDangerError, AutofocusError, AutofocusNotSetError, AutofocusObjectiveChangedError, \
+#     ObjectiveNotDefinedError, FileExistsError, LoadNotDefinedError
+from ..image_AICS import ImageAICS
+from .. import automation_messages_form_layout as message
+from ..automation_exceptions import ExperimentNotExistError, \
+    AutofocusError, AutofocusNotSetError, AutofocusObjectiveChangedError, \
+    ObjectiveNotDefinedError, LoadNotDefinedError, WorkNotDefinedError
+>>>>>>> 7c234a8... Got all tests to pass with new file structure
 
 # setup logging
 import logging
@@ -416,6 +430,7 @@ class ControlSoftware(MicroscopeComponent):
         Output:
          none
         """
+<<<<<<< HEAD
         log_method(self, "connect_to_microscope_software")
         if self.get_id() == "ZEN Blue":
             from ..zeiss.connect_zen_blue import ConnectMicroscope
@@ -429,17 +444,36 @@ class ControlSoftware(MicroscopeComponent):
             # this is the only way to import modules starting with numbers
             from ..slidebook.connect_slidebook import ConnectMicroscope
 
+=======
+        log_method(self, 'connect_to_microscope_software')
+        if self.get_id() == 'ZEN Blue':
+            from ..zeiss.connect_zen_blue import ConnectMicroscope
+            self.connection = ConnectMicroscope()
+        elif self.get_id() == 'ZEN Black':
+            from ..zeiss.connect_zen_black import ConnectMicroscope
+            self.connection = ConnectMicroscope()
+        elif self.get_id() == 'Slidebook':
+            # this is the only way to import modules starting with numbers
+            from ..slidebook.connect_slidebook import ConnectMicroscope
+>>>>>>> 7c234a8... Got all tests to pass with new file structure
             self.connection = ConnectMicroscope()
         elif self.get_id() == "ZEN Blue Dummy":
             # create microscope Zeiss spinning disk simulation
             # Uses same module as standard Zen Blue microscope, but without dll
             from ..zeiss.connect_zen_blue import ConnectMicroscope
+<<<<<<< HEAD
 
             self.connection = ConnectMicroscope(connect_dll=False)
         elif self.get_id() == "Slidebook Dummy":
             # this is the only way to import modules starting with numbers
             from ..slidebook.connect_slidebook import ConnectMicroscope
 
+=======
+            self.connection = ConnectMicroscope(connect_dll=False)
+        elif self.get_id() == 'Slidebook Dummy':
+            # this is the only way to import modules starting with numbers
+            from ..slidebook.connect_slidebook import ConnectMicroscope
+>>>>>>> 7c234a8... Got all tests to pass with new file structure
             self.connection = ConnectMicroscope(dummy=True)
 
         # logger.info('selected software: %s', self.get_id())
@@ -631,9 +665,14 @@ class Safety(MicroscopeComponent):
             return False
 
         # is path in safe area?
+<<<<<<< HEAD
         if not self.is_safe_travel_path(
             xy_path, z_max_pos, safe_area_id, verbose=verbose
         ):
+=======
+        if not self.is_safe_travel_path(xy_path, z_max_pos, safe_area_id,
+                                        verbose=verbose):
+>>>>>>> 7c234a8... Got all tests to pass with new file structure
             return False
 
         return True
@@ -2129,9 +2168,16 @@ class Pump(MicroscopeComponent):
         Output:
          none
         """
+<<<<<<< HEAD
         log_method(self, "trigger_pump")
         con_par = self.get_connection()
         seconds = self.get_time()
         communication_object.trigger_pump(
             seconds=seconds, port=con_par[0], baudrate=con_par[1]
         )
+=======
+        log_method(self, 'trigger_pump')
+        con_par = self.get_connection()
+        seconds = self.get_time()
+        communication_object.trigger_pump(seconds=seconds, port=con_par[0], baudrate=con_par[1])
+>>>>>>> 7c234a8... Got all tests to pass with new file structure
