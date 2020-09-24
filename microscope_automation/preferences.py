@@ -14,16 +14,16 @@ module_logger = logging.getLogger('microscopeAutomation')
 
 class Preferences:
     '''Reads configuration files and will return Values'''
-    def __init__(self, prefPath=None, prefDict=None, parentPrefs=None):
+    def __init__(self, pref_path=None, pref_dict=None, parent_prefs=None):
         ''''Creates preferences object from .yml preferences file or dictionary.
-        Choose prefPath or prefDict.
+        Choose pref_path or pref_dict.
 
         Input:
-         prefPath: path to .yml file (Default = None).
+         pref_path: path to .yml file (Default = None).
 
-         prefDict: dictionary with preferences (Default = None)
+         pref_dict: dictionary with preferences (Default = None)
 
-         parentPrefs: Preferences object that was source for prefDict. This will allow access to global preferences, even working with local subset.
+         parent_prefs: Preferences object that was source for pref_dict. This will allow access to global preferences, even working with local subset.
 
         Output:
          Object of class preferences
@@ -34,41 +34,41 @@ class Preferences:
         # check for valid input
         # We should add checking for valid filename etc.
         # Check that either one field is None or the other is None, not both (xor)
-        assert (prefPath is None) ^ (prefDict is None), 'One and only one preference option must be specified'
+        assert (pref_path is None) ^ (pref_dict is None), 'One and only one preference option must be specified'
 
-        if prefPath is not None:
-            self.logger.info('read preferences from ' + prefPath)
+        if pref_path is not None:
+            self.logger.info('read preferences from ' + pref_path)
 
-            with open(prefPath, 'r') as prefsFile:
+            with open(pref_path, 'r') as prefsFile:
                 self.prefs = yaml.load(prefsFile, Loader=yaml.FullLoader)
-                print('\nRead preferences from {}\n'.format(prefPath))
+                print('\nRead preferences from {}\n'.format(pref_path))
                 prefs_info = self.prefs['Info']
-                for key, value in prefs_info.iteritems():
+                for key, value in prefs_info.items():
                     print('{}:\t{}'.format(key, value))
 
-        if prefDict is not None:
+        if pref_dict is not None:
             self.logger.info('read preferences from dictionary')
-            self.prefs = prefDict
+            self.prefs = pref_dict
 
         self.logger.info('add parent preferences set')
-        self.parentPrefs = parentPrefs
+        self.parent_prefs = parent_prefs
 
 
     def printPrefs(self):
         print(self.prefs)
 
-    def getParentPrefs(self):
+    def getparent_prefs(self):
         '''preferences objects that are created from a subset of preferences, keep a reference to the original preferences set.
 
         Input:
          none
 
         Output:
-         parentPrefs: Object of class preferences of preferences that where source for current subset of preferences.
+         parent_prefs: Object of class preferences of preferences that where source for current subset of preferences.
         '''
-        return self.parentPrefs
+        return self.parent_prefs
 
-    def getPref(self, name, validValues = None):
+    def get_pref(self, name, validValues = None):
         '''Return value for key 'name' in preferences.
 
         Input:
@@ -80,12 +80,11 @@ class Preferences:
         Output:
          pref: value for key 'name' in preferences
         '''
-#         from .automation_messages_form_layout import pull_down_select_dialog
-        from automation_messages_form_layout import pull_down_select_dialog
+        from .automation_messages_form_layout import pull_down_select_dialog
 
         pref = self.prefs.get(name)
-        if pref is None and self.parentPrefs is not None:
-            parentPref = self.parentPrefs.getPref(name)
+        if pref is None and self.parent_prefs is not None:
+            parentPref = self.parent_prefs.get_pref(name)
             if parentPref is not None:
                 return parentPref
             print('Key ', name, ' is not defined and there are no parent preferences')
@@ -99,7 +98,7 @@ class Preferences:
                     pref = pull_down_select_dialog(validValues, "Please select valid value for preference key {},\ninstead of {}\nor exit program by pressing 'Cancel'.".format(name, pref))
         return pref
 
-    def getPrefAsMeta(self, name):
+    def get_pref_as_meta(self, name):
         '''Return subset of preferences as preferences object.
 
         Input:
@@ -110,26 +109,26 @@ class Preferences:
         '''
         # To return dictionaries as object will help later
         # if we want to implement some pre-processing and error checking of meta data.
-        if self.getPref(name):
-            return Preferences(prefDict=self.getPref(name), parentPrefs=self)
+        if self.get_pref(name):
+            return Preferences(pref_dict=self.get_pref(name), parent_prefs=self)
         else:
             return None
 
-    def setPref(self, name, value):
+    def set_pref(self, name, value):
         self.prefs[name] = value
 
     # TODO: Add capacity to save preferences
 
 if __name__ == '__main__':
-    prefPath='../GeneralSettings/preferences.yml'
-    meta=Preferences(prefPath)
-    print(meta.getPref('PathMicroscopeSpecs'))
-    print(meta.getPref('ExperimentsScanBackground'))
+    pref_path='../GeneralSettings/preferences.yml'
+    meta=Preferences(pref_path)
+    print(meta.get_pref('PathMicroscopeSpecs'))
+    print(meta.get_pref('ExperimentsScanBackground'))
 
-    metaObject = meta.getPrefAsMeta('ScanColonies')
-    print(metaObject.getPref('Execute'))
-    print(metaObject.getParentPrefs())
-    print(metaObject.getPref('PathDailyFolder'))
-    print(metaObject.getPref('Tile', validValues = ['None', 'Fixed', 'Size']))
-    print(metaObject.getPref('Tile', validValues = ['ThrowError']))
+    metaObject = meta.get_pref_as_meta('ScanColonies')
+    print(metaObject.get_pref('Execute'))
+    print(metaObject.getparent_prefs())
+    print(metaObject.get_pref('PathDailyFolder'))
+    print(metaObject.get_pref('Tile', validValues = ['None', 'Fixed', 'Size']))
+    print(metaObject.get_pref('Tile', validValues = ['ThrowError']))
     print('Done')

@@ -7,7 +7,7 @@ Split into hardware_control and hardware_components on May 25, 2020
 """
 
 import collections
-from .automation_exceptions import HardwareError, AutofocusError, \
+from ..automation_exceptions import HardwareError, AutofocusError, \
     HardwareCommandNotDefinedError, LoadNotDefinedError, CrashDangerError
 
 from . import hardware_components

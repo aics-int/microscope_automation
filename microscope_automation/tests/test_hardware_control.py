@@ -8,9 +8,9 @@ Created on May 25, 2020
 import pytest
 from mock import patch
 from microscope_automation.image_AICS import ImageAICS
-import microscope_automation.setup_microscope as setup_microscope
+import microscope_automation.hardware.setup_microscope as setup_microscope
 import microscope_automation.preferences as preferences
-import microscope_automation.hardware_components as h_comp
+import microscope_automation.hardware.hardware_components as h_comp
 from microscope_automation.automation_exceptions import AutomationError, \
     AutofocusError, CrashDangerError, HardwareError, LoadNotDefinedError
 import os
@@ -114,16 +114,16 @@ def setup_local_camera(camera_id, pixel_size=(None, None), pixel_number=(None, N
 @patch("microscope_automation.automation_exceptions.LoadNotDefinedError.error_dialog")
 @pytest.mark.skipif(skip_all_tests, reason='Exclude all tests')
 @pytest.mark.parametrize('prefs_path, error, expected',
-                         [('test_data/preferences_ZSD_test.yml', AutomationError, None),
-                          ('test_data/preferences_ZSD_test.yml', AutofocusError, 'AutofocusError'),
-                          ('test_data/preferences_ZSD_test.yml', CrashDangerError, 'CrashDangerError'),
-                          ('test_data/preferences_ZSD_test.yml', HardwareError, 'HardwareError'),
-                          ('test_data/preferences_ZSD_test.yml', LoadNotDefinedError, 'LoadNotDefinedError'),
-                          ('test_data/preferences_3i_test.yml', AutomationError, None),
-                          ('test_data/preferences_3i_test.yml', AutofocusError, 'AutofocusError'),
-                          ('test_data/preferences_3i_test.yml', CrashDangerError, 'CrashDangerError'),
-                          ('test_data/preferences_3i_test.yml', HardwareError, 'HardwareError'),
-                          ('test_data/preferences_3i_test.yml', LoadNotDefinedError, 'LoadNotDefinedError')])
+                         [('data/preferences_ZSD_test.yml', AutomationError, None),
+                          ('data/preferences_ZSD_test.yml', AutofocusError, 'AutofocusError'),
+                          ('data/preferences_ZSD_test.yml', CrashDangerError, 'CrashDangerError'),
+                          ('data/preferences_ZSD_test.yml', HardwareError, 'HardwareError'),
+                          ('data/preferences_ZSD_test.yml', LoadNotDefinedError, 'LoadNotDefinedError'),
+                          ('data/preferences_3i_test.yml', AutomationError, None),
+                          ('data/preferences_3i_test.yml', AutofocusError, 'AutofocusError'),
+                          ('data/preferences_3i_test.yml', CrashDangerError, 'CrashDangerError'),
+                          ('data/preferences_3i_test.yml', HardwareError, 'HardwareError'),
+                          ('data/preferences_3i_test.yml', LoadNotDefinedError, 'LoadNotDefinedError')])
 def test_recover_hardware(mock_error_diag0, mock_error_diag1, mock_error_diag2,
                           mock_error_diag3, prefs_path, error, expected):
     """Test recovering from hardware error"""
@@ -149,12 +149,12 @@ def test_recover_hardware(mock_error_diag0, mock_error_diag1, mock_error_diag2,
 
 @pytest.mark.skipif(skip_all_tests, reason='Exclude all tests')
 @pytest.mark.parametrize('prefs_path, experiment, expected_path',
-                         [('test_data/preferences_ZSD_test.yml',
+                         [('data/preferences_ZSD_test.yml',
                            'WellTile_10x_true.czexp',
-                           'test_data/Experiment Setup/WellTile_10x_true.czexp'),
-                          ('test_data/preferences_3i_test.yml',
+                           'data/Experiment Setup/WellTile_10x_true.czexp'),
+                          ('data/preferences_3i_test.yml',
                            'test_communication.exp.prefs',
-                           'test_data/SlideBook 6.0/test_communication.exp.prefs')])
+                           'data/SlideBook 6.0/test_communication.exp.prefs')])
 def test_create_experiment_path(prefs_path, experiment, expected_path):
     """Test creation of experiment path"""
     microscope = setup_local_microscope(prefs_path)
@@ -164,8 +164,8 @@ def test_create_experiment_path(prefs_path, experiment, expected_path):
 
 @pytest.mark.skipif(skip_all_tests, reason='Exclude all tests')
 @pytest.mark.parametrize('prefs_path, software',
-                         [('test_data/preferences_ZSD_test.yml', 'ZEN Blue Dummy'),
-                          ('test_data/preferences_3i_test.yml', 'Slidebook Dummy')])
+                         [('data/preferences_ZSD_test.yml', 'ZEN Blue Dummy'),
+                          ('data/preferences_3i_test.yml', 'Slidebook Dummy')])
 def test_stop_microscope(prefs_path, software):
     """Test creation of experiment path"""
     microscope = setup_local_microscope(prefs_path)
@@ -182,11 +182,11 @@ def test_stop_microscope(prefs_path, software):
 @pytest.mark.skipif(skip_all_tests, reason='Exclude all tests')
 @pytest.mark.parametrize('find_surface', [True, False])
 @pytest.mark.parametrize('prefs_path, ref_obj_id, expected',
-                         [('test_data/preferences_ZSD_test.yml', None,
+                         [('data/preferences_ZSD_test.yml', None,
                            'AutofocusNoReferenceObjectError'),
-                          ('test_data/preferences_ZSD_test.yml', 'test',
+                          ('data/preferences_ZSD_test.yml', 'test',
                            'HardwareCommandNotDefinedError'),
-                          ('test_data/preferences_3i_test.yml', None,
+                          ('data/preferences_3i_test.yml', None,
                            'HardwareCommandNotDefinedError')])
 def test_reference_position(prefs_path, find_surface, ref_obj_id, expected):
     """Test correction in xyz between objectives"""
@@ -205,22 +205,22 @@ def test_reference_position(prefs_path, find_surface, ref_obj_id, expected):
                           "objective_changer_id, objectives, safety_object_id, "
                           "safe_verts, safe_area_id, z_max, stage_id, "
                           "auto_focus_id, expected"),
-                         [('test_data/preferences_3i_test.yml',
+                         [('data/preferences_3i_test.yml',
                            'test_communication.exp.prefs', {}, None, None, None,
                            None, None, None, None, None, None, {'Microscope': True}),
-                          ('test_data/preferences_3i_test.yml',
+                          ('data/preferences_3i_test.yml',
                            'test_communication.exp.prefs',
                            {'MotorizedFocus': ['test']}, 'MotorizedFocus', None,
                            None, None, None, None, None, None, None,
                            {'Microscope': True, 'MotorizedFocus': True}),
-                          ('test_data/preferences_ZSD_test.yml',
+                          ('data/preferences_ZSD_test.yml',
                            'WellTile_10x_true.czexp', {}, None, None, None,
                            None, None, None, None, None, None, 'HardwareDoesNotExistError'),
-                          ('test_data/preferences_ZSD_test.yml',
+                          ('data/preferences_ZSD_test.yml',
                            'WellTile_10x_true.czexp', {}, 'MotorizedFocus',
                            '6xMotorizedNosepiece', None, 'ZSD_01_plate',
                            None, None, None, None, None, {'Microscope': True}),
-                          ('test_data/preferences_ZSD_test.yml',
+                          ('data/preferences_ZSD_test.yml',
                            'WellTile_10x_true.czexp',
                            {'MotorizedFocus': ['test'],
                             '6xMotorizedNosepiece': ['test']},
@@ -228,7 +228,7 @@ def test_reference_position(prefs_path, find_surface, ref_obj_id, expected):
                            'ZSD_01_plate', None, None, None, None, None,
                            {'Microscope': True, 'MotorizedFocus': True,
                             '6xMotorizedNosepiece': True}),
-                          ('test_data/preferences_ZSD_test.yml',
+                          ('data/preferences_ZSD_test.yml',
                            'WellTile_10x_true.czexp',
                            {'MotorizedFocus': ['test'],
                             '6xMotorizedNosepiece': ['test'],
@@ -237,7 +237,7 @@ def test_reference_position(prefs_path, find_surface, ref_obj_id, expected):
                            'MotorizedFocus', '6xMotorizedNosepiece', None,
                            'ZSD_01_plate', None, None, None, 'Marzhauser', 'DefiniteFocus2',
                            'TypeError'),
-                          ('test_data/preferences_ZSD_test.yml',
+                          ('data/preferences_ZSD_test.yml',
                            'WellTile_10x_true.czexp',
                            {'MotorizedFocus': ['test'],
                             '6xMotorizedNosepiece': ['test'],
@@ -256,7 +256,7 @@ def test_reference_position(prefs_path, find_surface, ref_obj_id, expected):
                            'ZSD_01_plate', None, None, None,
                            'Marzhauser', 'DefiniteFocus2',
                            'UnboundLocalError'),
-                          ('test_data/preferences_ZSD_test.yml',
+                          ('data/preferences_ZSD_test.yml',
                            'WellTile_10x_true.czexp',
                            {'MotorizedFocus': ['test'],
                             '6xMotorizedNosepiece': ['test'],
@@ -277,7 +277,7 @@ def test_reference_position(prefs_path, find_surface, ref_obj_id, expected):
                            'Marzhauser', 'DefiniteFocus2',
                            {'Microscope': True, 'MotorizedFocus': True,
                             '6xMotorizedNosepiece': True, 'Marzhauser': True}),
-                          ('test_data/preferences_ZSD_test.yml',
+                          ('data/preferences_ZSD_test.yml',
                            'WellTile_10x_true.czexp',
                            {'MotorizedFocus': ['test'],
                             '6xMotorizedNosepiece': ['test'],
@@ -298,7 +298,7 @@ def test_reference_position(prefs_path, find_surface, ref_obj_id, expected):
                            {'Microscope': False, 'MotorizedFocus': True,
                             '6xMotorizedNosepiece': True, 'DefiniteFocus2': False,
                             'Marzhauser': True}),
-                          ('test_data/preferences_ZSD_test.yml',
+                          ('data/preferences_ZSD_test.yml',
                            'WellTile_10x_true.czexp',
                            {'MotorizedFocus': ['test'],
                             '6xMotorizedNosepiece': ['test'],
@@ -361,14 +361,14 @@ def test_microscope_is_ready(prefs_path, experiment, component_dict,
     assert result == expected
 
 
-@patch("microscope_automation.hardware_control_zeiss.SpinningDiskZeiss.recover_hardware")
+@patch("microscope_automation.zeiss.hardware_control_zeiss.SpinningDiskZeiss.recover_hardware")
 @pytest.mark.skipif(skip_all_tests, reason='Exclude all tests')
 @pytest.mark.parametrize(("prefs_path, software, experiment, "
                           "objective_changer_id, objectives, expected"),
-                         [('test_data/preferences_ZSD_test.yml', None,
+                         [('data/preferences_ZSD_test.yml', None,
                            'WellTile_10x_true.czexp',
                            None, None, 'AttributeError'),
-                          ('test_data/preferences_ZSD_test.yml', 'ZEN Blue Dummy',
+                          ('data/preferences_ZSD_test.yml', 'ZEN Blue Dummy',
                            'WellTile_10x_true.czexp',
                            '6xMotorizedNosepiece',
                            {'Plan-Apochromat 10x/0.45':
@@ -406,8 +406,8 @@ def test_change_objective(mock_rec_hard, prefs_path, software, experiment,
 
 
 @pytest.mark.skipif(skip_all_tests, reason='Exclude all tests')
-@pytest.mark.parametrize("prefs_path", ['test_data/preferences_ZSD_test.yml',
-                                        'test_data/preferences_3i_test.yml'])
+@pytest.mark.parametrize("prefs_path", ['data/preferences_ZSD_test.yml',
+                                        'data/preferences_3i_test.yml'])
 @pytest.mark.parametrize(("auto_focus_id, use_auto_focus, expected"),
                          [(None, False, 'HardwareDoesNotExistError'),
                           ('DefiniteFocus2', False,
@@ -431,12 +431,12 @@ def test_set_microscope(prefs_path, auto_focus_id, use_auto_focus, expected):
 
 @pytest.mark.skipif(skip_all_tests, reason='Exclude all tests')
 @pytest.mark.parametrize(("prefs_path, objective_info, ref_obj_id, expected"),
-                         [('test_data/preferences_ZSD_test.yml',
+                         [('data/preferences_ZSD_test.yml',
                            {'magnification': 10,
                             'name': 'Dummy Objective', 'position': 0,
                             'experiment': 'WellTile_10x_true'},
                            None, {None: set([0])}),
-                          ('test_data/preferences_ZSD_test.yml',
+                          ('data/preferences_ZSD_test.yml',
                            [{'magnification': 10,
                              'name': 'Dummy Objective', 'position': 0,
                              'experiment': 'WellTile_10x_true'},
@@ -444,7 +444,7 @@ def test_set_microscope(prefs_path, auto_focus_id, use_auto_focus, expected):
                              'name': 'Dummy Objective', 'position': 1,
                              'experiment': 'WellTile_10x_true'}],
                            ['test1', 'test1'], {'test1': set([0, 1])}),
-                          ('test_data/preferences_ZSD_test.yml',
+                          ('data/preferences_ZSD_test.yml',
                            [{'magnification': 10,
                              'name': 'Dummy Objective', 'position': 0,
                              'experiment': 'WellTile_10x_true'},
@@ -470,17 +470,17 @@ def test_set_objective_is_ready(prefs_path, objective_info, ref_obj_id, expected
 
 @pytest.mark.skipif(skip_all_tests, reason='Exclude all tests')
 @pytest.mark.parametrize(("prefs_path, objective_info, ref_obj_id, set_first, expected"),
-                         [('test_data/preferences_ZSD_test.yml',
+                         [('data/preferences_ZSD_test.yml',
                            {'magnification': 10,
                             'name': 'Dummy Objective', 'position': 0,
                             'experiment': 'WellTile_10x_true'},
                            None, True, True),
-                          ('test_data/preferences_ZSD_test.yml',
+                          ('data/preferences_ZSD_test.yml',
                            {'magnification': 10,
                             'name': 'Dummy Objective', 'position': 0,
                             'experiment': 'WellTile_10x_true'},
                            'test', True, True),
-                          ('test_data/preferences_ZSD_test.yml',
+                          ('data/preferences_ZSD_test.yml',
                            {'magnification': 10,
                             'name': 'Dummy Objective', 'position': 0,
                             'experiment': 'WellTile_10x_true'},
@@ -500,7 +500,7 @@ def test_get_objective_is_ready(prefs_path, objective_info, ref_obj_id, set_firs
 
 @pytest.mark.skipif(skip_all_tests, reason='Exclude all tests')
 @pytest.mark.parametrize(("prefs_path, expected"),
-                         [('test_data/preferences_ZSD_test.yml', 'TypeError')])
+                         [('data/preferences_ZSD_test.yml', 'TypeError')])
 def test_is_ready_errors(prefs_path, expected):
     microscope = setup_local_microscope(prefs_path)
 
@@ -534,8 +534,8 @@ def test_is_ready_errors(prefs_path, expected):
 
 
 @pytest.mark.skipif(skip_all_tests, reason='Exclude all tests')
-@pytest.mark.parametrize('prefs_path', ['test_data/preferences_ZSD_test.yml',
-                                        'test_data/preferences_3i_test.yml'])
+@pytest.mark.parametrize('prefs_path', ['data/preferences_ZSD_test.yml',
+                                        'data/preferences_3i_test.yml'])
 @pytest.mark.parametrize(("object_to_get, expected"),
                          [(None, 'HardwareDoesNotExistError'),
                           ('test', 'test')])
@@ -554,30 +554,30 @@ def test__get_microscope_object(prefs_path, object_to_get, expected):
     assert result == expected
 
 
-@patch("microscope_automation.connect_zen_blue.ConnectMicroscope.live_mode_start")
+@patch("microscope_automation.zeiss.connect_zen_blue.ConnectMicroscope.live_mode_start")
 @pytest.mark.skipif(skip_all_tests, reason='Exclude all tests')
 @pytest.mark.parametrize(("prefs_path, experiment, objective_changer_id, "
                           "camera_id, expected"),
-                         [('test_data/preferences_3i_test.yml',
+                         [('data/preferences_3i_test.yml',
                            'test_communication.exp.prefs', None, None, 'AttributeError'),
-                          ('test_data/preferences_3i_test.yml',
+                          ('data/preferences_3i_test.yml',
                            'test_communication.exp.prefs', '6xMotorizedNosepiece',
                            None, 'HardwareDoesNotExistError'),
-                          ('test_data/preferences_3i_test.yml',
+                          ('data/preferences_3i_test.yml',
                            'test_communication.exp.prefs', '6xMotorizedNosepiece',
                            'Camera1 (back)', 'HardwareCommandNotDefinedError'),
-                          ('test_data/preferences_3i_test.yml',
+                          ('data/preferences_3i_test.yml',
                            None, '6xMotorizedNosepiece',
                            'Camera1 (back)', 'HardwareCommandNotDefinedError'),
-                          ('test_data/preferences_ZSD_test.yml',
+                          ('data/preferences_ZSD_test.yml',
                            'WellTile_10x_true.czexp', None, None, 'AttributeError'),
-                          ('test_data/preferences_ZSD_test.yml',
+                          ('data/preferences_ZSD_test.yml',
                            'WellTile_10x_true.czexp', '6xMotorizedNosepiece',
                            None, 'HardwareDoesNotExistError'),
-                          ('test_data/preferences_ZSD_test.yml',
+                          ('data/preferences_ZSD_test.yml',
                            'WellTile_10x_true.czexp', '6xMotorizedNosepiece',
                            'Camera1 (back)', None),
-                          ('test_data/preferences_ZSD_test.yml',
+                          ('data/preferences_ZSD_test.yml',
                            None, '6xMotorizedNosepiece', 'Camera1 (back)', None)])
 def test_setup_microscope_for_initialization(mock_func, prefs_path, experiment,
                                              objective_changer_id, camera_id, expected):
@@ -604,14 +604,14 @@ def test_setup_microscope_for_initialization(mock_func, prefs_path, experiment,
 
 @pytest.mark.skipif(skip_all_tests, reason='Exclude all tests')
 @pytest.mark.parametrize(("prefs_path, software, focus_drive_id, expected"),
-                         [('test_data/preferences_3i_test.yml',
+                         [('data/preferences_3i_test.yml',
                            'Slidebook Dummy', None, 'HardwareDoesNotExistError'),
-                          ('test_data/preferences_3i_test.yml',
+                          ('data/preferences_3i_test.yml',
                            'Slidebook Dummy', 'MotorizedFocus',
                            'ConnectionError'),
-                          ('test_data/preferences_ZSD_test.yml',
+                          ('data/preferences_ZSD_test.yml',
                            None, None, 'HardwareDoesNotExistError'),
-                          ('test_data/preferences_ZSD_test.yml',
+                          ('data/preferences_ZSD_test.yml',
                            'ZEN Blue Dummy', 'MotorizedFocus',
                            {'load_position': None, 'work_position': None,
                             'absolute': 500, 'focality_corrected': None,
@@ -635,18 +635,18 @@ def test_get_z_position(prefs_path, software, focus_drive_id, expected):
     assert result == expected
 
 
-@patch("microscope_automation.hardware_control_zeiss.SpinningDiskZeiss.recover_hardware")
-@patch("microscope_automation.hardware_components.Safety.show_safe_areas")
+@patch("microscope_automation.zeiss.hardware_control_zeiss.SpinningDiskZeiss.recover_hardware")
+@patch("microscope_automation.hardware.hardware_components.Safety.show_safe_areas")
 @pytest.mark.skipif(skip_all_tests, reason='Exclude all tests')
 @pytest.mark.parametrize(("prefs_path, software, focus_drive_id, "
                           "max_load_position, min_work_position, objective_changer_id, "
                           "objectives, safety_object_id, "
                           "safe_verts, safe_area_id, z_max, stage_id, "
                           "auto_focus_id, expected"),
-                         [('test_data/preferences_3i_test.yml',
+                         [('data/preferences_3i_test.yml',
                            'Slidebook Dummy', None, None, None, None, None,
                            None, None, None, None, 'Marzhauser', None, 'HardwareError'),
-                          ('test_data/preferences_ZSD_test.yml',
+                          ('data/preferences_ZSD_test.yml',
                            'ZEN Blue Dummy',
                            'MotorizedFocus', 500, 100, '6xMotorizedNosepiece',
                            {'Plan-Apochromat 10x/0.45':
@@ -661,7 +661,7 @@ def test_get_z_position(prefs_path, software, focus_drive_id, expected):
                            'ZSD_01_plate', [(3270, 1870), (108400, 1870), (108400, 71200), (3270, 71200)],
                            'StageArea', 9900, 'Marzhauser', 'DefiniteFocus2',
                            'CrashDangerError'),
-                          ('test_data/preferences_ZSD_test.yml',
+                          ('data/preferences_ZSD_test.yml',
                            'ZEN Blue Dummy',
                            'MotorizedFocus', None, None, '6xMotorizedNosepiece',
                            {'Plan-Apochromat 10x/0.45':
@@ -676,7 +676,7 @@ def test_get_z_position(prefs_path, software, focus_drive_id, expected):
                            'ZSD_01_plate', [(-1, -1), (108400, -1), (108400, 71200), (-1, 71200)],
                            'StageArea', 9900, 'Marzhauser', 'DefiniteFocus2',
                            'LoadNotDefinedError'),
-                          ('test_data/preferences_ZSD_test.yml',
+                          ('data/preferences_ZSD_test.yml',
                            'ZEN Blue Dummy',
                            'MotorizedFocus', 500, 100, '6xMotorizedNosepiece',
                            {'Plan-Apochromat 10x/0.45':
@@ -705,6 +705,7 @@ def test_move_to_abs_pos(mock_func1, mock_func2, prefs_path, software, focus_dri
         focus_drive = setup_local_focus_drive(focus_drive_id, max_load_position=max_load_position,
                                               min_work_position=min_work_position, prefs_path=prefs_path,
                                               objective_changer=objective_changer_id)
+        focus_drive.z_load = 500
         if max_load_position:
             focus_drive.initialize(control_software.connection,
                                    action_list=['set_load'], verbose=False, test=True)
@@ -734,7 +735,7 @@ def test_move_to_abs_pos(mock_func1, mock_func2, prefs_path, software, focus_dri
         microscope.add_microscope_object(autofocus)
 
     try:
-        result = microscope.move_to_abs_pos(stage_id,  focus_drive_id,
+        result = microscope.move_to_abs_pos(stage_id, focus_drive_id,
                                             objective_changer_id, auto_focus_id,
                                             safety_object_id)
     except Exception as err:
@@ -744,7 +745,7 @@ def test_move_to_abs_pos(mock_func1, mock_func2, prefs_path, software, focus_dri
 
 @pytest.mark.skipif(skip_all_tests, reason='Exclude all tests')
 @pytest.mark.parametrize(("prefs_path, macro_name, macro_param, expected"),
-                         [('test_data/preferences_ZSD_test.yml', None, None, None)])
+                         [('data/preferences_ZSD_test.yml', None, None, None)])
 def test_run_macro(prefs_path, macro_name, macro_param, expected):
     microscope = setup_local_microscope(prefs_path)
 
@@ -753,23 +754,23 @@ def test_run_macro(prefs_path, macro_name, macro_param, expected):
     assert result == expected
 
 
-@patch("microscope_automation.connect_zen_blue.ConnectMicroscope.save_image")
-@patch("microscope_automation.connect_zen_blue.ConnectMicroscope.close_experiment")
+@patch("microscope_automation.zeiss.connect_zen_blue.ConnectMicroscope.save_image")
+@patch("microscope_automation.zeiss.connect_zen_blue.ConnectMicroscope.close_experiment")
 @pytest.mark.skipif(skip_all_tests, reason='Exclude all tests')
 @pytest.mark.parametrize(("prefs_path, software, experiment, file_path, "
                           "z_start, expected"),
-                         [('test_data/preferences_3i_test.yml', 'Slidebook Dummy',
+                         [('data/preferences_3i_test.yml', 'Slidebook Dummy',
                            'test_communication.exp.prefs', None, None, ImageAICS),
-                          ('test_data/preferences_3i_test.yml', 'Slidebook Dummy',
+                          ('data/preferences_3i_test.yml', 'Slidebook Dummy',
                            'test_communication.exp.prefs',
-                           '/test_data/test_image.png', None,
+                           '/data/test_image.png', None,
                            'HardwareCommandNotDefinedError'),
-                          ('test_data/preferences_ZSD_test.yml', 'ZEN Blue Dummy',
+                          ('data/preferences_ZSD_test.yml', 'ZEN Blue Dummy',
                            'WellTile_10x_true.czexp', None, 'F', ImageAICS),
-                          ('test_data/preferences_ZSD_test.yml', 'ZEN Blue Dummy',
+                          ('data/preferences_ZSD_test.yml', 'ZEN Blue Dummy',
                            'WellTile_10x_true.czexp', None, 'L', ImageAICS),
-                          ('test_data/preferences_ZSD_test.yml', 'ZEN Blue Dummy',
-                           'WellTile_10x_true.czexp', '/test_data/test_image.png',
+                          ('data/preferences_ZSD_test.yml', 'ZEN Blue Dummy',
+                           'WellTile_10x_true.czexp', '/data/test_image.png',
                            'C', ImageAICS)])
 def test_execute_experiment(mock_func1, mock_func2, prefs_path, software,
                             experiment, file_path, z_start, expected):
@@ -791,10 +792,10 @@ def test_execute_experiment(mock_func1, mock_func2, prefs_path, software,
 @pytest.mark.skipif(skip_all_tests, reason='Exclude all tests')
 @pytest.mark.parametrize(("prefs_path, software, camera_id, experiment, "
                           "live, expected"),
-                         [('test_data/preferences_ZSD_test.yml', 'ZEN Blue Dummy',
+                         [('data/preferences_ZSD_test.yml', 'ZEN Blue Dummy',
                            'Camera1 (back)', 'WellTile_10x_true.czexp',
                            True, None),
-                          ('test_data/preferences_ZSD_test.yml', 'ZEN Blue Dummy',
+                          ('data/preferences_ZSD_test.yml', 'ZEN Blue Dummy',
                            'Camera1 (back)', 'WellTile_10x_true.czexp',
                            False, None)])
 def test_live_mode(prefs_path, software, camera_id, experiment, live, expected):
@@ -810,24 +811,24 @@ def test_live_mode(prefs_path, software, camera_id, experiment, live, expected):
     assert result == expected
 
 
-@patch("microscope_automation.connect_zen_blue.ConnectMicroscope.save_image")
-@patch("microscope_automation.connect_zen_blue.ConnectMicroscope.close_experiment")
+@patch("microscope_automation.zeiss.connect_zen_blue.ConnectMicroscope.save_image")
+@patch("microscope_automation.zeiss.connect_zen_blue.ConnectMicroscope.close_experiment")
 @pytest.mark.skipif(skip_all_tests, reason='Exclude all tests')
 @pytest.mark.parametrize(("prefs_path, software, camera_id, experiment, "
                           "file_path, interactive, expected"),
-                         [('test_data/preferences_3i_test.yml', 'Slidebook Dummy',
+                         [('data/preferences_3i_test.yml', 'Slidebook Dummy',
                            'Camera1 (back)', 'test_communication.exp.prefs',
-                           '/test_data/test_image.png', True,
+                           '/data/test_image.png', True,
                            'HardwareCommandNotDefinedError'),
-                          ('test_data/preferences_ZSD_test.yml', 'ZEN Blue Dummy',
+                          ('data/preferences_ZSD_test.yml', 'ZEN Blue Dummy',
                            'Camera1 (back)', 'WellTile_10x_true.czexp',
-                           '/test_data/test_image.png', True, ImageAICS),
-                          ('test_data/preferences_ZSD_test.yml', 'ZEN Blue Dummy',
+                           '/data/test_image.png', True, ImageAICS),
+                          ('data/preferences_ZSD_test.yml', 'ZEN Blue Dummy',
                            'Camera1 (back)', 'WellTile_10x_true.czexp', None,
                            False, 'TypeError'),
-                          ('test_data/preferences_ZSD_test.yml', 'ZEN Blue Dummy',
+                          ('data/preferences_ZSD_test.yml', 'ZEN Blue Dummy',
                            'Camera1 (back)', 'WellTile_10x_true.czexp',
-                           '/test_data/test_image.png', False, ImageAICS)])
+                           '/data/test_image.png', False, ImageAICS)])
 def test_save_image(mock_func1, mock_func2, prefs_path, software, camera_id,
                     experiment, file_path, interactive, expected):
     microscope = setup_local_microscope(prefs_path)
@@ -847,17 +848,17 @@ def test_save_image(mock_func1, mock_func2, prefs_path, software, camera_id,
     assert result == expected
 
 
-@patch("microscope_automation.connect_zen_blue.ConnectMicroscope.load_image")
+@patch("microscope_automation.zeiss.connect_zen_blue.ConnectMicroscope.load_image")
 @pytest.mark.skipif(skip_all_tests, reason='Exclude all tests')
 @pytest.mark.parametrize(("prefs_path, software, camera_id, experiment, "
                           "image, get_meta, expected"),
-                         [('test_data/preferences_ZSD_test.yml', 'ZEN Blue Dummy',
+                         [('data/preferences_ZSD_test.yml', 'ZEN Blue Dummy',
                            'Camera1 (back)', 'WellTile_10x_true.czexp', ImageAICS(),
                            True, "<class 'mock.mock.MagicMock'>"),
-                          ('test_data/preferences_ZSD_test.yml', 'ZEN Blue Dummy',
+                          ('data/preferences_ZSD_test.yml', 'ZEN Blue Dummy',
                            'Camera1 (back)', 'WellTile_10x_true.czexp', ImageAICS(),
                            False, "<class 'mock.mock.MagicMock'>"),
-                          ('test_data/preferences_3i_test.yml', 'Slidebook Dummy',
+                          ('data/preferences_3i_test.yml', 'Slidebook Dummy',
                            'Camera1 (back)', 'test_communication.exp.prefs', ImageAICS(),
                            False, 'ConnectionError')])
 def test_load_image(mock_func1, prefs_path, software, camera_id,
@@ -880,9 +881,9 @@ def test_load_image(mock_func1, prefs_path, software, camera_id,
 
 @pytest.mark.skipif(skip_all_tests, reason='Exclude all tests')
 @pytest.mark.parametrize(("prefs_path, software, expected"),
-                         [('test_data/preferences_ZSD_test.yml', 'ZEN Blue Dummy',
+                         [('data/preferences_ZSD_test.yml', 'ZEN Blue Dummy',
                            None),
-                          ('test_data/preferences_3i_test.yml', 'Slidebook Dummy',
+                          ('data/preferences_3i_test.yml', 'Slidebook Dummy',
                            'ConnectionError')])
 def test_remove_images(prefs_path, software, expected):
     microscope = setup_local_microscope(prefs_path)

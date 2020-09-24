@@ -11,10 +11,10 @@ import numpy
 from lxml import etree
 from mock import patch
 from matplotlib.path import Path as mpl_path
-import microscope_automation.setup_microscope as setup_microscope
+import microscope_automation.hardware.setup_microscope as setup_microscope
 import microscope_automation.preferences as preferences
-import microscope_automation.hardware_components as h_comp
-from microscope_automation.experiment_info import ZenExperiment
+import microscope_automation.hardware.hardware_components as h_comp
+from microscope_automation.zeiss.zen_experiment_info import ZenExperiment
 import os
 os.chdir(os.path.dirname(__file__))
 
@@ -135,20 +135,20 @@ def setup_local_pump(pump_id, seconds=1, port='COM1', baudrate=19200):
 @pytest.mark.skipif(skip_all_tests, reason='Exclude all tests')
 @pytest.mark.parametrize('name, path, prefs_path, expected',
                          [('WellTile_10x_true.czexp',
-                           'test_data/Experiment Setup/WellTile_10x_true.czexp',
-                           'test_data/preferences_ZSD_test.yml',
+                           'data/Experiment Setup/WellTile_10x_true.czexp',
+                           'data/preferences_ZSD_test.yml',
                            True),
                           ('test_communication.exp.prefs',
-                           'test_data/SlideBook 6.0/test_communication.exp.prefs',
-                           'test_data/preferences_3i_test.yml',
+                           'data/SlideBook 6.0/test_communication.exp.prefs',
+                           'data/preferences_3i_test.yml',
                            True),
                           ('test_communication.exp.prefs',
-                           'test_data/Experiment Setup/test_communication.exp.prefs',
-                           'test_data/preferences_ZSD_test.yml',
+                           'data/Experiment Setup/test_communication.exp.prefs',
+                           'data/preferences_ZSD_test.yml',
                            False),
                           ('WellTile_10x_true.czexp',
-                           'test_data/SlideBook 6.0/WellTile_10x_true.czexp',
-                           'test_data/preferences_3i_test.yml',
+                           'data/SlideBook 6.0/WellTile_10x_true.czexp',
+                           'data/preferences_3i_test.yml',
                            False)])
 def test_validate_experiment(name, path, prefs_path, expected):
     experiment = setup_local_experiment(name, path, prefs_path)
@@ -158,20 +158,20 @@ def test_validate_experiment(name, path, prefs_path, expected):
 @pytest.mark.skipif(skip_all_tests, reason='Exclude all tests')
 @pytest.mark.parametrize('name, path, prefs_path, expected',
                          [('WellTile_10x_true.czexp',
-                           'test_data/Experiment Setup/WellTile_10x_true.czexp',
-                           'test_data/preferences_ZSD_test.yml',
+                           'data/Experiment Setup/WellTile_10x_true.czexp',
+                           'data/preferences_ZSD_test.yml',
                            True),
                           ('WellTile_10x_false.czexp',
-                           'test_data/Experiment Setup/WellTile_10x_false.czexp',
-                           'test_data/preferences_ZSD_test.yml',
+                           'data/Experiment Setup/WellTile_10x_false.czexp',
+                           'data/preferences_ZSD_test.yml',
                            False),
                           ('test_communication.exp.prefs',
-                           'test_data/Experiment Setup/test_communication.exp.prefs',
-                           'test_data/preferences_ZSD_test.yml',
+                           'data/Experiment Setup/test_communication.exp.prefs',
+                           'data/preferences_ZSD_test.yml',
                            'ExperimentNotExistError'),
                           ('test_communication.exp.prefs',
-                           'test_data/SlideBook 6.0/test_communication.exp.prefs',
-                           'test_data/preferences_3i_test.yml',
+                           'data/SlideBook 6.0/test_communication.exp.prefs',
+                           'data/preferences_3i_test.yml',
                            'HardwareCommandNotDefinedError')])
 def test_is_z_stack(name, path, prefs_path, expected):
     experiment = setup_local_experiment(name, path, prefs_path)
@@ -185,20 +185,20 @@ def test_is_z_stack(name, path, prefs_path, expected):
 @pytest.mark.skipif(skip_all_tests, reason='Exclude all tests')
 @pytest.mark.parametrize('name, path, prefs_path, expected',
                          [('WellTile_10x_true.czexp',
-                           'test_data/Experiment Setup/WellTile_10x_true.czexp',
-                           'test_data/preferences_ZSD_test.yml',
+                           'data/Experiment Setup/WellTile_10x_true.czexp',
+                           'data/preferences_ZSD_test.yml',
                            4e-06),
                           ('WellTile_10x_false.czexp',
-                           'test_data/Experiment Setup/WellTile_10x_false.czexp',
-                           'test_data/preferences_ZSD_test.yml',
+                           'data/Experiment Setup/WellTile_10x_false.czexp',
+                           'data/preferences_ZSD_test.yml',
                            0),
                           ('test_communication.exp.prefs',
-                           'test_data/Experiment Setup/test_communication.exp.prefs',
-                           'test_data/preferences_ZSD_test.yml',
+                           'data/Experiment Setup/test_communication.exp.prefs',
+                           'data/preferences_ZSD_test.yml',
                            'ExperimentNotExistError'),
                           ('test_communication.exp.prefs',
-                           'test_data/SlideBook 6.0/test_communication.exp.prefs',
-                           'test_data/preferences_3i_test.yml',
+                           'data/SlideBook 6.0/test_communication.exp.prefs',
+                           'data/preferences_3i_test.yml',
                            'HardwareCommandNotDefinedError')])
 def test_z_stack_range(name, path, prefs_path, expected):
     experiment = setup_local_experiment(name, path, prefs_path)
@@ -212,20 +212,20 @@ def test_z_stack_range(name, path, prefs_path, expected):
 @pytest.mark.skipif(skip_all_tests, reason='Exclude all tests')
 @pytest.mark.parametrize('name, path, prefs_path, expected',
                          [('WellTile_10x_true.czexp',
-                           'test_data/Experiment Setup/WellTile_10x_true.czexp',
-                           'test_data/preferences_ZSD_test.yml',
+                           'data/Experiment Setup/WellTile_10x_true.czexp',
+                           'data/preferences_ZSD_test.yml',
                            True),
                           ('WellTile_10x_false.czexp',
-                           'test_data/Experiment Setup/WellTile_10x_false.czexp',
-                           'test_data/preferences_ZSD_test.yml',
+                           'data/Experiment Setup/WellTile_10x_false.czexp',
+                           'data/preferences_ZSD_test.yml',
                            False),
                           ('test_communication.exp.prefs',
-                           'test_data/Experiment Setup/test_communication.exp.prefs',
-                           'test_data/preferences_ZSD_test.yml',
+                           'data/Experiment Setup/test_communication.exp.prefs',
+                           'data/preferences_ZSD_test.yml',
                            'ExperimentNotExistError'),
                           ('test_communication.exp.prefs',
-                           'test_data/SlideBook 6.0/test_communication.exp.prefs',
-                           'test_data/preferences_3i_test.yml',
+                           'data/SlideBook 6.0/test_communication.exp.prefs',
+                           'data/preferences_3i_test.yml',
                            'HardwareCommandNotDefinedError')])
 def test_is_tile_scan(name, path, prefs_path, expected):
     experiment = setup_local_experiment(name, path, prefs_path)
@@ -239,16 +239,16 @@ def test_is_tile_scan(name, path, prefs_path, expected):
 @pytest.mark.skipif(skip_all_tests, reason='Exclude all tests')
 @pytest.mark.parametrize('name, path, prefs_path, x, y, z, expected',
                          [('WellTile_10x_true.czexp',
-                           'test_data/Experiment Setup/WellTile_10x_true.czexp',
-                           'test_data/preferences_ZSD_test.yml',
+                           'data/Experiment Setup/WellTile_10x_true.czexp',
+                           'data/preferences_ZSD_test.yml',
                            1000, 1000, 3, '1000,1000,3'),
                           ('test_communication.exp.prefs',
-                           'test_data/Experiment Setup/test_communication.exp.prefs',
-                           'test_data/preferences_ZSD_test.yml', 1000, 1000, 3,
+                           'data/Experiment Setup/test_communication.exp.prefs',
+                           'data/preferences_ZSD_test.yml', 1000, 1000, 3,
                            'ExperimentNotExistError'),
                           ('test_communication.exp.prefs',
-                           'test_data/SlideBook 6.0/test_communication.exp.prefs',
-                           'test_data/preferences_3i_test.yml', 1000, 1000, 3,
+                           'data/SlideBook 6.0/test_communication.exp.prefs',
+                           'data/preferences_3i_test.yml', 1000, 1000, 3,
                            'HardwareCommandNotDefinedError')])
 def test_update_tile_positions(name, path, prefs_path, x, y, z, expected):
     experiment = setup_local_experiment(name, path, prefs_path)
@@ -270,15 +270,15 @@ def test_update_tile_positions(name, path, prefs_path, x, y, z, expected):
 @pytest.mark.skipif(skip_all_tests, reason='Exclude all tests')
 @pytest.mark.parametrize('name, path, prefs_path, expected',
                          [('WellTile_10x_true.czexp',
-                           'test_data/Experiment Setup/WellTile_10x_true.czexp',
-                           'test_data/preferences_ZSD_test.yml', 1),
+                           'data/Experiment Setup/WellTile_10x_true.czexp',
+                           'data/preferences_ZSD_test.yml', 1),
                           ('test_communication.exp.prefs',
-                           'test_data/Experiment Setup/test_communication.exp.prefs',
-                           'test_data/preferences_ZSD_test.yml',
+                           'data/Experiment Setup/test_communication.exp.prefs',
+                           'data/preferences_ZSD_test.yml',
                            'ExperimentNotExistError'),
                           ('test_communication.exp.prefs',
-                           'test_data/SlideBook 6.0/test_communication.exp.prefs',
-                           'test_data/preferences_3i_test.yml',
+                           'data/SlideBook 6.0/test_communication.exp.prefs',
+                           'data/preferences_3i_test.yml',
                            'HardwareCommandNotDefinedError')])
 def test_get_objective_position(name, path, prefs_path, expected):
     experiment = setup_local_experiment(name, path, prefs_path)
@@ -292,16 +292,16 @@ def test_get_objective_position(name, path, prefs_path, expected):
 @pytest.mark.skipif(skip_all_tests, reason='Exclude all tests')
 @pytest.mark.parametrize('name, path, prefs_path, expected',
                          [('WellTile_10x_true.czexp',
-                           'test_data/Experiment Setup/WellTile_10x_true.czexp',
-                           'test_data/preferences_ZSD_test.yml',
-                           'test_data/Experiment Setup/focus_settings.xml'),
+                           'data/Experiment Setup/WellTile_10x_true.czexp',
+                           'data/preferences_ZSD_test.yml',
+                           'data/Experiment Setup/focus_settings.xml'),
                           ('test_communication.exp.prefs',
-                           'test_data/Experiment Setup/test_communication.exp.prefs',
-                           'test_data/preferences_ZSD_test.yml',
+                           'data/Experiment Setup/test_communication.exp.prefs',
+                           'data/preferences_ZSD_test.yml',
                            'ExperimentNotExistError'),
                           ('test_communication.exp.prefs',
-                           'test_data/SlideBook 6.0/test_communication.exp.prefs',
-                           'test_data/preferences_3i_test.yml',
+                           'data/SlideBook 6.0/test_communication.exp.prefs',
+                           'data/preferences_3i_test.yml',
                            'HardwareCommandNotDefinedError')])
 def test_get_focus_settings(name, path, prefs_path, expected):
     experiment = setup_local_experiment(name, path, prefs_path)
@@ -311,8 +311,8 @@ def test_get_focus_settings(name, path, prefs_path, expected):
 
         # there was a difference in tabs from the different xml files
         # the below trimming fixes that
-        result = "\n".join(settings.split())
-        expected = "\n".join(root.split())
+        result = b"\n".join(settings.split())
+        expected = b"\n".join(root.split())
     except Exception as err:
         result = type(err).__name__
     assert result == expected
@@ -328,9 +328,9 @@ def test_get_focus_settings(name, path, prefs_path, expected):
 @pytest.mark.skipif(skip_all_tests, reason='Exclude all tests')
 @pytest.mark.parametrize('software, expected',
                          [('ZEN Blue Dummy',
-                           'microscope_automation.connect_zen_blue.ConnectMicroscope'),
+                           'microscope_automation.zeiss.connect_zen_blue.ConnectMicroscope'),
                           ('Slidebook Dummy',
-                           'microscope_automation.connect_slidebook.ConnectMicroscope'),
+                           'microscope_automation.slidebook.connect_slidebook.ConnectMicroscope'),
                           ('Invalid Name', 'AttributeError')])
 def test_connect_to_microscope_software(software, expected):
     control_software = setup_local_control_software(software)
@@ -735,7 +735,7 @@ def test_live_mode_start_stop(camera_id, software, experiment_name, orig_mode, e
                            (1, 1), None, None, None, (1, 1)),
                           ('Marzhauser', 'ZEN Blue Dummy', 'ZSD_01_plate',
                            (52000, 40200), '6xMotorizedNosepiece',
-                           'test_data/preferences_ZSD_test.yml',
+                           'data/preferences_ZSD_test.yml',
                            'Setup_10x.czexp', (52000, 40200))])
 def test_initialize_stage(stage_id, software, safe_area, safe_position,
                           objective_changer, prefs_path, default_experiment,
@@ -799,7 +799,7 @@ def test_move_to_position_stage(stage_id, software, x, y, test, expected):
                           "ref_object_id, auto_focus_id, expected"),
                          [('6xMotorizedNosepiece', 'ZEN Blue Dummy', 6,
                            None, 'Plan-Apochromat 20x/0.8 M27',
-                           'test_data/preferences_ZSD_test.yml',
+                           'data/preferences_ZSD_test.yml',
                            ['set_reference'], None, None, 'HardwareDoesNotExistError'),
                           ('6xMotorizedNosepiece', 'ZEN Blue Dummy', 6,
                            {'Plan-Apochromat 10x/0.45':
@@ -830,7 +830,7 @@ def test_move_to_position_stage(stage_id, software, x, y, test, expected):
                              'camera': 'Camera1 (back)',
                              'autofocus': 'DefiniteFocus2'}},
                            'Plan-Apochromat 20x/0.8 M27',
-                           'test_data/preferences_ZSD_test.yml',
+                           'data/preferences_ZSD_test.yml',
                            ['set_reference'], None, None,
                            'AutofocusNoReferenceObjectError'),
                           ('6xMotorizedNosepiece', 'ZEN Blue Dummy', 6,
@@ -862,7 +862,7 @@ def test_move_to_position_stage(stage_id, software, x, y, test, expected):
                              'camera': 'Camera1 (back)',
                              'autofocus': 'DefiniteFocus2'}},
                            'Plan-Apochromat 20x/0.8 M27',
-                           'test_data/preferences_ZSD_test.yml', [], 'Plate',
+                           'data/preferences_ZSD_test.yml', [], 'Plate',
                            None, True),
                           ('6xMotorizedNosepiece', 'ZEN Blue Dummy', 6,
                            {'Plan-Apochromat 10x/0.45':
@@ -893,7 +893,7 @@ def test_move_to_position_stage(stage_id, software, x, y, test, expected):
                              'camera': 'Camera1 (back)',
                              'autofocus': 'DefiniteFocus2'}},
                            'Plan-Apochromat 20x/0.8 M27',
-                           'test_data/preferences_ZSD_test.yml',
+                           'data/preferences_ZSD_test.yml',
                            ['set_reference'], 'Plate', None,
                            # should be ExperimentNotExistError once samples API is done
                            'HardwareCommandNotDefinedError'),
@@ -926,7 +926,7 @@ def test_move_to_position_stage(stage_id, software, x, y, test, expected):
                              'camera': 'Camera1 (back)',
                              'autofocus': 'DefiniteFocus2'}},
                            'Plan-Apochromat 10x/0.45',
-                           'test_data/preferences_ZSD_test.yml',
+                           'data/preferences_ZSD_test.yml',
                            ['set_reference'], 'Plate', None,
                            # should be HardwareDoesNotExistError once samples API is done
                            'HardwareCommandNotDefinedError'),
@@ -959,7 +959,7 @@ def test_move_to_position_stage(stage_id, software, x, y, test, expected):
                             'camera': 'Camera1 (back)',
                             'autofocus': 'DefiniteFocus2'}},
                           'Plan-Apochromat 10x/0.45',
-                          'test_data/preferences_ZSD_test.yml',
+                          'data/preferences_ZSD_test.yml',
                           ['set_reference'], 'Plate', 'test',
                           # should be AttributeError once samples API is done
                           'HardwareCommandNotDefinedError'),
@@ -992,7 +992,7 @@ def test_move_to_position_stage(stage_id, software, x, y, test, expected):
                             'camera': 'Camera1 (back)',
                             'autofocus': 'DefiniteFocus2'}},
                           'Plan-Apochromat 10x/0.45',
-                          'test_data/preferences_ZSD_test.yml',
+                          'data/preferences_ZSD_test.yml',
                           ['set_reference'], 'PlateHolder', 'test',
                           # should be HardwareDoesNotExistError once samples API is done
                           'HardwareCommandNotDefinedError')])
@@ -1261,19 +1261,19 @@ def test_change_position(objective_changer_id, software, pos, expected):
                           "prefs_path, action_list, expected"),
                          [('MotorizedFocus', 'ZEN Blue Dummy', 50, 100,
                            'DefiniteFocus2', '6xMotorizedNosepiece',
-                           'test_data/preferences_ZSD_test.yml',
+                           'data/preferences_ZSD_test.yml',
                            ['set_load'], 'LoadNotDefinedError'),
                           ('MotorizedFocus', 'ZEN Blue Dummy', 500, 100,
                            'DefiniteFocus2', '6xMotorizedNosepiece',
-                           'test_data/preferences_ZSD_test.yml',
+                           'data/preferences_ZSD_test.yml',
                            ['set_load'], 500),
                           ('MotorizedFocus', 'ZEN Blue Dummy', 50, 100,
                            'DefiniteFocus2', '6xMotorizedNosepiece',
-                           'test_data/preferences_ZSD_test.yml',
+                           'data/preferences_ZSD_test.yml',
                            ['set_work'], 500),
                           ('MotorizedFocus', 'ZEN Blue Dummy', 50, 1000,
                            'DefiniteFocus2', '6xMotorizedNosepiece',
-                           'test_data/preferences_ZSD_test.yml',
+                           'data/preferences_ZSD_test.yml',
                            ['set_work'], 'WorkNotDefinedError'),
                           ('MotorizedFocus', 'ZEN Blue Dummy', None, None,
                            None, None, None, [], None)])
@@ -1312,7 +1312,7 @@ def test_initialize_focus_drive(focus_id, software, max_load_position,
                              'experiment': 'WellTile_10x_true',
                              'camera': 'Camera1 (back)',
                              'autofocus': 'DefiniteFocus2'}},
-                           'test_data/preferences_ZSD_test.yml',
+                           'data/preferences_ZSD_test.yml',
                            ['set_load'],
                            {'load_position': 500, 'work_position': None,
                             'absolute': 500, 'focality_corrected': 500,
@@ -1328,7 +1328,7 @@ def test_initialize_focus_drive(focus_id, software, max_load_position,
                              'experiment': 'WellTile_10x_true',
                              'camera': 'Camera1 (back)',
                              'autofocus': 'DefiniteFocus2'}},
-                           'test_data/preferences_ZSD_test.yml',
+                           'data/preferences_ZSD_test.yml',
                            ['set_work'],
                            {'load_position': None, 'work_position': 500,
                             'absolute': 500, 'focality_corrected': 500,
@@ -1344,7 +1344,7 @@ def test_initialize_focus_drive(focus_id, software, max_load_position,
                              'experiment': 'WellTile_10x_true',
                              'camera': 'Camera1 (back)',
                              'autofocus': 'DefiniteFocus2'}},
-                           'test_data/preferences_ZSD_test.yml',
+                           'data/preferences_ZSD_test.yml',
                            ['set_load', 'set_work'],
                            {'load_position': 500, 'work_position': 500,
                             'absolute': 500, 'focality_corrected': 500,
@@ -1397,13 +1397,13 @@ def test_move_to_position_focus_drive(focus_id, software, z, expected):
 @pytest.mark.parametrize(("focus_id, software, max_load_position, min_work_position, "
                           "prefs_path, action_list, expected"),
                          [('MotorizedFocus', 'ZEN Blue Dummy', 50, 100,
-                           'test_data/preferences_ZSD_test.yml',
+                           'data/preferences_ZSD_test.yml',
                            [], 'LoadNotDefinedError'),
                           ('MotorizedFocus', 'ZEN Blue Dummy', 500, 100,
-                           'test_data/preferences_ZSD_test.yml',
+                           'data/preferences_ZSD_test.yml',
                            ['set_load'], 500),
                           ('MotorizedFocus', 'Slidebook Dummy', 500, 100,
-                           'test_data/preferences_3i_test.yml', [],
+                           'data/preferences_3i_test.yml', [],
                            'HardwareCommandNotDefinedError')])
 def test_goto_load(focus_id, software, max_load_position, min_work_position,
                    prefs_path, action_list, expected):
@@ -1426,13 +1426,13 @@ def test_goto_load(focus_id, software, max_load_position, min_work_position,
 @pytest.mark.parametrize(("focus_id, software, max_load_position, min_work_position, "
                           "prefs_path, action_list, expected"),
                          [('MotorizedFocus', 'ZEN Blue Dummy', 50, 100,
-                           'test_data/preferences_ZSD_test.yml',
+                           'data/preferences_ZSD_test.yml',
                            [], 'WorkNotDefinedError'),
                           ('MotorizedFocus', 'ZEN Blue Dummy', 500, 100,
-                           'test_data/preferences_ZSD_test.yml',
+                           'data/preferences_ZSD_test.yml',
                            ['set_work'], 500),
                           ('MotorizedFocus', 'Slidebook Dummy', 500, 100,
-                           'test_data/preferences_3i_test.yml', [],
+                           'data/preferences_3i_test.yml', [],
                            'HardwareCommandNotDefinedError')])
 def test_goto_work(focus_id, software, max_load_position, min_work_position,
                    prefs_path, action_list, expected):
@@ -1512,7 +1512,7 @@ def test_get_init_experiment(auto_focus_id, software, obj_changer_id,
                              'experiment': 'WellTile_10x_true',
                              'camera': 'Camera1 (back)',
                              'autofocus': 'DefiniteFocus2'}},
-                           'test_data/preferences_ZSD_test.yml',
+                           'data/preferences_ZSD_test.yml',
                            None, None, None, None, [], None),
                           ('DefiniteFocus2', 'ZEN Blue Dummy',
                            '6xMotorizedNosepiece', 6,
@@ -1525,7 +1525,7 @@ def test_get_init_experiment(auto_focus_id, software, obj_changer_id,
                              'experiment': 'WellTile_10x_true',
                              'camera': 'Camera1 (back)',
                              'autofocus': 'DefiniteFocus2'}},
-                           'test_data/preferences_ZSD_test.yml',
+                           'data/preferences_ZSD_test.yml',
                            None, None, None, None, ['find_surface'],
                            'HardwareDoesNotExistError'),
                           ('DefiniteFocus2', 'ZEN Blue Dummy',
@@ -1539,7 +1539,7 @@ def test_get_init_experiment(auto_focus_id, software, obj_changer_id,
                              'experiment': 'WellTile_10x_true',
                              'camera': 'Camera1 (back)',
                              'autofocus': 'DefiniteFocus2'}},
-                           'test_data/preferences_ZSD_test.yml',
+                           'data/preferences_ZSD_test.yml',
                            'Camera1 (Back)', (6.5, 6.5), (1024, 1024), numpy.int32,
                            ['find_surface'], None)])
 def test_initialize_autofocus(auto_focus_id, software, obj_changer_id,
@@ -1650,7 +1650,7 @@ def test_set_component(auto_focus_id, settings, expected):
                              'experiment': 'WellTile_10x_true',
                              'camera': 'Camera1 (back)',
                              'autofocus': 'DefiniteFocus2'}},
-                             'PlateHolder', 'test_data/preferences_ZSD_test.yml',
+                             'PlateHolder', 'data/preferences_ZSD_test.yml',
                            False, False, '', '', None),
                           ('DefiniteFocus2', 'ZEN Blue Dummy',
                            '6xMotorizedNosepiece', 6,
@@ -1663,7 +1663,7 @@ def test_set_component(auto_focus_id, settings, expected):
                              'experiment': 'WellTile_10x_true',
                              'camera': 'Camera1 (back)',
                              'autofocus': 'DefiniteFocus2'}},
-                             'PlateHolder', 'test_data/preferences_ZSD_test.yml',
+                             'PlateHolder', 'data/preferences_ZSD_test.yml',
                            True, False, '', '', 'AutofocusNotSetError'),
                           ('DefiniteFocus2', 'ZEN Blue Dummy',
                            '6xMotorizedNosepiece', 6,
@@ -1676,7 +1676,7 @@ def test_set_component(auto_focus_id, settings, expected):
                              'experiment': 'WellTile_10x_true',
                              'camera': 'Camera1 (back)',
                              'autofocus': 'DefiniteFocus2'}},
-                             'PlateHolder', 'test_data/preferences_ZSD_test.yml',
+                             'PlateHolder', 'data/preferences_ZSD_test.yml',
                            True, True, '', '', 'AutofocusError'),
                           ('DefiniteFocus2', 'ZEN Blue Dummy',
                            '6xMotorizedNosepiece', 6,
@@ -1689,7 +1689,7 @@ def test_set_component(auto_focus_id, settings, expected):
                              'experiment': 'WellTile_10x_true',
                              'camera': 'Camera1 (back)',
                              'autofocus': 'DefiniteFocus2'}},
-                             'PlateHolder', 'test_data/preferences_ZSD_test.yml',
+                             'PlateHolder', 'data/preferences_ZSD_test.yml',
                            True, True, '', 'Dummy Objective',
                            'AutofocusObjectiveChangedError'),
                           ('DefiniteFocus2', 'ZEN Blue Dummy',
@@ -1703,7 +1703,7 @@ def test_set_component(auto_focus_id, settings, expected):
                              'experiment': 'WellTile_10x_true',
                              'camera': 'Camera1 (back)',
                              'autofocus': 'DefiniteFocus2'}},
-                             'PlateHolder', 'test_data/preferences_ZSD_test.yml',
+                             'PlateHolder', 'data/preferences_ZSD_test.yml',
                            True, True, 'Dummy Objective', 'Dummy Objective', 100)])
 def test_recall_focus(auto_focus_id, obj_changer_id, software, positions,
                       objectives, ref_object_id, prefs_path, use_autofocus,

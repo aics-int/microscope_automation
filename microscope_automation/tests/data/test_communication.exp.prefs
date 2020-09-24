@@ -1,0 +1,980 @@
+0
+10 Property Sets
+
+[Exposure Record Settings]
+15 Properties
+
+{Exposure X Offset}
+No Description
+Int
+0
+||
+0
+
+{Exposure Y Offset}
+No Description
+Int
+0
+||
+0
+
+{Exposure X Extent}
+No Description
+Int
+1776
+||
+0
+
+{Exposure Y Extent}
+No Description
+Int
+1736
+||
+0
+
+{Exposure Binning}
+No Description
+Bool
+false
+||
+0
+
+{Exposure Time Lapse}
+No Description
+Bool
+false
+||
+0
+
+{Exposure Capture Type}
+No Description
+Int
+1
+||
+0
+
+{Exposure X Factor}
+No Description
+Int
+1
+||
+0
+
+{Exposure Y Factor}
+No Description
+Int
+1
+||
+0
+
+{Exposure Num Planes}
+No Description
+Int
+1
+||
+0
+
+{Exposure SAC Sample Size}
+No Description
+Int
+0
+||
+0
+
+{Exposure Interplane Spacing}
+No Description
+Float
+0.000000
+||
+0
+
+{Exposure Initial Offset}
+No Description
+Float
+0.000000
+||
+0
+
+{Exposure Capture Flags}
+No Description
+Int
+0
+||
+0
+
+{Exposure Time Lapse Interval}
+No Description
+Int
+0
+||
+0
+
+[Exposure Dialog Settings]
+32 Properties
+
+{Exposure Lens Name}
+No Description
+String
+"10x"
+||
+0
+
+{Exposure Optovar Name}
+No Description
+String
+".83 x"
+||
+0
+
+{Exposure Number of Channels}
+No Description
+Int
+1
+||
+0
+
+{Exposure Number of 4D TimePoints}
+No Description
+Int
+1
+||
+0
+
+{Exposure Title}
+No Description
+String
+""
+||
+0
+
+{Exposure Info}
+No Description
+String
+""
+||
+0
+
+{Exposure Rapid}
+No Description
+Bool
+false
+||
+0
+
+{Exposure Simultaneous}
+No Description
+Bool
+false
+||
+0
+
+{Exposure Stereology}
+No Description
+Bool
+false
+||
+0
+
+{Exposure Temp Path Name}
+No Description
+String
+""
+||
+0
+
+{Exposure Spherical Aberration Correction}
+No Description
+Bool
+false
+||
+0
+
+{Add New ROIs}
+No Description
+Bool
+false
+||
+0
+
+{Renormalize To First Timepoint}
+No Description
+Bool
+false
+||
+0
+
+{Keep Existing ROIs}
+No Description
+Bool
+false
+||
+0
+
+{Annotation Name 1}
+No Description
+String
+""
+||
+0
+
+{Annotation Name 2}
+No Description
+String
+""
+||
+0
+
+{Annotation Name 3}
+No Description
+String
+""
+||
+0
+
+{Annotation Name 4}
+No Description
+String
+""
+||
+0
+
+{Annotation Name 5}
+No Description
+String
+""
+||
+0
+
+{Annotation Name 6}
+No Description
+String
+""
+||
+0
+
+{Annotation Name 7}
+No Description
+String
+""
+||
+0
+
+{Annotation Name 8}
+No Description
+String
+""
+||
+0
+
+{Annotation Description 1}
+No Description
+String
+""
+||
+0
+
+{Annotation Description 2}
+No Description
+String
+""
+||
+0
+
+{Annotation Description 3}
+No Description
+String
+""
+||
+0
+
+{Annotation Description 4}
+No Description
+String
+""
+||
+0
+
+{Annotation Description 5}
+No Description
+String
+""
+||
+0
+
+{Annotation Description 6}
+No Description
+String
+""
+||
+0
+
+{Annotation Description 7}
+No Description
+String
+""
+||
+0
+
+{Annotation Description 8}
+No Description
+String
+""
+||
+0
+
+{Exposure Time Lapse Interval Unit}
+No Description
+Enum
+|ms|
+||
+|ms|s|min|hr|
+0
+
+{Exposure Z Capture Mode}
+No Description
+Enum
+|current|
+||
+|top bottom|reference|current|
+0
+
+[Exposure Channel Settings 1]
+11 Properties
+
+{Exposure Channel Name}
+No Description
+String
+"Brightfield - True"
+||
+0
+
+{Exposure Time MS}
+No Description
+Int
+100
+||
+0
+
+{Exposure Dark Field Correction}
+No Description
+Bool
+false
+||
+0
+
+{Exposure Flat Field Correction}
+No Description
+Bool
+false
+||
+0
+
+{Exposure Laser Power Position}
+No Description
+Int
+-32768
+||
+0
+
+{Exposure TIRF Position}
+No Description
+Int
+-32768
+||
+0
+
+{Exposure Frames Average}
+No Description
+Int
+1
+||
+0
+
+{Exposure Neutral Density}
+No Description
+Int
+17
+||
+0
+
+{Exposure Auxillary Neutral Density}
+No Description
+Int
+-1
+||
+0
+
+{Exposure Gain}
+No Description
+Int
+-1
+||
+0
+
+{Exposure Intensification}
+No Description
+Int
+-1
+||
+0
+
+[Exposure Channel Settings 2]
+11 Properties
+
+{Exposure Channel Name}
+No Description
+String
+""
+||
+0
+
+{Exposure Time MS}
+No Description
+Int
+0
+||
+0
+
+{Exposure Dark Field Correction}
+No Description
+Bool
+false
+||
+0
+
+{Exposure Flat Field Correction}
+No Description
+Bool
+false
+||
+0
+
+{Exposure Laser Power Position}
+No Description
+Int
+-32768
+||
+0
+
+{Exposure TIRF Position}
+No Description
+Int
+-32768
+||
+0
+
+{Exposure Frames Average}
+No Description
+Int
+1
+||
+0
+
+{Exposure Neutral Density}
+No Description
+Int
+-1
+||
+0
+
+{Exposure Auxillary Neutral Density}
+No Description
+Int
+-1
+||
+0
+
+{Exposure Gain}
+No Description
+Int
+-1
+||
+0
+
+{Exposure Intensification}
+No Description
+Int
+-1
+||
+0
+
+[Exposure Channel Settings 3]
+11 Properties
+
+{Exposure Channel Name}
+No Description
+String
+""
+||
+0
+
+{Exposure Time MS}
+No Description
+Int
+0
+||
+0
+
+{Exposure Dark Field Correction}
+No Description
+Bool
+false
+||
+0
+
+{Exposure Flat Field Correction}
+No Description
+Bool
+false
+||
+0
+
+{Exposure Laser Power Position}
+No Description
+Int
+-32768
+||
+0
+
+{Exposure TIRF Position}
+No Description
+Int
+-32768
+||
+0
+
+{Exposure Frames Average}
+No Description
+Int
+1
+||
+0
+
+{Exposure Neutral Density}
+No Description
+Int
+-1
+||
+0
+
+{Exposure Auxillary Neutral Density}
+No Description
+Int
+-1
+||
+0
+
+{Exposure Gain}
+No Description
+Int
+-1
+||
+0
+
+{Exposure Intensification}
+No Description
+Int
+-1
+||
+0
+
+[Exposure Channel Settings 4]
+11 Properties
+
+{Exposure Channel Name}
+No Description
+String
+""
+||
+0
+
+{Exposure Time MS}
+No Description
+Int
+0
+||
+0
+
+{Exposure Dark Field Correction}
+No Description
+Bool
+false
+||
+0
+
+{Exposure Flat Field Correction}
+No Description
+Bool
+false
+||
+0
+
+{Exposure Laser Power Position}
+No Description
+Int
+-32768
+||
+0
+
+{Exposure TIRF Position}
+No Description
+Int
+-32768
+||
+0
+
+{Exposure Frames Average}
+No Description
+Int
+1
+||
+0
+
+{Exposure Neutral Density}
+No Description
+Int
+-1
+||
+0
+
+{Exposure Auxillary Neutral Density}
+No Description
+Int
+-1
+||
+0
+
+{Exposure Gain}
+No Description
+Int
+-1
+||
+0
+
+{Exposure Intensification}
+No Description
+Int
+-1
+||
+0
+
+[Exposure Channel Settings 5]
+11 Properties
+
+{Exposure Channel Name}
+No Description
+String
+""
+||
+0
+
+{Exposure Time MS}
+No Description
+Int
+0
+||
+0
+
+{Exposure Dark Field Correction}
+No Description
+Bool
+false
+||
+0
+
+{Exposure Flat Field Correction}
+No Description
+Bool
+false
+||
+0
+
+{Exposure Laser Power Position}
+No Description
+Int
+-32768
+||
+0
+
+{Exposure TIRF Position}
+No Description
+Int
+-32768
+||
+0
+
+{Exposure Frames Average}
+No Description
+Int
+1
+||
+0
+
+{Exposure Neutral Density}
+No Description
+Int
+-1
+||
+0
+
+{Exposure Auxillary Neutral Density}
+No Description
+Int
+-1
+||
+0
+
+{Exposure Gain}
+No Description
+Int
+-1
+||
+0
+
+{Exposure Intensification}
+No Description
+Int
+-1
+||
+0
+
+[Exposure Channel Settings 6]
+11 Properties
+
+{Exposure Channel Name}
+No Description
+String
+""
+||
+0
+
+{Exposure Time MS}
+No Description
+Int
+0
+||
+0
+
+{Exposure Dark Field Correction}
+No Description
+Bool
+false
+||
+0
+
+{Exposure Flat Field Correction}
+No Description
+Bool
+false
+||
+0
+
+{Exposure Laser Power Position}
+No Description
+Int
+-32768
+||
+0
+
+{Exposure TIRF Position}
+No Description
+Int
+-32768
+||
+0
+
+{Exposure Frames Average}
+No Description
+Int
+1
+||
+0
+
+{Exposure Neutral Density}
+No Description
+Int
+-1
+||
+0
+
+{Exposure Auxillary Neutral Density}
+No Description
+Int
+-1
+||
+0
+
+{Exposure Gain}
+No Description
+Int
+-1
+||
+0
+
+{Exposure Intensification}
+No Description
+Int
+-1
+||
+0
+
+[Exposure Channel Settings 7]
+11 Properties
+
+{Exposure Channel Name}
+No Description
+String
+""
+||
+0
+
+{Exposure Time MS}
+No Description
+Int
+0
+||
+0
+
+{Exposure Dark Field Correction}
+No Description
+Bool
+false
+||
+0
+
+{Exposure Flat Field Correction}
+No Description
+Bool
+false
+||
+0
+
+{Exposure Laser Power Position}
+No Description
+Int
+-32768
+||
+0
+
+{Exposure TIRF Position}
+No Description
+Int
+-32768
+||
+0
+
+{Exposure Frames Average}
+No Description
+Int
+1
+||
+0
+
+{Exposure Neutral Density}
+No Description
+Int
+-1
+||
+0
+
+{Exposure Auxillary Neutral Density}
+No Description
+Int
+-1
+||
+0
+
+{Exposure Gain}
+No Description
+Int
+-1
+||
+0
+
+{Exposure Intensification}
+No Description
+Int
+-1
+||
+0
+
+[Exposure Channel Settings 8]
+11 Properties
+
+{Exposure Channel Name}
+No Description
+String
+""
+||
+0
+
+{Exposure Time MS}
+No Description
+Int
+0
+||
+0
+
+{Exposure Dark Field Correction}
+No Description
+Bool
+false
+||
+0
+
+{Exposure Flat Field Correction}
+No Description
+Bool
+false
+||
+0
+
+{Exposure Laser Power Position}
+No Description
+Int
+-32768
+||
+0
+
+{Exposure TIRF Position}
+No Description
+Int
+-32768
+||
+0
+
+{Exposure Frames Average}
+No Description
+Int
+1
+||
+0
+
+{Exposure Neutral Density}
+No Description
+Int
+-1
+||
+0
+
+{Exposure Auxillary Neutral Density}
+No Description
+Int
+-1
+||
+0
+
+{Exposure Gain}
+No Description
+Int
+-1
+||
+0
+
+{Exposure Intensification}
+No Description
+Int
+-1
+||
+0
+

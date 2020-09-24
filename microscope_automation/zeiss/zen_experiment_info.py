@@ -7,11 +7,7 @@ try:
 except ImportError:
     from pathlib2 import Path
 
-try:
-    from . import preferences
-except:
-    from . import preferences
-
+from .. import preferences
 import logging
 
 
@@ -199,9 +195,9 @@ if __name__ == '__main__':
 
     # Initializing the object
     prefs = preferences.Preferences('../GeneralSettings/preferences_ZSD1_Shailja.yml')
-    experiment_directory = prefs.getPref('PathExperiments')
+    experiment_directory = prefs.get_pref('PathExperiments')
     experiment_name = 'ScanWell_10x.czexp'
-#     experiment_path = os.path.normpath(os.path.join(prefs.getPref('PathExperiments'),
+#     experiment_path = os.path.normpath(os.path.join(prefs.get_pref('PathExperiments'),
 #                                                     experiment_name))
     experiment_path = 'D:\\Users\winfriedw\Documents\Carl Zeiss\ZEN\Documents\Experiment Setups/ScanWell_10x.czexp'
     test_object = ZenExperiment(experiment_path, experiment_name)

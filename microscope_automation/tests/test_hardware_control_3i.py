@@ -6,7 +6,7 @@ Created on August 17, 2020
 """
 
 import pytest
-import microscope_automation.setup_microscope as setup_microscope
+import microscope_automation.hardware.setup_microscope as setup_microscope
 import microscope_automation.preferences as preferences
 import os
 os.chdir(os.path.dirname(__file__))
@@ -25,9 +25,9 @@ def setup_local_microscope(prefs_path):
 @pytest.mark.skipif(skip_all_tests, reason='Testing disabled')
 @pytest.mark.parametrize('prefs_path, experiment, expected_path',
                          [
-                          ('test_data/preferences_3i_test.yml',
+                          ('data/preferences_3i_test.yml',
                            'test_communication.exp.prefs',
-                           'test_data/SlideBook 6.0/test_communication.exp.prefs')
+                           'data/SlideBook 6.0/test_communication.exp.prefs')
                          ])
 def test_create_experiment_path(prefs_path, experiment, expected_path):
     """Test creation of experiment path"""
@@ -39,7 +39,7 @@ def test_create_experiment_path(prefs_path, experiment, expected_path):
 @pytest.mark.skipif(skip_all_tests, reason='Testing disabled')
 @pytest.mark.parametrize('prefs_path',
                          [
-                            ('test_data/preferences_3i_test.yml')
+                            ('data/preferences_3i_test.yml')
                          ])
 def test_execute_experiment(prefs_path):
     """Test sending experiment info to commands service.

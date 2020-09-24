@@ -1,14 +1,16 @@
 import pytest
-import microscope_automation.write_zen_tiles_experiment as write_zen
+import os
+os.chdir(os.path.dirname(__file__))
+import microscope_automation.zeiss.write_zen_tiles_experiment as write_zen
 
-testclass = write_zen.PositionWriter(zsd="testZsd", plate=1234, production_path="test_data")
+testclass = write_zen.PositionWriter(zsd="testZsd", plate=1234, production_path="data")
 
 
 def test_init():
     # Check Type conversion
     assert isinstance(testclass.plate, str)
     # Check data fed into next step
-    assert testclass.path == "test_data\\1234\\testZsd"
+    assert testclass.path == "data\\1234\\testZsd"
     assert testclass.zsd == "testZsd"
     # Removed below assert statement since attribute no longer exists
     # assert isinstance(testclass.pos_list, list)
@@ -42,15 +44,15 @@ def test_write():
     # Test by reading tree again and checking values.
 
 def test_get_next_pos_name():
-    testclass = write_zen.PositionWriter(zsd="testZsd", plate=1234, production_path="test_data")
+    testclass = write_zen.PositionWriter(zsd="testZsd", plate=1234, production_path="data")
     # Does file get next letter correctly?
     assert (testclass.get_next_pos_name(test_mode=True, test_file_names=['positions_output_a']) == 'b')
 
     # Not backfilling files?
-    testclass = write_zen.PositionWriter(zsd="testZsd", plate=1234, production_path="test_data")
+    testclass = write_zen.PositionWriter(zsd="testZsd", plate=1234, production_path="data")
     assert (testclass.get_next_pos_name(test_mode=True, test_file_names=['positions_output_aa']) == 'ab')
 
-    testclass = write_zen.PositionWriter(zsd="testZsd", plate=1234, production_path="test_data")
+    testclass = write_zen.PositionWriter(zsd="testZsd", plate=1234, production_path="data")
     # Using two letters as expected
     assert (testclass.get_next_pos_name(test_mode=True,
                                         test_file_names=['positions_output_a', 'positions_output_c',

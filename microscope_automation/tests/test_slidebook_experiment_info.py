@@ -1,17 +1,14 @@
 import pytest
 import pathlib
 import os
-
-
-from microscope_automation.slidebook_experiment_info import SlidebookExperiment
-
+from microscope_automation.slidebook.slidebook_experiment_info import SlidebookExperiment
 
 experiment_name = 'test_communication.exp.prefs'
 
 
 @pytest.fixture()
 def experiment_path():
-    exp = os.path.join(os.path.dirname(os.path.realpath(__file__)),'test_data',experiment_name)
+    exp = os.path.join(os.path.dirname(os.path.realpath(__file__)),'data',experiment_name)
     return str(exp)
 
 
@@ -34,4 +31,3 @@ def test_experiment_exists_fail(experiment_path):
         p = pathlib.Path(experiment_path).parent / 'NotExistingExperiment.czexp'
         slidebook_experiment = SlidebookExperiment(str(p), experiment_name)
         assert slidebook_experiment.experiment_exists()
-

@@ -10,9 +10,9 @@ import numpy as np
 import skimage
 
 # Import the resource/controllers we're testing
-from microscope_automation.connect_slidebook import ConnectMicroscope
 from microscope_automation.automation_exceptions import HardwareCommandNotDefinedError
 from microscope_automation.image_AICS import ImageAICS
+from microscope_automation.slidebook.connect_slidebook import ConnectMicroscope
 
 
 # Set to True if you want to skip all tests, e.g. when developing a new function

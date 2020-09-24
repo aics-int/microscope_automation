@@ -12,16 +12,16 @@ import datetime
 import time
 import os
 import collections
-from . import automation_messages_form_layout as message
-from .hardware_control import BaseMicroscope
-from . import hardware_components
+from .. import automation_messages_form_layout as message
+from ..hardware.hardware_control import BaseMicroscope
+from ..hardware import hardware_components
 from . import test_zen_experiment
 from . import zen_experiment_info
-from microscope_automation.automation_exceptions import HardwareError, \
+from ..automation_exceptions import HardwareError, \
     AutofocusError, CrashDangerError, LoadNotDefinedError, AutomationError, \
     HardwareDoesNotExistError, AutofocusNoReferenceObjectError, \
     FileExistsError, HardwareNotReadyError
-from .image_AICS import ImageAICS
+from ..image_AICS import ImageAICS
 
 # setup logging
 import logging

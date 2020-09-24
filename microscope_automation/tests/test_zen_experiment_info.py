@@ -1,6 +1,9 @@
 import pytest
 import pathlib
-from microscope_automation.zen_experiment_info import ZenExperiment
+import os
+os.chdir(os.path.dirname(__file__))
+
+from microscope_automation.zeiss.zen_experiment_info import ZenExperiment
 
 
 experiment_name = 'WellTile_10x.czexp'
@@ -8,7 +11,7 @@ experiment_name = 'WellTile_10x.czexp'
 
 @pytest.fixture()
 def experiment_path():
-    exp = (pathlib.Path(__file__).parent.parent.parent / 'Experiments' / experiment_name).absolute()
+    exp = 'data/Experiment Setup/' + experiment_name
     return str(exp)
 
 

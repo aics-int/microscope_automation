@@ -22,15 +22,14 @@ import inspect
 # from .automation_exceptions import AutomationError, HardwareError, \
 #     CrashDangerError, AutofocusError, AutofocusNotSetError, AutofocusObjectiveChangedError, \
 #     ObjectiveNotDefinedError, FileExistsError, LoadNotDefinedError
-from .image_AICS import ImageAICS
-from . import automation_messages_form_layout as message
-from .automation_exceptions import ExperimentNotExistError, \
+from ..image_AICS import ImageAICS
+from .. import automation_messages_form_layout as message
+from ..automation_exceptions import ExperimentNotExistError, \
     AutofocusError, AutofocusNotSetError, AutofocusObjectiveChangedError, \
     ObjectiveNotDefinedError, LoadNotDefinedError, WorkNotDefinedError
 
 # setup logging
 import logging
-from . import automation_messages_form_layout
 
 logger = logging
 
@@ -377,21 +376,23 @@ class ControlSoftware(MicroscopeComponent):
         """
         log_method(self, 'connect_to_microscope_software')
         if self.get_id() == 'ZEN Blue':
-            from .connect_zen_blue import ConnectMicroscope
+            from ..zeiss.connect_zen_blue import ConnectMicroscope
             self.connection = ConnectMicroscope()
         elif self.get_id() == 'ZEN Black':
-            from .connect_zen_black import ConnectMicroscope
+            from ..zeiss.connect_zen_black import ConnectMicroscope
             self.connection = ConnectMicroscope()
         elif self.get_id() == 'Slidebook':
-            from .connect_slidebook import ConnectMicroscope
+            # this is the only way to import modules starting with numbers
+            from ..slidebook.connect_slidebook import ConnectMicroscope
             self.connection = ConnectMicroscope()
         elif self.get_id() == 'ZEN Blue Dummy':
             # create microscope Zeiss spinning disk simulation
             # Uses same module as standard Zen Blue microscope, but without dll
-            from .connect_zen_blue import ConnectMicroscope
+            from ..zeiss.connect_zen_blue import ConnectMicroscope
             self.connection = ConnectMicroscope(connect_dll=False)
         elif self.get_id() == 'Slidebook Dummy':
-            from .connect_slidebook import ConnectMicroscope
+            # this is the only way to import modules starting with numbers
+            from ..slidebook.connect_slidebook import ConnectMicroscope
             self.connection = ConnectMicroscope(dummy=True)
 
         # logger.info('selected software: %s', self.get_id())
@@ -558,7 +559,8 @@ class Safety(MicroscopeComponent):
             return False
 
         # is path in safe area?
-        if not self.is_safe_travel_path(xy_path, z_max_pos, safe_area_id, verbose=verbose):
+        if not self.is_safe_travel_path(xy_path, z_max_pos, safe_area_id,
+                                        verbose=verbose):
             return False
 
         return True
@@ -1859,6 +1861,6 @@ class Pump(MicroscopeComponent):
          none
         """
         log_method(self, 'trigger_pump')
-        conPar = self.get_connection()
+        con_par = self.get_connection()
         seconds = self.get_time()
-        communication_object.trigger_pump(seconds=seconds, port=conPar[0], baudrate=conPar[1])
+        communication_object.trigger_pump(seconds=seconds, port=con_par[0], baudrate=con_par[1])

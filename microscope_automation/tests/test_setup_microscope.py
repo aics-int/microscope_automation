@@ -7,7 +7,7 @@ Created on May 20, 2020
 
 import pytest
 import microscope_automation.preferences as preferences
-from microscope_automation.setup_microscope import setup_microscope
+from microscope_automation.hardware.setup_microscope import setup_microscope
 import os
 os.chdir(os.path.dirname(__file__))
 
@@ -17,20 +17,20 @@ skip_all_tests = False
 
 @pytest.mark.skipif(skip_all_tests, reason='Exclude all tests')
 @pytest.mark.parametrize('prefs_path, expected_components',
-                         [('test_data/preferences_ZSD_test.yml',
-                           ['Camera2 (left)',
-                            'Camera1 (back)',
-                            'ZSD_01_slide',
-                            'ZSD_01_plate',
+                         [('data/preferences_ZSD_test.yml',
+                           ['Camera1 (back)',
+                            'Camera2 (left)',
                             'ZSD_01_immersion',
+                            'ZSD_01_plate',
+                            'ZSD_01_slide',
                             'Marzhauser',
                             '6xMotorizedNosepiece',
                             'MotorizedFocus',
                             'DefiniteFocus2',
                             'BraintreeScientific']),
-                          ('test_data/preferences_3i_test.yml',
-                           ['Camera2 (left)',
-                            'Camera1 (back)',
+                          ('data/preferences_3i_test.yml',
+                           ['Camera1 (back)',
+                            'Camera2 (left)',
                             'Marzhauser',
                             'MotorizedFocus'])])
 def test_setup_microscope(prefs_path, expected_components):

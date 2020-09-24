@@ -6,8 +6,7 @@ Created on Jun 7, 2017
 @author: winfriedw
 '''
 
-# from .automation_messages_form_layout import error_message
-from automation_messages_form_layout import error_message
+from .automation_messages_form_layout import error_message
 
 # global variable to control blocking behavior of error messages
 blocking = True

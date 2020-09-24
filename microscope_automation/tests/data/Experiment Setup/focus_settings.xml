@@ -1,0 +1,115 @@
+<FocusSetup IsActivated="true">
+  <RepetitionSettingsMode>Standard</RepetitionSettingsMode>
+  <FocusStrategy IsActivated="true">
+    <StrategyMode>None</StrategyMode>
+    <ReferenceChannelId>636628654580318015</ReferenceChannelId>
+    <IsFocussingOnAllTracks>false</IsFocussingOnAllTracks>
+    <IsFocussingBeforeAcquisition>true</IsFocussingBeforeAcquisition>
+    <FixedZPosition>0</FixedZPosition>
+    <UseZPositionFromTilesSetup>true</UseZPositionFromTilesSetup>
+    <ExecutionInTileRegionMode>CenterOfRegion</ExecutionInTileRegionMode>
+    <SupportPointsMode>FixedZPosition</SupportPointsMode>
+    <FocusZStackMode>FixedZ</FocusZStackMode>
+    <WaitPositionMode>CenterOfFirstRegion</WaitPositionMode>
+    <WaitPositionX>0</WaitPositionX>
+    <WaitPositionY>0</WaitPositionY>
+    <WaitPositionZ>0</WaitPositionZ>
+    <IsUpdatePositionedRegionsToClientEnabled>true</IsUpdatePositionedRegionsToClientEnabled>
+    <PositionedRegionsUpdateMode>CumulatedPositions</PositionedRegionsUpdateMode>
+    <BreakAfterSupportPointsDetermination>false</BreakAfterSupportPointsDetermination>
+    <ErrorNotificationHints>None</ErrorNotificationHints>
+    <AdditionalSupportPointOffset>0</AdditionalSupportPointOffset>
+    <TimeSeriesIntervalInfo>
+      <IsActivated>false</IsActivated>
+      <IsMainIntervalEnabled>true</IsMainIntervalEnabled>
+      <IsSubIntervalEnabled>false</IsSubIntervalEnabled>
+      <MainInterval>1</MainInterval>
+      <SubInterval>1</SubInterval>
+    </TimeSeriesIntervalInfo>
+    <RegionsIntervalInfo>
+      <IsActivated>false</IsActivated>
+      <IsMainIntervalEnabled>true</IsMainIntervalEnabled>
+      <IsSubIntervalEnabled>false</IsSubIntervalEnabled>
+      <MainInterval>1</MainInterval>
+      <SubInterval>1</SubInterval>
+    </RegionsIntervalInfo>
+    <TilesIntervalInfo>
+      <IsActivated>false</IsActivated>
+      <IsMainIntervalEnabled>true</IsMainIntervalEnabled>
+      <IsSubIntervalEnabled>false</IsSubIntervalEnabled>
+      <MainInterval>1</MainInterval>
+      <SubInterval>1</SubInterval>
+    </TilesIntervalInfo>
+    <HardwareAutofocusOptions>
+      <IsSupportedBySoftwareAutofocus>false</IsSupportedBySoftwareAutofocus>
+    </HardwareAutofocusOptions>
+    <HardwareAutofocusSupportPointsModeOptions>
+      <IsSupportedBySoftwareAutofocus>false</IsSupportedBySoftwareAutofocus>
+    </HardwareAutofocusSupportPointsModeOptions>
+  </FocusStrategy>
+  <Autofocus Id="Autofocus">
+    <AutofocusStrategyMode Status="Valid">Software</AutofocusStrategyMode>
+    <AutofocusSignalQualityThreshold Status="Valid">50</AutofocusSignalQualityThreshold>
+  </Autofocus>
+  <HardwareAutofocus Id="MTBAutoFocus">
+    <Period>0</Period>
+    <AutofocusMountingAngle>0</AutofocusMountingAngle>
+    <AutofocusPositionOffset>0</AutofocusPositionOffset>
+    <AutofocusOperationMode>Exact</AutofocusOperationMode>
+    <AutofocusSpecimenType>Reflective</AutofocusSpecimenType>
+  </HardwareAutofocus>
+  <SoftwareAutofocus>
+    <ReflectionMode>Disabled</ReflectionMode>
+    <ReflectionModeOffset>-120</ReflectionModeOffset>
+    <AutofocusRegion>
+      <X>0</X>
+      <Y>0</Y>
+      <DX>1</DX>
+      <DY>1</DY>
+    </AutofocusRegion>
+    <BacklashStepsize>2</BacklashStepsize>
+    <DepthOfFocus>3.84</DepthOfFocus>
+    <DoBacklashCorrection>-1</DoBacklashCorrection>
+    <DoBleachingCorrection>true</DoBleachingCorrection>
+    <FactorGaussianFitStepsize>10</FactorGaussianFitStepsize>
+    <InitialDirection>1</InitialDirection>
+    <IsAutomaticRange>true</IsAutomaticRange>
+    <LowerLimit>100</LowerLimit>
+    <Precision>4</Precision>
+    <PredefinedStepsize>Optimal</PredefinedStepsize>
+    <SharpnessMeasureMethod>Auto</SharpnessMeasureMethod>
+    <RelativeSearchRange>153.6</RelativeSearchRange>
+    <SearchRangeType>Relative</SearchRangeType>
+    <SearchStrategy>Exhaustive</SearchStrategy>
+    <SharpnessMeasureSet Name="Best">
+      <SharpnessMeasure DecisionWeight="1" ScoreType="HaarGradient">
+        <Parameters>
+          <Parameter>1</Parameter>
+        </Parameters>
+      </SharpnessMeasure>
+      <SharpnessMeasure DecisionWeight="2" ScoreType="HaarGradient">
+        <Parameters>
+          <Parameter>2</Parameter>
+        </Parameters>
+      </SharpnessMeasure>
+      <SharpnessMeasure DecisionWeight="3" ScoreType="HaarGradient">
+        <Parameters>
+          <Parameter>3</Parameter>
+        </Parameters>
+      </SharpnessMeasure>
+    </SharpnessMeasureSet>
+    <UpperLimit>-100</UpperLimit>
+    <UseAcquisitionROI>true</UseAcquisitionROI>
+    <UseCameraParameters>false</UseCameraParameters>
+    <UseChannelInformation>true</UseChannelInformation>
+  </SoftwareAutofocus>
+  <DefiniteFocus IsActivated="false">
+    <IsContinuousStabilizationEnabled>false</IsContinuousStabilizationEnabled>
+    <ContinuousStabilizationMode>Periodic</ContinuousStabilizationMode>
+    <Period>10</Period>
+    <OperationMode>Exact</OperationMode>
+    <IsPausedDuringAcquisition>true</IsPausedDuringAcquisition>
+    <SkipInitialization>false</SkipInitialization>
+    <DelayOnFirstTileInRegion>0</DelayOnFirstTileInRegion>
+  </DefiniteFocus>
+</FocusSetup>

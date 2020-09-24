@@ -12,8 +12,7 @@ import os
 from pathlib import Path
 # import modules that are part of package MicroscopeAutomation
 # module to read preference files
-# from .preferences import Preferences
-from preferences import Preferences
+from .preferences import Preferences
 
 pref_path = None
 
@@ -57,7 +56,7 @@ def get_valid_path_from_prefs(prefs, key, search_dir=True, validate=False):
     Output:
      return_path: path to valid file or directory
     """
-    path_list = prefs.getPref(key)
+    path_list = prefs.get_pref(key)
     # To catch non-list inputs
     if type(path_list) is not list:
         if type(path_list) is str:
@@ -119,7 +118,7 @@ def get_daily_folder(prefs, barcode=None):
     """
     # Add the microscope name level in the folder structure ot make it more aligned with pipeline & FMS standard
     try:
-        microscope_name = prefs.getPref('Info')['System']
+        microscope_name = prefs.get_pref('Info')['System']
     except:
         microscope_name = "000"
     if barcode is None:
@@ -152,7 +151,7 @@ def get_position_csv_path(prefs):
      return: filepaths for the files
     """
     # 1. To store the list of positions in the format specific to Zen Blue software for 100X imaging.
-    filename_pos = Path(prefs.getPref('PositionCsv'))
+    filename_pos = Path(prefs.get_pref('PositionCsv'))
     filename_wellid = Path(filename_pos.stem + '_wellid.csv')
     filename_failed = Path('failed_wells.csv')
     position_csv_path = daily_folder_path / filename_pos
@@ -179,9 +178,9 @@ def get_log_file_path(prefs):
     log_file_path = os.path.normpath(os.path.join(log_file_folder, file_name))
 
     # test if folder exists, if not, create folder
-    # if prefs.getPref('LogFilePath') is None:
+    # if prefs.get_pref('LogFilePath') is None:
     #     raise ValueError("No valid path found in preferences for key: LogFilePath")
-    # log_file_path = os.path.normpath(os.path.join(prefs.getPref('LogFilePath'), file_name))
+    # log_file_path = os.path.normpath(os.path.join(prefs.get_pref('LogFilePath'), file_name))
     # folderPath = os.path.dirname(log_file_path)
     # test if folder exists, if not, create folder
     if not os.path.isdir(log_file_folder):
@@ -198,7 +197,7 @@ def get_meta_data_path(prefs):
     Output:
      meta_data_file: path to log file
     """
-    meta_data_file = os.path.normpath(os.path.join(daily_folder_path, prefs.getPref('MetaDataPath')))
+    meta_data_file = os.path.normpath(os.path.join(daily_folder_path, prefs.get_pref('MetaDataPath')))
     folder_path = os.path.dirname(meta_data_file)
     # test if folder exists, if not, create folder
     if not os.path.isdir(folder_path):
@@ -225,7 +224,7 @@ def get_experiment_path(prefs, dir=False):
     if dir:
         experiment_path = os.path.normpath(experiment_dir_path)
     else:
-        experiment_name = prefs.getPref('Experiment')
+        experiment_name = prefs.get_pref('Experiment')
         experiment_path = os.path.normpath(os.path.join(experiment_dir_path, experiment_name))
 
     return experiment_path
@@ -270,7 +269,7 @@ def get_colony_dir_path(prefs):
     Output:
      colonyDir: path to log file
     """
-    colony_dir_path = prefs.getPref('colony_dir_path')
+    colony_dir_path = prefs.get_pref('colony_dir_path')
     if colony_dir_path is None:
         colony_dir_path = ''
 
@@ -335,7 +334,7 @@ def get_references_path(prefs):
     Output:
      references_path: path to directory for reference images for specific well
     """
-    references_path = os.path.normpath(os.path.join(daily_folder_path, prefs.getPref('ReferenceDirPath')))
+    references_path = os.path.normpath(os.path.join(daily_folder_path, prefs.get_pref('ReferenceDirPath')))
     # create directory if not existent
     if not os.path.isdir(references_path):
         os.makedirs(references_path)
@@ -376,16 +375,16 @@ def get_calibration_path(prefs):
 
 
 if __name__ == '__main__':
-    prefsPath = get_prefs_path()
-    print prefsPath
+    prefs_path = get_prefs_path()
+    print(prefs_path)
     prefs = Preferences(prefsPath)
 
-    print get_daily_folder(prefs)
-    print get_log_file_path(prefs)
-    print get_colony_dir_path(prefs)
+    print(get_daily_folder(prefs))
+    print(get_log_file_path(prefs))
+    print(get_colony_dir_path(prefs))
     #     print get_plate_layout_path(prefs)
-    print get_hardware_settings_path(prefs)
-    print get_references_path(prefs)
-    imagesPath = get_images_path(prefs)
-    print imagesPath
-    print add_suffix(imagesPath + 'image.czi', suffix='top')
+    print(get_hardware_settings_path(prefs))
+    print(get_references_path(prefs))
+    images_path = get_images_path(prefs)
+    print(images_path)
+    print(add_suffix(imagesPath + 'image.czi', suffix='top'))

@@ -7,17 +7,17 @@ Date Created: June 09, 2016
 import time
 import os.path
 import logging
+from serial.serialutil import SerialException
 # import modules from project MicroscopeAutomation
-from .load_image_czi import LoadImageCzi
-from .automation_exceptions import HardwareError, AutofocusError, AutofocusObjectiveChangedError, \
+from ..load_image_czi import LoadImageCzi
+from ..automation_exceptions import HardwareError, AutofocusError, AutofocusObjectiveChangedError, \
     AutofocusNotSetError, LoadNotDefinedError, WorkNotDefinedError, ExperimentError, ExperimentNotExistError
-from .experiment_info import ZenExperiment
-from builtins import True
+from .zen_experiment_info import ZenExperiment
 
 try:
-    from .RS232 import Braintree
+    from ..hardware.RS232 import Braintree
 except ImportError:
-    from .RS232_dummy import Braintree
+    from ..hardware.RS232_dummy import Braintree
 
 # Create Logger
 log = logging.getLogger('microscopeAutomation connect_zen_blue')
@@ -70,6 +70,7 @@ class ConnectMicroscope():
                 print ('Connected to microscope hardware - Zen Blue')
             except ImportError:
                 from . import connect_zen_blue_dummy as microscopeConnection
+                from ..hardware.RS232_dummy import Braintree
                 print('Failed to connect to Zen Blue Production SW, connecting to simulated hardware')
 
         self.Zen = microscopeConnection.GetActiveObject("Zeiss.Micro.Scripting.ZenWrapperLM")
@@ -1049,7 +1050,7 @@ class ConnectMicroscope():
         '''
         try:
             # connect to pump through RS232
-            pump = Braintree(port='COM1', baudrate=19200)
+            pump = Braintree(port=port, baudrate=baudrate)
 
             # activate pump
             pump.start_pump()
@@ -1058,6 +1059,12 @@ class ConnectMicroscope():
             time.sleep(seconds)
 
             # stop pump and close connection
+            pump.close_connection()
+        except SerialException:
+            from ..hardware import RS232_dummy
+            pump = RS232_dummy.Braintree(port=port, baudrate=baudrate)
+            pump.start_pump()
+            time.sleep(seconds)
             pump.close_connection()
         except Exception:
             raise HardwareError('Error in trigger_pump.')
@@ -1225,7 +1232,7 @@ def test_definite_focus(microscope, interactive=False):
         print('Use interactive mode')
     success = True
 
-    print ('Test stage movement without and with auto-focus')
+    print('Test stage movement without and with auto-focus')
     path = [[34000, 40000, 8800], [35000, 40000, 8850], [35000, 41000, 8900], [34000, 40000, 8950]]
 
     # Initialize autofocus
@@ -1289,7 +1296,7 @@ def test_connect_zen_blue(
     experiment = 'Setup_10x'
     experiment_multi_pos = 'MultiPos_10x'
     print('Start test suite')
-    from .image_AICS import ImageAICS
+    from ..image_AICS import ImageAICS
     # test class ConnectMicroscope
     # get instance of type ConnectMicroscope
     # connect via .com to Zeiss ZEN blue software
