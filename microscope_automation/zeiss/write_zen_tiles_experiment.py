@@ -24,11 +24,11 @@ class PositionWriter(object):
         Initialization
 
         Inputs:
-         zsd:             String or integer Id of ZSD used for acquisition
+         zsd: String or integer Id of ZSD used for acquisition
 
-         plate:           String of integer Id of plate
+         plate: String of integer Id of plate
 
-         production_path  Path of the prouduction folder
+         production_path: Path of the prouduction folder
 
         Output:
          none
@@ -104,11 +104,11 @@ class PositionWriter(object):
         Writes coordinates to a dummy.czsh file, and saves it
 
         Inputs:
-         converted:       positions to write to the czsh file
+         converted: positions to write to the czsh file
 
-         dummy:           empty (no coordinates) .czsh file to use for writing
+         dummy: empty (no coordinates) .czsh file to use for writing
 
-         name_czsh:       name to save written .czsh file as
+         name_czsh: name to save written .czsh file as
 
         Output:
          none
