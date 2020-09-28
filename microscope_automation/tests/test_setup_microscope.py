@@ -37,4 +37,5 @@ def test_setup_microscope(prefs_path, expected_components):
     """Test creation of microscope object"""
     prefs = preferences.Preferences(prefs_path)
     microscope_object = setup_microscope(prefs)
-    assert list(microscope_object.microscope_components_ordered_dict.keys()) == expected_components
+    assert list(microscope_object.microscope_components_ordered_dict.keys()) \
+        == expected_components

@@ -34,15 +34,17 @@ def setup_local_control_software(software):
 
 
 def setup_local_focus_drive(focus_drive_id, max_load_position=0, min_work_position=10,
-                            auto_focus_id=None, objective_changer=None, prefs_path=None):
+                            auto_focus_id=None, objective_changer=None,
+                            prefs_path=None):
     """Create FocusDrive object"""
     if prefs_path:
         microscope_object = setup_local_microscope(prefs_path)
     else:
         microscope_object = None
 
-    focus_drive = h_comp.FocusDrive(focus_drive_id, max_load_position, min_work_position,
-                                    auto_focus_id, objective_changer, microscope_object)
+    focus_drive = h_comp.FocusDrive(focus_drive_id, max_load_position,
+                                    min_work_position, auto_focus_id,
+                                    objective_changer, microscope_object)
 
     return focus_drive
 
@@ -71,8 +73,9 @@ def setup_local_safety(safety_id):
     return safety
 
 
-def setup_local_stage(stage_id, safe_area=None, safe_position=None, objective_changer=None,
-                      prefs_path=None, default_experiment=None):
+def setup_local_stage(stage_id, safe_area=None, safe_position=None,
+                      objective_changer=None, prefs_path=None,
+                      default_experiment=None):
     """Create Stage object"""
     if prefs_path:
         microscope_object = setup_local_microscope(prefs_path)
@@ -115,15 +118,23 @@ def setup_local_camera(camera_id, pixel_size=(None, None), pixel_number=(None, N
 @pytest.mark.skipif(skip_all_tests, reason='Exclude all tests')
 @pytest.mark.parametrize('prefs_path, error, expected',
                          [('data/preferences_ZSD_test.yml', AutomationError, None),
-                          ('data/preferences_ZSD_test.yml', AutofocusError, 'AutofocusError'),
-                          ('data/preferences_ZSD_test.yml', CrashDangerError, 'CrashDangerError'),
-                          ('data/preferences_ZSD_test.yml', HardwareError, 'HardwareError'),
-                          ('data/preferences_ZSD_test.yml', LoadNotDefinedError, 'LoadNotDefinedError'),
+                          ('data/preferences_ZSD_test.yml', AutofocusError,
+                           'AutofocusError'),
+                          ('data/preferences_ZSD_test.yml', CrashDangerError,
+                           'CrashDangerError'),
+                          ('data/preferences_ZSD_test.yml', HardwareError,
+                           'HardwareError'),
+                          ('data/preferences_ZSD_test.yml', LoadNotDefinedError,
+                           'LoadNotDefinedError'),
                           ('data/preferences_3i_test.yml', AutomationError, None),
-                          ('data/preferences_3i_test.yml', AutofocusError, 'AutofocusError'),
-                          ('data/preferences_3i_test.yml', CrashDangerError, 'CrashDangerError'),
-                          ('data/preferences_3i_test.yml', HardwareError, 'HardwareError'),
-                          ('data/preferences_3i_test.yml', LoadNotDefinedError, 'LoadNotDefinedError')])
+                          ('data/preferences_3i_test.yml', AutofocusError,
+                           'AutofocusError'),
+                          ('data/preferences_3i_test.yml', CrashDangerError,
+                           'CrashDangerError'),
+                          ('data/preferences_3i_test.yml', HardwareError,
+                           'HardwareError'),
+                          ('data/preferences_3i_test.yml', LoadNotDefinedError,
+                           'LoadNotDefinedError')])
 def test_recover_hardware(mock_error_diag0, mock_error_diag1, mock_error_diag2,
                           mock_error_diag3, prefs_path, error, expected):
     """Test recovering from hardware error"""
@@ -215,7 +226,8 @@ def test_reference_position(prefs_path, find_surface, ref_obj_id, expected):
                            {'Microscope': True, 'MotorizedFocus': True}),
                           ('data/preferences_ZSD_test.yml',
                            'WellTile_10x_true.czexp', {}, None, None, None,
-                           None, None, None, None, None, None, 'HardwareDoesNotExistError'),
+                           None, None, None, None, None, None,
+                           'HardwareDoesNotExistError'),
                           ('data/preferences_ZSD_test.yml',
                            'WellTile_10x_true.czexp', {}, 'MotorizedFocus',
                            '6xMotorizedNosepiece', None, 'ZSD_01_plate',
@@ -235,8 +247,8 @@ def test_reference_position(prefs_path, find_surface, ref_obj_id, expected):
                             'Marzhauser': ['test'],
                             'DefiniteFocus2': ['test']},
                            'MotorizedFocus', '6xMotorizedNosepiece', None,
-                           'ZSD_01_plate', None, None, None, 'Marzhauser', 'DefiniteFocus2',
-                           'TypeError'),
+                           'ZSD_01_plate', None, None, None, 'Marzhauser',
+                           'DefiniteFocus2', 'TypeError'),
                           ('data/preferences_ZSD_test.yml',
                            'WellTile_10x_true.czexp',
                            {'MotorizedFocus': ['test'],
@@ -272,9 +284,9 @@ def test_reference_position(prefs_path, find_surface, ref_obj_id, expected):
                              'camera': 'Camera1 (back)',
                              'autofocus': 'DefiniteFocus2'}},
                            'ZSD_01_plate',
-                           [(3270, 1870), (108400, 1870), (108400, 71200), (3270, 71200)],
-                           'StageArea', 9900,
-                           'Marzhauser', 'DefiniteFocus2',
+                           [(3270, 1870), (108400, 1870), (108400, 71200),
+                            (3270, 71200)],
+                           'StageArea', 9900, 'Marzhauser', 'DefiniteFocus2',
                            {'Microscope': True, 'MotorizedFocus': True,
                             '6xMotorizedNosepiece': True, 'Marzhauser': True}),
                           ('data/preferences_ZSD_test.yml',
@@ -293,7 +305,8 @@ def test_reference_position(prefs_path, find_surface, ref_obj_id, expected):
                              'experiment': 'WellTile_10x_true',
                              'camera': 'Camera1 (back)',
                              'autofocus': 'DefiniteFocus2'}},
-                           'ZSD_01_plate', [(3270, 1870), (108400, 1870), (108400, 71200), (3270, 71200)],
+                           'ZSD_01_plate', [(3270, 1870), (108400, 1870),
+                                            (108400, 71200), (3270, 71200)],
                            'StageArea', 9900, 'Marzhauser', 'DefiniteFocus2',
                            {'Microscope': False, 'MotorizedFocus': True,
                             '6xMotorizedNosepiece': True, 'DefiniteFocus2': False,
@@ -314,7 +327,8 @@ def test_reference_position(prefs_path, find_surface, ref_obj_id, expected):
                              'experiment': 'WellTile_10x_true',
                              'camera': 'Camera1 (back)',
                              'autofocus': 'DefiniteFocus2'}},
-                           'ZSD_01_plate', [(3270, 1870), (108400, 1870), (108400, 71200), (3270, 71200)],
+                           'ZSD_01_plate', [(3270, 1870), (108400, 1870),
+                                            (108400, 71200), (3270, 71200)],
                            'StageArea', 9900, 'Marzhauser', 'DefiniteFocus2',
                            {'Microscope': True, 'MotorizedFocus': True,
                             '6xMotorizedNosepiece': True, 'DefiniteFocus2': True,
@@ -361,7 +375,7 @@ def test_microscope_is_ready(prefs_path, experiment, component_dict,
     assert result == expected
 
 
-@patch("microscope_automation.zeiss.hardware_control_zeiss.SpinningDiskZeiss.recover_hardware")
+@patch("microscope_automation.zeiss.hardware_control_zeiss.SpinningDiskZeiss.recover_hardware")  # noqa
 @pytest.mark.skipif(skip_all_tests, reason='Exclude all tests')
 @pytest.mark.parametrize(("prefs_path, software, experiment, "
                           "objective_changer_id, objectives, expected"),
@@ -422,7 +436,8 @@ def test_set_microscope(prefs_path, auto_focus_id, use_auto_focus, expected):
         microscope.add_microscope_object(autofocus)
 
     try:
-        result = microscope.set_microscope({auto_focus_id: {'use_auto_focus': use_auto_focus}})
+        result = microscope.set_microscope({auto_focus_id:
+                                            {'use_auto_focus': use_auto_focus}})
     except Exception as err:
         result = type(err).__name__
 
@@ -469,7 +484,8 @@ def test_set_objective_is_ready(prefs_path, objective_info, ref_obj_id, expected
 
 
 @pytest.mark.skipif(skip_all_tests, reason='Exclude all tests')
-@pytest.mark.parametrize(("prefs_path, objective_info, ref_obj_id, set_first, expected"),
+@pytest.mark.parametrize(("prefs_path, objective_info, ref_obj_id, set_first, "
+                          "expected"),
                          [('data/preferences_ZSD_test.yml',
                            {'magnification': 10,
                             'name': 'Dummy Objective', 'position': 0,
@@ -485,13 +501,15 @@ def test_set_objective_is_ready(prefs_path, objective_info, ref_obj_id, expected
                             'name': 'Dummy Objective', 'position': 0,
                             'experiment': 'WellTile_10x_true'},
                            'test', False, False)])
-def test_get_objective_is_ready(prefs_path, objective_info, ref_obj_id, set_first, expected):
+def test_get_objective_is_ready(prefs_path, objective_info, ref_obj_id, set_first,
+                                expected):
     microscope = setup_local_microscope(prefs_path)
 
     try:
         if set_first:
             microscope.set_objective_is_ready(objective_info, ref_obj_id)
-        result = microscope.get_objective_is_ready(objective_info['position'], ref_obj_id)
+        result = microscope.get_objective_is_ready(objective_info['position'],
+                                                   ref_obj_id)
     except Exception as err:
         result = type(err).__name__
 
@@ -526,7 +544,8 @@ def test_is_ready_errors(prefs_path, expected):
     assert result == expected
 
     try:
-        result = microscope._auto_focus_is_ready(microscope, None, ['find_surface'], None)
+        result = microscope._auto_focus_is_ready(microscope, None,
+                                                 ['find_surface'], None)
     except Exception as err:
         result = type(err).__name__
 
@@ -559,7 +578,8 @@ def test__get_microscope_object(prefs_path, object_to_get, expected):
 @pytest.mark.parametrize(("prefs_path, experiment, objective_changer_id, "
                           "camera_id, expected"),
                          [('data/preferences_3i_test.yml',
-                           'test_communication.exp.prefs', None, None, 'AttributeError'),
+                           'test_communication.exp.prefs', None, None,
+                           'AttributeError'),
                           ('data/preferences_3i_test.yml',
                            'test_communication.exp.prefs', '6xMotorizedNosepiece',
                            None, 'HardwareDoesNotExistError'),
@@ -635,7 +655,7 @@ def test_get_z_position(prefs_path, software, focus_drive_id, expected):
     assert result == expected
 
 
-@patch("microscope_automation.zeiss.hardware_control_zeiss.SpinningDiskZeiss.recover_hardware")
+@patch("microscope_automation.zeiss.hardware_control_zeiss.SpinningDiskZeiss.recover_hardware")  # noqa
 @patch("microscope_automation.hardware.hardware_components.Safety.show_safe_areas")
 @pytest.mark.skipif(skip_all_tests, reason='Exclude all tests')
 @pytest.mark.parametrize(("prefs_path, software, focus_drive_id, "
@@ -658,7 +678,8 @@ def test_get_z_position(prefs_path, software, focus_drive_id, expected):
                              'experiment': 'WellTile_10x_true',
                              'camera': 'Camera1 (back)',
                              'autofocus': 'DefiniteFocus2'}},
-                           'ZSD_01_plate', [(3270, 1870), (108400, 1870), (108400, 71200), (3270, 71200)],
+                           'ZSD_01_plate', [(3270, 1870), (108400, 1870),
+                                            (108400, 71200), (3270, 71200)],
                            'StageArea', 9900, 'Marzhauser', 'DefiniteFocus2',
                            'CrashDangerError'),
                           ('data/preferences_ZSD_test.yml',
@@ -673,7 +694,8 @@ def test_get_z_position(prefs_path, software, focus_drive_id, expected):
                              'experiment': 'WellTile_10x_true',
                              'camera': 'Camera1 (back)',
                              'autofocus': 'DefiniteFocus2'}},
-                           'ZSD_01_plate', [(-1, -1), (108400, -1), (108400, 71200), (-1, 71200)],
+                           'ZSD_01_plate', [(-1, -1), (108400, -1),
+                                            (108400, 71200), (-1, 71200)],
                            'StageArea', 9900, 'Marzhauser', 'DefiniteFocus2',
                            'LoadNotDefinedError'),
                           ('data/preferences_ZSD_test.yml',
@@ -688,7 +710,8 @@ def test_get_z_position(prefs_path, software, focus_drive_id, expected):
                              'experiment': 'WellTile_10x_true',
                              'camera': 'Camera1 (back)',
                              'autofocus': 'DefiniteFocus2'}},
-                           'ZSD_01_plate', [(-1, -1), (108400, -1), (108400, 71200), (-1, 71200)],
+                           'ZSD_01_plate', [(-1, -1), (108400, -1),
+                                            (108400, 71200), (-1, 71200)],
                            'StageArea', 9900, 'Marzhauser', 'DefiniteFocus2',
                            (0, 0, 500))])
 def test_move_to_abs_pos(mock_func1, mock_func2, prefs_path, software, focus_drive_id,
@@ -702,8 +725,10 @@ def test_move_to_abs_pos(mock_func1, mock_func2, prefs_path, software, focus_dri
         microscope.add_control_software(control_software)
 
     if focus_drive_id:
-        focus_drive = setup_local_focus_drive(focus_drive_id, max_load_position=max_load_position,
-                                              min_work_position=min_work_position, prefs_path=prefs_path,
+        focus_drive = setup_local_focus_drive(focus_drive_id,
+                                              max_load_position=max_load_position,
+                                              min_work_position=min_work_position,
+                                              prefs_path=prefs_path,
                                               objective_changer=objective_changer_id)
         focus_drive.z_load = 500
         if max_load_position:
@@ -755,7 +780,7 @@ def test_run_macro(prefs_path, macro_name, macro_param, expected):
 
 
 @patch("microscope_automation.zeiss.connect_zen_blue.ConnectMicroscope.save_image")
-@patch("microscope_automation.zeiss.connect_zen_blue.ConnectMicroscope.close_experiment")
+@patch("microscope_automation.zeiss.connect_zen_blue.ConnectMicroscope.close_experiment")  # noqa
 @pytest.mark.skipif(skip_all_tests, reason='Exclude all tests')
 @pytest.mark.parametrize(("prefs_path, software, experiment, file_path, "
                           "z_start, expected"),
@@ -812,7 +837,7 @@ def test_live_mode(prefs_path, software, camera_id, experiment, live, expected):
 
 
 @patch("microscope_automation.zeiss.connect_zen_blue.ConnectMicroscope.save_image")
-@patch("microscope_automation.zeiss.connect_zen_blue.ConnectMicroscope.close_experiment")
+@patch("microscope_automation.zeiss.connect_zen_blue.ConnectMicroscope.close_experiment")  # noqa
 @pytest.mark.skipif(skip_all_tests, reason='Exclude all tests')
 @pytest.mark.parametrize(("prefs_path, software, camera_id, experiment, "
                           "file_path, interactive, expected"),
@@ -859,8 +884,8 @@ def test_save_image(mock_func1, mock_func2, prefs_path, software, camera_id,
                            'Camera1 (back)', 'WellTile_10x_true.czexp', ImageAICS(),
                            False, "<class 'mock.mock.MagicMock'>"),
                           ('data/preferences_3i_test.yml', 'Slidebook Dummy',
-                           'Camera1 (back)', 'test_communication.exp.prefs', ImageAICS(),
-                           False, 'ConnectionError')])
+                           'Camera1 (back)', 'test_communication.exp.prefs',
+                           ImageAICS(), False, 'ConnectionError')])
 def test_load_image(mock_func1, prefs_path, software, camera_id,
                     experiment, image, get_meta, expected):
     microscope = setup_local_microscope(prefs_path)

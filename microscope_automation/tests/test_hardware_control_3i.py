@@ -24,11 +24,9 @@ def setup_local_microscope(prefs_path):
 
 @pytest.mark.skipif(skip_all_tests, reason='Testing disabled')
 @pytest.mark.parametrize('prefs_path, experiment, expected_path',
-                         [
-                          ('data/preferences_3i_test.yml',
+                         [('data/preferences_3i_test.yml',
                            'test_communication.exp.prefs',
-                           'data/SlideBook 6.0/test_communication.exp.prefs')
-                         ])
+                           'data/SlideBook 6.0/test_communication.exp.prefs')])
 def test_create_experiment_path(prefs_path, experiment, expected_path):
     """Test creation of experiment path"""
     microscope = setup_local_microscope(prefs_path)
@@ -38,16 +36,15 @@ def test_create_experiment_path(prefs_path, experiment, expected_path):
 
 @pytest.mark.skipif(skip_all_tests, reason='Testing disabled')
 @pytest.mark.parametrize('prefs_path',
-                         [
-                            ('data/preferences_3i_test.yml')
-                         ])
+                         [('data/preferences_3i_test.yml')])
 def test_execute_experiment(prefs_path):
     """Test sending experiment info to commands service.
     Slidebook will pull information from this service.
     """
     microscope = setup_local_microscope(prefs_path)
     image = microscope.execute_experiment()
-    # before getting information from Slidebook, there should be no information about microscope on queue
+    # before getting information from Slidebook,
+    # there should be no information about microscope on queue
     assert image.get_meta('microscope') == ''
 
     # setup information about microscope

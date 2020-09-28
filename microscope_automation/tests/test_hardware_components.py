@@ -57,8 +57,9 @@ def setup_local_camera(camera_id, pixel_size=(None, None), pixel_number=(None, N
     return camera
 
 
-def setup_local_stage(stage_id, safe_area=None, safe_position=None, objective_changer=None,
-                      prefs_path=None, default_experiment=None):
+def setup_local_stage(stage_id, safe_area=None, safe_position=None,
+                      objective_changer=None, prefs_path=None,
+                      default_experiment=None):
     """Create Stage object"""
     if prefs_path:
         microscope_object = setup_local_microscope(prefs_path)
@@ -86,15 +87,17 @@ def setup_local_autofocus(auto_focus_id, default_camera=None, obj_changer=None,
 
 
 def setup_local_focus_drive(focus_drive_id, max_load_position=0, min_work_position=10,
-                            auto_focus_id=None, objective_changer=None, prefs_path=None):
+                            auto_focus_id=None, objective_changer=None,
+                            prefs_path=None):
     """Create FocusDrive object"""
     if prefs_path:
         microscope_object = setup_local_microscope(prefs_path)
     else:
         microscope_object = None
 
-    focus_drive = h_comp.FocusDrive(focus_drive_id, max_load_position, min_work_position,
-                                    auto_focus_id, objective_changer, microscope_object)
+    focus_drive = h_comp.FocusDrive(focus_drive_id, max_load_position,
+                                    min_work_position, auto_focus_id,
+                                    objective_changer, microscope_object)
 
     return focus_drive
 
@@ -328,9 +331,9 @@ def test_get_focus_settings(name, path, prefs_path, expected):
 @pytest.mark.skipif(skip_all_tests, reason='Exclude all tests')
 @pytest.mark.parametrize('software, expected',
                          [('ZEN Blue Dummy',
-                           'microscope_automation.zeiss.connect_zen_blue.ConnectMicroscope'),
+                           'microscope_automation.zeiss.connect_zen_blue.ConnectMicroscope'),  # noqa
                           ('Slidebook Dummy',
-                           'microscope_automation.slidebook.connect_slidebook.ConnectMicroscope'),
+                           'microscope_automation.slidebook.connect_slidebook.ConnectMicroscope'),  # noqa
                           ('Invalid Name', 'AttributeError')])
 def test_connect_to_microscope_software(software, expected):
     control_software = setup_local_control_software(software)
@@ -352,11 +355,11 @@ def test_connect_to_microscope_software(software, expected):
 @pytest.mark.skipif(skip_all_tests, reason='Exclude all tests')
 @pytest.mark.parametrize('safety_id, safe_verts, safe_area_id, z_max, path_exp, z_exp',
                          [('ZSD_01_immersion',
-                           [(3270, 1870), (108400, 1870), (108400, 71200), (3270, 71200)],
-                           'StageArea', 9900,
-                           ("Path(array([[3270.,1870.],[108400.,1870.],[108400.,71200.],"
-                            "[3270.,71200.],[3270.,1870.]]),array([1,2,2,2,79],"
-                            "dtype=uint8))"), 9900),
+                           [(3270, 1870), (108400, 1870), (108400, 71200),
+                            (3270, 71200)], 'StageArea', 9900,
+                           ("Path(array([[3270.,1870.],[108400.,1870.],"
+                            "[108400.,71200.],[3270.,71200.],[3270.,1870.]]),"
+                            "array([1,2,2,2,79],dtype=uint8))"), 9900),
                           ('ZSD_01_immersion',
                            [(5400, 64300), (7400, 64300), (7400, 85100), (5400, 85100)],
                            'PumpArea', 100,
@@ -371,23 +374,24 @@ def test_add_safe_area(safety_id, safe_verts, safe_area_id, z_max, path_exp, z_e
     assert safety.safe_areas[safe_area_id]['z_max'] == z_exp and path_result == path_exp
 
 
-@pytest.mark.skipif(skip_all_tests, reason='Exclude all tests')
+@pytest.mark.skipif(skip_all_tests, reason='Exclude all tests from')
 @pytest.mark.parametrize(("safety_id, safe_verts1, safe_area_id1, z_max1, "
                           "safe_verts2, safe_area_id2, z_max2, path_exp, z_exp"),
                          [('ZSD_01_immersion',
-                           [(3270, 1870), (108400, 1870), (108400, 71200), (3270, 71200)],
-                           'StageArea', 9900, None, None, None,
-                           ("Path(array([[3270.,1870.],[108400.,1870.],[108400.,71200.],"
-                            "[3270.,71200.],[3270.,1870.]]),array([1,2,2,2,79],"
-                            "dtype=uint8))"), 9900),
+                           [(3270, 1870), (108400, 1870), (108400, 71200),
+                            (3270, 71200)], 'StageArea', 9900, None, None, None,
+                           ("Path(array([[3270.,1870.],[108400.,1870.],"
+                            "[108400.,71200.],[3270.,71200.],[3270.,1870.]]),"
+                            "array([1,2,2,2,79],dtype=uint8))"), 9900),
                           ('ZSD_01_immersion',
-                           [(3270, 1870), (108400, 1870), (108400, 71200), (3270, 71200)],
-                           'StageArea', 9900,
-                           [(5400, 64300), (7400, 64300), (7400, 85100), (5400, 85100)],
-                           'PumpArea', 100,
-                           ("Path(array([[3270.,1870.],[108400.,1870.],[108400.,71200.],"
-                            "[3270.,71200.],[3270.,1870.],[5400.,64300.],[7400.,64300.],"
-                            "[7400.,85100.],[5400.,85100.],[5400.,64300.]]),"
+                           [(3270, 1870), (108400, 1870), (108400, 71200),
+                            (3270, 71200)], 'StageArea', 9900,
+                           [(5400, 64300), (7400, 64300), (7400, 85100),
+                            (5400, 85100)], 'PumpArea', 100,
+                           ("Path(array([[3270.,1870.],[108400.,1870.],"
+                            "[108400.,71200.],[3270.,71200.],[3270.,1870.],"
+                            "[5400.,64300.],[7400.,64300.],[7400.,85100.],"
+                            "[5400.,85100.],[5400.,64300.]]),"
                             "array([1,2,2,2,79,1,2,2,2,79],dtype=uint8))"), 100)])
 def test_get_safe_area(safety_id, safe_verts1, safe_area_id1, z_max1, safe_verts2,
                        safe_area_id2, z_max2, path_exp, z_exp):
@@ -403,34 +407,38 @@ def test_get_safe_area(safety_id, safe_verts1, safe_area_id1, z_max1, safe_verts
     assert area['z_max'] == z_exp and path_result == path_exp
 
 
-@pytest.mark.skipif(skip_all_tests, reason='Exclude all tests')
+@pytest.mark.skipif(skip_all_tests, reason='Exclude all tests from')
 @pytest.mark.parametrize(("safety_id, safe_verts1, safe_area_id1, z_max1, "
                           "safe_verts2, safe_area_id2, z_max2, x, y, z, expected"),
                          [('ZSD_01_immersion',
-                           [(3270, 1870), (108400, 1870), (108400, 71200), (3270, 71200)],
-                           'StageArea', 9900, None, None, None, 1, 5000, 10, False),
+                           [(3270, 1870), (108400, 1870), (108400, 71200),
+                            (3270, 71200)], 'StageArea', 9900, None, None, None,
+                           1, 5000, 10, False),
                           ('ZSD_01_immersion',
-                           [(3270, 1870), (108400, 1870), (108400, 71200), (3270, 71200)],
-                           'StageArea', 9900, None, None, None, 6000, 5000, 10000, False),
+                           [(3270, 1870), (108400, 1870), (108400, 71200),
+                            (3270, 71200)], 'StageArea', 9900, None, None, None,
+                           6000, 5000, 10000, False),
                           ('ZSD_01_immersion',
-                           [(3270, 1870), (108400, 1870), (108400, 71200), (3270, 71200)],
-                           'StageArea', 9900, None, None, None, 3270, 1870, 5000, False),
+                           [(3270, 1870), (108400, 1870), (108400, 71200),
+                            (3270, 71200)], 'StageArea', 9900, None, None,
+                           None, 3270, 1870, 5000, False),
                           ('ZSD_01_immersion',
-                           [(3270, 1870), (108400, 1870), (108400, 71200), (3270, 71200)],
-                           'StageArea', 9900, None, None, None, 3270, 1871, 5000, True),
+                           [(3270, 1870), (108400, 1870), (108400, 71200),
+                            (3270, 71200)], 'StageArea', 9900, None, None, None,
+                           3270, 1871, 5000, True),
                           ('ZSD_01_immersion',
-                           [(3270, 1870), (108400, 1870), (108400, 71200), (3270, 71200)],
-                           'StageArea', 9900,
+                           [(3270, 1870), (108400, 1870), (108400, 71200),
+                            (3270, 71200)], 'StageArea', 9900,
                            [(5400, 64300), (7400, 64300), (7400, 85100), (5400, 85100)],
                            'PumpArea', 100, 6000, 1000, 10, False),
                           ('ZSD_01_immersion',
-                           [(3270, 1870), (108400, 1870), (108400, 71200), (3270, 71200)],
-                           'StageArea', 9900,
+                           [(3270, 1870), (108400, 1870), (108400, 71200),
+                            (3270, 71200)], 'StageArea', 9900,
                            [(5400, 64300), (7400, 64300), (7400, 85100), (5400, 85100)],
                            'PumpArea', 100, 6000, 65000, 100, False),
                           ('ZSD_01_immersion',
-                           [(3270, 1870), (108400, 1870), (108400, 71200), (3270, 71200)],
-                           'StageArea', 9900,
+                           [(3270, 1870), (108400, 1870), (108400, 71200),
+                            (3270, 71200)], 'StageArea', 9900,
                            [(5400, 64300), (7400, 64300), (7400, 85100), (5400, 85100)],
                            'PumpArea', 100, 6000, 65000, 99, True)])
 def test_is_safe_position(safety_id, safe_verts1, safe_area_id1, z_max1,
@@ -444,51 +452,47 @@ def test_is_safe_position(safety_id, safe_verts1, safe_area_id1, z_max1,
     assert safety.is_safe_position(x, y, z) == expected
 
 
-@pytest.mark.skipif(skip_all_tests, reason='Exclude all tests')
+@pytest.mark.skipif(skip_all_tests, reason='Exclude all tests from')
 @pytest.mark.parametrize(("safety_id, safe_verts1, safe_area_id1, z_max1, "
                           "safe_verts2, safe_area_id2, z_max2, xy, z, expected"),
                          [('ZSD_01_immersion',
-                           [(3270, 1870), (108400, 1870), (108400, 71200), (3270, 71200)],
-                           'StageArea', 9900, None, None, None,
+                           [(3270, 1870), (108400, 1870), (108400, 71200),
+                            (3270, 71200)], 'StageArea', 9900, None, None, None,
                            [(5000, 2000), (110000, 40000)], 10, False),
                           ('ZSD_01_immersion',
-                           [(3270, 1870), (108400, 1870), (108400, 71200), (3270, 71200)],
-                           'StageArea', 9900, None, None, None,
+                           [(3270, 1870), (108400, 1870), (108400, 71200),
+                            (3270, 71200)], 'StageArea', 9900, None, None, None,
                            [(5000, 2000), (100000, 40000)], 10000, False),
                           ('ZSD_01_immersion',
-                           [(3270, 1870), (108400, 1870), (108400, 71200), (3270, 71200)],
-                           'StageArea', 9900, None, None, None,
+                           [(3270, 1870), (108400, 1870), (108400, 71200),
+                            (3270, 71200)], 'StageArea', 9900, None, None, None,
                            [(5000, 2000), (100000, 40000)], 9000, True),
                           ('ZSD_01_immersion',
-                           [(3270, 1870), (108400, 1870), (108400, 71200), (3270, 71200)],
-                           'StageArea', 9900,
-                           [(1, 1), (2000, 1), (2000, 1000), (1, 1000)],
-                           'TestArea', 100,
-                           [(5000, 2000), (110000, 40000)], 10, False),
+                           [(3270, 1870), (108400, 1870), (108400, 71200),
+                            (3270, 71200)], 'StageArea', 9900,
+                           [(1, 1), (2000, 1), (2000, 1000), (1, 1000)], 'TestArea',
+                           100, [(5000, 2000), (110000, 40000)], 10, False),
                           ('ZSD_01_immersion',
-                           [(3270, 1870), (108400, 1870), (108400, 71200), (3270, 71200)],
-                           'StageArea', 9900,
-                           [(1, 1), (2000, 1), (2000, 1000), (1, 1000)],
-                           'TestArea', 100,
-                           [(5000, 2000), (100000, 40000)], 1000, False),
+                           [(3270, 1870), (108400, 1870), (108400, 71200),
+                            (3270, 71200)], 'StageArea', 9900,
+                           [(1, 1), (2000, 1), (2000, 1000), (1, 1000)], 'TestArea',
+                           100, [(5000, 2000), (100000, 40000)], 1000, False),
                           ('ZSD_01_immersion',
-                           [(3270, 1870), (108400, 1870), (108400, 71200), (3270, 71200)],
+                           [(3270, 1870), (108400, 1870), (108400, 71200),
+                            (3270, 71200)],
                            'StageArea', 9900,
-                           [(1, 1), (2000, 1), (2000, 1000), (1, 1000)],
-                           'TestArea', 100,
-                           [(5000, 2000), (100000, 40000)], 99, True),
+                           [(1, 1), (2000, 1), (2000, 1000), (1, 1000)], 'TestArea',
+                           100, [(5000, 2000), (100000, 40000)], 99, True),
                           ('ZSD_01_immersion',
-                           [(3270, 1870), (108400, 1870), (108400, 71200), (3270, 71200)],
-                           'StageArea', 9900,
-                           [(1, 1), (2000, 1), (2000, 1000), (1, 1000)],
-                           'TestArea', 100,
-                           [(1, 2), (2000, 999)], 99, True),
+                           [(3270, 1870), (108400, 1870), (108400, 71200),
+                            (3270, 71200)], 'StageArea', 9900,
+                           [(1, 1), (2000, 1), (2000, 1000), (1, 1000)], 'TestArea',
+                           100, [(1, 2), (2000, 999)], 99, True),
                           ('ZSD_01_immersion',
-                           [(3270, 1870), (108400, 1870), (108400, 71200), (3270, 71200)],
-                           'StageArea', 9900,
-                           [(1, 1), (2000, 1), (2000, 1000), (1, 1000)],
-                           'TestArea', 100,
-                           [(1, 1), (100000, 40000)], 99, False)])
+                           [(3270, 1870), (108400, 1870), (108400, 71200),
+                            (3270, 71200)], 'StageArea', 9900,
+                           [(1, 1), (2000, 1), (2000, 1000), (1, 1000)], 'TestArea',
+                           100, [(1, 1), (100000, 40000)], 99, False)])
 def test_is_safe_travel_path(safety_id, safe_verts1, safe_area_id1, z_max1,
                              safe_verts2, safe_area_id2, z_max2, xy, z, expected):
     safety = setup_local_safety(safety_id)
@@ -501,58 +505,55 @@ def test_is_safe_travel_path(safety_id, safe_verts1, safe_area_id1, z_max1,
     assert safety.is_safe_travel_path(path, z, verbose=False) == expected
 
 
-@pytest.mark.skipif(skip_all_tests, reason='Exclude all tests')
+@pytest.mark.skipif(skip_all_tests, reason='Exclude all tests from')
 @pytest.mark.parametrize(("safety_id, safe_verts1, safe_area_id1, z_max1, "
                           "safe_verts2, safe_area_id2, z_max2, xy, z_max_pos, "
                           "x_cur, y_cur, z_cur, x_tar, y_tar, z_tar, expected"),
                          [('ZSD_01_immersion',
-                           [(3270, 1870), (108400, 1870), (108400, 71200), (3270, 71200)],
-                           'StageArea', 9900, None, None, None,
+                           [(3270, 1870), (108400, 1870), (108400, 71200),
+                            (3270, 71200)], 'StageArea', 9900, None, None, None,
                            [(5000, 2000), (100000, 40000)], 10, 2000, 2000, 10,
                            100000, 40000, 10, False),
                           ('ZSD_01_immersion',
-                           [(3270, 1870), (108400, 1870), (108400, 71200), (3270, 71200)],
-                           'StageArea', 9900, None, None, None,
+                           [(3270, 1870), (108400, 1870), (108400, 71200),
+                            (3270, 71200)], 'StageArea', 9900, None, None, None,
                            [(5000, 2000), (100000, 40000)], 10, 5000, 2000, 10,
                            110000, 40000, 10, False),
                           ('ZSD_01_immersion',
-                           [(3270, 1870), (108400, 1870), (108400, 71200), (3270, 71200)],
-                           'StageArea', 9900, None, None, None,
+                           [(3270, 1870), (108400, 1870), (108400, 71200),
+                            (3270, 71200)], 'StageArea', 9900, None, None, None,
                            [(5000, 2000), (110000, 40000)], 10, 5000, 2000, 10,
                            100000, 40000, 10, False),
                           ('ZSD_01_immersion',
-                           [(3270, 1870), (108400, 1870), (108400, 71200), (3270, 71200)],
-                           'StageArea', 9900, None, None, None,
+                           [(3270, 1870), (108400, 1870), (108400, 71200),
+                            (3270, 71200)], 'StageArea', 9900, None, None, None,
                            [(5000, 2000), (100000, 40000)], 10, 5000, 2000, 10,
                            100000, 40000, 10, True),
                           ('ZSD_01_immersion',
-                           [(3270, 1870), (108400, 1870), (108400, 71200), (3270, 71200)],
-                           'StageArea', 9900,
+                           [(3270, 1870), (108400, 1870), (108400, 71200),
+                            (3270, 71200)], 'StageArea', 9900,
                            [(5400, 64300), (7400, 64300), (7400, 85100), (5400, 85100)],
                            'PumpArea', 100,
                            [(5000, 2000), (100000, 40000)], 100, 5000, 2000, 10,
                            100000, 40000, 10, False),
                           ('ZSD_01_immersion',
-                           [(3270, 1870), (108400, 1870), (108400, 71200), (3270, 71200)],
-                           'StageArea', 9900,
+                           [(3270, 1870), (108400, 1870), (108400, 71200),
+                            (3270, 71200)], 'StageArea', 9900,
                            [(5400, 64300), (7400, 64300), (7400, 85100), (5400, 85100)],
-                           'PumpArea', 100,
-                           [(5000, 2000), (100000, 40000)], 10, 5000, 2000, 100,
-                           100000, 40000, 10, False),
+                           'PumpArea', 100, [(5000, 2000), (100000, 40000)],
+                           10, 5000, 2000, 100, 100000, 40000, 10, False),
                           ('ZSD_01_immersion',
-                           [(3270, 1870), (108400, 1870), (108400, 71200), (3270, 71200)],
-                           'StageArea', 9900,
+                           [(3270, 1870), (108400, 1870), (108400, 71200),
+                            (3270, 71200)], 'StageArea', 9900,
                            [(5400, 64300), (7400, 64300), (7400, 85100), (5400, 85100)],
-                           'PumpArea', 100,
-                           [(5000, 2000), (100000, 40000)], 10, 5000, 2000, 10,
-                           100000, 40000, 100, False),
+                           'PumpArea', 100, [(5000, 2000), (100000, 40000)],
+                           10, 5000, 2000, 10, 100000, 40000, 100, False),
                           ('ZSD_01_immersion',
-                           [(3270, 1870), (108400, 1870), (108400, 71200), (3270, 71200)],
-                           'StageArea', 9900,
+                           [(3270, 1870), (108400, 1870), (108400, 71200),
+                            (3270, 71200)], 'StageArea', 9900,
                            [(5400, 64300), (7400, 64300), (7400, 85100), (5400, 85100)],
-                           'PumpArea', 100,
-                           [(5000, 2000), (100000, 40000)], 99, 5000, 2000, 99,
-                           100000, 40000, 10, True)])
+                           'PumpArea', 100, [(5000, 2000), (100000, 40000)],
+                           99, 5000, 2000, 99, 100000, 40000, 10, True)])
 def test_is_safe_move_from_to(safety_id, safe_verts1, safe_area_id1, z_max1,
                               safe_verts2, safe_area_id2, z_max2, xy, z_max_pos,
                               x_cur, y_cur, z_cur, x_tar, y_tar, z_tar, expected):
@@ -570,25 +571,26 @@ def test_is_safe_move_from_to(safety_id, safe_verts1, safe_area_id1, z_max1,
 
 
 @patch("matplotlib.pyplot.show")
-@pytest.mark.skipif(skip_all_tests, reason='Exclude all tests')
+@pytest.mark.skipif(skip_all_tests, reason='Exclude all tests from')
 @pytest.mark.parametrize(("safety_id, safe_verts1, safe_area_id1, z_max1, "
                           "safe_verts2, safe_area_id2, z_max2, xy, point"),
                          [('ZSD_01_immersion',
-                           [(3270, 1870), (108400, 1870), (108400, 71200), (3270, 71200)],
-                           'StageArea', 9900, None, None, None, None, None),
+                           [(3270, 1870), (108400, 1870), (108400, 71200),
+                            (3270, 71200)], 'StageArea', 9900, None, None,
+                           None, None, None),
                           ('ZSD_01_immersion',
-                           [(3270, 1870), (108400, 1870), (108400, 71200), (3270, 71200)],
-                           'StageArea', 9900,
+                           [(3270, 1870), (108400, 1870), (108400, 71200),
+                            (3270, 71200)], 'StageArea', 9900,
                            [(5400, 64300), (7400, 64300), (7400, 85100), (5400, 85100)],
                            'PumpArea', 100, None, None),
                           ('ZSD_01_immersion',
-                           [(3270, 1870), (108400, 1870), (108400, 71200), (3270, 71200)],
-                           'StageArea', 9900,
+                           [(3270, 1870), (108400, 1870), (108400, 71200),
+                            (3270, 71200)], 'StageArea', 9900,
                            [(5400, 64300), (7400, 64300), (7400, 85100), (5400, 85100)],
                            'PumpArea', 100, None, (10000, 65000)),
                           ('ZSD_01_immersion',
-                           [(3270, 1870), (108400, 1870), (108400, 71200), (3270, 71200)],
-                           'StageArea', 9900,
+                           [(3270, 1870), (108400, 1870), (108400, 71200),
+                            (3270, 71200)], 'StageArea', 9900,
                            [(5400, 64300), (7400, 64300), (7400, 85100), (5400, 85100)],
                            'PumpArea', 100,
                            [(5000, 2000), (100000, 40000)], None)])
@@ -630,7 +632,7 @@ def test_show_safe_areas(mock_show, safety_id, safe_verts1, safe_area_id1, z_max
                             'aics_PixelType': None,
                             'aics_cameraID': 'Camera2 (Left)',
                             'aics_PhysicalSizeYUnit': 'mum', 'aics_Type': 'generic'}),
-                          ('Camera1 (Back)', (6.5, 6.5), (2048/2, 2048/2),
+                          ('Camera1 (Back)', (6.5, 6.5), (2048 / 2, 2048 / 2),
                            numpy.int32, 'Orca Flash 4.0V2', 'sCMOS',
                            'Hamamatsu', None, False,
                            {'aics_Manufacturer': 'Hamamatsu',
@@ -700,7 +702,8 @@ def test_snap_image(camera_id, software, experiment_name, meta_expect):
                            'test_experiment', False, 'HardwareCommandNotDefinedError'),
                           ('Camera1 (Back)', 'Slidebook Dummy',
                            'test_experiment', True, 'HardwareCommandNotDefinedError')])
-def test_live_mode_start_stop(camera_id, software, experiment_name, orig_mode, exp_mode):
+def test_live_mode_start_stop(camera_id, software, experiment_name, orig_mode,
+                              exp_mode):
     control_software = setup_local_control_software(software)
     camera = setup_local_camera(camera_id)
     camera.live_mode_on = orig_mode
@@ -758,7 +761,8 @@ def test_initialize_stage(stage_id, software, safe_area, safe_position,
 @pytest.mark.skipif(skip_all_tests, reason='Exclude all tests')
 @pytest.mark.parametrize(("stage_id, software, expected"),
                          [('Marzhauser', 'ZEN Blue Dummy',
-                           {'centricity_corrected': (None, None), 'absolute': (60000, 40000)})])
+                           {'centricity_corrected': (None, None),
+                            'absolute': (60000, 40000)})])
 def test_get_information_stage(stage_id, software, expected):
     control_software = setup_local_control_software(software)
     stage = setup_local_stage(stage_id)
@@ -928,7 +932,7 @@ def test_move_to_position_stage(stage_id, software, x, y, test, expected):
                            'Plan-Apochromat 10x/0.45',
                            'data/preferences_ZSD_test.yml',
                            ['set_reference'], 'Plate', None,
-                           # should be HardwareDoesNotExistError once samples API is done
+                           # will be HardwareDoesNotExistError once samples API is done
                            'HardwareCommandNotDefinedError'),
                          ('6xMotorizedNosepiece', 'ZEN Blue Dummy', 6,
                           {'Plan-Apochromat 10x/0.45':
@@ -961,7 +965,7 @@ def test_move_to_position_stage(stage_id, software, x, y, test, expected):
                           'Plan-Apochromat 10x/0.45',
                           'data/preferences_ZSD_test.yml',
                           ['set_reference'], 'Plate', 'test',
-                          # should be AttributeError once samples API is done
+                          # will be AttributeError once samples API is done
                           'HardwareCommandNotDefinedError'),
                          ('6xMotorizedNosepiece', 'ZEN Blue Dummy', 6,
                           {'Plan-Apochromat 10x/0.45':
@@ -994,7 +998,7 @@ def test_move_to_position_stage(stage_id, software, x, y, test, expected):
                           'Plan-Apochromat 10x/0.45',
                           'data/preferences_ZSD_test.yml',
                           ['set_reference'], 'PlateHolder', 'test',
-                          # should be HardwareDoesNotExistError once samples API is done
+                          # will be HardwareDoesNotExistError once samples API is done
                           'HardwareCommandNotDefinedError')])
 def test_initialize_obj_changer(objective_changer_id, software, positions,
                                 objectives, ref_obj_changer, prefs_path,
@@ -1025,7 +1029,7 @@ def test_initialize_obj_changer(objective_changer_id, software, positions,
     try:
         obj_changer.initialize(control_software.connection, action_list,
                                ref_object_id, verbose=False)
-        # TODO: create focus drive and check against reference position for complete test
+        # TODO: create focus drive and check reference position for complete test
         # result = ref_object.get_reference_position()
         result = True
     except Exception as err:
@@ -1201,7 +1205,8 @@ def test_update_objective_offset(objective_changer_id, software, positions, obje
 
     try:
         result = obj_changer.update_objective_offset(control_software.connection,
-                                                     x_off, y_off, z_off, objective_name)
+                                                     x_off, y_off, z_off,
+                                                     objective_name)
     except Exception as err:
         result = type(err).__name__
 
@@ -1224,8 +1229,9 @@ def test_change_magnification(objective_changer_id, software, positions,
 
     # TODO: add tests where use_safe_position = True
     try:
-        result = obj_changer.change_magnification(control_software.connection, magnification,
-                                                  sample_obj, use_safe_position, verbose=False,
+        result = obj_changer.change_magnification(control_software.connection,
+                                                  magnification, sample_obj,
+                                                  use_safe_position, verbose=False,
                                                   load=False)
     except Exception as err:
         result = type(err).__name__
@@ -1282,7 +1288,8 @@ def test_initialize_focus_drive(focus_id, software, max_load_position,
                                 prefs_path, action_list, expected):
     control_software = setup_local_control_software(software)
     focus_drive = setup_local_focus_drive(focus_id, max_load_position,
-                                          min_work_position, auto_focus_id, obj_changer_id)
+                                          min_work_position, auto_focus_id,
+                                          obj_changer_id)
 
     try:
         focus_drive.initialize(control_software.connection,
@@ -1558,7 +1565,8 @@ def test_initialize_autofocus(auto_focus_id, software, obj_changer_id,
         autofocus.microscope_object.add_microscope_object(camera)
 
     try:
-        result = autofocus.initialize(control_software.connection, action_list=action_list)
+        result = autofocus.initialize(control_software.connection,
+                                      action_list=action_list)
     except Exception as err:
         result = type(err).__name__
 
@@ -1738,7 +1746,7 @@ def test_recall_focus(auto_focus_id, obj_changer_id, software, positions,
     #                             microscope_object=microscope_object)
 
     try:
-        control_software.connection.Zen.Acquisition._microscope_status.objective_name = obj_name
+        control_software.connection.Zen.Acquisition._microscope_status.objective_name = obj_name  # noqa
         control_software.connection.DFObjective = df_objective
         result = autofocus.recall_focus(control_software.connection, ref_object_id)
     except Exception as err:

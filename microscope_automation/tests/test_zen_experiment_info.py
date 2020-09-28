@@ -1,10 +1,9 @@
 import pytest
 import pathlib
 import os
-os.chdir(os.path.dirname(__file__))
-
 from microscope_automation.zeiss.zen_experiment_info import ZenExperiment
 
+os.chdir(os.path.dirname(__file__))
 
 experiment_name = 'WellTile_10x.czexp'
 

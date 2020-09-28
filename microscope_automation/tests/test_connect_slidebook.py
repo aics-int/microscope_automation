@@ -113,7 +113,8 @@ def test_save_image(connection_object):
 @pytest.mark.skipif(skip_all_functions, reason='Testing disabled')
 @pytest.mark.parametrize('get_meta_data', [True, False])
 @pytest.mark.parametrize('provide_imageAICS', [True, False])
-def test_load_image(connection_object, image, meta_data, get_meta_data, provide_imageAICS):
+def test_load_image(connection_object, image, meta_data, get_meta_data,
+                    provide_imageAICS):
     """Return image from data service"""
     # Load image to data service
     bytestream = image.tobytes()
@@ -125,7 +126,8 @@ def test_load_image(connection_object, image, meta_data, get_meta_data, provide_
     data_id = response.json()['data_id']
 
     # send image to data_id
-    response = requests.post(connection_object.data_url + '/binary/' + data_id, data=bytestream)
+    response = requests.post(connection_object.data_url + '/binary/' + data_id,
+                             data=bytestream)
     assert response.status_code == 200
 
     # load image into Automation Software
@@ -133,7 +135,8 @@ def test_load_image(connection_object, image, meta_data, get_meta_data, provide_
         aics_image = ImageAICS(meta={'aics_experiment': experiment})
     else:
         aics_image = None
-    return_image = connection_object.load_image(image=aics_image, get_meta_data=get_meta_data)
+    return_image = connection_object.load_image(image=aics_image,
+                                                get_meta_data=get_meta_data)
     assert np.array_equal(return_image.data, image)
 
 
@@ -160,14 +163,18 @@ def test_experiment_queue(connection_object, experiment):
     # Retrieve experiments and remove from queue
     for i in range(4):
         next_experiment = connection_object.get_next_experiment()
-        experiment_by_id = connection_object.get_experiment(next_experiment['experiment_id'])
+        experiment_by_id = connection_object.get_experiment(
+            next_experiment['experiment_id'])
         assert next_experiment == experiment_by_id
-        remaining_experiments_1 = connection_object.delete_experiment(next_experiment['experiment_id'])
-        remaining_experiments_2 = connection_object.delete_experiment(next_experiment['experiment_id'])
+        remaining_experiments_1 = connection_object.delete_experiment(
+            next_experiment['experiment_id'])
+        remaining_experiments_2 = connection_object.delete_experiment(
+            next_experiment['experiment_id'])
         assert remaining_experiments_1 == remaining_experiments_2
         response = connection_object.count_experiments()
         assert response == max(0, 3 - i)
-        experiment_by_id = connection_object.get_experiment(next_experiment['experiment_id'])
+        experiment_by_id = connection_object.get_experiment(
+            next_experiment['experiment_id'])
         assert experiment_by_id == {}
 
 
@@ -182,8 +189,9 @@ def test_snap_image(connection_object):
 @pytest.mark.skipif(skip_all_functions, reason='Testing disabled')
 def test_execute_experiment(connection_object):
     """Acuqire image without moving stage"""
-    success = connection_object.execute_experiment(capture_settings='test_communication',
-                                                   locations=[(100, 100, 100), (200, 200, 200)])
+    success = connection_object.execute_experiment(
+        capture_settings='test_communication', locations=[(100, 100, 100),
+                                                          (200, 200, 200)])
     assert success
 
 

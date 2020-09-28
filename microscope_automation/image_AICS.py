@@ -1,5 +1,6 @@
 '''
-Module with class ImageAICS to wrap image  data as numpy arrays and meta data as dictionaries.
+Module with class ImageAICS to wrap image data
+as numpy arrays and meta data as dictionaries.
 Add display methods
 Created on Jul 11, 2016
 

@@ -14,6 +14,7 @@ module_logger = logging.getLogger('microscopeAutomation')
 
 class Preferences:
     '''Reads configuration files and will return Values'''
+
     def __init__(self, pref_path=None, pref_dict=None, parent_prefs=None):
         ''''Creates preferences object from .yml preferences file or dictionary.
         Choose pref_path or pref_dict.
@@ -23,7 +24,8 @@ class Preferences:
 
          pref_dict: dictionary with preferences (Default = None)
 
-         parent_prefs: Preferences object that was source for pref_dict. This will allow access to global preferences, even working with local subset.
+         parent_prefs: Preferences object that was source for pref_dict.
+         This will allow access to global preferences, even working with local subset.
 
         Output:
          Object of class preferences
@@ -34,7 +36,8 @@ class Preferences:
         # check for valid input
         # We should add checking for valid filename etc.
         # Check that either one field is None or the other is None, not both (xor)
-        assert (pref_path is None) ^ (pref_dict is None), 'One and only one preference option must be specified'
+        assert (pref_path is None) ^ (pref_dict is None), \
+            'One and only one preference option must be specified'
 
         if pref_path is not None:
             self.logger.info('read preferences from ' + pref_path)
@@ -53,28 +56,29 @@ class Preferences:
         self.logger.info('add parent preferences set')
         self.parent_prefs = parent_prefs
 
-
     def printPrefs(self):
         print(self.prefs)
 
     def getparent_prefs(self):
-        '''preferences objects that are created from a subset of preferences, keep a reference to the original preferences set.
+        '''preferences objects that are created from a subset of preferences,
+        keep a reference to the original preferences set.
 
         Input:
          none
 
         Output:
-         parent_prefs: Object of class preferences of preferences that where source for current subset of preferences.
+         parent_prefs: Object of class preferences of preferences that
+         were source for current subset of preferences.
         '''
         return self.parent_prefs
 
-    def get_pref(self, name, validValues = None):
+    def get_pref(self, name, valid_values=None):
         '''Return value for key 'name' in preferences.
 
         Input:
          name: string with key name
 
-         validValues: list with allowed values. Throw exception if value is not valid.
+         valid_values: list with allowed values. Throw exception if value is not valid.
          Default: do not check.
 
         Output:
@@ -89,13 +93,13 @@ class Preferences:
                 return parentPref
             print('Key ', name, ' is not defined and there are no parent preferences')
 
-        if validValues is not None:
+        if valid_values is not None:
             if isinstance(pref, list):
-                while not (set(pref) < set(validValues)):
-                    pref = [pull_down_select_dialog(validValues, "Please select valid value for preference key {},\ninstead of {}\nor exit program by pressing 'Cancel'.".format(name, pref))]
+                while not (set(pref) < set(valid_values)):
+                    pref = [pull_down_select_dialog(valid_values, "Please select valid value for preference key {},\ninstead of {}\nor exit program by pressing 'Cancel'.".format(name, pref))]  # noqa
             else:
-                while pref not in validValues:
-                    pref = pull_down_select_dialog(validValues, "Please select valid value for preference key {},\ninstead of {}\nor exit program by pressing 'Cancel'.".format(name, pref))
+                while pref not in valid_values:
+                    pref = pull_down_select_dialog(valid_values, "Please select valid value for preference key {},\ninstead of {}\nor exit program by pressing 'Cancel'.".format(name, pref))  # noqa
         return pref
 
     def get_pref_as_meta(self, name):
@@ -119,9 +123,10 @@ class Preferences:
 
     # TODO: Add capacity to save preferences
 
+
 if __name__ == '__main__':
-    pref_path='../GeneralSettings/preferences.yml'
-    meta=Preferences(pref_path)
+    pref_path = '../GeneralSettings/preferences.yml'
+    meta = Preferences(pref_path)
     print(meta.get_pref('PathMicroscopeSpecs'))
     print(meta.get_pref('ExperimentsScanBackground'))
 
@@ -129,6 +134,6 @@ if __name__ == '__main__':
     print(metaObject.get_pref('Execute'))
     print(metaObject.getparent_prefs())
     print(metaObject.get_pref('PathDailyFolder'))
-    print(metaObject.get_pref('Tile', validValues = ['None', 'Fixed', 'Size']))
-    print(metaObject.get_pref('Tile', validValues = ['ThrowError']))
+    print(metaObject.get_pref('Tile', valid_values=['None', 'Fixed', 'Size']))
+    print(metaObject.get_pref('Tile', valid_values=['ThrowError']))
     print('Done')

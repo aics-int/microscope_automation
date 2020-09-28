@@ -1,14 +1,15 @@
 import pytest
 import pathlib
 import os
-from microscope_automation.slidebook.slidebook_experiment_info import SlidebookExperiment
+from microscope_automation.slidebook.slidebook_experiment_info import SlidebookExperiment  # noqa
 
 experiment_name = 'test_communication.exp.prefs'
 
 
 @pytest.fixture()
 def experiment_path():
-    exp = os.path.join(os.path.dirname(os.path.realpath(__file__)),'data',experiment_name)
+    exp = os.path.join(os.path.dirname(os.path.realpath(__file__)),
+                       'data', experiment_name)
     return str(exp)
 
 
