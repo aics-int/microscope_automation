@@ -3,7 +3,7 @@ import pathlib
 import os
 from microscope_automation.slidebook.slidebook_experiment_info import (
     SlidebookExperiment,
-)  # noqa
+)
 
 experiment_name = "test_communication.exp.prefs"
 

@@ -85,10 +85,8 @@ class HardwareError(AutomationError):
 
     def error_dialog(self):
         """Show error message to user.
-
         Input:
          none
-
         Output:
          none
         """
@@ -108,10 +106,8 @@ class HardwareDoesNotExistError(HardwareError):
 
     def error_dialog(self, advice=""):
         """Show error message to user.
-
         Input:
          none
-
         Output:
          none
         """
@@ -132,7 +128,6 @@ class CrashDangerError(AutomationError):
 
         Input:
          advice: str with advice to user of how to avoid crash.
-
         Output:
          none
         """
@@ -151,7 +146,6 @@ class HardwareNotReadyError(AutomationError):
 
         Input:
          advice: str with advice to user of how to avoid crash.
-
         Output:
          none
         """
@@ -195,6 +189,7 @@ class AutofocusError(HardwareError):
 
     def __init__(self, message=None, error_component=None, focus_reference_obj_id=None):
         """Raise autofocus exception.
+
         Input:
          message: error message
 
@@ -238,7 +233,6 @@ class AutofocusError(HardwareError):
 
         Input:
          focus_reference_obj_id: Sample object used as reference for autofocus
-
         Output:
          None
         """
@@ -296,7 +290,6 @@ class AutofocusNotSetError(AutofocusError):
 
     Input:
      focus_reference_obj_id: Sample object used as reference for autofocus
-
      message: Test to display as error message
     """
 
@@ -536,7 +529,7 @@ class StopCollectingError(AutomationError):
 
         Input:
          none
-
+        
         Output:
          none
         """

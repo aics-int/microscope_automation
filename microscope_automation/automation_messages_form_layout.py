@@ -140,7 +140,7 @@ def operate_message(message, returnCode=False):
 
     Input:
      message: Message that will be displayed
-     
+
      returnCode: if True, will return after cancel with code 0,
      otherwise will call sys.exit()
 
