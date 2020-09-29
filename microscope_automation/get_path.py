@@ -1,15 +1,16 @@
-'''
+"""
 Collection of functions to return path for settings, logfile, and data
 Created on Aug 8, 2016
 
 @author: winfriedw
-'''
+"""
 # import Python modules
 import datetime
 import time
 from datetime import date
 import os
 from pathlib import Path
+
 # import modules that are part of package MicroscopeAutomation
 # module to read preference files
 from .preferences import Preferences
@@ -28,7 +29,7 @@ def add_suffix(filePath, suffix):
      newFilePath: filePath with suffix
     """
     split_path = os.path.splitext(filePath)
-    newFilePath = split_path[0] + '_' + suffix + split_path[1]
+    newFilePath = split_path[0] + "_" + suffix + split_path[1]
     return newFilePath
 
 
@@ -64,10 +65,10 @@ def get_valid_path_from_prefs(prefs, key, search_dir=True, validate=False):
         else:
             raise ValueError("No valid path found in preferences for key: " + key)
 
-    return_path = ''
+    return_path = ""
     for path in path_list:
         # For Zen Black implementation, there is no experiment path, hence left as "NA"
-        if path == 'NA':
+        if path == "NA":
             return path
         if os.path.exists(path):
             if search_dir:
@@ -81,8 +82,9 @@ def get_valid_path_from_prefs(prefs, key, search_dir=True, validate=False):
     assert len(return_path), "No valid path found in preferences for key: " + key
     return return_path
     if validate:
-        assert return_path is not None, \
+        assert return_path is not None, (
             "No valid path found in preferences for key: " + key
+        )
     return return_path
 
 
@@ -120,19 +122,19 @@ def get_daily_folder(prefs, barcode=None):
     # Add the microscope name level in the folder structure to
     # make it more aligned with pipeline & FMS standard
     try:
-        microscope_name = prefs.get_pref('Info')['System']
+        microscope_name = prefs.get_pref("Info")["System"]
     except KeyError:
         microscope_name = "000"
     if barcode is None:
         # get today's date and construct folder name
         today = date.today()
-        folderName = str(today.year) + '_' + str(today.month) + '_' + str(today.day)
+        folderName = str(today.year) + "_" + str(today.month) + "_" + str(today.day)
     else:
         folderName = str(barcode)
 
     # find path to daily folder. Should reside in settings file.
     # read list with possible paths for daily folder from preferences.yml
-    dailyFolder = get_valid_path_from_prefs(prefs, 'PathDailyFolder')
+    dailyFolder = get_valid_path_from_prefs(prefs, "PathDailyFolder")
     dailyPath = os.path.normpath(os.path.join(dailyFolder, folderName, microscope_name))
 
     # test if folder exists, if not, create folder
@@ -155,9 +157,9 @@ def get_position_csv_path(prefs):
     """
     # 1. To store the list of positions in the format specific
     # to Zen Blue software for 100X imaging.
-    filename_pos = Path(prefs.get_pref('PositionCsv'))
-    filename_wellid = Path(filename_pos.stem + '_wellid.csv')
-    filename_failed = Path('failed_wells.csv')
+    filename_pos = Path(prefs.get_pref("PositionCsv"))
+    filename_wellid = Path(filename_pos.stem + "_wellid.csv")
+    filename_failed = Path("failed_wells.csv")
     position_csv_path = daily_folder_path / filename_pos
     failed_csv_path = daily_folder_path / filename_failed
     # 2. To store positions and respective well IDs
@@ -177,8 +179,8 @@ def get_log_file_path(prefs):
     """
     # get today's date and construct folder name
     today = date.today()
-    file_name = str(today.year) + '_' + str(today.month) + '_' + str(today.day) + '.log'
-    log_file_folder = get_valid_path_from_prefs(prefs, 'LogFilePath', search_dir=True)
+    file_name = str(today.year) + "_" + str(today.month) + "_" + str(today.day) + ".log"
+    log_file_folder = get_valid_path_from_prefs(prefs, "LogFilePath", search_dir=True)
     log_file_path = os.path.normpath(os.path.join(log_file_folder, file_name))
 
     # test if folder exists, if not, create folder
@@ -196,8 +198,9 @@ def get_meta_data_path(prefs):
     Output:
      meta_data_file: path to log file
     """
-    meta_data_file = os.path.normpath(os.path.join(
-        daily_folder_path, prefs.get_pref('MetaDataPath')))
+    meta_data_file = os.path.normpath(
+        os.path.join(daily_folder_path, prefs.get_pref("MetaDataPath"))
+    )
     folder_path = os.path.dirname(meta_data_file)
     # test if folder exists, if not, create folder
     if not os.path.isdir(folder_path):
@@ -217,17 +220,19 @@ def get_experiment_path(prefs, dir=False):
     Output:
      experiment_path: path to experiment
     """
-    experiment_dir_path = get_valid_path_from_prefs(prefs, 'PathExperiments',
-                                                    search_dir=True, validate=False)
+    experiment_dir_path = get_valid_path_from_prefs(
+        prefs, "PathExperiments", search_dir=True, validate=False
+    )
     # For Zen Black implementation, there is no experiment path, hence left as "NA"
-    if experiment_dir_path == 'NA':
+    if experiment_dir_path == "NA":
         return experiment_dir_path
     if dir:
         experiment_path = os.path.normpath(experiment_dir_path)
     else:
-        experiment_name = prefs.get_pref('Experiment')
-        experiment_path = os.path.normpath(os.path.join(experiment_dir_path,
-                                                        experiment_name))
+        experiment_name = prefs.get_pref("Experiment")
+        experiment_path = os.path.normpath(
+            os.path.join(experiment_dir_path, experiment_name)
+        )
 
     return experiment_path
 
@@ -255,11 +260,13 @@ def get_recovery_settings_path(prefs):
      file_path: path to recovery settings
     """
     time_stamp = time.time()
-    formatted_time_stamp = datetime.datetime.fromtimestamp(
-        time_stamp).strftime('%Y-%m-%d_%H-%M-%S')
-    filename = 'Plate_' + formatted_time_stamp + '.pickle'
-    file_dir = get_valid_path_from_prefs(prefs, 'RecoverySettingsFilePath',
-                                         search_dir=True)
+    formatted_time_stamp = datetime.datetime.fromtimestamp(time_stamp).strftime(
+        "%Y-%m-%d_%H-%M-%S"
+    )
+    filename = "Plate_" + formatted_time_stamp + ".pickle"
+    file_dir = get_valid_path_from_prefs(
+        prefs, "RecoverySettingsFilePath", search_dir=True
+    )
     file_path = os.path.normpath(os.path.join(file_dir, filename))
     return file_path
 
@@ -273,9 +280,9 @@ def get_colony_dir_path(prefs):
     Output:
      colonyDir: path to log file
     """
-    colony_dir_path = prefs.get_pref('colony_dir_path')
+    colony_dir_path = prefs.get_pref("colony_dir_path")
     if colony_dir_path is None:
-        colony_dir_path = ''
+        colony_dir_path = ""
 
     folderPath = os.path.normpath(os.path.join(daily_folder_path, colony_dir_path))
     # test if folder exists, if not, create folder
@@ -295,10 +302,11 @@ def get_colony_remote_dir_path(prefs):
     Output:
      colonyRemoteDir: path to log file
     """
-    colony_dir_path = get_valid_path_from_prefs(prefs, 'ColonyFileFolder',
-                                                search_dir=True)
+    colony_dir_path = get_valid_path_from_prefs(
+        prefs, "ColonyFileFolder", search_dir=True
+    )
     if colony_dir_path is None:
-        colony_dir_path = ''
+        colony_dir_path = ""
     # return os.path.normpath(os.path.join (get_daily_folder(prefs), colony_dir_path))
     return colony_dir_path
 
@@ -329,8 +337,9 @@ def get_hardware_settings_path(prefs):
     Output:
      hardwarePath: path to layout file
     """
-    return get_valid_path_from_prefs(prefs, 'PathMicroscopeSpecs',
-                                     search_dir=False, validate=True)
+    return get_valid_path_from_prefs(
+        prefs, "PathMicroscopeSpecs", search_dir=False, validate=True
+    )
 
 
 def get_references_path(prefs):
@@ -342,8 +351,9 @@ def get_references_path(prefs):
     Output:
      references_path: path to directory for reference images for specific well
     """
-    references_path = os.path.normpath(os.path.join(
-        daily_folder_path, prefs.get_pref('ReferenceDirPath')))
+    references_path = os.path.normpath(
+        os.path.join(daily_folder_path, prefs.get_pref("ReferenceDirPath"))
+    )
     # create directory if not existent
     if not os.path.isdir(references_path):
         os.makedirs(references_path)
@@ -379,13 +389,13 @@ def get_calibration_path(prefs):
     Output:
      calibration_path: path to calibration directory
     """
-    calibration_path = get_valid_path_from_prefs(prefs,
-                                                 key='PathCalibration',
-                                                 search_dir=True)
+    calibration_path = get_valid_path_from_prefs(
+        prefs, key="PathCalibration", search_dir=True
+    )
     return calibration_path
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     prefs_path = get_prefs_path()
     print(prefs_path)
     prefs = Preferences(prefs_path)
@@ -398,4 +408,4 @@ if __name__ == '__main__':
     print(get_references_path(prefs))
     images_path = get_images_path(prefs)
     print(images_path)
-    print(add_suffix(images_path + 'image.czi', suffix='top'))
+    print(add_suffix(images_path + "image.czi", suffix="top"))

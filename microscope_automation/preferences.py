@@ -1,22 +1,22 @@
-'''
+"""
 Created on Jun 7, 2016
 Part of microscopeAutomation
 Will read and return values for different configuration files
 
 @author: winfriedw
-'''
+"""
 import yaml
 import logging
 
 # create logger
-module_logger = logging.getLogger('microscopeAutomation')
+module_logger = logging.getLogger("microscopeAutomation")
 
 
 class Preferences:
-    '''Reads configuration files and will return Values'''
+    """Reads configuration files and will return Values"""
 
     def __init__(self, pref_path=None, pref_dict=None, parent_prefs=None):
-        ''''Creates preferences object from .yml preferences file or dictionary.
+        """Creates preferences object from .yml preferences file or dictionary.
         Choose pref_path or pref_dict.
 
         Input:
@@ -29,38 +29,39 @@ class Preferences:
 
         Output:
          Object of class preferences
-        '''
+        """
         # setup logging
-        self.logger = logging.getLogger('microscopeAutomation.MetaData.preferences')
+        self.logger = logging.getLogger("microscopeAutomation.MetaData.preferences")
 
         # check for valid input
         # We should add checking for valid filename etc.
         # Check that either one field is None or the other is None, not both (xor)
-        assert (pref_path is None) ^ (pref_dict is None), \
-            'One and only one preference option must be specified'
+        assert (pref_path is None) ^ (
+            pref_dict is None
+        ), "One and only one preference option must be specified"
 
         if pref_path is not None:
-            self.logger.info('read preferences from ' + pref_path)
+            self.logger.info("read preferences from " + pref_path)
 
-            with open(pref_path, 'r') as prefsFile:
+            with open(pref_path, "r") as prefsFile:
                 self.prefs = yaml.load(prefsFile, Loader=yaml.FullLoader)
-                print('\nRead preferences from {}\n'.format(pref_path))
-                prefs_info = self.prefs['Info']
+                print("\nRead preferences from {}\n".format(pref_path))
+                prefs_info = self.prefs["Info"]
                 for key, value in prefs_info.items():
-                    print('{}:\t{}'.format(key, value))
+                    print("{}:\t{}".format(key, value))
 
         if pref_dict is not None:
-            self.logger.info('read preferences from dictionary')
+            self.logger.info("read preferences from dictionary")
             self.prefs = pref_dict
 
-        self.logger.info('add parent preferences set')
+        self.logger.info("add parent preferences set")
         self.parent_prefs = parent_prefs
 
     def printPrefs(self):
         print(self.prefs)
 
     def getparent_prefs(self):
-        '''preferences objects that are created from a subset of preferences,
+        """preferences objects that are created from a subset of preferences,
         keep a reference to the original preferences set.
 
         Input:
@@ -69,11 +70,11 @@ class Preferences:
         Output:
          parent_prefs: Object of class preferences of preferences that
          were source for current subset of preferences.
-        '''
+        """
         return self.parent_prefs
 
     def get_pref(self, name, valid_values=None):
-        '''Return value for key 'name' in preferences.
+        """Return value for key 'name' in preferences.
 
         Input:
          name: string with key name
@@ -83,7 +84,7 @@ class Preferences:
 
         Output:
          pref: value for key 'name' in preferences
-        '''
+        """
         from .automation_messages_form_layout import pull_down_select_dialog
 
         pref = self.prefs.get(name)
@@ -91,26 +92,38 @@ class Preferences:
             parentPref = self.parent_prefs.get_pref(name)
             if parentPref is not None:
                 return parentPref
-            print('Key ', name, ' is not defined and there are no parent preferences')
+            print("Key ", name, " is not defined and there are no parent preferences")
 
         if valid_values is not None:
             if isinstance(pref, list):
                 while not (set(pref) < set(valid_values)):
-                    pref = [pull_down_select_dialog(valid_values, "Please select valid value for preference key {},\ninstead of {}\nor exit program by pressing 'Cancel'.".format(name, pref))]  # noqa
+                    pref = [
+                        pull_down_select_dialog(
+                            valid_values,
+                            "Please select valid value for preference key {},\ninstead of {}\nor exit program by pressing 'Cancel'.".format(  # noqa
+                                name, pref
+                            ),
+                        )
+                    ]
             else:
                 while pref not in valid_values:
-                    pref = pull_down_select_dialog(valid_values, "Please select valid value for preference key {},\ninstead of {}\nor exit program by pressing 'Cancel'.".format(name, pref))  # noqa
+                    pref = pull_down_select_dialog(
+                        valid_values,
+                        "Please select valid value for preference key {},\ninstead of {}\nor exit program by pressing 'Cancel'.".format(  # noqa
+                            name, pref
+                        ),
+                    )  # noqa
         return pref
 
     def get_pref_as_meta(self, name):
-        '''Return subset of preferences as preferences object.
+        """Return subset of preferences as preferences object.
 
         Input:
          name: name of meta data dictionary
 
         Output:
          prefsObject: preferences dictionary as preferences object
-        '''
+        """
         # To return dictionaries as object will help later
         # if we want to implement some pre-processing and error checking of meta data.
         if self.get_pref(name):
@@ -124,16 +137,16 @@ class Preferences:
     # TODO: Add capacity to save preferences
 
 
-if __name__ == '__main__':
-    pref_path = '../GeneralSettings/preferences.yml'
+if __name__ == "__main__":
+    pref_path = "../GeneralSettings/preferences.yml"
     meta = Preferences(pref_path)
-    print(meta.get_pref('PathMicroscopeSpecs'))
-    print(meta.get_pref('ExperimentsScanBackground'))
+    print(meta.get_pref("PathMicroscopeSpecs"))
+    print(meta.get_pref("ExperimentsScanBackground"))
 
-    metaObject = meta.get_pref_as_meta('ScanColonies')
-    print(metaObject.get_pref('Execute'))
+    metaObject = meta.get_pref_as_meta("ScanColonies")
+    print(metaObject.get_pref("Execute"))
     print(metaObject.getparent_prefs())
-    print(metaObject.get_pref('PathDailyFolder'))
-    print(metaObject.get_pref('Tile', valid_values=['None', 'Fixed', 'Size']))
-    print(metaObject.get_pref('Tile', valid_values=['ThrowError']))
-    print('Done')
+    print(metaObject.get_pref("PathDailyFolder"))
+    print(metaObject.get_pref("Tile", valid_values=["None", "Fixed", "Size"]))
+    print(metaObject.get_pref("Tile", valid_values=["ThrowError"]))
+    print("Done")

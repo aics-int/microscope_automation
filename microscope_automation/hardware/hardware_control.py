@@ -1,5 +1,6 @@
 """
-Classes to describe and control hardware. Bridge between automation software and hardware specific implementations.
+Classes to describe and control hardware.
+Bridge between automation software and hardware specific implementations.
 Created on Jul 7, 2016
 Split into hardware_control and hardware_components on May 25, 2020
 
@@ -7,8 +8,13 @@ Split into hardware_control and hardware_components on May 25, 2020
 """
 
 import collections
-from ..automation_exceptions import HardwareError, AutofocusError, \
-    HardwareCommandNotDefinedError, LoadNotDefinedError, CrashDangerError
+from ..automation_exceptions import (
+    HardwareError,
+    AutofocusError,
+    HardwareCommandNotDefinedError,
+    LoadNotDefinedError,
+    CrashDangerError,
+)
 
 from . import hardware_components
 
@@ -31,24 +37,31 @@ zPos = hardware_components.zPos
 class BaseMicroscope(object):
     """Minimum set of attributes and methods required by Automation Software"""
 
-    def __init__(self, name=None, control_software_object=None,
-                 experiments_folder=None,
-                 microscope_components=None):
-        """Base class for any type of microscope (e.g. Spinng Disk 3i, ZEN Blue, ZEN Black)
+    def __init__(
+        self,
+        name=None,
+        control_software_object=None,
+        experiments_folder=None,
+        microscope_components=None,
+    ):
+        """Base class for any type of microscope
+        (e.g. Spinning Disk 3i, ZEN Blue, ZEN Black)
 
         Input:
          name: optional string with microscope name
 
-         controlSoftwareObject: object for software connection to microscope, typically created with class ControlSoftware
+         controlSoftwareObject: object for software connection to microscope,
+         typically created with class ControlSoftware
 
-         experiments_folder: path to folder with microscope software defined experiments. Path does not include experiment
+         experiments_folder: path to folder of microscope software defined experiments.
+         Path does not include experiment
 
          microscope_components: optional list with component objects
 
         Output:
          none
         """
-        hardware_components.log_method(self, '__init__')
+        hardware_components.log_method(self, "__init__")
 
         self.name = name
 
@@ -73,7 +86,7 @@ class BaseMicroscope(object):
         Input:
          method_name: method that calls this method
         """
-        raise HardwareCommandNotDefinedError(method_name + ' is not implemented')
+        raise HardwareCommandNotDefinedError(method_name + " is not implemented")
 
     def recover_hardware(self, error):
         """Execute hardwareFunction and try to recover from failure.
@@ -92,36 +105,56 @@ class BaseMicroscope(object):
         if isinstance(error, AutofocusError):
             return_dialog = error.error_dialog()
             if return_dialog == 1:
-                # use ['no_find_surface'] for action_list to disable 'find_surface' during auto-focus initialization
+                # use ['no_find_surface'] for action_list
+                # to disable 'find_surface' during auto-focus initialization
                 self.initialize_hardware(
-                    initialize_components_ordered_dict={error.error_component.get_id(): ['no_find_surface']},
-                    reference_object_id=error.focus_reference_obj_id, verbose=False)
-                # self.reference_position(reference_object_id = error.focus_reference_obj_id, find_surface = False, verbose = False)
+                    initialize_components_ordered_dict={
+                        error.error_component.get_id(): ["no_find_surface"]
+                    },
+                    reference_object_id=error.focus_reference_obj_id,
+                    verbose=False,
+                )
             return return_dialog
         if isinstance(error, LoadNotDefinedError):
             return_dialog = error.error_dialog()
             if return_dialog == 1:
                 self.initialize_hardware(
-                    initialize_components_ordered_dict={error.error_component.get_id(): ['set_load']},
-                    reference_object_id=None, verbose=False)
+                    initialize_components_ordered_dict={
+                        error.error_component.get_id(): ["set_load"]
+                    },
+                    reference_object_id=None,
+                    verbose=False,
+                )
             return return_dialog
         if isinstance(error, CrashDangerError):
-            return error.error_dialog('Move stage to safe area.')
+            return error.error_dialog("Move stage to safe area.")
         if isinstance(error, HardwareError):
             return error.error_dialog()
 
-    def microscope_is_ready(self, experiment, component_dict, focus_drive_id, objective_changer_id, safety_object_id,
-                            reference_object_id=None, load=True, make_ready=True, trials=3, verbose=True):
+    def microscope_is_ready(
+        self,
+        experiment,
+        component_dict,
+        focus_drive_id,
+        objective_changer_id,
+        safety_object_id,
+        reference_object_id=None,
+        load=True,
+        make_ready=True,
+        trials=3,
+        verbose=True,
+    ):
         """Check if microscope is ready and setup up for data acquisition.
 
         Input:
          experiment: string with name of experiment as defined in microscope software
 
-         compenent_dict: dictionary with component_id as key and list of potential actions
+         compenent_dict: dictionary with component_id as key and list of actions
 
          focus_drive_id: string id for focus drive
 
-         objective_changer_id: string id for objective changer parfocality and parcentricity has to be calibrated
+         objective_changer_id: string id for objective changer parfocality
+          and parcentricity has to be calibrated
 
          safety_object_id: string id for safety area
 
@@ -129,10 +162,11 @@ class BaseMicroscope(object):
 
          load: move objective into load position before moving stage
 
-         make_ready: if True, make attempt to ready microscope, e.g. setup autofocus (Default: True)
+         make_ready: if True, make attempt to ready microscope, e.g. setup autofocus
+         (Default: True)
 
-         trials: maximum number of attempt to initialize microscope. Will allow user to make adjustments on microscope.
-         (Default: 3)
+         trials: maximum number of attempt to initialize microscope.
+         Will allow user to make adjustments on microscope. (Default: 3)
 
          verbose: print debug messages (Default: True)
 
@@ -143,7 +177,7 @@ class BaseMicroscope(object):
         # Test if com
         for component_id, action in component_dict.items():
             is_ready[component_id] = True
-        is_ready['Microscope'] = all(is_ready.values())
+        is_ready["Microscope"] = all(is_ready.values())
         return is_ready
 
     def live_mode(self, camera_id, experiment=None, live=True):
@@ -159,4 +193,4 @@ class BaseMicroscope(object):
         Output:
          None
         """
-        self.not_implemented('live_mode')
+        self.not_implemented("live_mode")

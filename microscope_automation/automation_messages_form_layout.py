@@ -1,4 +1,4 @@
-'''
+"""
 QDialog boxes and other messages for Microscope Automation package based on formlayout
 https://pypi.python.org/pypi/formlayout
 http://pythonhosted.org/formlayout/index.html#
@@ -11,7 +11,7 @@ Requires PyQt4 or PyQt5, set installed API below
 Created on Jun 23, 2016
 
 @author: winfriedw
-'''
+"""
 # select PyQT5 as QT_API
 # make sure QT5 is installed on system
 import os
@@ -20,11 +20,12 @@ import re
 
 # switch between different versions of PyQt depending on computer system
 try:
-    os.environ['QT_API'] = 'pyqt5'
+    os.environ["QT_API"] = "pyqt5"
     from PyQt5 import QtGui
 except ImportError:
     from PyQt4 import QtGui
-    os.environ['QT_API'] = 'pyqt'
+
+    os.environ["QT_API"] = "pyqt"
 # from PySide import QtGui
 from formlayout import fedit
 from os import listdir
@@ -32,7 +33,8 @@ import pandas
 
 # create logger
 import logging
-logger = logging.getLogger('microscope_automation')
+
+logger = logging.getLogger("microscope_automation")
 
 # get function to abort program
 # from microscopeAutomation import stop_script
@@ -57,15 +59,17 @@ def read_string(title, label, default, returnCode=False):
 
      1: User pressed ok
     """
-    datalist = [(label, default), (None, None),
-                (None, "Press ok when done.\nPress cancel to abort script.")]
-    result = fedit(datalist, title=title,
-                   comment="")
+    datalist = [
+        (label, default),
+        (None, None),
+        (None, "Press ok when done.\nPress cancel to abort script."),
+    ]
+    result = fedit(datalist, title=title, comment="")
     if result is None:
         if returnCode:
             return 0
         else:
-            print('User terminated program')
+            print("User terminated program")
             sys.exit()
     else:
         return str(result[0])
@@ -87,15 +91,16 @@ def information_message(title, message, returnCode=False):
 
      1: User pressed ok
     """
-    datalist = [(None, None),
-                (None, "Press OK when ready.\nPress cancel to abort script.")]
-    result = fedit(datalist, title=title,
-                   comment=message)
+    datalist = [
+        (None, None),
+        (None, "Press OK when ready.\nPress cancel to abort script."),
+    ]
+    result = fedit(datalist, title=title, comment=message)
     if result is None:
         if returnCode:
             return 0
         else:
-            print('User terminated program')
+            print("User terminated program")
             sys.exit()
     else:
         return 1
@@ -115,15 +120,16 @@ def setup_message(message, returnCode=False):
 
      1: User pressed ok
     """
-    datalist = [(None, None),
-                (None, "Press ok when done.\nPress cancel to abort script.")]
-    result = fedit(datalist, title="Error in setup detected",
-                   comment=message)
+    datalist = [
+        (None, None),
+        (None, "Press ok when done.\nPress cancel to abort script."),
+    ]
+    result = fedit(datalist, title="Error in setup detected", comment=message)
     if result is None:
         if returnCode:
             return 0
         else:
-            print('User terminated program')
+            print("User terminated program")
             sys.exit()
     else:
         return 1
@@ -142,15 +148,16 @@ def operate_message(message, returnCode=False):
 
      1: User pressed ok
     """
-    datalist = [(None, None),
-                (None, "Press ok when done.\nPress cancel to abort script.")]
-    result = fedit(datalist, title="Please operate microscope",
-                   comment=message)
+    datalist = [
+        (None, None),
+        (None, "Press ok when done.\nPress cancel to abort script."),
+    ]
+    result = fedit(datalist, title="Please operate microscope", comment=message)
     if result is None:
         if returnCode:
             return 0
         else:
-            print('User terminated program')
+            print("User terminated program")
             sys.exit()
     else:
         return 1
@@ -173,16 +180,17 @@ def check_box_message(message, checkBoxList, returnCode=False):
 
      new_check_box_list: User pressed ok result is updated checkBoxList
     """
-    datalist = checkBoxList + [(None, None),
-                               (None, "Press ok when done. \nPress cancel to abort.")]
+    datalist = checkBoxList + [
+        (None, None),
+        (None, "Press ok when done. \nPress cancel to abort."),
+    ]
 
-    result = fedit(datalist, title="Please select",
-                   comment=message)
+    result = fedit(datalist, title="Please select", comment=message)
     if result is None:
         if returnCode:
             return 0
         else:
-            print('User terminated program')
+            print("User terminated program")
             sys.exit()
     else:
         boxLabels = [box[0] for box in checkBoxList]
@@ -212,12 +220,16 @@ def error_message(message, returnCode=False, blocking=True):
         print(message)
         return 1
     else:
-        datalist = [(None, None),
-                    (None, "Please perform the action.\n"
-                           "Press ok when done.\nPress cancel to abort."),
-                    ('Ignore', False)]
-        result = fedit(datalist, title="Error",
-                       comment=message)
+        datalist = [
+            (None, None),
+            (
+                None,
+                "Please perform the action.\n"
+                "Press ok when done.\nPress cancel to abort.",
+            ),
+            ("Ignore", False),
+        ]
+        result = fedit(datalist, title="Error", comment=message)
         if result:
             if result[0]:
                 return -1
@@ -227,7 +239,7 @@ def error_message(message, returnCode=False, blocking=True):
             if returnCode:
                 return 0
             else:
-                print('User terminated program')
+                print("User terminated program")
                 sys.exit()
         else:
             return 1
@@ -249,17 +261,21 @@ def wait_message(message, returnCode=False):
 
      False: User pressed ok and want's to cancel wait times
     """
-    datalist = [(None, None),
-                (None, "Please perform the action.\n"
-                       "Press ok when done.\nPress cancel to abort."),
-                ('Continue to wait after next image', True)]
-    result = fedit(datalist, title="Continue?",
-                   comment=message)
+    datalist = [
+        (None, None),
+        (
+            None,
+            "Please perform the action.\n"
+            "Press ok when done.\nPress cancel to abort.",
+        ),
+        ("Continue to wait after next image", True),
+    ]
+    result = fedit(datalist, title="Continue?", comment=message)
     if result is None:
         if returnCode:
             return 0
         else:
-            print('User terminated program')
+            print("User terminated program")
             sys.exit()
     else:
         return result[0]
@@ -281,24 +297,27 @@ def select_message(message, count=None, returnCode=False):
 
      resultDict: dictionary of form {'Include': True/False, 'Continue': True/False}
     """
-    datalist = [(None, None),
-                (None, "Please perform action(s) below.\n"
-                       "Press ok when done.\nPress cancel to abort."),
-                ('Include position in data acquisition.', True),
-                (None, None),
-                (None, 'Number of collected positions: {}'.format(count)),
-                ('Continue collecting positions.', True)
-                ]
-    result = fedit(datalist, title="Select",
-                   comment=message)
+    datalist = [
+        (None, None),
+        (
+            None,
+            "Please perform action(s) below.\n"
+            "Press ok when done.\nPress cancel to abort.",
+        ),
+        ("Include position in data acquisition.", True),
+        (None, None),
+        (None, "Number of collected positions: {}".format(count)),
+        ("Continue collecting positions.", True),
+    ]
+    result = fedit(datalist, title="Select", comment=message)
     if result is None:
         if returnCode:
             return 0
         else:
-            print('User terminated program')
+            print("User terminated program")
             sys.exit()
     else:
-        resultDict = {'Include': result[0], 'Continue': result[1]}
+        resultDict = {"Include": result[0], "Continue": result[1]}
         return resultDict
 
 
@@ -320,27 +339,27 @@ def file_select_dialog(directory, filePattern=None, comment=None, returnCode=Fal
     # load all file names in directory dirPaht + date
     # check if directory exists
     if not os.path.isdir(directory):
-        logger.warning('Directory for .csv file with colony coordinates does not exist')
+        logger.warning("Directory for .csv file with colony coordinates does not exist")
     all_files = pandas.Series(listdir(directory))
     try:
         # find all filenames that match
-        col_file_loc_series = [re.search(filePattern, singleFile) is not None
-                               for singleFile in all_files]
+        col_file_loc_series = [
+            re.search(filePattern, singleFile) is not None for singleFile in all_files
+        ]
         col_file_loc_index = [int(all_files[col_file_loc_series].index.tolist()[0])]
         all_files = list(all_files)
     except Exception:
         col_file_loc_index = [0]
-        all_files = [''] + list(all_files)
+        all_files = [""] + list(all_files)
     all_files.sort()
-    datalist = [('Files:', col_file_loc_index + all_files)]
-    result = fedit(datalist, title="Select file?",
-                   comment=comment)
+    datalist = [("Files:", col_file_loc_index + all_files)]
+    result = fedit(datalist, title="Select file?", comment=comment)
     print(result)
     if result is None:
         if returnCode:
             return 0
         else:
-            print('User terminated program')
+            print("User terminated program")
             sys.exit()
     return all_files[result[0]]
 
@@ -357,11 +376,10 @@ def pull_down_select_dialog(item_list, message):
      selected_item: item selected by user
     """
     # create content of pull down menu
-    datalist = [('Selection:', ([0] + [str(i) for i in item_list]))]
+    datalist = [("Selection:", ([0] + [str(i) for i in item_list]))]
 
     # display dialog bos
-    result = fedit(datalist, title="Selection",
-                   comment=message)
+    result = fedit(datalist, title="Selection", comment=message)
     if result is None:
         stop_script()
     selected_item = item_list[result[0]]
@@ -383,7 +401,7 @@ def value_calibration_form(title, comment, default, *form_fields):
     Output:
      result: contents of the calibration form
     """
-    data_list = list(form_fields) + [('Correct?', default)]
+    data_list = list(form_fields) + [("Correct?", default)]
     result = fedit(data_list, title=title, comment=comment)
     return result
 
@@ -405,30 +423,30 @@ def stop_script(message_text=None, allow_continue=False):
     #     Microscope.stop_microscope()
     if allow_continue:
         if message_text is None:
-            message_text = 'If you want to abort script press ok.\notherwise Continue'
-        con = information_message('Exit script', message_text, returnCode=True)
+            message_text = "If you want to abort script press ok.\notherwise Continue"
+        con = information_message("Exit script", message_text, returnCode=True)
     else:
         if message_text is None:
-            message_text = 'Exit'
-        con = information_message('Exit script', message_text, returnCode=False)
+            message_text = "Exit"
+        con = information_message("Exit script", message_text, returnCode=False)
         con = 0
 
     if con == 0:
         # logger.info('User aborted operation')
-        print('Operation Aborted')
+        print("Operation Aborted")
         # cleanup after image displaying
         os._exit(1)
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     from interactive_location_picker_pyqtgraph import ImageLocationPicker
     import numpy as np
     import pyqtgraph
 
     image = np.zeros((50, 50))
     app = QtGui.QApplication([])
-    input('Continue')
-    ImageLocationPicker(image, app=app).plot_points('Test')
-    input('Continue')
-    print(error_message('Test error message'))
+    input("Continue")
+    ImageLocationPicker(image, app=app).plot_points("Test")
+    input("Continue")
+    print(error_message("Test error message"))
     pyqtgraph.exit()

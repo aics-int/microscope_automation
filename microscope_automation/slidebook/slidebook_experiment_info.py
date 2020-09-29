@@ -11,7 +11,6 @@ log = logging.getLogger(__name__)
 
 
 class SlidebookExperiment(object):
-
     def __init__(self, experiment_path, experiment_name):
         """
         Initializing the experiment class

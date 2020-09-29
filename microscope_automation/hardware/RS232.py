@@ -1,4 +1,4 @@
-'''
+"""
 Communicate with RS232 interface
 Based on pySerial
 Install with pip install pyserial
@@ -8,17 +8,18 @@ http://pythonhosted.org/pyserial/
 Created on Sep 6, 2016
 
 @author: winfriedw
-'''
+"""
 import serial
 
 
-class Braintree():
-    '''Control Braintree BS-8000/9000 syringe pump through RS232.
+class Braintree:
+    """Control Braintree BS-8000/9000 syringe pump through RS232.
     http://www.braintreesci.com/prodinfo.asp?number=BS-8000
     http://www.braintreesci.com/images/BS8000.pdf
-    '''
-    def __init__(self, port='COM1', baudrate=19200):
-        '''Opens RS232 connection to syringe pump.
+    """
+
+    def __init__(self, port="COM1", baudrate=19200):
+        """Opens RS232 connection to syringe pump.
 
         Input:
          port: com port, default = 'COM1'
@@ -26,49 +27,50 @@ class Braintree():
 
         Output:
          none
-        '''
+        """
         # open serial port
         self.ser = serial.Serial(port=port, baudrate=baudrate)
 
     def start_pump(self):
-        '''Start pump.
+        """Start pump.
 
         Input:
          none
 
         Output:
          none
-        '''
-        self.ser.write(b'RUN\r')
+        """
+        self.ser.write(b"RUN\r")
 
     def stop_pump(self):
-        '''Stop pump.
+        """Stop pump.
 
         Input:
          none
 
         Output:
          none
-        '''
-        self.ser.write(b'STP\r')
+        """
+        self.ser.write(b"STP\r")
 
     def close_connection(self):
-        '''Stop pump and close connection.
+        """Stop pump and close connection.
 
         Input:
          none
 
         Output:
          none
-        '''
+        """
         self.stop_pump()
         self.ser.close()
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     import time
+
     # connect to pump through RS232
-    pump = Braintree(port='COM1', baudrate=19200)
+    pump = Braintree(port="COM1", baudrate=19200)
 
     # activate pump
     pump.start_pump()

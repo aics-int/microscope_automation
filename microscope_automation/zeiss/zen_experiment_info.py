@@ -1,7 +1,5 @@
-# module to extract and update information from the zen software experiment files (.czexp)
-
 from lxml import etree
-import os
+
 try:
     from pathlib import Path
 except ImportError:
@@ -16,16 +14,21 @@ log = logging.getLogger(__name__)
 
 class ZenExperiment(object):
 
-    TAG_PATH_TILE_CENTER_XY = '/HardwareExperiment/ExperimentBlocks/AcquisitionBlock/SubDimensionSetups/' \
-            'RegionsSetup/SampleHolder/TileRegions/TileRegion/CenterPosition'
-    TAG_PATH_TILE_CENTER_Z = '/HardwareExperiment/ExperimentBlocks/AcquisitionBlock/SubDimensionSetups' \
-            '/RegionsSetup/SampleHolder/TileRegions/TileRegion/Z'
+    TAG_PATH_TILE_CENTER_XY = (
+        "/HardwareExperiment/ExperimentBlocks/AcquisitionBlock/SubDimensionSetups/"
+        "RegionsSetup/SampleHolder/TileRegions/TileRegion/CenterPosition"
+    )
+    TAG_PATH_TILE_CENTER_Z = (
+        "/HardwareExperiment/ExperimentBlocks/AcquisitionBlock/SubDimensionSetups"
+        "/RegionsSetup/SampleHolder/TileRegions/TileRegion/Z"
+    )
 
     def __init__(self, experiment_path, experiment_name):
         """Initializing the experiment class
 
         Input:
-         experiment_name: Name of the experiment as defined in the Zen software & preference file
+         experiment_name: Name of the experiment as defined in the Zen software
+         and preference file
 
         Output:
          prefs: the preference file for the workflow
@@ -38,7 +41,8 @@ class ZenExperiment(object):
             self.tree = None
 
     def experiment_exists(self):
-        """Function to check if the experiment name provided in the preference file exists in the Zen software
+        """Function to check if the experiment name provided
+        in the preference file exists in the Zen software
 
         Input:
          none
@@ -48,7 +52,6 @@ class ZenExperiment(object):
         """
         # log.debug("Experiment path: {}".format(self.experiment_path))
         experiment_exists = Path(self.experiment_path).exists()
-        # print('Experiment {} exists: {}'.format(self.experiment_path, experiment_exists))
         return experiment_exists
 
     def get_tag_value(self, tag_path):
@@ -87,26 +90,30 @@ class ZenExperiment(object):
             self.tree.write(self.experiment_path)
         except Exception as err:
             log.exception(err)
-            raise ValueError("Updating tag '{}' for experiment {} raised the error: {}".format(tag_path, self.experiment_path, err.strerror))
+            raise ValueError(
+                "Updating tag '{}' for experiment {} raised the error: {}".format(
+                    tag_path, self.experiment_path, err.strerror
+                )
+            )
 
     def is_tile_scan(self):
-        '''Test if experiment is tile scan.
+        """Test if experiment is tile scan.
 
         Input:
          none
 
         Output:
          is_tile_scan: True if experiment contains z-stack
-        '''
+        """
         root = self.tree.getroot()
         # retrieve all z-stack setups, use only fist
         RegionsSetup = root.findall(".//RegionsSetup")[0]
-        is_tile_scan = RegionsSetup.attrib['IsActivated'] == 'true'
+        is_tile_scan = RegionsSetup.attrib["IsActivated"] == "true"
         return is_tile_scan
 
     def update_tile_positions(self, x_value, y_value, z_value):
-        """In the tile function, correct the hard coded values of the tile region using the values from
-        the automation software
+        """In the tile function, correct the hard coded values of the tile
+        region using the values from the automation software
 
         Input:
          x_value: float (x - coordinate)
@@ -117,7 +124,7 @@ class ZenExperiment(object):
          none
         """
 
-        xy_value = str(x_value) + ',' + str(y_value)
+        xy_value = str(x_value) + "," + str(y_value)
         self.update_tag_value(self.TAG_PATH_TILE_CENTER_XY, xy_value)
         self.update_tag_value(self.TAG_PATH_TILE_CENTER_Z, str(z_value))
 
@@ -136,7 +143,7 @@ class ZenExperiment(object):
         return focus_settings
 
     def get_objective_position(self):
-        ''' Return position of objective used in experiment.
+        """Return position of objective used in experiment.
         Method assumes that only one objective is used in experiment.
 
         Input:
@@ -144,34 +151,42 @@ class ZenExperiment(object):
 
         Output:
          position: integer with position of objective used in experiment
-        '''
+        """
         root = self.tree.getroot()
         # retrieve all objective changers. Use only first
-        objective_changer = root.findall(".//ParameterCollection[@Id = 'MTBObjectiveChanger']")[0]
-        position = int(objective_changer.find('Position').text)
+        objective_changer = root.findall(
+            ".//ParameterCollection[@Id = 'MTBObjectiveChanger']"
+        )[0]
+        position = int(objective_changer.find("Position").text)
         return position
 
     def is_z_stack(self):
-        '''Test if experiment is z-stack.
+        """Test if experiment is z-stack.
 
         Input:
          none
 
         Output:
          is_z_stack: True if experiment contains z-stack
-        '''
+        """
         root = self.tree.getroot()
-        # retrieve all z-stack setups, use only fist
+        # retrieve all z-stack setups, use only first
         # TODO:
-        # I would separate this out into two steps - one where you do the findall and another to access the first item.
-        # That way, you can actually check if the file has any MTBObjectiveChanger entries in it and throw an appropriate error if they are non, rather than have the findall return an empty list and then the [0] access throw an undescriptive IndexError.
-        # It may be helpful to write a common function for this that will take the result of a findall, ensure that there is at least one element in it and if not throw a more appropriate exception.
+        # I would separate this out into two steps -
+        # one where you do the findall and another to access the first item.
+        # That way, you can actually check if the file has any MTBObjectiveChanger
+        # entries in it and throw an appropriate error if they are non, rather
+        # than have the findall return an empty list and
+        # then the [0] access throw an undescriptive IndexError.
+        # It may be helpful to write a common function for this that
+        # will take the result of a findall, ensure that there is
+        # at least one element in it and if not throw a more appropriate exception.
         ZStackSetup = root.findall(".//ZStackSetup")[0]
-        is_z_stack = ZStackSetup.attrib['IsActivated'] == 'true'
+        is_z_stack = ZStackSetup.attrib["IsActivated"] == "true"
         return is_z_stack
 
     def z_stack_range(self):
-        '''Return range of first z-stack in experiment.
+        """Return range of first z-stack in experiment.
         Returns 0 if z-stack is not activated.
 
         Input:
@@ -179,47 +194,57 @@ class ZenExperiment(object):
 
         Output:
          z_stack_range: True if experiment contains z-stack
-        '''
+        """
         if not self.is_z_stack():
             return 0
         else:
             root = self.tree.getroot()
             # retrieve all z-stack setups, use only fist
             ZStackSetup = root.findall(".//ZStackSetup")[0]
-            first_postion = float(ZStackSetup.find('First/Distance/Value').text)
-            last_postion = float(ZStackSetup.find('Last/Distance/Value').text)
+            first_postion = float(ZStackSetup.find("First/Distance/Value").text)
+            last_postion = float(ZStackSetup.find("Last/Distance/Value").text)
             z_stack_range = abs(last_postion - first_postion)
             return z_stack_range
 
-if __name__ == '__main__':
+
+if __name__ == "__main__":
 
     # Initializing the object
-    prefs = preferences.Preferences('../GeneralSettings/preferences_ZSD1_Shailja.yml')
-    experiment_directory = prefs.get_pref('PathExperiments')
-    experiment_name = 'ScanWell_10x.czexp'
-#     experiment_path = os.path.normpath(os.path.join(prefs.get_pref('PathExperiments'),
-#                                                     experiment_name))
-    experiment_path = 'D:\\Users\winfriedw\Documents\Carl Zeiss\ZEN\Documents\Experiment Setups/ScanWell_10x.czexp'
+    prefs = preferences.Preferences("../GeneralSettings/preferences_ZSD1_Shailja.yml")
+    experiment_directory = prefs.get_pref("PathExperiments")
+    experiment_name = "ScanWell_10x.czexp"
+    # experiment_path = os.path.normpath(os.path.join(prefs.get_pref('PathExperiments'),
+    #                                                 experiment_name))
+    experiment_path = r"D:\\Users\winfriedw\Documents\Carl Zeiss\ZEN\Documents\Experiment Setups/ScanWell_10x.czexp"  # noqa
     test_object = ZenExperiment(experiment_path, experiment_name)
 
     # Test 1 - Experiment exists
-    #result_test1 = test_object.experiment_exists()
-    #print(result_test1)
+    # result_test1 = test_object.experiment_exists()
+    # print(result_test1)
 
     # Test 2 - Get Tag Value
-    #tag_value = test_object.get_tag_value('/HardwareExperiment/ExperimentBlocks/AcquisitionBlock/SubDimensionSetups'
-                                          #'/RegionsSetup/SampleHolder/TileRegions/TileRegion/CenterPosition')
+    # tag_value = test_object.get_tag_value('/HardwareExperiment/ExperimentBlocks/'
+    # 'AcquisitionBlock/SubDimensionSetups/RegionsSetup/SampleHolder/TileRegions/TileRegion/CenterPosition')
     # Test 3 - Update Tag Value
-    print(('Experiment acquires tile scan: {}'.format(test_object.is_tile_scan())))
-    test_object.update_tag_value('/HardwareExperiment/ExperimentBlocks/AcquisitionBlock/SubDimensionSetups'
-                                 '/RegionsSetup/SampleHolder/TileRegions/TileRegion/CenterPosition', '5000,7800')
+    print(("Experiment acquires tile scan: {}".format(test_object.is_tile_scan())))
+    test_object.update_tag_value(
+        "/HardwareExperiment/ExperimentBlocks/AcquisitionBlock/SubDimensionSetups"
+        "/RegionsSetup/SampleHolder/TileRegions/TileRegion/CenterPosition",
+        "5000,7800",
+    )
 
     # Test 4 - Update Tile Positions
-    #test_object.update_tile_positions(3600, 7600, 4)
+    # test_object.update_tile_positions(3600, 7600, 4)
 
     # Test 5: Get objective name
-    print(('Objective position used in experiment: {}'.format(test_object.get_objective_position())))
+    print(
+        (
+            "Objective position used in experiment: {}".format(
+                test_object.get_objective_position()
+            )
+        )
+    )
 
     # Test 6: Return z-stack information
-    print(('Experiment acquires z-stack: {}'.format(test_object.is_z_stack())))
-    print(('Range for z-stack: {}'.format(test_object.z_stack_range())))
+    print(("Experiment acquires z-stack: {}".format(test_object.is_z_stack())))
+    print(("Range for z-stack: {}".format(test_object.z_stack_range())))

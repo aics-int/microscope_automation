@@ -5,12 +5,12 @@ from microscope_automation.zeiss.zen_experiment_info import ZenExperiment
 
 os.chdir(os.path.dirname(__file__))
 
-experiment_name = 'WellTile_10x.czexp'
+experiment_name = "WellTile_10x.czexp"
 
 
 @pytest.fixture()
 def experiment_path():
-    exp = 'data/Experiment Setup/' + experiment_name
+    exp = "data/Experiment Setup/" + experiment_name
     return str(exp)
 
 
@@ -30,16 +30,16 @@ def test_experiment_exists(experiment_path):
 
 def test_experiment_exists_fail(experiment_path):
     with pytest.raises(AssertionError):
-        p = pathlib.Path(experiment_path).parent / 'NotExistingExperiment.czexp'
+        p = pathlib.Path(experiment_path).parent / "NotExistingExperiment.czexp"
         zen_experiment = ZenExperiment(str(p), experiment_name)
         assert zen_experiment.experiment_exists()
 
 
 def test_get_tag_value_default(exp_class):
-    assert '5000,7800' == exp_class.get_tag_value(exp_class.TAG_PATH_TILE_CENTER_XY)
-    assert '4' == exp_class.get_tag_value(exp_class.TAG_PATH_TILE_CENTER_Z)
+    assert "5000,7800" == exp_class.get_tag_value(exp_class.TAG_PATH_TILE_CENTER_XY)
+    assert "4" == exp_class.get_tag_value(exp_class.TAG_PATH_TILE_CENTER_Z)
 
 
 def test_get_tag_value_invalid(exp_class):
     with pytest.raises(ValueError):
-        exp_class.get_tag_value(exp_class.TAG_PATH_TILE_CENTER_XY + '/badpath')
+        exp_class.get_tag_value(exp_class.TAG_PATH_TILE_CENTER_XY + "/badpath")

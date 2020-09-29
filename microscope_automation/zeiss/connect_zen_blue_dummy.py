@@ -1,9 +1,9 @@
-'''
+"""
 Dummy function for ZEN blue conection
 Created on Sep 23, 2016
 
 @author: winfriedw
-'''
+"""
 from shutil import copy2
 
 try:
@@ -17,102 +17,127 @@ test_messages = False
 
 
 class MicroscopeStatus(object):
-    '''Create instance of this class to keeps track of microscope status.
+    """Create instance of this class to keeps track of microscope status.
 
     Input:
      none
 
     Output:
      none
-    '''
+    """
+
     def __init__(self):
         self._xPos = 60000
         self._yPos = 40000
         self._zPos = 500
         self._objective_position = 0
-        self._objective_name = 'Dummy Objective'
+        self._objective_name = "Dummy Objective"
 
     @property
     def xPos(self):
-        '''Get absolute x position for stage'''
+        """Get absolute x position for stage"""
         if test_messages:
-            print(('MicroscopeStatus returned x as {}'.format(self._xPos)))
+            print(("MicroscopeStatus returned x as {}".format(self._xPos)))
         return self._xPos
 
     @xPos.setter
     def xPos(self, x):
-        '''Set absolute x position for stage'''
+        """Set absolute x position for stage"""
         self._xPos = x
         if test_messages:
-            print(('MicroscopeStatus set x as {}'.format(self._xPos)))
+            print(("MicroscopeStatus set x as {}".format(self._xPos)))
 
     @property
     def yPos(self):
-        '''Get absolute y position for stage'''
+        """Get absolute y position for stage"""
         if test_messages:
-            print(('MicroscopeStatus returned y as {}'.format(self._yPos)))
+            print(("MicroscopeStatus returned y as {}".format(self._yPos)))
         return self._yPos
 
     @yPos.setter
     def yPos(self, y):
-        '''Set absolute y position for stage'''
+        """Set absolute y position for stage"""
         self._yPos = y
         if test_messages:
-            print(('MicroscopeStatus set y as {}'.format(self._yPos)))
+            print(("MicroscopeStatus set y as {}".format(self._yPos)))
 
     @property
     def zPos(self):
-        '''Get absolute z position for focus drive'''
+        """Get absolute z position for focus drive"""
         if test_messages:
-            print(('MicroscopeStatus returned z as {}'.format(self._zPos)))
+            print(("MicroscopeStatus returned z as {}".format(self._zPos)))
         return self._zPos
 
     @zPos.setter
     def zPos(self, z):
-        '''Set absolute z position for focus drive'''
+        """Set absolute z position for focus drive"""
         self._zPos = z
         if test_messages:
-            print(('MicroscopeStatus set z as {}'.format(self._zPos)))
+            print(("MicroscopeStatus set z as {}".format(self._zPos)))
 
     @property
     def objective_position(self):
-        '''Get position for objective in objective changer'''
+        """Get position for objective in objective changer"""
         if test_messages:
-            print(('MicroscopeStatus returned objective_position as {}'.format(self._objective_position)))
+            print(
+                (
+                    "MicroscopeStatus returned objective_position as {}".format(
+                        self._objective_position
+                    )
+                )
+            )
         return self._objective_position
 
     @objective_position.setter
     def objective_position(self, objective_position):
-        '''Set position for objective in objective changer'''
+        """Set position for objective in objective changer"""
         self._objective_position = objective_position
         if test_messages:
-            print(('MicroscopeStatus set objective_position as {}'.format(self._objective_position)))
+            print(
+                (
+                    "MicroscopeStatus set objective_position as {}".format(
+                        self._objective_position
+                    )
+                )
+            )
 
     @property
     def objective_name(self):
-        '''Get name for actual objective'''
+        """Get name for actual objective"""
         if test_messages:
-            print(('MicroscopeStatus returned objective_name as {}'.format(self._objective_name)))
+            print(
+                (
+                    "MicroscopeStatus returned objective_name as {}".format(
+                        self._objective_name
+                    )
+                )
+            )
         return self._objective_name
 
     @objective_name.setter
     def objective_name(self, objective_name):
-        '''Set name for actual objective'''
+        """Set name for actual objective"""
         self._objective_name = objective_name
         if test_messages:
-            print(('MicroscopeStatus set objective_name as {}'.format(self._objective_name)))
+            print(
+                (
+                    "MicroscopeStatus set objective_name as {}".format(
+                        self._objective_name
+                    )
+                )
+            )
 
 
 class Focus(object):
     def __init__(self, microscope_status):
-        '''Class in Zeiss.Micro.Scripting.Core namespace that gives access to focus.
+        """Class in Zeiss.Micro.Scripting.Core namespace that gives access to focus.
 
         Input:
          none
 
         Output:
          none
-        '''
+        """
         # Properties of class ZenFocus
         self.TargetPosition = 0
         self._microscope_status = microscope_status
@@ -120,30 +145,30 @@ class Focus(object):
     # Attributes for focus
     @property
     def ActualPosition(self):
-        '''Get the current z position for focus drive'''
+        """Get the current z position for focus drive"""
         return self._microscope_status.zPos
 
     # Methods of class ZenFocus
     def Apply(self):
-        '''Applies the target parameter values.
+        """Applies the target parameter values.
 
         Input:
          none
 
         Output:
          none
-        '''
+        """
         self._microscope_status.zPos = self.TargetPosition
 
     def MoveTo(self, z):
-        '''Moves to the specified focus position.
+        """Moves to the specified focus position.
 
         Input:
          z: Focus position in um
 
         Output:
          none
-        '''
+        """
         self._microscope_status.zPos = z
         return None
 
@@ -156,19 +181,19 @@ class ObjectiveChanger(object):
 
     @property
     def ActualPositionName(self):
-        '''Get name of actual objectve'''
+        """Get name of actual objectve"""
         return self._microscope_status.objective_name
 
     @property
     def ActualPosition(self):
-        '''Get name of actual objective position in ojbective turret'''
+        """Get name of actual objective position in ojbective turret"""
         return self._microscope_status.objective_position
 
     def Apply(self):
         self._microscope_status.objective_position = self.TargetPosition
 
     def GetMagnificationByPosition(self, position):
-        return ''
+        return ""
 
     def GetNameByPosition(self, position):
         return None
@@ -181,12 +206,12 @@ class Stage(object):
 
     @property
     def ActualPositionX(self):
-        '''Get actual x position for stage'''
+        """Get actual x position for stage"""
         return self._microscope_status.xPos
 
     @property
     def ActualPositionY(self):
-        '''Get actual y position for stage'''
+        """Get actual y position for stage"""
         return self._microscope_status.yPos
 
     def Apply(self):
@@ -195,13 +220,14 @@ class Stage(object):
 
 
 class Devices(object):
-    '''Simulated device objects'''
+    """Simulated device objects"""
 
     def __init__(self, microscope_status):
-        '''Create Zen devices object'''
+        """Create Zen devices object"""
         self.Focus = Focus(microscope_status)
         self.ObjectiveChanger = ObjectiveChanger(microscope_status)
         self.Stage = Stage(microscope_status)
+
 
 ######################################################################################
 #
@@ -218,7 +244,7 @@ class Experiments(object):
         return experiment
 
     def ActiveExperiment(self):
-        return 'Experiment'
+        return "Experiment"
 
     def Contains(self, expClass):
         return True
@@ -227,28 +253,30 @@ class Experiments(object):
 class Image(object):
     def Save_2(self, fileName):
         if not (os.path.exists(fileName)):
-            exampleImage = '../data/testImages/WellEdge_0.czi'
+            exampleImage = "../data/testImages/WellEdge_0.czi"
             copy2(exampleImage, fileName)
 
 
 class Acquisition(object):
-    '''Simulate image acquisition'''
+    """Simulate image acquisition"""
+
     def __init__(self, microscope_status):
         self.Experiments = Experiments(microscope_status)
         self.storedAutofocus = 0
         self._microscope_status = microscope_status
 
     def _set_objective(self, experiment):
-        '''Sets for debug purposes active objective name based on experiment name.
-        '''
-        if '10x' in experiment:
-            self._microscope_status.objective_name = 'Plan-Apochromat 10x/0.45'
+        """Sets for debug purposes active objective name based on experiment name."""
+        if "10x" in experiment:
+            self._microscope_status.objective_name = "Plan-Apochromat 10x/0.45"
             self._microscope_status.objective_position = 1
-        if '20x' in experiment:
-            self._microscope_status.objective_name = 'Plan-Apochromat 20x/0.8 M27'
+        if "20x" in experiment:
+            self._microscope_status.objective_name = "Plan-Apochromat 20x/0.8 M27"
             self._microscope_status.objective_position = 2
-        if '100x' in experiment:
-            self._microscope_status.objective_name = 'C-Apochromat 100x/1.25 W Korr UV VIS IR'
+        if "100x" in experiment:
+            self._microscope_status.objective_name = (
+                "C-Apochromat 100x/1.25 W Korr UV VIS IR"
+            )
             self._microscope_status.objective_position = 3
 
     def Execute(self, experiment):
@@ -277,62 +305,62 @@ class Acquisition(object):
         pass
 
     def FindSurface(self):
-        '''Finds the surface using definite focus.
+        """Finds the surface using definite focus.
 
         Input:
          none
 
         Output:
          none
-        '''
+        """
         self._microscope_status.zPos = 9000
         return None
 
     def StoreFocus(self):
-        '''Initializes the definite focus on the current position.
+        """Initializes the definite focus on the current position.
 
         Input:
          none
 
         Output:
          none
-        '''
+        """
         self.storedAutofocus = self._microscope_status.zPos
         return self.storedAutofocus
 
     def RecallFocus(self):
-        '''Finds the surface + offset.
+        """Finds the surface + offset.
 
         Input:
          none
 
         Output
          none
-        '''
+        """
         self._microscope_status.zPos = self.storedAutofocus + 100
         return None
 
     def FindAutoFocus(self):
-        '''Use the autofocus of the current experiment to find the sample.
+        """Use the autofocus of the current experiment to find the sample.
 
         Input:
          none
 
         Output:
          none
-        '''
+        """
         self._microscope_status.zPos = self.storedAutofocus
         return None
 
     def FindAutoFocus_2(self, experiment):
-        '''Use the autofocus of the current experiment to find the sample.
+        """Use the autofocus of the current experiment to find the sample.
 
         Input:
          experiment: String name of experiment in ZEN blue software
 
         Output:
          none
-        '''
+        """
         self._microscope_status.zPos = self.storedAutofocus
         return None
 
@@ -343,12 +371,14 @@ class Acquisition(object):
 #
 ######################################################################################
 
+
 class Documents(object):
     def RemoveAll(self, remove):
         pass
 
     def Add(self, image):
         pass
+
 
 ######################################################################################
 #
@@ -369,7 +399,14 @@ class Application(object):
         print(("Test mode: Running Macro: ", macro_name))
 
     def RunMacro_2(self, macro_name, macro_params):
-        print(("Test mode: Running Macro: " + macro_name + " | Parameter: " + macro_params[0]))
+        print(
+            (
+                "Test mode: Running Macro: "
+                + macro_name
+                + " | Parameter: "
+                + macro_params[0]
+            )
+        )
 
 
 ######################################################################################
@@ -378,19 +415,19 @@ class Application(object):
 #
 ######################################################################################
 
+
 class GetActiveObject(object):
-    '''Simulation for connection to ZEN blue software.
-    '''
+    """Simulation for connection to ZEN blue software."""
 
     def __init__(self, name):
-        '''
+        """
         Simmulation: Connect to Carl Zeiss ZEN blue Python API
-        '''
+        """
         microscope_status = MicroscopeStatus()
         self.Devices = Devices(microscope_status)
         self.Acquisition = Acquisition(microscope_status)
         self.Application = Application(microscope_status)
 
 
-if __name__ == '__main__':
-    print(GetActiveObject('connect_zen_blue'))
+if __name__ == "__main__":
+    print(GetActiveObject("connect_zen_blue"))

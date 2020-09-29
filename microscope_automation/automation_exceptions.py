@@ -1,10 +1,10 @@
-'''
+"""
 Classes for exceptions
 Do not name module exceptions. It will conflict with system exceptions.
 Created on Jun 7, 2017
 
 @author: winfriedw
-'''
+"""
 
 from .automation_messages_form_layout import error_message
 
@@ -18,21 +18,22 @@ blocking = True
 #
 ################################################################################
 
+
 def set_error_blocking(block):
-    '''Set blocking behavior of error dialogs.
+    """Set blocking behavior of error dialogs.
 
     Input:
      block: if True use modal dialog for error reporting, otherwise print message
 
     Output:
      None
-    '''
+    """
     global blocking
     blocking = block
 
 
 def get_error_blocking():
-    '''Retrieve blocking behavior of error dialogs.
+    """Retrieve blocking behavior of error dialogs.
 
     Input:
      none
@@ -41,7 +42,7 @@ def get_error_blocking():
 
     Output:
      None
-    '''
+    """
     return blocking
 
 
@@ -51,12 +52,12 @@ def get_error_blocking():
 #
 ################################################################################
 
+
 class AutomationError(Exception):
-    '''Base exception for all errors in package microscopeautomation
-    '''
+    """Base exception for all errors in package microscopeautomation"""
 
     def __init__(self, message=None, error_component=None):
-        '''Initialize automation exceptions.
+        """Initialize automation exceptions.
 
         Input:
          message: error message
@@ -65,7 +66,7 @@ class AutomationError(Exception):
 
         Output:
          None
-        '''
+        """
         self.message = message
         self.error_component = error_component
 
@@ -88,70 +89,89 @@ class HardwareError(AutomationError):
         Output:
          none
         """
-        return error_message(("Hardware Error."
-                              "\nPlease check for problems with hardware\n"
-                              " e.g. laser safety not engaged"),
-                             returnCode=False, blocking=get_error_blocking())
+        return error_message(
+            (
+                "Hardware Error."
+                "\nPlease check for problems with hardware\n"
+                " e.g. laser safety not engaged"
+            ),
+            returnCode=False,
+            blocking=get_error_blocking(),
+        )
 
 
 class HardwareDoesNotExistError(HardwareError):
     """Exception if hardware was not defined."""
 
-    def error_dialog(self, advice=''):
+    def error_dialog(self, advice=""):
         """Show error message to user.
         Input:
          none
         Output:
          none
         """
-        return error_message(("Hardware Does Not Exist Error:"
-                              "\n'{}'' does not exist.\n'{}'").format(
-            self.error_component, advice), returnCode=False,
-            blocking=get_error_blocking())
+        return error_message(
+            ("Hardware Does Not Exist Error:" "\n'{}'' does not exist.\n'{}'").format(
+                self.error_component, advice
+            ),
+            returnCode=False,
+            blocking=get_error_blocking(),
+        )
 
 
 class CrashDangerError(AutomationError):
     """Exception if danger for hardware was detected."""
 
-    def error_dialog(self, advice=''):
+    def error_dialog(self, advice=""):
         """Show error message to user.
         Input:
          advice: str with advice to user of how to avoid crash.
         Output:
          none
         """
-        return error_message('Crash Danger Error:\n"{}"\n{}'.format(
-            self.message, advice), returnCode=False, blocking=get_error_blocking())
+        return error_message(
+            'Crash Danger Error:\n"{}"\n{}'.format(self.message, advice),
+            returnCode=False,
+            blocking=get_error_blocking(),
+        )
 
 
 class HardwareNotReadyError(AutomationError):
     """Exception if hardware is not ready for experiment."""
 
-    def error_dialog(self, advice=''):
+    def error_dialog(self, advice=""):
         """Show error message to user.
         Input:
          advice: str with advice to user of how to avoid crash.
         Output:
          none
         """
-        return error_message('Hardware is not ready for experiment:\n"{}"\n{}'.format(
-            self.message, self.error_component),
-            returnCode=False, blocking=get_error_blocking())
+        return error_message(
+            'Hardware is not ready for experiment:\n"{}"\n{}'.format(
+                self.message, self.error_component
+            ),
+            returnCode=False,
+            blocking=get_error_blocking(),
+        )
 
 
 class HardwareCommandNotDefinedError(AutomationError):
     """Exception if experiment is not defined for this microscope."""
 
-    def error_dialog(self, advice=''):
+    def error_dialog(self, advice=""):
         """Show error message to user.
         Input:
          advice: str with advice to user of how to avoid crash.
         Output:
          none
         """
-        return error_message('Action not supported by hardware:\n"{}"\n{}'.format(
-            self.message, self.error_component),
-            returnCode=False, blocking=get_error_blocking())
+        return error_message(
+            'Action not supported by hardware:\n"{}"\n{}'.format(
+                self.message, self.error_component
+            ),
+            returnCode=False,
+            blocking=get_error_blocking(),
+        )
 
 
 ################################################################################
@@ -185,10 +205,14 @@ class AutofocusError(HardwareError):
         Output:
          none
         """
-        return error_message(("Autofocus did not work.\n"
-                              "Please fix the following issue:\n{}\n"
-                              "You will be prompted to refocus.").format(
-            self.message), blocking=get_error_blocking())
+        return error_message(
+            (
+                "Autofocus did not work.\n"
+                "Please fix the following issue:\n{}\n"
+                "You will be prompted to refocus."
+            ).format(self.message),
+            blocking=get_error_blocking(),
+        )
 
     def set_focus_reference_obj_id(self, focus_reference_obj_id):
         """Set object (typcially plate) that is used as reference for autofocus offset.
@@ -209,7 +233,8 @@ class AutofocusError(HardwareError):
         """
         if self.focus_reference_obj_id is None:
             raise AutofocusNoReferenceObjectError(
-                message='Could not retrieve focus reference.')
+                message="Could not retrieve focus reference."
+            )
         return self.focus_reference_obj_id
 
 
@@ -227,9 +252,13 @@ class AutofocusObjectiveChangedError(AutofocusError):
         Output:
          none
         """
-        return error_message(("Objective changed since last use of autofocus.\n"
-                              "Error message:\n'{}'").format(self.message),
-                             blocking=get_error_blocking())
+        return error_message(
+            (
+                "Objective changed since last use of autofocus.\n"
+                "Error message:\n'{}'"
+            ).format(self.message),
+            blocking=get_error_blocking(),
+        )
 
 
 class AutofocusNotSetError(AutofocusError):
@@ -246,8 +275,10 @@ class AutofocusNotSetError(AutofocusError):
         Output:
          none
         """
-        return error_message('Autofocus position not set.\nError message:\n"{}"'.format(
-            self.message), blocking=get_error_blocking())
+        return error_message(
+            'Autofocus position not set.\nError message:\n"{}"'.format(self.message),
+            blocking=get_error_blocking(),
+        )
 
 
 class AutofocusNoReferenceObjectError(AutofocusError):
@@ -264,8 +295,10 @@ class AutofocusNoReferenceObjectError(AutofocusError):
         Output:
          none
         """
-        return error_message('No autofocus reference.\nError message:\n"{}"'.format(
-            self.message), blocking=get_error_blocking())
+        return error_message(
+            'No autofocus reference.\nError message:\n"{}"'.format(self.message),
+            blocking=get_error_blocking(),
+        )
 
 
 ################################################################################
@@ -283,9 +316,14 @@ class LoadNotDefinedError(HardwareError):
         Output:
          none
         """
-        return error_message(("Please move objective to load position or cancel"
-                              " program.\nError message:\n'{}'").format(self.message),
-                             returnCode=False, blocking=get_error_blocking())
+        return error_message(
+            (
+                "Please move objective to load position or cancel"
+                " program.\nError message:\n'{}'"
+            ).format(self.message),
+            returnCode=False,
+            blocking=get_error_blocking(),
+        )
 
 
 class WorkNotDefinedError(HardwareError):
@@ -298,9 +336,14 @@ class WorkNotDefinedError(HardwareError):
         Output:
          none
         """
-        return error_message(("Please move objective to work position or cancel"
-                              " program.\nError message:\n'{}'").format(self.message),
-                             returnCode=False, blocking=get_error_blocking())
+        return error_message(
+            (
+                "Please move objective to work position or cancel"
+                " program.\nError message:\n'{}'"
+            ).format(self.message),
+            returnCode=False,
+            blocking=get_error_blocking(),
+        )
 
 
 ################################################################################
@@ -318,8 +361,11 @@ class ObjectiveNotDefinedError(HardwareError):
         Output:
          none
         """
-        return error_message('Objective not defined.\nError message:\n"{}"'.format(
-            self.message), returnCode=False, blocking=get_error_blocking())
+        return error_message(
+            'Objective not defined.\nError message:\n"{}"'.format(self.message),
+            returnCode=False,
+            blocking=get_error_blocking(),
+        )
 
 
 ################################################################################
@@ -337,10 +383,15 @@ class ExperimentError(HardwareError):
         Output:
          none
         """
-        return error_message(("Cannot execute experiment."
-                              "\nPlease check for problems with hardware\n"
-                              " e.g. laser safety not engaged"),
-                             returnCode=False, blocking=get_error_blocking())
+        return error_message(
+            (
+                "Cannot execute experiment."
+                "\nPlease check for problems with hardware\n"
+                " e.g. laser safety not engaged"
+            ),
+            returnCode=False,
+            blocking=get_error_blocking(),
+        )
 
 
 class ExperimentNotExistError(ExperimentError):
@@ -353,8 +404,11 @@ class ExperimentNotExistError(ExperimentError):
         Output:
          none
         """
-        return error_message('Experiment "{}" does not exist.'.format(
-            self.error_component), returnCode=False, blocking=get_error_blocking())
+        return error_message(
+            'Experiment "{}" does not exist.'.format(self.error_component),
+            returnCode=False,
+            blocking=get_error_blocking(),
+        )
 
 
 ################################################################################
@@ -372,8 +426,11 @@ class IOError(AutomationError):
         Output:
          none
         """
-        return error_message('I/O Error.\nError:\n"{}"'.format(self.message),
-                             returnCode=False, blocking=get_error_blocking())
+        return error_message(
+            'I/O Error.\nError:\n"{}"'.format(self.message),
+            returnCode=False,
+            blocking=get_error_blocking(),
+        )
 
 
 class FileExistsError(AutomationError):
@@ -386,9 +443,13 @@ class FileExistsError(AutomationError):
         Output:
          none
         """
-        return error_message(("A file with this name already exists.\n"
-                              "Error:\n'{}'").format(self.message),
-                             returnCode=False, blocking=get_error_blocking())
+        return error_message(
+            ("A file with this name already exists.\n" "Error:\n'{}'").format(
+                self.message
+            ),
+            returnCode=False,
+            blocking=get_error_blocking(),
+        )
 
 
 class MetaDataNotSavedError(AutomationError):
@@ -401,9 +462,11 @@ class MetaDataNotSavedError(AutomationError):
         Output:
          none
         """
-        return error_message(("Could not save meta data to file.\n"
-                              "Error:\n'{}'").format(self.message),
-                             returnCode=False, blocking=get_error_blocking())
+        return error_message(
+            ("Could not save meta data to file.\n" "Error:\n'{}'").format(self.message),
+            returnCode=False,
+            blocking=get_error_blocking(),
+        )
 
 
 ################################################################################
@@ -421,6 +484,10 @@ class StopCollectingError(AutomationError):
         Output:
          none
         """
-        return error_message(("User stopped collecting image positions.\n"
-                              "Message:\n'{}'").format(self.message),
-                             returnCode=False, blocking=get_error_blocking())
+        return error_message(
+            ("User stopped collecting image positions.\n" "Message:\n'{}'").format(
+                self.message
+            ),
+            returnCode=False,
+            blocking=get_error_blocking(),
+        )
