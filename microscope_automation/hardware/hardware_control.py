@@ -8,7 +8,6 @@ Split into hardware_control and hardware_components on May 25, 2020
 """
 
 import collections
-<<<<<<< HEAD
 from ..automation_exceptions import (
     HardwareError,
     AutofocusError,
@@ -16,11 +15,6 @@ from ..automation_exceptions import (
     LoadNotDefinedError,
     CrashDangerError,
 )
-=======
-from ..automation_exceptions import HardwareError, AutofocusError, \
-    HardwareCommandNotDefinedError, LoadNotDefinedError, CrashDangerError
->>>>>>> 7c234a8... Got all tests to pass with new file structure
-
 from . import hardware_components
 
 # setup logging

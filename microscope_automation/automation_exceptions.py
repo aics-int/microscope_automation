@@ -66,7 +66,11 @@ class AutomationError(Exception):
          Default: None
 
         Output:
+<<<<<<< HEAD
          none
+=======
+         None
+>>>>>>> 297adf7... Formatted code using Black
         """
         self.message = message
         self.error_component = error_component
