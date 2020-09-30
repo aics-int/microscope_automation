@@ -297,6 +297,6 @@ if __name__ == "__main__":
         # test function setup_microscope
         prefs = preferences.Preferences(prefsFile)
 
-    microscopeObject = setup_microscope(prefs)
+    microscope_object = setup_microscope(prefs)
     print("Microscope Object created")
-    print(microscopeObject)
+    print(microscope_object)

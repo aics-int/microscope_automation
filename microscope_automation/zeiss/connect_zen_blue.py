@@ -149,14 +149,14 @@ class ConnectMicroscope:
             log.exception(err)
             raise HardwareError("Error in save_image to {}.".format(fileName))
 
-    def load_image(self, image, getMeta=False):
+    def load_image(self, image, get_meta=False):
         """Load image using aicsimage and return it a class ImageAICS
 
         Input:
          image: image object of class ImageAICS. Holds meta data at this moment,
          no image data.
 
-         getMeta: if true, retrieve meta data from file. Default is False
+         get_meta: if true, retrieve meta data from file. Default is False
 
         Output:
          image: image with data and meta data as ImageAICS class
@@ -1524,7 +1524,7 @@ def test_connect_zen_blue(
         imageTest = ImageAICS(meta=meta)
 
         # load ImageAICS from file using bioFormats
-        image = m.load_image(imageTest, getMeta=True)
+        image = m.load_image(imageTest, get_meta=True)
         image.show(filePath)
 
         print("save_image passed test")

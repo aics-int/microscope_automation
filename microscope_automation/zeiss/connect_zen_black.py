@@ -685,12 +685,12 @@ class ConnectMicroscope:
                 )
             )
 
-    def load_image(self, image, getMeta=False):
+    def load_image(self, image, get_meta=False):
         """Function to load image using internal library aicsimage.
 
         Input:
          image: Object of class ImageAICS meta data (including file path)
-         getMeta: if True, retrieve additional meta data
+         get_meta: if True, retrieve additional meta data
 
         Output:
          image: image with data and meta data as an object of ImageAICS class
