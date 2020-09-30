@@ -14,22 +14,18 @@ import numpy
 from os import path
 import warnings
 from collections import OrderedDict
-# # we need module hardware only for testing
-# from . import hardware
-# from .interactive_location_picker_pyqtgraph import ImageLocationPicker
 # import modules from project MicroscopeAutomation
-import preferences
 from get_path import get_images_path, get_meta_data_path, get_prefs_path, \
     add_suffix, set_pref_file
-from drawPlate import drawPlate
+from draw_plate import drawPlate
 import automation_messages_form_layout as message
-import findWellCenter
-import correct_background
+from . import find_well_center
+from . import correct_background
 # requires module aicsimagetools
-import tileImages
+from . import tile_images
 from load_image_czi import LoadImageCzi
 # from readBarcode import read_barcode
-from metaDataFile import meta_data_file
+from metaDataFile import MetaDataFile
 from positions_list import CreateTilePositions
 from automation_exceptions import ObjectiveNotDefinedError, FileExistsError, \
     MetaDataNotSavedError
@@ -91,20 +87,20 @@ def create_plate(plate_format):
       The center of well A1 = (0,0)
     '''
     if plate_format == '12':
-        nrow = 3
-        ncol = 4
+        n_row = 3
+        n_col = 4
         pitch = 26000
         diameter = 22050
         z_center_well = 104
     elif plate_format == '24':
-        nrow = 4
-        ncol = 6
+        n_row = 4
+        n_col = 6
         pitch = 19300
         diameter = 15540
         z_center_well = 104
     elif plate_format == '96':
-        nrow = 8
-        ncol = 12
+        n_row = 8
+        n_col = 12
         pitch = 9000
         diameter = 6134
         z_center_well = 104
@@ -112,10 +108,10 @@ def create_plate(plate_format):
     # calculate name and position of wells
     # Center of well A1 is considered the origin
     plate_layout = {'name': plate_format, 'well_diameter': diameter}
-    for x in range(ncol):
+    for x in range(n_col):
         x_name = str(x + 1)
         x_coord = x * pitch
-        for y in range(nrow):
+        for y in range(n_row):
             y_name = string.ascii_uppercase[y]
             y_coord = y * pitch
             plate_layout[y_name + x_name] = (x_coord, y_coord, z_center_well)
@@ -436,7 +432,7 @@ class ImagingSystem(object):
             x, y, z = self.get_reference_object().get_reference_position()
         else:
             if (self.x_ref is not None and self.y_ref is not None
-                and self.z_ref is not None):
+                and self.z_ref is not None):  # noqa
                 x = self.x_ref
                 y = self.y_ref
                 z = self.z_ref
@@ -1707,7 +1703,7 @@ class ImagingSystem(object):
             background_data = background.get_data()
             black_reference_data = black_reference.get_data()
             channel_data = image_data[:, :, ch]
-            corrected_data = correct_background.IlluminationCorrection(
+            corrected_data = correct_background.illumination_correction(
                 channel_data, black_reference_data, background_data)
             # corrected_data = channel_data
             image_data[:, :, ch] = corrected_data
@@ -1753,7 +1749,7 @@ class ImagingSystem(object):
         # use tiling method 'anyShape' for arbitrary shaped tile regions, use 'stack'
         # if tile region is a rectangle.
         # return _ list = [return_image, x_pos_list, y_pos_list]
-        tiled_image, x_border_list, y_border_list = tileImages.tile_images(
+        tiled_image, x_border_list, y_border_list = tile_images.tile_images(
             corrected_images, method="anyShape", output_image=True,
             image_output_path=image_output_path)
         return [tiled_image, x_border_list, y_border_list]
@@ -1954,7 +1950,7 @@ class ImagingSystem(object):
             immersion_delivery_systems = None
         return immersion_delivery_systems
 
-    def get_immersionDeliverySystem(self, name):
+    def get_immersion_delivery_system(self, name):
         '''Return dictionary with objects that describes immersion water delivery system
 
         Input:
@@ -1964,7 +1960,8 @@ class ImagingSystem(object):
          immersion_delivery_system: object of class ImmersionDelivery
         '''
         try:
-            immersion_delivery_system = self.container.get_immersionDeliverySystem(name)
+            immersion_delivery_system = self.container.get_immersion_delivery_system(
+                name)
         except (AttributeError, KeyError):
             immersion_delivery_system = None
         return immersion_delivery_system
@@ -2005,16 +2002,16 @@ class ImagingSystem(object):
             meta_dict = None
         return meta_dict
 
-    def add_meta_data_file(self, metaDataFileObject):
+    def add_meta_data_file(self, meta_data_file_object):
         '''Add object that handles saving of meta data to disk.
 
         Input:
-         metaDataFileObject: object of type meta_data_file
+         meta_data_file_object: object of type meta_data_file
 
         Output:
          none
         '''
-        self.metaDataFile = metaDataFileObject
+        self.meta_data_file = meta_data_file_object
 
     def get_meta_data_file(self):
         '''Return object that handles saving of meta data to disk.
@@ -2027,7 +2024,7 @@ class ImagingSystem(object):
          None if no meta data file exists
         '''
         try:
-            meta_data_file_object = self.metaDataFile
+            meta_data_file_object = self.meta_data_file
         except AttributeError:
             meta_data_file_object = None
         return meta_data_file_object
@@ -2142,7 +2139,7 @@ class PlateHolder(ImagingSystem):
         Output:
          none
         '''
-        self.immersionDeliverySystem = immersion_delivery
+        self.immersion_delivery_system = immersion_delivery
         self.plates = {}  # will hold plate objects
         super(PlateHolder, self).__init__(container=None, name=name,
                                           x_zero=center[0], y_zero=center[1],
@@ -2201,7 +2198,7 @@ class PlateHolder(ImagingSystem):
          none
 
         Output:
-         focusDrive: object of class focusDrive from module hardware
+         focus_drive: object of class focusDrive from module hardware
         '''
         return self.focus_drive
 
@@ -3199,19 +3196,19 @@ class Plate(ImagingSystem):
         xStage, yStage, zStage = self.set_plate_position(wellX, wellY, wellZ)
         return xStage, yStage, zStage
 
-    def show(self, nCol=4, nRow=3, pitch=26, diameter=22.05):
+    def show(self, n_col=4, n_row=3, pitch=26, diameter=22.05):
         '''show ImageAICS of plate layout
 
         Input:
-         nCol: number of columns, labeled from 1 to nCol
-         nRow: number of rows, labeled alphabetically
+         n_col: number of columns, labeled from 1 to n_col
+         n_row: number of rows, labeled alphabetically
          pitch: distance between individual wells in mm
          diameter: diameter of Well in mm
 
         Output:
          none
         '''
-        drawPlate(nCol, nRow, pitch, diameter)
+        drawPlate(n_col, n_row, pitch, diameter)
 
 
 class Slide(ImagingSystem):
@@ -3654,8 +3651,8 @@ class Well(ImagingSystem):
         image = self.load_image(image, get_meta=True)
 
         pixelSize = image.get_meta('PhysicalSizeX')
-        edgePosPixels = findWellCenter.find_well_center_fine(image=image.data,
-                                                             direction='-x')
+        edgePosPixels = find_well_center.find_well_center_fine(image=image.data,
+                                                               direction='-x')
 
         xPos_0 = edgePosPixels * pixelSize
         xEdge_0 = xPos_0 + image.get_meta('aics_imageAbsPosX')
@@ -3669,8 +3666,8 @@ class Well(ImagingSystem):
                                         meta_dict=meta_dict, verbose=verbose)
 
         image = self.load_image(image, get_meta=True)
-        edgePosPixels = findWellCenter.find_well_center_fine(image=image.data,
-                                                             direction='x')
+        edgePosPixels = find_well_center.find_well_center_fine(image=image.data,
+                                                               direction='x')
 
         xPos_1 = edgePosPixels * pixelSize
         xEdge_1 = xPos_1 + image.get_meta('aics_imageAbsPosX')
@@ -3688,8 +3685,8 @@ class Well(ImagingSystem):
                                         meta_dict=meta_dict, verbose=verbose)
 
         image = self.load_image(image, get_meta=True)
-        edgePosPixels = findWellCenter.find_well_center_fine(image=image.data,
-                                                             direction='-y')
+        edgePosPixels = find_well_center.find_well_center_fine(image=image.data,
+                                                               direction='-y')
         yPos_0 = edgePosPixels * pixelSize
         yEdge_0 = yPos_0 + image.get_meta('aics_imageAbsPosY')
 
@@ -3702,8 +3699,8 @@ class Well(ImagingSystem):
                                         meta_dict=meta_dict, verbose=verbose)
 
         image = self.load_image(image, get_meta=True)
-        edgePosPixels = findWellCenter.find_well_center_fine(image=image.data,
-                                                             direction='y')
+        edgePosPixels = find_well_center.find_well_center_fine(image=image.data,
+                                                               direction='y')
 
         yPos_1 = edgePosPixels * pixelSize
         yEdge_1 = yPos_1 + image.get_meta('aics_imageAbsPosY')
@@ -4400,7 +4397,7 @@ def create_plate_holder_manually(m, prefs):
                      z_correction_x_slope=0, z_correction_y_slope=0)
     meta_data_file_path = get_meta_data_path(prefs)
     meta_data_format = prefs.get_pref('MetaDataFormat')
-    meta_data_file_object = meta_data_file(meta_data_file_path, meta_data_format)
+    meta_data_file_object = MetaDataFile(meta_data_file_path, meta_data_format)
     ph.add_meta_data_file(meta_data_file_object)
 
     print('PlateHolder created')
@@ -4412,7 +4409,7 @@ def create_plate_holder_manually(m, prefs):
     # Add pump to plateHolder
     im = ImmersionDelivery(name='Immersion', plate_holder_object=ph, center=[0, 0, 0])
 #     ph.add_immersionDelivery(immersion_delivery_systemsDict={'Water Immersion': im})
-    ph.immersionDeliverySystem = im
+    ph.immersion_delivery_system = im
 
     # create Plate as part of PlateHolder and add it to PlateHolder
     p = Plate(name='Plate', plate_holder_object=ph, center=[6891, 3447, 9500],
@@ -4506,9 +4503,10 @@ def test_samples(software, file_path,
      Success: True when test was passed
     '''
     import setup_samples
+    from ..preferences import Preferences
 
     # get all information about experiment
-    prefs = preferences.Preferences(get_prefs_path())
+    prefs = Preferences(get_prefs_path())
 
     # create microscope
     m = create_microscope(software, prefs)
@@ -4535,7 +4533,7 @@ def test_samples(software, file_path,
 
         # get immersion delivery system object
         # name = prefs.get_pref('NameImmersionSystem')
-        immersion_delivery = ph.immersionDeliverySystem
+        immersion_delivery = ph.immersion_delivery_system
 
         # move objective under immersion water outlet and assign position of outlet
         # to immersion_delivery object
@@ -4597,190 +4595,6 @@ def test_samples(software, file_path,
         for type in ['Colony', 'Barcode', 'Sample']:
             print('Wells of type ', type, ': ', p.get_wells_by_type(type))
 
-    # Test coordinate systems
-
-    if 'test_coordinates' in test:
-        print('\n______________________________________________\n')
-
-        # testList = [ph, p, d5, c1d5, c1d5_1]
-        testList = [c2d5]
-        for obj in testList:
-            obj_name = obj.get_name()
-
-            print('\nTesting ', obj_name)
-            container = obj.get_container()
-            if container is not None:
-                contName = container.get_name()
-            else:
-                contName = 'None'
-            xStage, yStage, zStage = obj.get_abs_position()
-            print('Position of ' + obj_name
-                  + ' in absolute stage coordinates (ph.get_abs_position()): ',
-                  xStage, yStage, zStage)
-
-            if obj.get_container() is not None:
-                x_object_0, y_object_0, z_object_0 = obj.get_obj_pos_from_container_pos(
-                    0, 0, 0, verbose=True)
-                print('Object position for container position (0,0,0): ',
-                      x_object_0, y_object_0, z_object_0)
-                x_object_10, y_object_20, z_object_30 = \
-                    obj.get_obj_pos_from_container_pos(10, 20, 30, verbose=True)
-                print('Object position for container position (10,20,30): ',
-                      x_object_10, y_object_20, z_object_30)
-                print('Container position for container position (0,0,0): ',
-                      obj.get_container_pos_from_obj_pos(x_object_0, y_object_0,
-                                                         z_object_0))
-                print('Container position for container position (10,20,30): ',
-                      obj.get_container_pos_from_obj_pos(x_object_10, y_object_20,
-                                                         z_object_30))
-
-            # Return center of object in container coordinates.
-            x, y, z = obj.get_zero()
-            print('Position of ' + obj_name + ' in ' + contName
-                  + ' coordinates (get_zero): ', x, y, z)
-
-            # Return current position in object coordinates in mum
-            x, y, z = obj.get_pos_from_abs_pos()
-            print('Position of ' + obj_name + ' in ' + obj_name
-                  + ' coordinates (get_pos_from_abs_pos()): ', x, y, z)
-
-            x, y, z = obj.get_pos_from_abs_pos(xStage, yStage, zStage)
-            print('Position of ' + obj_name + ' in ' + obj_name
-                  + (' calculated coordinates(get_pos_from_abs_pos'
-                     '(xStage, yStage, zStage)): ', x, y, z))
-
-            try:
-                x, y, z = obj.get_abs_pos_from_obj_pos(x, y, z)
-                print('Position of ' + obj_name + ' in absolute stage coordinates'
-                      ' (get_abs_pos_from_obj_pos(), should be (0,0,0)): ', x, y, z)
-            except Exception:
-                print('get_abs_pos_from_obj_pos failed')
-
-            if isinstance(obj, Colony):
-                zero_pos = obj.move_to_zero()
-                print('Moved colony to zero, new position: {}'.format(zero_pos))
-                x, y, z = obj.get_pos_from_abs_pos()
-                print('Position of stage in {} coordinates'
-                      ' (get_pos_from_abs_pos()): {}, {}, {}'.format(obj_name, x, y, z))
-                col_zero = obj.get_zero()
-                print('Zero position of {}: {}, {}, {}'.format(obj_name, *col_zero))
-                xStage, yStage, zStage = obj.get_abs_position()
-                print('Position of ' + obj_name
-                      + ' in absolute stage coordinates (ph.get_abs_position()): ',
-                      xStage, yStage, zStage)
-                x, y, z = obj.get_pos_from_abs_pos(xStage, yStage, zStage)
-                print('Position of stage in ' + obj_name
-                      + (' calculated coordinates(get_pos_from_abs_pos(xStage,'
-                         ' yStage, zStage), should be the same): '), x, y, z)
-                obj.get_container()
-
-            print('\n______________________________________________\n')
-
-    if 'find_well_center' in test:
-        # Find center of well based on 1.25x objective image
-
-        # test find center of well
-        print('Find center of well')
-        x, y, z = d5.get_abs_pos_from_obj_pos(0, 0)
-        print('Position of well a1 in absolute stage coordinates before calibration: ',
-              x, y, z)
-        d5.set_zero(x, y, z)
-
-        x, y, z = d5.get_zero()
-        print(
-            'Zero position of well a1  absolute well coordinates before calibration: ',
-            x, y, z)
-
-        print('Position of well a1 in absolute stage coordinates before calibration: ',
-              x, y)
-        x, y, z = d5.find_well_center_fine(experiment='ImageFindWellCenter.czexp',
-                                           well_diameter=6134, cameraID='sCMOS_mCherry',
-                                           dictPath=file_path)
-        print('Position of well center in absolute well coordinates (calculated): ', x,
-              y, z)
-
-        d5.set_zero(x, y)
-        d5.move_to_zero()
-        x, y, z = d5.get_abs_pos_from_obj_pos(0, 0)
-        print('Position of well a1 in absolute stage coordinates (calculated): ',
-              x, y, z)
-
-        d5.execute_experiment(experiment='ImageFindWellCenter.czexp',
-                              cameraID='sCMOS_mCherry',
-                              file_path=file_path + 'wellCenterTest.czi')
-
-    if 'find_well_center_fine' in test:
-        # Find center of well based on 10x objective image
-        message.operate_message("Please focus with 10x on right edge of well "
-                                "\nto find zero position")
-
-        # find center of well and use this value as zero value for plate
-        experiment = 'ImageFindWellCenter_10x'
-        well_diameter = 6011
-        cameraID = 'sCMOS_mCherry'
-
-        xCenterAbs, yCenterAbs, zCenterAbs = d5.find_well_center_fine(
-            experiment=experiment,
-            well_diameter=well_diameter,
-            cameraID=cameraID,
-            dictPath=file_path)
-
-        # Update zero position for plate
-        p.set_zero(xCenterAbs, yCenterAbs, zCenterAbs)
-
-#     if 'move_to_zero' in test:
-#         # Find center of well based on 10x objective image
-
-    if 'test_auto_focus' in test:
-        # test setting and recall of auto focus
-        print('\n______________________________________________\n')
-        print('Test auto-focus')
-
-        # get first plate
-        plate = ph.get_plates().values()[0]
-        # get well D5 on first plate
-        d5 = plate.get_well('D5')
-
-        x, y, z = d5.move_to_zero(load=True, verbose=False)
-        print('Center position of well {} is x = {}, y = {}, z = {}'.format(
-            d5.get_name(), x, y, z))
-
-        # enable autofocus
-        autoFocusStatus = ph.recover_hardware(d5.set_use_autofocus, 'True')
-        if autoFocusStatus:
-            print('Autofocus enabled')
-        else:
-            print('Autofocus disabled')
-
-        # move to edge of left well and keep focal position
-        deltaX = 6134 / 2
-        x, y, z = ph.recover_hardware(d5.move_delta_xyz, -deltaX, 0, 0, load=True,
-                                      verbose=False)
-
-        # get focal position of edge
-        message.operate_message("Please focus with 10x to edge of well. ")
-        x, y, zEdge = ph.recover_autofocus(d5.get_abs_position)
-        print('Edge position of well {} is x = {}, y = {}, z = {}'.format(d5.get_name(),
-              x, y, zEdge))
-
-        # update zero for well d6
-        # get z position in object coordinates
-        x, y, newZ = ph.recover_autofocus(d5.get_pos_from_abs_pos, verbose=False)
-        print('Edge position in object coordinates of well {} is x = {}, y = {}, z = {}'.format(d5.get_name(), x, y, newZ))  # noqa
-        d6.update_zero(z=newZ, verbose=True)
-
-        # move to center of d6
-        x, y, z = ph.recover_autofocus(d6.move_to_zero, load=True, verbose=False)
-        print('Center position of well {} is x = {}, y = {}, z = {}'.format(
-            d6.get_name(), x, y, z))
-
-        # move to edge of right well and keep focal position
-        deltaX = 6134 / 2
-        x, y, z = ph.recover_autofocus(d5.move_delta_xyz, deltaX, 0, 0,
-                                       load=True, verbose=False)
-        print('Edge position of well {} is x = {}, y = {}, z = {}'.format(
-            d6.get_name(), x, y, z))
-
     # move stage to cells and acquire image
     if 'image_cells' in test:
         # enable autofocus
@@ -4830,86 +4644,6 @@ def test_samples(software, file_path,
                                                            meta_dict=meta_dict)
                     print('Image acquired and saved at ', fileDirPath)
                     print('Meta data: ', image.get_meta())
-
-    # acquire tile scan in well
-    if 'test_tile_scan' in test:
-        print('Test tiling')
-
-        # Define how to tile
-        # - NoTiling:  no tiling
-        # - Fixed: use predifined number of tiles
-        # - ColonySize:  based on size of colony
-        # - Well:  image whole well (if only part of well set PercentageWell < 100)
-        tile_type = 'NoTiling'
-
-        # Use well d5
-        pos_list = None
-        print('List with tile positions for tile_object {}: {}'.format(tile_type,
-                                                                       pos_list))
-        images = d5.acquire_images(experiment='DummyExperiment',
-                                   cameraID='Camera1 (Back)',
-                                   file_path=file_path,
-                                   pos_list=pos_list,
-                                   load=False,
-                                   meta_dict={},
-                                   verbose=False)
-        print(images)
-
-        try:
-            tile_type = 'Fixed'
-            imaging_settings = prefs.get_pref_as_meta('ScanPlate')
-            pos_list = d5.get_tile_positions_list(imaging_settings, tile_type=tile_type,
-                                                  verbose=True)
-            print('List with tile positions for tile_object {}: {}'.format(tile_type,
-                                                                           pos_list))
-            images = d5.acquire_images(experiment='DummyExperiment',
-                                       cameraID='Camera1 (Back)',
-                                       file_path=file_path,
-                                       pos_list=pos_list,
-                                       load=False,
-                                       meta_dict={},
-                                       verbose=False)
-            print(images)
-        except Exception:
-            print('Error in scan tiles of type {}'.format(tile_type))
-
-        try:
-            tile_type = 'ColonySize'
-            # requires colonies to work
-            imaging_settings = prefs.get_pref_as_meta('ScanColonies')
-            pos_list = c1d5.get_tile_positions_list(imaging_settings,
-                                                    tile_type=tile_type,
-                                                    verbose=True)
-            print('List with tile positions for tile_object {}: {}'.format(tile_type,
-                                                                           pos_list))
-            images = d5.acquire_images(experiment='DummyExperiment',
-                                       cameraID='Camera1 (Back)',
-                                       file_path=file_path,
-                                       pos_list=pos_list,
-                                       load=False,
-                                       meta_dict={},
-                                       verbose=False)
-            print(images)
-        except Exception:
-            print('Error in scan tiles of type {}'.format(tile_type))
-
-        try:
-            tile_type = 'Well'
-            imaging_settings = prefs.get_pref_as_meta('ScanPlate')
-            pos_list = d5.get_tile_positions_list(imaging_settings, tile_type=tile_type,
-                                                  verbose=True)
-            print('List with tile positions for tile_object {}: {}'.format(tile_type,
-                                                                           pos_list))
-            images = d5.acquire_images(experiment='DummyExperiment',
-                                       cameraID='Camera1 (Back)',
-                                       file_path=file_path,
-                                       pos_list=pos_list,
-                                       load=False,
-                                       meta_dict={},
-                                       verbose=False)
-            print(images)
-        except Exception:
-            print('Error in scan tiles of type {}'.format(tile_type))
 
     return True
 

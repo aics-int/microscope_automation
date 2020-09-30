@@ -395,7 +395,7 @@ def setup_plate(prefs, colony_file=None, microscope_object=None, barcode=None):
     # create Wells and add to Plate
     # get information from microscopeSpecifications.yml file
     ncol = int(specifications.get_pref('ColumnsWell'))
-    nrow = int(specifications.get_pref('RowsWell'))
+    n_row = int(specifications.get_pref('RowsWell'))
     pitch = float(specifications.get_pref('PitchWell'))
     diameter = float(specifications.get_pref('DiameterWell'))
     z_center_wells = float(specifications.get_pref('zCenterWell'))
@@ -411,7 +411,7 @@ def setup_plate(prefs, colony_file=None, microscope_object=None, barcode=None):
     for colIndex in range(ncol - 1):
         colName = str(colIndex + 1)
         colCoord = colIndex * pitch
-        for rowIndex in range(nrow - 1):
+        for rowIndex in range(n_row - 1):
             # create well
             rowName = string.ascii_uppercase[rowIndex]
             yCoord = rowIndex * pitch
