@@ -16,22 +16,22 @@ import warnings
 from collections import OrderedDict
 
 # import modules from project microscope_automation
-from get_path import (
+from ..get_path import (
     get_images_path,
     get_meta_data_path,
     get_prefs_path,
     add_suffix,
     set_pref_file,
 )
-from draw_plate import drawPlate
+from .draw_plate import draw_plate
 from .. import automation_messages_form_layout as message
 from . import find_well_center
 from . import correct_background
 from . import tile_images
 from ..load_image_czi import LoadImageCzi
-from meta_data_file import MetaDataFile
-from positions_list import CreateTilePositions
-from interactive_location_picker_pyqtgraph import ImageLocationPicker
+from .meta_data_file import MetaDataFile
+from .positions_list import CreateTilePositions
+from .interactive_location_picker_pyqtgraph import ImageLocationPicker
 from ..automation_exceptions import (
     ObjectiveNotDefinedError,
     FileExistsError,
@@ -186,7 +186,6 @@ class ImagingSystem(object):
         x_ref=None,
         y_ref=None,
         z_ref=None,
-        prefs=None,
         microscope_object=None,
         stage_id=None,
         focus_id=None,
@@ -237,7 +236,7 @@ class ImagingSystem(object):
 
         # We can attach images to objects
         # E.g. images for background correction
-        self.imageDict = {}
+        self.image_dict = {}
 
         # Decide weather sample should be imaged
         self.set_image(image)
@@ -1805,19 +1804,20 @@ class ImagingSystem(object):
 
     def get_tile_positions_list(self, prefs, tile_type="NoTiling", verbose=True):
         """Get positions for tiles in absolute coordinates.
+        Subclasses have additional tile_objects (e.g. ColonySize, Well).
 
         Input:
          prefs: dictionary with preferences for tiling
+
          tile_type: type of tiling.  Possible options:
-                     - 'NoTiling': do not tile
-                     - 'rectangle': calculate tiling to image a rectangular area
-                     - 'ellipse': cover ellipse (e.g. well) with tiles
+          'NoTiling': do not tile
+          'rectangle': calculate tiling to image a rectangular area
+          'ellipse': cover ellipse (e.g. well) with tiles
+
          verbose: print debugging information
 
         Output:
          tile_position_list: list with absolute positions for tiling
-
-         Subclasses have additional tile_objects (e.g. ColonySize, Well)
         """
         tile_params = self._get_tile_params(prefs, tile_type, verbose=verbose)
         tile_positions_list = self._compute_tile_positions_list(tile_params)
@@ -1952,7 +1952,7 @@ class ImagingSystem(object):
         Output:
          none
         """
-        self.imageDict.update({key: image})
+        self.image_dict.update({key: image})
 
     def get_attached_image(self, key):
         """Retrieve attached image.
@@ -1963,7 +1963,7 @@ class ImagingSystem(object):
         Output:
          image: image object of class ImageAICS
         """
-        image = self.imageDict.get(key)
+        image = self.image_dict.get(key)
         if not (image):
             if self.container is not None:
                 image = self.container.get_attached_image(key)
@@ -3502,7 +3502,7 @@ class Plate(ImagingSystem):
         Output:
          none
         """
-        drawPlate(n_col, n_row, pitch, diameter)
+        draw_plate(n_col, n_row, pitch, diameter)
 
 
 class Slide(ImagingSystem):
@@ -4082,10 +4082,12 @@ class Well(ImagingSystem):
 
         Input:
          prefs: dictionary with preferences for tiling
+
          tile_type: type of tiling.  Possible options:
-                     - 'None': do not tile
-                     - 'Fixed': use fixed number of tiles
-                     - 'Well': use enough tiles to cover one well
+          'None': do not tile
+          'Fixed': use fixed number of tiles
+          'Well': use enough tiles to cover one well
+
          verbose: print debugging information
 
         Output:
@@ -4486,6 +4488,7 @@ class Colony(ImagingSystem):
 
         Input:
          prefs: preferences read with module preferences with criteria for cells
+
          image: ImageAICS object with colony
 
         Output:
@@ -4502,6 +4505,7 @@ class Colony(ImagingSystem):
 
         Input:
         prefs: preferences read with module preferences with criteria for cells
+
         image: ImageAICS object with colony
 
         Output:

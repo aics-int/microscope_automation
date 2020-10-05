@@ -20,6 +20,7 @@ import pytest
 import microscope_automation.hardware.setup_microscope as setup_microscope
 import microscope_automation.preferences as preferences
 import microscope_automation.hardware.hardware_components as h_comp
+import microscope_automation.samples.samples as samples
 
 
 class Helpers:
@@ -179,6 +180,34 @@ class Helpers:
     def setup_local_pump(pump_id, seconds=1, port="COM1", baudrate=19200):
         """Create Pump object"""
         return h_comp.Pump(pump_id, seconds, port, baudrate)
+
+    def setup_local_imaging_system(
+        self,
+        container=None,
+        name="",
+        image=True,
+        prefs_path=None,
+        stage_id=None,
+        focus_id=None,
+        auto_focus_id=None,
+        objective_changer_id=None,
+        safety_id=None,
+    ):
+        """Create ImagingSystem object"""
+        if prefs_path:
+            microscope_object = self.setup_local_microscope(prefs_path)
+        else:
+            microscope_object = None
+
+        # TODO: add in other objects like focus drive and safety here
+
+        return samples.ImagingSystem(container=container, name=name, image=image,
+                                     microscope_object=microscope_object,
+                                     stage_id=stage_id,
+                                     focus_id=focus_id,
+                                     auto_focus_id=auto_focus_id,
+                                     objective_changer_id=objective_changer_id,
+                                     safety_id=safety_id)
 
 
 @pytest.fixture

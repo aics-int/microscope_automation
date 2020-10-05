@@ -1,11 +1,10 @@
-# from aicsimagetools.omeTifWriter import OmeTifWriter
 import numpy as np
-from image_AICS import ImageAICS
+from ..image_AICS import ImageAICS
 import os
 import logging
 
-# from aicsimagetools.omeTifWriter import OmeTifWriter
-from aicsimageio import omeTifWriter
+# from aicsimagetools.ome_tiff_writer import ome_tiff_writer
+from aicsimageio.writers import ome_tiff_writer
 import multiprocessing
 
 log = logging.getLogger(__name__)
@@ -49,7 +48,7 @@ def tile_images(images, method="stack", output_image=True, image_output_path=Non
     tiled_image = tiled_image_list[0]
 
     if output_image:
-        writer = omeTifWriter.OmeTifWriter(
+        writer = ome_tiff_writer.OmeTiffWriter(
             tile_meta["aics_filePath"], overwrite_file=True
         )
         proc = multiprocessing.Process(
@@ -127,7 +126,7 @@ def _tile_hard_any_shape(images, tile_metadata):
         y_high = max(
             container_pixels_y - yPos, container_pixels_y - yPos - image_pixels_y
         )
-        tiles_container[xPos : xPos + image_pixels_x, y_low:y_high, :] = data
+        tiles_container[xPos:xPos + image_pixels_x, y_low:y_high, :] = data
 
     return_image = ImageAICS(data=tiles_container, meta=tile_metadata)
     # Returns tiled image plus borders for segmentation if necessary
