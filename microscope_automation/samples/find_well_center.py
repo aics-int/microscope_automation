@@ -1,4 +1,4 @@
-'''
+"""
 Find center of well based on ImageAICS of well segment.
 We will generate an ImageAICS of the whole well
 and convolve it with the ImageAICS of the segment.
@@ -6,7 +6,7 @@ All dimensions in pixels
 Created on Jun 18, 2016
 
 @author: winfriedw
-'''
+"""
 
 from skimage import draw, feature, exposure, img_as_float
 from skimage.filters import threshold_otsu
@@ -22,7 +22,7 @@ summaryDebug = True  # if True, summary debug images will be shown
 
 
 def show_hist(image):
-    '''Plot histogram.
+    """Plot histogram.
 
     Input:
      image
@@ -31,30 +31,31 @@ def show_hist(image):
      none
 
     We have problems with the pyplot.hist function.
-    '''
+    """
     hist, bins = numpy.histogram(image, bins=50)
     width = 0.7 * (bins[1] - bins[0])
     center = (bins[:-1] + bins[1:]) / 2
 
     fig, axes = plt.subplots(nRows=1, nCols=2)
     axes[0].imshow(image)
-    axes[1].bar(center, hist, align='center', width=width)
+    axes[1].bar(center, hist, align="center", width=width)
     plt.show()
 
 
 def show_debug_image(image):
-    '''Show ImageAICS when in debug mode.
+    """Show ImageAICS when in debug mode.
     Input: ImageAICS
     Return: none
-    '''
+    """
     if debug:
         plt.imshow(image)
         plt.show()
 
 
-def show_debug_summary(image, wellImage, correlation, tImage, corrX, corrY,
-                       offsetX, offsetY):
-    '''Show all images to calculate new center.
+def show_debug_summary(
+    image, wellImage, correlation, tImage, corrX, corrY, offsetX, offsetY
+):
+    """Show all images to calculate new center.
 
     Input:
      image: microscope image of well center
@@ -71,7 +72,7 @@ def show_debug_summary(image, wellImage, correlation, tImage, corrX, corrY,
 
     Output:
      none
-    '''
+    """
     if summaryDebug:
         fig, axes = plt.subplots(nRows=2, nCols=3)
 
@@ -79,26 +80,31 @@ def show_debug_summary(image, wellImage, correlation, tImage, corrX, corrY,
         axes[0, 1].imshow(wellImage)
         # mark position of correlation maximum. x and y are reversed
         # because we display on a numpy array
-        axes[0, 1].plot(corrY, corrX, 'wx', markersize=20)
-#         centerX=offsetX+correlation.shape[0]/2
-#         centerY=offsetY+correlation.shape[1]/2
+        axes[0, 1].plot(corrY, corrX, "wx", markersize=20)
+        #         centerX=offsetX+correlation.shape[0]/2
+        #         centerY=offsetY+correlation.shape[1]/2
 
-#         axes[0,1].plot(centerY, centerX, 'b+', markersize=20)
+        #         axes[0,1].plot(centerY, centerX, 'b+', markersize=20)
         axes[1, 0].imshow(correlation)
         # mark position of correlation maximum. x and y are reversed
         # because we display on a numpy array
-        axes[1, 0].plot(corrY, corrX, 'wx', markersize=20)
+        axes[1, 0].plot(corrY, corrX, "wx", markersize=20)
 
         # overlay original image over template for well
-#         overlay=np.zeros((wellImage.shape[0],wellImage.shape[1]))
+        #         overlay=np.zeros((wellImage.shape[0],wellImage.shape[1]))
         overlay = numpy.copy(wellImage)
-        insert = 1 + numpy.copy(overlay[corrX - image.shape[0] / 2:corrX
-                                + image.shape[0] / 2, corrY - image.shape[0]
-                                / 2:corrY + image.shape[0] / 2])
+        insert = 1 + numpy.copy(
+            overlay[
+                corrX - image.shape[0] / 2 : corrX + image.shape[0] / 2,
+                corrY - image.shape[0] / 2 : corrY + image.shape[0] / 2,
+            ]
+        )
         image_scaled = image / image.max()
         insert = insert + image_scaled
-        overlay[corrX - image.shape[0] / 2:corrX + image.shape[0] / 2, corrY
-                - image.shape[0] / 2:corrY + image.shape[0] / 2] = insert
+        overlay[
+            corrX - image.shape[0] / 2 : corrX + image.shape[0] / 2,
+            corrY - image.shape[0] / 2 : corrY + image.shape[0] / 2,
+        ] = insert
         axes[1, 1].imshow(overlay)
 
         axes[0, 2].imshow(tImage)
@@ -107,7 +113,7 @@ def show_debug_summary(image, wellImage, correlation, tImage, corrX, corrY,
 
 
 def create_well_image(diameter):
-    '''Create mask for whole well. Using the whole well for alignment will
+    """Create mask for whole well. Using the whole well for alignment will
     improve accuracy on the cost of speed.
     We recommend to use create_edge_image if possible
 
@@ -116,7 +122,7 @@ def create_well_image(diameter):
 
     Return:
      well_image: numpy array for well with well set to 1 and background set to 0
-    '''
+    """
 
     im = numpy.zeros((diameter, diameter))
     rr, cc = draw.circle(diameter / 2, diameter / 2, diameter / 2.0, im.shape)
@@ -126,7 +132,7 @@ def create_well_image(diameter):
 
 
 def create_edge_image(diameter, length, r, phi, add_noise=False):
-    '''Create ImageAICS for well edge used for alignment and test purposes.
+    """Create ImageAICS for well edge used for alignment and test purposes.
 
     Input:
      diameter: Well diameter in pixels
@@ -134,7 +140,7 @@ def create_edge_image(diameter, length, r, phi, add_noise=False):
      r: distance of image from circle center in pixels.
      phi: direction of image
      addNoise: add noise for test purposes. Default is False.
-    '''
+    """
 
     im = numpy.zeros((int(length), int(length)))
 
@@ -162,7 +168,7 @@ def create_edge_image(diameter, length, r, phi, add_noise=False):
 
 
 def find_well_center(image, well_diameter, percentage, phi):
-    '''Find center of well based on edge ImageAICS.
+    """Find center of well based on edge ImageAICS.
 
     Input:
      image: image with well edge
@@ -177,10 +183,13 @@ def find_well_center(image, well_diameter, percentage, phi):
 
     Return:
      offset_x, offset_y: offset betwee
-    '''
+    """
     # create image of well section, wellimage has to be larger than image
-    well_image_size = max(well_diameter + 2 * max(image.shape) * percentage / 100,
-                          image.shape[0], image.shape[1])
+    well_image_size = max(
+        well_diameter + 2 * max(image.shape) * percentage / 100,
+        image.shape[0],
+        image.shape[1],
+    )
     well_image = create_edge_image(well_diameter, well_image_size, 0, phi)
 
     # We take images of well edges with a 1.25x objective.
@@ -235,7 +244,7 @@ def find_well_center(image, well_diameter, percentage, phi):
 
 
 def find_well_center_fine(image, direction):
-    '''Find edge of well in image in selected direction.
+    """Find edge of well in image in selected direction.
 
     Input:
      image: image with well edge
@@ -245,23 +254,23 @@ def find_well_center_fine(image, direction):
     Return:
      edge_pos: coordinate of well edge in selected direction in pixels
      with origin in center of image
-    '''
+    """
 
     # scikit-image assumes floating point images to be in the range [-1,1] or [0, 1]
     img = img_as_float(image)
 
-    if direction == '-x' or direction == 'x':
+    if direction == "-x" or direction == "x":
         median_size = (1, 30)
         sobel_axis = 0
-    elif direction == '-y' or direction == 'y':
+    elif direction == "-y" or direction == "y":
         median_size = (30, 1)
         sobel_axis = 1
     else:
-        print('Not implemented')
+        print("Not implemented")
 
-    if direction == 'x':
+    if direction == "x":
         img = numpy.flipud(img)
-    elif direction == 'y':
+    elif direction == "y":
         img = numpy.fliplr(img)
 
     img_filter = ndimage.median_filter(img, size=median_size)
@@ -271,7 +280,7 @@ def find_well_center_fine(image, direction):
     mask[img_edges > numpy.percentile(img_edges, 99.5)] = 1
 
     pos_xy = numpy.nonzero(mask)
-    if direction == 'x' or direction == 'y':
+    if direction == "x" or direction == "y":
         edge_pos = img.shape[sobel_axis] / 2 - pos_xy[sobel_axis].min()
     else:
         edge_pos = pos_xy[sobel_axis].min() - img.shape[sobel_axis] / 2
@@ -279,23 +288,23 @@ def find_well_center_fine(image, direction):
     return edge_pos
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     debug = False  # if True, debug images will be shown
     summaryDebug = True  # if True, summary debug images will be shown
     # create test ImageAICS
-#     wellDiameter=800
-#     length=wellDiameter
-#     r=0
-#     phi=0
-#     image=create_edge_image(wellDiameter, length, r, phi, True)
+    #     wellDiameter=800
+    #     length=wellDiameter
+    #     r=0
+    #     phi=0
+    #     image=create_edge_image(wellDiameter, length, r, phi, True)
 
     # find center with different percentage of reference ImageAICS
-#     for perc in [200, 100, 80]:
-#         x, y= find_well_center(image, wellDiameter, perc,0)
-#         xe=r*math.cos(math.radians(phi))
-#         ye=r*math.sin(math.radians(phi))
-#         print 'Well center expected:', xe, ye
-#         print 'Well center (0,0): ', x,y
+    #     for perc in [200, 100, 80]:
+    #         x, y= find_well_center(image, wellDiameter, perc,0)
+    #         xe=r*math.cos(math.radians(phi))
+    #         ye=r*math.sin(math.radians(phi))
+    #         print 'Well center expected:', xe, ye
+    #         print 'Well center (0,0): ', x,y
 
     # create new test images
     well_diameter = 400
@@ -306,7 +315,7 @@ if __name__ == '__main__':
         x, y = find_well_center(image, well_diameter, 100, phi)
         xe = -r * math.sin(math.radians(phi))
         ye = -r * math.cos(math.radians(phi))
-        print('Well center expected:', xe, ye)
-        print('Well center measured: ', x, y)
+        print("Well center expected:", xe, ye)
+        print("Well center measured: ", x, y)
 
-    print('Test findWellCenter finished')
+    print("Test findWellCenter finished")

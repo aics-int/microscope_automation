@@ -3,6 +3,7 @@ import numpy as np
 from image_AICS import ImageAICS
 import os
 import logging
+
 # from aicsimagetools.omeTifWriter import OmeTifWriter
 from aicsimageio import omeTifWriter
 import multiprocessing
@@ -25,7 +26,7 @@ def tile_images(images, method="stack", output_image=True, image_output_path=Non
     Output:
      img: tiled image of type ImageAICS
     """
-    func_map = {'stack': _tile_hard_rectangle, 'anyShape': _tile_hard_any_shape}
+    func_map = {"stack": _tile_hard_rectangle, "anyShape": _tile_hard_any_shape}
     if not func_map.get(method, None):
         raise ValueError("Not a valid tiling method")
     # copy over all metadata from center image of tile
@@ -36,21 +37,24 @@ def tile_images(images, method="stack", output_image=True, image_output_path=Non
             img.data = image_data[:, :, np.newaxis]
     if output_image:
         if image_output_path:
-            tile_meta['aics_filePath'] = image_output_path
+            tile_meta["aics_filePath"] = image_output_path
         else:
-            tile_meta['aics_filePath'] = os.path.join(os.path.dirname(
-                tile_meta['aics_filePath']), tile_meta['aics_SampleName']
-                + "_tiled.ome.tif")
+            tile_meta["aics_filePath"] = os.path.join(
+                os.path.dirname(tile_meta["aics_filePath"]),
+                tile_meta["aics_SampleName"] + "_tiled.ome.tif",
+            )
     # Now the function returns a list of images & borders
     tiled_image_list = func_map[method](images, tile_meta)
     # borders are needed for segmentation
     tiled_image = tiled_image_list[0]
 
     if output_image:
-        writer = omeTifWriter.OmeTifWriter(tile_meta['aics_filePath'],
-                                           overwrite_file=True)
-        proc = multiprocessing.Process(target=writer.save, args=[np.transpose(
-            tiled_image.get_data(), (2, 0, 1))])
+        writer = omeTifWriter.OmeTifWriter(
+            tile_meta["aics_filePath"], overwrite_file=True
+        )
+        proc = multiprocessing.Process(
+            target=writer.save, args=[np.transpose(tiled_image.get_data(), (2, 0, 1))]
+        )
         proc.start()
     return tiled_image_list
 
@@ -73,26 +77,28 @@ def _tile_hard_any_shape(images, tile_metadata):
 
     # find out how large the final, rectangular image has to be and create empty array
     # find the maximum number of tiles in x and y
-    positions_x = set([meta['aics_imageObjectPosX'] for meta in meta_list])
+    positions_x = set([meta["aics_imageObjectPosX"] for meta in meta_list])
     number_tiles_x = len(positions_x)
-    positions_y = set([meta['aics_imageObjectPosY'] for meta in meta_list])
+    positions_y = set([meta["aics_imageObjectPosY"] for meta in meta_list])
     number_tiles_y = len(positions_y)
 
     # assume that all tiles have the identical number of pixels, dimensions,
     # and data type
     number_pixels_x, number_pixels_y, dimensions = data_list[0].shape
-    dtype = meta_list[0]['Type']
+    dtype = meta_list[0]["Type"]
     container_pixels_x = number_pixels_x * number_tiles_x
     container_pixels_y = number_pixels_y * number_tiles_y
-    tiles_container = np.zeros((container_pixels_x,
-                                container_pixels_y,
-                                dimensions), dtype=dtype)
+    tiles_container = np.zeros(
+        (container_pixels_x, container_pixels_y, dimensions), dtype=dtype
+    )
 
     # calibrate pixel size, assuming that individual tiles are flush to each other
-    scaling_x = (max(positions_x) - min(positions_x)) / (number_pixels_x
-                                                         * (number_tiles_x - 1))
-    scaling_y = (max(positions_y) - min(positions_y)) / (number_pixels_y
-                                                         * (number_tiles_y - 1))
+    scaling_x = (max(positions_x) - min(positions_x)) / (
+        number_pixels_x * (number_tiles_x - 1)
+    )
+    scaling_y = (max(positions_y) - min(positions_y)) / (
+        number_pixels_y * (number_tiles_y - 1)
+    )
     offset_x = min(positions_x) / scaling_x
     offset_y = min(positions_y) / scaling_y
 
@@ -103,8 +109,8 @@ def _tile_hard_any_shape(images, tile_metadata):
     y_pos_list = []
     for image in images:
         image_num = image_num + 1
-        xPos = int(image.get_meta('aics_imageObjectPosX') / scaling_x - offset_x)
-        yPos = int(image.get_meta('aics_imageObjectPosY') / scaling_y - offset_y)
+        xPos = int(image.get_meta("aics_imageObjectPosX") / scaling_x - offset_x)
+        yPos = int(image.get_meta("aics_imageObjectPosY") / scaling_y - offset_y)
         # Populate the border dicts
         if xPos not in x_pos_list and xPos != 0:
             x_pos_list.append(xPos)
@@ -115,11 +121,13 @@ def _tile_hard_any_shape(images, tile_metadata):
         image_pixels_x, image_pixels_y, _image_pixels_z = data.shape
 
         # The data coordinates in y are flipped in respect to numpy coordinates
-        y_low = min(container_pixels_y - yPos, container_pixels_y - yPos
-                    - image_pixels_y)
-        y_high = max(container_pixels_y - yPos, container_pixels_y - yPos
-                     - image_pixels_y)
-        tiles_container[xPos:xPos + image_pixels_x, y_low:y_high, :] = data
+        y_low = min(
+            container_pixels_y - yPos, container_pixels_y - yPos - image_pixels_y
+        )
+        y_high = max(
+            container_pixels_y - yPos, container_pixels_y - yPos - image_pixels_y
+        )
+        tiles_container[xPos : xPos + image_pixels_x, y_low:y_high, :] = data
 
     return_image = ImageAICS(data=tiles_container, meta=tile_metadata)
     # Returns tiled image plus borders for segmentation if necessary
@@ -159,8 +167,10 @@ def _tile_hard_rectangle(images, tile_metadata):
     data_list = [img.get_data() for img in images]
     # the -y is here because the y axis is flipped for colony objects
     # TODO: make this more robust
-    pos_list = [[meta['aics_imageObjectPosX'], -meta['aics_imageObjectPosY'], ind]
-                for ind, meta in enumerate(meta_list)]
+    pos_list = [
+        [meta["aics_imageObjectPosX"], -meta["aics_imageObjectPosY"], ind]
+        for ind, meta in enumerate(meta_list)
+    ]
     srt = sorted(pos_list, key=lambda m: (m[Y], m[X]))
     hstack_list = []
     i = 0
@@ -178,29 +188,29 @@ def _tile_hard_rectangle(images, tile_metadata):
 
 if __name__ == "__main__":
     meta = {
-        'aics_SizeX': 5,
-        'aics_SizeY': 5,
-        'aics_imageObjectPosX': -1,
-        'aics_imageObjectPosY': -1,
-        'aics_imageObjectPosZ': 0.0,
+        "aics_SizeX": 5,
+        "aics_SizeY": 5,
+        "aics_imageObjectPosX": -1,
+        "aics_imageObjectPosY": -1,
+        "aics_imageObjectPosZ": 0.0,
     }
     # fill image list with numpy arrays of different values
     img_data_list = [np.full((5, 5), i, dtype=int) for i in range(9)]
     meta_list = [meta.copy() for i in range(9)]
     # for j in range(9):
     # set positions
-    meta_list[1]['aics_imageObjectPosX'] = 0
-    meta_list[2]['aics_imageObjectPosX'] = 1
-    meta_list[3]['aics_imageObjectPosY'] = 0
-    meta_list[4]['aics_imageObjectPosX'] = 0
-    meta_list[4]['aics_imageObjectPosY'] = 0
-    meta_list[5]['aics_imageObjectPosX'] = 1
-    meta_list[5]['aics_imageObjectPosY'] = 0
-    meta_list[6]['aics_imageObjectPosY'] = 1
-    meta_list[7]['aics_imageObjectPosX'] = 0
-    meta_list[7]['aics_imageObjectPosY'] = 1
-    meta_list[8]['aics_imageObjectPosX'] = 1
-    meta_list[8]['aics_imageObjectPosY'] = 1
+    meta_list[1]["aics_imageObjectPosX"] = 0
+    meta_list[2]["aics_imageObjectPosX"] = 1
+    meta_list[3]["aics_imageObjectPosY"] = 0
+    meta_list[4]["aics_imageObjectPosX"] = 0
+    meta_list[4]["aics_imageObjectPosY"] = 0
+    meta_list[5]["aics_imageObjectPosX"] = 1
+    meta_list[5]["aics_imageObjectPosY"] = 0
+    meta_list[6]["aics_imageObjectPosY"] = 1
+    meta_list[7]["aics_imageObjectPosX"] = 0
+    meta_list[7]["aics_imageObjectPosY"] = 1
+    meta_list[8]["aics_imageObjectPosX"] = 1
+    meta_list[8]["aics_imageObjectPosY"] = 1
     # meta_list = list(reversed(meta_list))
     img_list = [ImageAICS(data=img_data_list[i], meta=meta_list[i]) for i in range(9)]
     # img_list = [ImageAICS(data=img_data_list[i], meta=meta_list[i]) for i in [0, 1, 3, 4]]  # noqa

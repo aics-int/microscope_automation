@@ -1,25 +1,26 @@
-'''
+"""
 Class to create position lists for tiling and multi-position imaging.
 Created on Aug 14, 2017
 
 @author: winfriedw
-'''
+"""
 
 import numpy
 import matplotlib.pyplot as plt
 import math
 
-VALID_TILE_TYPE = ['noTiling', 'rectangle', 'ellipse']
+VALID_TILE_TYPE = ["noTiling", "rectangle", "ellipse"]
 
 
 class CreateTilePositions(object):
-    '''
+    """
     Create position lists for tiling and multi-position imaging.
-    '''
+    """
 
-    def __init__(self, tile_type='noTiling', tile_number=(2, 2),
-                 tile_size=(1, 1), degrees=0):
-        '''Create position lists for tiling and multi-position imaging.
+    def __init__(
+        self, tile_type="noTiling", tile_number=(2, 2), tile_size=(1, 1), degrees=0
+    ):
+        """Create position lists for tiling and multi-position imaging.
 
         Input:
          tile_type: string to describe type of tiling. Allowed values:
@@ -37,14 +38,14 @@ class CreateTilePositions(object):
 
         Output:
          none
-        '''
+        """
         self.set_tile_type(tile_type)
         self.set_tile_number(tile_number)
         self.set_tile_size(tile_size)
         self.set_field_rotation(degrees)
 
-    def set_tile_type(self, tile_type='noTiling'):
-        '''Set type of tiling.
+    def set_tile_type(self, tile_type="noTiling"):
+        """Set type of tiling.
 
         Input:
          tile_type: string to describe type of tiling. Allowed values:
@@ -56,11 +57,11 @@ class CreateTilePositions(object):
 
         Output:
          none
-        '''
+        """
         self.tile_type = tile_type
 
     def get_tile_type(self):
-        '''Return type of tiling.
+        """Return type of tiling.
 
         Input:
          none
@@ -71,83 +72,83 @@ class CreateTilePositions(object):
 
           'rectangle': rectangular area of tiles
 
-        '''
+        """
         tile_type = self.tile_type
         return tile_type
 
     def set_tile_number(self, tile_number=(2, 2)):
-        '''Set number of tiles in x and y.
+        """Set number of tiles in x and y.
 
         Input:
          tile_number: tuple with number of tiles in x and y direction
 
         Output:
          none
-        '''
+        """
         self.tile_number = tile_number
 
     def get_tile_number(self):
-        '''Return number of tiles in x and y.
+        """Return number of tiles in x and y.
 
         Input:
          none
 
         Output:
          tile_number: tuple with number of tiles in x and y direction
-        '''
+        """
         tile_number = self.tile_number
         return tile_number
 
     def set_tile_size(self, tile_size=(1, 1)):
-        '''Set size of tiles in x and y.
+        """Set size of tiles in x and y.
 
         Input:
          tile_size: tuple with size of tiles in x and y direction
 
         Output:
          none
-        '''
+        """
         self.tile_size = tile_size
 
     def get_tile_size(self):
-        '''Retrieve size of tiles in x and y.
+        """Retrieve size of tiles in x and y.
 
         Input:
          none
 
         Output:
          tile_size: tuple with size of tiles in x and y direction
-        '''
+        """
         tile_size = self.tile_size
         return tile_size
 
     def set_field_rotation(self, degrees=0):
-        '''Set size of tiles in x and y.
+        """Set size of tiles in x and y.
 
         Input:
          degrees: Angle the tile field is rotated counterclockwise in degrees
 
         Output:
          none
-        '''
+        """
         if degrees is None:
             degrees = 0
         self.field_rotation = degrees
 
     def get_field_rotation(self):
-        '''Set size of tiles in x and y.
+        """Set size of tiles in x and y.
 
         Input:
          none
 
         Output:
          degrees: Angle the tile field is rotated counterclockwise in degrees
-        '''
+        """
         degrees = self.field_rotation
         return degrees
 
     def create_rectangle(self, nx, ny):
-        '''Return positions for rectangle with step size of one.
+        """Return positions for rectangle with step size of one.
 
         Input:
          nx, ny: number of tiles in x and y
@@ -155,14 +156,14 @@ class CreateTilePositions(object):
         Output:
          rect_list: list for rectangle positions, centered around zero
          and with step size of one
-        '''
+        """
         x_array = numpy.arange(-nx / 2.0, nx / 2.0) + 0.5
         y_array = numpy.arange(-ny / 2.0, ny / 2.0) + 0.5
         rect_list = [(x, y, 0) for x in x_array for y in y_array]
         return rect_list
 
     def create_ellipse(self, nx, ny):
-        '''Return positions for ellipse with step size of one.
+        """Return positions for ellipse with step size of one.
 
         Input:
          nx, ny: number of tiles in x and y
@@ -170,16 +171,19 @@ class CreateTilePositions(object):
         Output:
          ellipse_list: list for rectangle positions, centered around zero
          and with step size of one
-        '''
+        """
         # Start with rectangle
         rect_list = self.create_rectangle(nx, ny)
         # delete positions outside of ellipse
-        ellipse_list = [(x, y, z) for (x, y, z) in rect_list if x**2
-                        / (nx / 2)**2 + y**2 / (ny / 2)**2 <= 1]
+        ellipse_list = [
+            (x, y, z)
+            for (x, y, z) in rect_list
+            if x ** 2 / (nx / 2) ** 2 + y ** 2 / (ny / 2) ** 2 <= 1
+        ]
         return ellipse_list
 
     def rotate_pos_list(self, pos_list, degrees):
-        '''Rotate all coordinates in pos_list counterclockwise
+        """Rotate all coordinates in pos_list counterclockwise
         by angle degree around center = (0, 0, 0).
 
         Input:
@@ -189,34 +193,39 @@ class CreateTilePositions(object):
 
         Output:
          rot_list: list with (x, y, z) coordinates after rotation.
-        '''
+        """
         # convert angle from degrees to radians.
         rad = math.radians(degrees)
 
         # rotate
-        rotate_list = [(math.cos(rad) * px - math.sin(rad) * py, math.sin(rad)
-                       * px + math.cos(rad) * py, pz)
-                       for px, py, pz in pos_list]
+        rotate_list = [
+            (
+                math.cos(rad) * px - math.sin(rad) * py,
+                math.sin(rad) * px + math.cos(rad) * py,
+                pz,
+            )
+            for px, py, pz in pos_list
+        ]
         return rotate_list
 
     def get_pos_list(self, center=(0, 0, 0)):
-        '''Return list with positions.
+        """Return list with positions.
 
         Input:
          center: Center position for tiles as tuple (x, y, z)
 
         Output:
          pos_list: list with tuples (x,y) for tile centers.
-        '''
+        """
         # calculate tile positions for different tile types centered around (0, 0, 0)
-        if self.get_tile_type() == 'none':
+        if self.get_tile_type() == "none":
             pos_list = [(0, 0, 0)]
             x_size, y_size = (0, 0)
-        elif self.get_tile_type() == 'rectangle':
+        elif self.get_tile_type() == "rectangle":
             nx, ny = self.get_tile_number()
             pos_list = self.create_rectangle(nx, ny)
             x_size, y_size = self.get_tile_size()
-        elif self.get_tile_type() == 'ellipse':
+        elif self.get_tile_type() == "ellipse":
             nx, ny = self.get_tile_number()
             pos_list = self.create_ellipse(nx, ny)
             x_size, y_size = self.get_tile_size()
@@ -228,30 +237,31 @@ class CreateTilePositions(object):
 
         pos_list = [(x * x_size, y * y_size, z) for x, y, z in pos_list]
         # add offset
-        pos_list = [(x + center[0], y + center[1],
-                    z + center[2]) for (x, y, z) in pos_list]
+        pos_list = [
+            (x + center[0], y + center[1], z + center[2]) for (x, y, z) in pos_list
+        ]
         return pos_list
 
     def show(self, center=(0, 0, 0)):
-        '''Display positions.
+        """Display positions.
 
         Input:
          center: Center position for tiles
 
         Output:
          none
-        '''
+        """
         # create data
         pos_list = self.get_pos_list(center)
         x_pos = [xyz[0] for xyz in pos_list]
         y_pos = [xyz[1] for xyz in pos_list]
-        plt.plot(x_pos, y_pos, 'bo')
+        plt.plot(x_pos, y_pos, "bo")
         plt.show()
 
 
 if __name__ == "__main__":
-    tileList = CreateTilePositions(tile_type='None', tile_size=(2, 3))
-    print('Tile size: {}'.format(tileList.get_tile_size()))
+    tileList = CreateTilePositions(tile_type="None", tile_size=(2, 3))
+    print("Tile size: {}".format(tileList.get_tile_size()))
 
     # for tile_type in ['ellipse']:
     for tile_type in VALID_TILE_TYPE:
@@ -261,16 +271,20 @@ if __name__ == "__main__":
                 tileList.set_field_rotation(degrees)
                 tileList.set_tile_number(tile_number)
                 print(
-                    'Tile list for tile type {} with no center and {} tiles: {}'.format(
+                    "Tile list for tile type {} with no center and {} tiles: {}".format(
                         tileList.get_tile_type(),
                         tileList.get_tile_number(),
-                        tileList.get_pos_list()))
+                        tileList.get_pos_list(),
+                    )
+                )
                 tileList.show()
                 center = (5, 10, 15)
                 print(
-                    'Tile list for tile type {} with center {} and {} tiles: {}'.format(
+                    "Tile list for tile type {} with center {} and {} tiles: {}".format(
                         tileList.get_tile_type(),
                         center,
                         tileList.get_tile_number(),
-                        tileList.get_pos_list(center)))
+                        tileList.get_pos_list(center),
+                    )
+                )
                 tileList.show(center)

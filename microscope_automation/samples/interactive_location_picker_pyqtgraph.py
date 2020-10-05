@@ -1,16 +1,18 @@
 import pyqtgraph
 from pyqtgraph.Qt import QtGui, QtCore
+
 # from PySide import QtGui, QtCore
 import numpy
 from aicsimageio import AICSImage
 import logging
+
 log = logging.getLogger(__name__)
 
-KEY_ADD_POINTS = 'A'
-KEY_DELETE_POINTS = 'D'
-KEY_DELETE_ALL_POINTS = '-'
-KEY_FAIL_ACQUISITION = '`'
-KEY_UNDO = '\\'
+KEY_ADD_POINTS = "A"
+KEY_DELETE_POINTS = "D"
+KEY_DELETE_ALL_POINTS = "-"
+KEY_FAIL_ACQUISITION = "`"
+KEY_UNDO = "\\"
 # Different modes of using the interactive tool
 ADD_MODE = "add"
 DELETE_MODE = "delete"
@@ -22,6 +24,7 @@ class KeyPressWindow(pyqtgraph.GraphicsWindow):
     Creating a class to define a custom key press signal
     for selecting modes.
     """
+
     sigKeyPress = QtCore.pyqtSignal(object)
 
     def __init__(self, *args, **kwargs):
@@ -33,9 +36,16 @@ class KeyPressWindow(pyqtgraph.GraphicsWindow):
 
 
 class ImageLocationPicker(object):
-
-    def __init__(self, image=None, location_list=[], app=None,
-                 spot_size=10, spot_brush='r', spot_symbol='+', spot_pen='r'):
+    def __init__(
+        self,
+        image=None,
+        location_list=[],
+        app=None,
+        spot_size=10,
+        spot_brush="r",
+        spot_symbol="+",
+        spot_pen="r",
+    ):
         """
         Input:
          image: Image in the form of a numpy array
@@ -65,16 +75,23 @@ class ImageLocationPicker(object):
         self.counter = 0
         # Double curly braces ({{}}) in the help string allows for formatting twice,
         # after the single curly braces.
-        self.help_string = "Press {} to add points, {} to delete points," \
-                           " and {} to delete all points." \
-                           "\nPress {} to toggle failed acquisition tag." \
-                           "\n# of Locations Selected = {{}}"\
-                           .format(KEY_ADD_POINTS, KEY_DELETE_POINTS,
-                                   KEY_DELETE_ALL_POINTS, KEY_FAIL_ACQUISITION)
-        self.help_text = pyqtgraph.TextItem(self.help_string.format(
-            self.counter), color='g')
+        self.help_string = (
+            "Press {} to add points, {} to delete points,"
+            " and {} to delete all points."
+            "\nPress {} to toggle failed acquisition tag."
+            "\n# of Locations Selected = {{}}".format(
+                KEY_ADD_POINTS,
+                KEY_DELETE_POINTS,
+                KEY_DELETE_ALL_POINTS,
+                KEY_FAIL_ACQUISITION,
+            )
+        )
+        self.help_text = pyqtgraph.TextItem(
+            self.help_string.format(self.counter), color="g"
+        )
         self.failed_text = pyqtgraph.TextItem(
-            "This image has been failed", color='r', anchor=(-4, 0))
+            "This image has been failed", color="r", anchor=(-4, 0)
+        )
         self._failed_image = False
         self.prev_points = []
         self.text_items = []
@@ -83,7 +100,7 @@ class ImageLocationPicker(object):
         return self._failed_image
 
     def flip_coordinates(self, location_list):
-        '''ZEN has the image origin in the upper left corner,
+        """ZEN has the image origin in the upper left corner,
         QTgraph in the lower left corner.
         This methods transforms coordinates between the two systems.
 
@@ -93,7 +110,7 @@ class ImageLocationPicker(object):
 
         Output:
          flipped_location_list: list with (x, y) tuples after transformation
-        '''
+        """
         xdim, ydim = self.image.shape
         flipped_location_list = []
 
@@ -130,8 +147,9 @@ class ImageLocationPicker(object):
         # Function to update the help text on the ui to current self.counter value
         def _display_help_text():
             w.removeItem(self.help_text)
-            self.help_text = pyqtgraph.TextItem(self.help_string.format(self.counter),
-                                                color='g')
+            self.help_text = pyqtgraph.TextItem(
+                self.help_string.format(self.counter), color="g"
+            )
             w.addItem(self.help_text)
 
         # Add image to the plot
@@ -142,7 +160,7 @@ class ImageLocationPicker(object):
                 w.removeItem(numhelp)
             self.text_items = []
             for index, location in enumerate(self.location_list):
-                point_index = pyqtgraph.TextItem(str(index + 1), color='b')
+                point_index = pyqtgraph.TextItem(str(index + 1), color="b")
                 # Offset the numbering slightly to be next to the points
                 point_index.setPos(location[0] + 10, location[1] + 10)
                 self.text_items.append(point_index)
@@ -153,10 +171,12 @@ class ImageLocationPicker(object):
         w.addItem(image)
         w.addItem(self.help_text)
         # Add points to the plot + image
-        self.scatterplot = pyqtgraph.ScatterPlotItem(size=self.spot_size,
-                                                     brush=self.spot_brush,
-                                                     symbol=self.spot_symbol,
-                                                     pen=self.spot_pen)
+        self.scatterplot = pyqtgraph.ScatterPlotItem(
+            size=self.spot_size,
+            brush=self.spot_brush,
+            symbol=self.spot_symbol,
+            pen=self.spot_pen,
+        )
         self.scatterplot.addPoints(pos=self.location_list)
         refresh_point_index()
         self.counter = len(self.location_list)
@@ -166,8 +186,9 @@ class ImageLocationPicker(object):
         # Given user selected points,
         # delete from current list of points and decrement counter.
         def _handle_delete_points(plot, points):
-            location_selected = self.round_locations(points[0].pos()[0],
-                                                     points[0].pos()[1])
+            location_selected = self.round_locations(
+                points[0].pos()[0], points[0].pos()[1]
+            )
             if location_selected in self.location_list:
                 idx = self.location_list.index(location_selected)
                 # Delete the point that the user clicked on from the text items array
@@ -200,10 +221,12 @@ class ImageLocationPicker(object):
                 if location_selected not in self.location_list:
                     self.location_list.append(location_selected)
                     self.scatterplot.setData(pos=self.location_list)
-                    point_index = pyqtgraph.TextItem(str(len(self.location_list)),
-                                                     color='b')
-                    point_index.setPos(location_selected[0] + 10,
-                                       location_selected[1] + 10)
+                    point_index = pyqtgraph.TextItem(
+                        str(len(self.location_list)), color="b"
+                    )
+                    point_index.setPos(
+                        location_selected[0] + 10, location_selected[1] + 10
+                    )
                     w.addItem(point_index)
                     self.text_items.append(point_index)
                     self.counter = len(self.location_list)
@@ -272,7 +295,7 @@ class ImageLocationPicker(object):
 #
 ################################################################################
 def test_ImageLocationPicker(prefs, image_save_path, app, verbose=False):
-    '''Test location picker on ZEN blue hardware with slide.
+    """Test location picker on ZEN blue hardware with slide.
 
     Input:
      prefs: path to experiment preferences
@@ -281,31 +304,33 @@ def test_ImageLocationPicker(prefs, image_save_path, app, verbose=False):
 
     Output:
      None
-    '''
+    """
     # setup microscope
     from . import setup_samples
 
     microscope_object = setup_samples.setup_microscope(prefs)
 
     # setup plateholder with slide
-    plate_holder_object = setup_samples.setup_slide(prefs,
-                                                    microscope_object=microscope_object)
+    plate_holder_object = setup_samples.setup_slide(
+        prefs, microscope_object=microscope_object
+    )
     # get slide object, we will need object coordinates for reference correction to work
     slide_object = plate_holder_object.get_slide()
 
     # switch to live mode with 20 x and select position
-    microscope_object.live_mode(camera_id='Camera1 (back)', experiment='Setup_20x',
-                                live=True)
+    microscope_object.live_mode(
+        camera_id="Camera1 (back)", experiment="Setup_20x", live=True
+    )
     # set position for next experiments
-    raw_input('Move to image position')
+    raw_input("Move to image position")
     images = slide_object.acquire_images(
-        'Setup_20x',
-        'Camera1 (Back)',
+        "Setup_20x",
+        "Camera1 (Back)",
         reference_object=slide_object.get_reference_object(),
-        filePath=image_save_path + 'image1.czi',
+        filePath=image_save_path + "image1.czi",
         posList=None,
         load=False,
-        verbose=verbose
+        verbose=verbose,
     )
 
     # Find position of new object
@@ -327,12 +352,12 @@ def test_offline():
     # QtGui.QApplication.addLibraryPath(os.path.join(pyqt, "plugins"))
     app = QtGui.QApplication([])
     # Path of test image
-    image_path = r'D:\Winfried\Automation\TestFiles\Capture 2_XY1580769716_Z0_T0_C0.tif'
+    image_path = r"D:\Winfried\Automation\TestFiles\Capture 2_XY1580769716_Z0_T0_C0.tif"
     image = AICSImage(image_path)
     image_data = image.data[0, 0, 0]
     location_list = [(100.0000, 100.0000), (300.0000, 300.0000), (800.0000, 800.0000)]
     example = ImageLocationPicker(image_data, location_list, app)
-    example.plot_points('Well Overview Image')
+    example.plot_points("Well Overview Image")
 
 
 def test_online():
@@ -344,27 +369,25 @@ def test_online():
 
     # get path to preferences file
     arg_parser = argparse.ArgumentParser()
-    arg_parser.add_argument('-p', '--preferences', help="path to the preferences file")
+    arg_parser.add_argument("-p", "--preferences", help="path to the preferences file")
     args = arg_parser.parse_args()
     if args.preferences is not None:
         set_pref_file(args.preferences)
 
     prefs = Preferences(get_prefs_path())
-    image_save_path = 'D:\\Winfried\\Production\\testing\\'
-#     image_save_path = '/Users/winfriedw/Documents/Programming/ResultTestImages'
+    image_save_path = "D:\\Winfried\\Production\\testing\\"
+    #     image_save_path = '/Users/winfriedw/Documents/Programming/ResultTestImages'
 
     # initialize the pyqt application object here (not in the location picker module)
     # as it only needs to be initialized once
     app = QtGui.QApplication([])
-    test_ImageLocationPicker(prefs=prefs,
-                             image_save_path=image_save_path,
-                             app=app)
+    test_ImageLocationPicker(prefs=prefs, image_save_path=image_save_path, app=app)
     # Properly close pyqtgraph to avoid exit crash
     pyqtgraph.exit()
-    print('After exit pyqtgraph')
+    print("After exit pyqtgraph")
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     test_offline()
-#    test_online()
-    print ('Done with testing')
+    #    test_online()
+    print("Done with testing")
