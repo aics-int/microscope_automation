@@ -5,15 +5,11 @@ Created on July 7, 2020
 @author: fletcher.chapin
 """
 
-
 import pytest
 import numpy
 from lxml import etree
 from mock import patch
 from matplotlib.path import Path as mpl_path
-import microscope_automation.hardware.setup_microscope as setup_microscope
-import microscope_automation.preferences as preferences
-import microscope_automation.hardware.hardware_components as h_comp
 from microscope_automation.zeiss.zen_experiment_info import ZenExperiment
 import os
 
@@ -21,165 +17,6 @@ os.chdir(os.path.dirname(__file__))
 
 # set skip_all_tests = True to focus on single test
 skip_all_tests = False
-
-
-def setup_local_microscope(prefs_path):
-    """Create microscope object"""
-    prefs = preferences.Preferences(prefs_path)
-    microscope_object = setup_microscope.setup_microscope(prefs)
-    return microscope_object
-
-
-def setup_local_experiment(name, path, prefs_path):
-    """Create Experiment object"""
-    microscope_object = setup_local_microscope(prefs_path)
-    experiment = h_comp.Experiment(path, name, microscope_object)
-    return experiment
-
-
-def setup_local_control_software(software):
-    """Create ControlSoftware object"""
-    control_software = h_comp.ControlSoftware(software)
-    return control_software
-
-
-def setup_local_safety(safety_id):
-    """Create Safety object"""
-    safety = h_comp.Safety(safety_id)
-    return safety
-
-
-def setup_local_camera(
-    camera_id,
-    pixel_size=(None, None),
-    pixel_number=(None, None),
-    pixel_type=None,
-    name=None,
-    detector_type="generic",
-    manufacturer=None,
-    model=None,
-):
-    """Create Camera object"""
-    camera = h_comp.Camera(
-        camera_id,
-        pixel_size,
-        pixel_number,
-        pixel_type,
-        name,
-        detector_type,
-        manufacturer,
-        model,
-    )
-    return camera
-
-
-def setup_local_stage(
-    stage_id,
-    safe_area=None,
-    safe_position=None,
-    objective_changer=None,
-    prefs_path=None,
-    default_experiment=None,
-):
-    """Create Stage object"""
-    if prefs_path:
-        microscope_object = setup_local_microscope(prefs_path)
-    else:
-        microscope_object = None
-
-    stage = h_comp.Stage(
-        stage_id,
-        safe_area,
-        safe_position,
-        objective_changer,
-        microscope_object,
-        default_experiment,
-    )
-    return stage
-
-
-def setup_local_autofocus(
-    auto_focus_id,
-    default_camera=None,
-    obj_changer=None,
-    default_reference_position=[[50000, 37000, 6900]],
-    prefs_path=None,
-):
-    """Create AutoFocus object"""
-    if prefs_path:
-        microscope_object = setup_local_microscope(prefs_path)
-    else:
-        microscope_object = None
-
-    autofocus = h_comp.AutoFocus(
-        auto_focus_id,
-        default_camera,
-        obj_changer,
-        default_reference_position,
-        microscope_object,
-    )
-
-    return autofocus
-
-
-def setup_local_focus_drive(
-    focus_drive_id,
-    max_load_position=0,
-    min_work_position=10,
-    auto_focus_id=None,
-    objective_changer=None,
-    prefs_path=None,
-):
-    """Create FocusDrive object"""
-    if prefs_path:
-        microscope_object = setup_local_microscope(prefs_path)
-    else:
-        microscope_object = None
-
-    focus_drive = h_comp.FocusDrive(
-        focus_drive_id,
-        max_load_position,
-        min_work_position,
-        auto_focus_id,
-        objective_changer,
-        microscope_object,
-    )
-
-    return focus_drive
-
-
-def setup_local_obj_changer(
-    obj_changer_id,
-    n_positions=None,
-    objectives=None,
-    ref_objective=None,
-    prefs_path=None,
-    auto_focus_id=None,
-):
-    """Create ObjectiveChanger object"""
-    if prefs_path:
-        microscope_object = setup_local_microscope(prefs_path)
-    else:
-        microscope_object = None
-
-    obj_changer = h_comp.ObjectiveChanger(
-        obj_changer_id, n_positions, objectives, ref_objective, microscope_object
-    )
-
-    if microscope_object:
-        obj_changer.microscope_object.add_microscope_object(obj_changer)
-
-        if auto_focus_id:
-            autofocus = setup_local_autofocus(auto_focus_id)
-            obj_changer.microscope_object.add_microscope_object(autofocus)
-
-    return obj_changer
-
-
-def setup_local_pump(pump_id, seconds=1, port="COM1", baudrate=19200):
-    """Create Pump object"""
-    return h_comp.Pump(pump_id, seconds, port, baudrate)
-
 
 ###############################################################################
 #
@@ -218,8 +55,8 @@ def setup_local_pump(pump_id, seconds=1, port="COM1", baudrate=19200):
         ),
     ],
 )
-def test_validate_experiment(name, path, prefs_path, expected):
-    experiment = setup_local_experiment(name, path, prefs_path)
+def test_validate_experiment(name, path, prefs_path, expected, helpers):
+    experiment = helpers.setup_local_experiment(helpers, name, path, prefs_path)
     assert experiment.validate_experiment() == expected
 
 
@@ -253,8 +90,8 @@ def test_validate_experiment(name, path, prefs_path, expected):
         ),
     ],
 )
-def test_is_z_stack(name, path, prefs_path, expected):
-    experiment = setup_local_experiment(name, path, prefs_path)
+def test_is_z_stack(name, path, prefs_path, expected, helpers):
+    experiment = helpers.setup_local_experiment(helpers, name, path, prefs_path)
     try:
         result = experiment.is_z_stack()
     except Exception as err:
@@ -292,8 +129,8 @@ def test_is_z_stack(name, path, prefs_path, expected):
         ),
     ],
 )
-def test_z_stack_range(name, path, prefs_path, expected):
-    experiment = setup_local_experiment(name, path, prefs_path)
+def test_z_stack_range(name, path, prefs_path, helpers, expected):
+    experiment = helpers.setup_local_experiment(helpers, name, path, prefs_path)
     try:
         result = experiment.z_stack_range()
     except Exception as err:
@@ -331,8 +168,8 @@ def test_z_stack_range(name, path, prefs_path, expected):
         ),
     ],
 )
-def test_is_tile_scan(name, path, prefs_path, expected):
-    experiment = setup_local_experiment(name, path, prefs_path)
+def test_is_tile_scan(name, path, prefs_path, expected, helpers):
+    experiment = helpers.setup_local_experiment(helpers, name, path, prefs_path)
     try:
         result = experiment.is_tile_scan()
     except Exception as err:
@@ -373,8 +210,8 @@ def test_is_tile_scan(name, path, prefs_path, expected):
         ),
     ],
 )
-def test_update_tile_positions(name, path, prefs_path, x, y, z, expected):
-    experiment = setup_local_experiment(name, path, prefs_path)
+def test_update_tile_positions(name, path, prefs_path, x, y, z, expected, helpers):
+    experiment = helpers.setup_local_experiment(helpers, name, path, prefs_path)
     try:
         experiment.update_tile_positions(x, y, z)
 
@@ -414,8 +251,8 @@ def test_update_tile_positions(name, path, prefs_path, x, y, z, expected):
         ),
     ],
 )
-def test_get_objective_position(name, path, prefs_path, expected):
-    experiment = setup_local_experiment(name, path, prefs_path)
+def test_get_objective_position(name, path, prefs_path, expected, helpers):
+    experiment = helpers.setup_local_experiment(helpers, name, path, prefs_path)
     try:
         result = experiment.get_objective_position()
     except Exception as err:
@@ -447,8 +284,8 @@ def test_get_objective_position(name, path, prefs_path, expected):
         ),
     ],
 )
-def test_get_focus_settings(name, path, prefs_path, expected):
-    experiment = setup_local_experiment(name, path, prefs_path)
+def test_get_focus_settings(name, path, prefs_path, expected, helpers):
+    experiment = helpers.setup_local_experiment(helpers, name, path, prefs_path)
     try:
         settings = etree.tostring(experiment.get_focus_settings()[0])
         root = etree.tostring(etree.parse(expected).getroot())
@@ -484,8 +321,8 @@ def test_get_focus_settings(name, path, prefs_path, expected):
         ("Invalid Name", "AttributeError"),
     ],
 )
-def test_connect_to_microscope_software(software, expected):
-    control_software = setup_local_control_software(software)
+def test_connect_to_microscope_software(software, expected, helpers):
+    control_software = helpers.setup_local_control_software(software)
     try:
         result = str(control_software.connection).split()[0][1:]
     except Exception as err:
@@ -531,8 +368,9 @@ def test_connect_to_microscope_software(software, expected):
         ),
     ],
 )
-def test_add_safe_area(safety_id, safe_verts, safe_area_id, z_max, path_exp, z_exp):
-    safety = setup_local_safety(safety_id)
+def test_add_safe_area(safety_id, safe_verts, safe_area_id, z_max, path_exp,
+                       helpers, z_exp):
+    safety = helpers.setup_local_safety(safety_id)
     safety.add_safe_area(safe_verts, safe_area_id, z_max)
     # removing all whitespace to align with expected result
     path_result = "".join(str(safety.safe_areas[safe_area_id]["path"]).split())
@@ -590,8 +428,9 @@ def test_get_safe_area(
     z_max2,
     path_exp,
     z_exp,
+    helpers
 ):
-    safety = setup_local_safety(safety_id)
+    safety = helpers.setup_local_safety(safety_id)
     safety.add_safe_area(safe_verts1, safe_area_id1, z_max1)
     area = safety.get_safe_area(safe_area_id1)
 
@@ -715,8 +554,9 @@ def test_is_safe_position(
     y,
     z,
     expected,
+    helpers
 ):
-    safety = setup_local_safety(safety_id)
+    safety = helpers.setup_local_safety(safety_id)
     safety.add_safe_area(safe_verts1, safe_area_id1, z_max1)
 
     if safe_area_id2:
@@ -841,8 +681,9 @@ def test_is_safe_travel_path(
     xy,
     z,
     expected,
+    helpers
 ):
-    safety = setup_local_safety(safety_id)
+    safety = helpers.setup_local_safety(safety_id)
     safety.add_safe_area(safe_verts1, safe_area_id1, z_max1)
 
     if safe_area_id2:
@@ -1023,8 +864,9 @@ def test_is_safe_move_from_to(
     y_tar,
     z_tar,
     expected,
+    helpers
 ):
-    safety = setup_local_safety(safety_id)
+    safety = helpers.setup_local_safety(safety_id)
     safety.add_safe_area(safe_verts1, safe_area_id1, z_max1)
 
     if safe_area_id2:
@@ -1112,8 +954,9 @@ def test_show_safe_areas(
     z_max2,
     xy,
     point,
+    helpers
 ):
-    safety = setup_local_safety(safety_id)
+    safety = helpers.setup_local_safety(safety_id)
     safety.add_safe_area(safe_verts1, safe_area_id1, z_max1)
 
     if safe_area_id2:
@@ -1205,8 +1048,9 @@ def test_get_information_camera(
     model,
     live_exp,
     set_exp,
+    helpers
 ):
-    camera = setup_local_camera(
+    camera = helpers.setup_local_camera(
         camera_id,
         pixel_size,
         pixel_number,
@@ -1266,9 +1110,9 @@ def test_get_information_camera(
         ),
     ],
 )
-def test_snap_image(camera_id, software, experiment_name, meta_expect):
-    control_software = setup_local_control_software(software)
-    camera = setup_local_camera(camera_id)
+def test_snap_image(camera_id, software, experiment_name, meta_expect, helpers):
+    control_software = helpers.setup_local_control_software(software)
+    camera = helpers.setup_local_camera(camera_id)
     try:
         image = camera.snap_image(control_software.connection, experiment_name)
         result = image.meta
@@ -1303,10 +1147,10 @@ def test_snap_image(camera_id, software, experiment_name, meta_expect):
     ],
 )
 def test_live_mode_start_stop(
-    camera_id, software, experiment_name, orig_mode, exp_mode
+    camera_id, software, experiment_name, orig_mode, exp_mode, helpers
 ):
-    control_software = setup_local_control_software(software)
-    camera = setup_local_camera(camera_id)
+    control_software = helpers.setup_local_control_software(software)
+    camera = helpers.setup_local_camera(camera_id)
     camera.live_mode_on = orig_mode
 
     try:
@@ -1360,10 +1204,12 @@ def test_initialize_stage(
     prefs_path,
     default_experiment,
     expected,
+    helpers
 ):
-    control_software = setup_local_control_software(software)
+    control_software = helpers.setup_local_control_software(software)
     com_object = control_software.connection
-    stage = setup_local_stage(
+    stage = helpers.setup_local_stage(
+        helpers,
         stage_id,
         safe_area,
         safe_position,
@@ -1393,9 +1239,9 @@ def test_initialize_stage(
         )
     ],
 )
-def test_get_information_stage(stage_id, software, expected):
-    control_software = setup_local_control_software(software)
-    stage = setup_local_stage(stage_id)
+def test_get_information_stage(stage_id, software, expected, helpers):
+    control_software = helpers.setup_local_control_software(software)
+    stage = helpers.setup_local_stage(helpers, stage_id)
     result = stage.get_information(control_software.connection)
 
     assert result == expected
@@ -1416,9 +1262,9 @@ def test_get_information_stage(stage_id, software, expected):
         ),
     ],
 )
-def test_move_to_position_stage(stage_id, software, x, y, test, expected):
-    control_software = setup_local_control_software(software)
-    stage = setup_local_stage(stage_id)
+def test_move_to_position_stage(stage_id, software, x, y, test, expected, helpers):
+    control_software = helpers.setup_local_control_software(software)
+    stage = helpers.setup_local_stage(helpers, stage_id)
 
     try:
         path = stage.move_to_position(control_software.connection, x, y, test=test)
@@ -1731,9 +1577,11 @@ def test_initialize_obj_changer(
     ref_object_id,
     auto_focus_id,
     expected,
+    helpers
 ):
-    control_software = setup_local_control_software(software)
-    obj_changer = setup_local_obj_changer(
+    control_software = helpers.setup_local_control_software(software)
+    obj_changer = helpers.setup_local_obj_changer(
+        helpers,
         objective_changer_id,
         positions,
         objectives,
@@ -1781,8 +1629,8 @@ def test_initialize_obj_changer(
         ("6xMotorizedNosepiece", None, None),
     ],
 )
-def test_get_set_num_pos(objective_changer_id, positions, expected):
-    obj_changer = setup_local_obj_changer(objective_changer_id)
+def test_get_set_num_pos(objective_changer_id, positions, expected, helpers):
+    obj_changer = helpers.setup_local_obj_changer(helpers, objective_changer_id)
 
     obj_changer.set_number_positions(positions)
 
@@ -1802,9 +1650,12 @@ def test_get_set_num_pos(objective_changer_id, positions, expected):
         ),
     ],
 )
-def test_get_all_objectives(objective_changer_id, software, positions, expected):
-    control_software = setup_local_control_software(software)
-    obj_changer = setup_local_obj_changer(objective_changer_id, positions)
+def test_get_all_objectives(objective_changer_id, software, positions, expected,
+                            helpers):
+    control_software = helpers.setup_local_control_software(software)
+    obj_changer = helpers.setup_local_obj_changer(helpers,
+                                                  objective_changer_id,
+                                                  positions)
 
     try:
         result = obj_changer.get_all_objectives(control_software.connection)
@@ -1827,9 +1678,11 @@ def test_get_all_objectives(objective_changer_id, software, positions, expected)
         ),
     ],
 )
-def test_get_objectives_dict(objective_changer_id, software, positions, expected):
-    control_software = setup_local_control_software(software)
-    obj_changer = setup_local_obj_changer(objective_changer_id, positions)
+def test_get_objectives_dict(objective_changer_id, software, positions, expected,
+                             helpers):
+    control_software = helpers.setup_local_control_software(software)
+    obj_changer = helpers.setup_local_obj_changer(helpers, objective_changer_id,
+                                                  positions)
     if positions:
         obj_changer.get_all_objectives(control_software.connection)
 
@@ -1887,10 +1740,11 @@ def test_get_objectives_dict(objective_changer_id, software, positions, expected
     ],
 )
 def test_get_information_obj_changer(
-    objective_changer_id, software, positions, objectives, expected
+    objective_changer_id, software, positions, objectives, expected, helpers
 ):
-    control_software = setup_local_control_software(software)
-    obj_changer = setup_local_obj_changer(objective_changer_id, positions, objectives)
+    control_software = helpers.setup_local_control_software(software)
+    obj_changer = helpers.setup_local_obj_changer(helpers, objective_changer_id,
+                                                  positions, objectives)
     try:
         result = obj_changer.get_information(control_software.connection)
     except Exception as err:
@@ -2012,9 +1866,11 @@ def test_update_objective_offset(
     z_off,
     objective_name,
     expected,
+    helpers
 ):
-    control_software = setup_local_control_software(software)
-    obj_changer = setup_local_obj_changer(objective_changer_id, positions, objectives)
+    control_software = helpers.setup_local_control_software(software)
+    obj_changer = helpers.setup_local_obj_changer(helpers, objective_changer_id,
+                                                  positions, objectives)
 
     try:
         result = obj_changer.update_objective_offset(
@@ -2070,9 +1926,11 @@ def test_change_magnification(
     sample_obj,
     use_safe_position,
     expected,
+    helpers
 ):
-    control_software = setup_local_control_software(software)
-    obj_changer = setup_local_obj_changer(objective_changer_id, positions)
+    control_software = helpers.setup_local_control_software(software)
+    obj_changer = helpers.setup_local_obj_changer(helpers, objective_changer_id,
+                                                  positions)
 
     # TODO: add tests where use_safe_position = True
     try:
@@ -2098,9 +1956,9 @@ def test_change_magnification(
         ("6xMotorizedNosepiece", "ZEN Blue Dummy", None, "Dummy Objective"),
     ],
 )
-def test_change_position(objective_changer_id, software, pos, expected):
-    control_software = setup_local_control_software(software)
-    obj_changer = setup_local_obj_changer(objective_changer_id)
+def test_change_position(objective_changer_id, software, pos, expected, helpers):
+    control_software = helpers.setup_local_control_software(software)
+    obj_changer = helpers.setup_local_obj_changer(helpers, objective_changer_id)
 
     result = obj_changer.change_position(pos, control_software.connection, load=False)
 
@@ -2179,10 +2037,12 @@ def test_initialize_focus_drive(
     prefs_path,
     action_list,
     expected,
+    helpers
 ):
-    control_software = setup_local_control_software(software)
-    focus_drive = setup_local_focus_drive(
-        focus_id, max_load_position, min_work_position, auto_focus_id, obj_changer_id
+    control_software = helpers.setup_local_control_software(software)
+    focus_drive = helpers.setup_local_focus_drive(
+        helpers, focus_id, max_load_position, min_work_position, auto_focus_id,
+        obj_changer_id
     )
 
     try:
@@ -2328,9 +2188,11 @@ def test_get_information_focus_drive(
     prefs_path,
     action_list,
     expected,
+    helpers
 ):
-    control_software = setup_local_control_software(software)
-    focus_drive = setup_local_focus_drive(
+    control_software = helpers.setup_local_control_software(software)
+    focus_drive = helpers.setup_local_focus_drive(
+        helpers,
         focus_id,
         max_load_position,
         min_work_position,
@@ -2339,7 +2201,8 @@ def test_get_information_focus_drive(
         prefs_path,
     )
     if obj_changer_id:
-        obj_changer = setup_local_obj_changer(
+        obj_changer = helpers.setup_local_obj_changer(
+            helpers,
             obj_changer_id,
             objectives=objectives,
             prefs_path=prefs_path,
@@ -2365,9 +2228,9 @@ def test_get_information_focus_drive(
         ("MotorizedFocus", "Slidebook Dummy", None, "HardwareCommandNotDefinedError"),
     ],
 )
-def test_move_to_position_focus_drive(focus_id, software, z, expected):
-    control_software = setup_local_control_software(software)
-    focus_drive = setup_local_focus_drive(focus_id)
+def test_move_to_position_focus_drive(focus_id, software, z, expected, helpers):
+    control_software = helpers.setup_local_control_software(software)
+    focus_drive = helpers.setup_local_focus_drive(helpers, focus_id)
 
     try:
         result = focus_drive.move_to_position(control_software.connection, z)
@@ -2421,10 +2284,11 @@ def test_goto_load(
     prefs_path,
     action_list,
     expected,
+    helpers
 ):
-    control_software = setup_local_control_software(software)
-    focus_drive = setup_local_focus_drive(
-        focus_id, max_load_position, min_work_position, prefs_path=prefs_path
+    control_software = helpers.setup_local_control_software(software)
+    focus_drive = helpers.setup_local_focus_drive(
+        helpers, focus_id, max_load_position, min_work_position, prefs_path=prefs_path
     )
 
     focus_drive.initialize(
@@ -2483,10 +2347,11 @@ def test_goto_work(
     prefs_path,
     action_list,
     expected,
+    helpers
 ):
-    control_software = setup_local_control_software(software)
-    focus_drive = setup_local_focus_drive(
-        focus_id, max_load_position, min_work_position, prefs_path=prefs_path
+    control_software = helpers.setup_local_control_software(software)
+    focus_drive = helpers.setup_local_focus_drive(
+        helpers, focus_id, max_load_position, min_work_position, prefs_path=prefs_path
     )
 
     focus_drive.initialize(
@@ -2552,12 +2417,14 @@ def test_goto_work(
     ],
 )
 def test_get_init_experiment(
-    auto_focus_id, software, obj_changer_id, positions, objectives, expected
+    auto_focus_id, software, obj_changer_id, positions, objectives, expected, helpers
 ):
-    control_software = setup_local_control_software(software)
-    obj_changer = setup_local_obj_changer(obj_changer_id, positions, objectives)
+    control_software = helpers.setup_local_control_software(software)
+    obj_changer = helpers.setup_local_obj_changer(helpers, obj_changer_id,
+                                                  positions, objectives)
 
-    autofocus = setup_local_autofocus(auto_focus_id, obj_changer=obj_changer)
+    autofocus = helpers.setup_local_autofocus(helpers, auto_focus_id,
+                                              obj_changer=obj_changer)
 
     result = autofocus.get_init_experiment(control_software.connection)
 
@@ -2663,17 +2530,20 @@ def test_initialize_autofocus(
     pixel_type,
     action_list,
     expected,
+    helpers
 ):
-    control_software = setup_local_control_software(software)
-    obj_changer = setup_local_obj_changer(obj_changer_id, positions, objectives)
+    control_software = helpers.setup_local_control_software(software)
+    obj_changer = helpers.setup_local_obj_changer(helpers, obj_changer_id,
+                                                  positions, objectives)
 
-    autofocus = setup_local_autofocus(
-        auto_focus_id, obj_changer=obj_changer, prefs_path=prefs_path
+    autofocus = helpers.setup_local_autofocus(
+        helpers, auto_focus_id, obj_changer=obj_changer, prefs_path=prefs_path
     )
 
     if camera_id:
         autofocus.default_camera = camera_id
-        camera = setup_local_camera(camera_id, pixel_size, pixel_number, pixel_type)
+        camera = helpers.setup_local_camera(camera_id, pixel_size, pixel_number,
+                                            pixel_type)
         autofocus.microscope_object.add_microscope_object(camera)
 
     try:
@@ -2761,13 +2631,15 @@ def test_initialize_autofocus(
     ],
 )
 def test_get_information_autofocus(
-    auto_focus_id, software, obj_changer_id, positions, objectives, camera_id, expected
+    auto_focus_id, software, obj_changer_id, positions, objectives, camera_id,
+    expected, helpers
 ):
-    control_software = setup_local_control_software(software)
-    obj_changer = setup_local_obj_changer(obj_changer_id, positions, objectives)
+    control_software = helpers.setup_local_control_software(software)
+    obj_changer = helpers.setup_local_obj_changer(helpers, obj_changer_id,
+                                                  positions, objectives)
 
-    autofocus = setup_local_autofocus(
-        auto_focus_id, default_camera=camera_id, obj_changer=obj_changer
+    autofocus = helpers.setup_local_autofocus(
+        helpers, auto_focus_id, default_camera=camera_id, obj_changer=obj_changer
     )
 
     try:
@@ -2788,8 +2660,8 @@ def test_get_information_autofocus(
         ("DefiniteFocus2", {"use_auto_focus": False}, {"use_auto_focus": False}),
     ],
 )
-def test_set_component(auto_focus_id, settings, expected):
-    autofocus = setup_local_autofocus(auto_focus_id)
+def test_set_component(auto_focus_id, settings, expected, helpers):
+    autofocus = helpers.setup_local_autofocus(helpers, auto_focus_id)
 
     result = autofocus.set_component(settings)
 
@@ -2945,9 +2817,11 @@ def test_recall_focus(
     df_objective,
     obj_name,
     expected,
+    helpers
 ):
-    control_software = setup_local_control_software(software)
-    obj_changer = setup_local_obj_changer(
+    control_software = helpers.setup_local_control_software(software)
+    obj_changer = helpers.setup_local_obj_changer(
+        helpers,
         obj_changer_id,
         positions,
         objectives,
@@ -2955,8 +2829,8 @@ def test_recall_focus(
         auto_focus_id=auto_focus_id,
     )
 
-    autofocus = setup_local_autofocus(
-        auto_focus_id, obj_changer=obj_changer, prefs_path=prefs_path
+    autofocus = helpers.setup_local_autofocus(
+        helpers, auto_focus_id, obj_changer=obj_changer, prefs_path=prefs_path
     )
     autofocus.set_use_autofocus(use_autofocus)
 
@@ -3008,8 +2882,8 @@ def test_recall_focus(
         ("BraintreeScientific", None, 443, "test", (443, "test")),
     ],
 )
-def test_get_connection(pump_id, seconds, port, baudrate, expected):
-    pump = setup_local_pump(pump_id, seconds, port, baudrate)
+def test_get_connection(pump_id, seconds, port, baudrate, expected, helpers):
+    pump = helpers.setup_local_pump(pump_id, seconds, port, baudrate)
 
     result = pump.get_connection()
 
@@ -3025,8 +2899,8 @@ def test_get_connection(pump_id, seconds, port, baudrate, expected):
         ("BraintreeScientific", None, 443, "test", None),
     ],
 )
-def test_get_time(pump_id, seconds, port, baudrate, expected):
-    pump = setup_local_pump(pump_id, seconds, port, baudrate)
+def test_get_time(pump_id, seconds, port, baudrate, expected, helpers):
+    pump = helpers.setup_local_pump(pump_id, seconds, port, baudrate)
 
     result = pump.get_time()
 
@@ -3038,9 +2912,9 @@ def test_get_time(pump_id, seconds, port, baudrate, expected):
     ("pump_id, seconds, port, baudrate, software, expected"),
     [("BraintreeScientific", 5, "COM1", 19200, "ZEN Blue Dummy", None)],
 )
-def test_trigger_pump(pump_id, seconds, port, baudrate, software, expected):
-    pump = setup_local_pump(pump_id, seconds, port, baudrate)
-    control_software = setup_local_control_software(software)
+def test_trigger_pump(pump_id, seconds, port, baudrate, software, expected, helpers):
+    pump = helpers.setup_local_pump(pump_id, seconds, port, baudrate)
+    control_software = helpers.setup_local_control_software(software)
 
     result = pump.trigger_pump(control_software.connection)
 

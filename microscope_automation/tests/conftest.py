@@ -16,22 +16,171 @@ Docs: https://docs.pytest.org/en/latest/example/simple.html
       https://docs.pytest.org/en/latest/plugins.html#requiring-loading-plugins-in-a-test-module-or-conftest-file
 """
 
-import json
-from pathlib import Path
-from typing import Dict
-
 import pytest
+import microscope_automation.hardware.setup_microscope as setup_microscope
+import microscope_automation.preferences as preferences
+import microscope_automation.hardware.hardware_components as h_comp
+
+
+class Helpers:
+    @staticmethod
+    def setup_local_microscope(prefs_path):
+        """Create microscope object"""
+        prefs = preferences.Preferences(prefs_path)
+        microscope_object = setup_microscope.setup_microscope(prefs)
+        return microscope_object
+
+    def setup_local_experiment(self, name, path, prefs_path):
+        """Create Experiment object"""
+        microscope_object = self.setup_local_microscope(prefs_path)
+        experiment = h_comp.Experiment(path, name, microscope_object)
+        return experiment
+
+    @staticmethod
+    def setup_local_control_software(software):
+        """Create ControlSoftware object"""
+        control_software = h_comp.ControlSoftware(software)
+        return control_software
+
+    @staticmethod
+    def setup_local_safety(safety_id):
+        """Create Safety object"""
+        safety = h_comp.Safety(safety_id)
+        return safety
+
+    @staticmethod
+    def setup_local_camera(
+        camera_id,
+        pixel_size=(None, None),
+        pixel_number=(None, None),
+        pixel_type=None,
+        name=None,
+        detector_type="generic",
+        manufacturer=None,
+        model=None,
+    ):
+        """Create Camera object"""
+        camera = h_comp.Camera(
+            camera_id,
+            pixel_size,
+            pixel_number,
+            pixel_type,
+            name,
+            detector_type,
+            manufacturer,
+            model,
+        )
+        return camera
+
+    def setup_local_stage(
+        self,
+        stage_id,
+        safe_area=None,
+        safe_position=None,
+        objective_changer=None,
+        prefs_path=None,
+        default_experiment=None,
+    ):
+        """Create Stage object"""
+        if prefs_path:
+            microscope_object = self.setup_local_microscope(prefs_path)
+        else:
+            microscope_object = None
+
+        stage = h_comp.Stage(
+            stage_id,
+            safe_area,
+            safe_position,
+            objective_changer,
+            microscope_object,
+            default_experiment,
+        )
+        return stage
+
+    def setup_local_autofocus(
+        self,
+        auto_focus_id,
+        default_camera=None,
+        obj_changer=None,
+        default_reference_position=[[50000, 37000, 6900]],
+        prefs_path=None,
+    ):
+        """Create AutoFocus object"""
+        if prefs_path:
+            microscope_object = self.setup_local_microscope(prefs_path)
+        else:
+            microscope_object = None
+
+        autofocus = h_comp.AutoFocus(
+            auto_focus_id,
+            default_camera,
+            obj_changer,
+            default_reference_position,
+            microscope_object,
+        )
+
+        return autofocus
+
+    def setup_local_focus_drive(
+        self,
+        focus_drive_id,
+        max_load_position=0,
+        min_work_position=10,
+        auto_focus_id=None,
+        objective_changer=None,
+        prefs_path=None,
+    ):
+        """Create FocusDrive object"""
+        if prefs_path:
+            microscope_object = self.setup_local_microscope(prefs_path)
+        else:
+            microscope_object = None
+
+        focus_drive = h_comp.FocusDrive(
+            focus_drive_id,
+            max_load_position,
+            min_work_position,
+            auto_focus_id,
+            objective_changer,
+            microscope_object,
+        )
+
+        return focus_drive
+
+    def setup_local_obj_changer(
+        self,
+        obj_changer_id,
+        n_positions=None,
+        objectives=None,
+        ref_objective=None,
+        prefs_path=None,
+        auto_focus_id=None,
+    ):
+        """Create ObjectiveChanger object"""
+        if prefs_path:
+            microscope_object = self.setup_local_microscope(prefs_path)
+        else:
+            microscope_object = None
+
+        obj_changer = h_comp.ObjectiveChanger(
+            obj_changer_id, n_positions, objectives, ref_objective, microscope_object
+        )
+
+        if microscope_object:
+            obj_changer.microscope_object.add_microscope_object(obj_changer)
+
+            if auto_focus_id:
+                autofocus = self.setup_local_autofocus(self, auto_focus_id)
+                obj_changer.microscope_object.add_microscope_object(autofocus)
+
+        return obj_changer
+
+    @staticmethod
+    def setup_local_pump(pump_id, seconds=1, port="COM1", baudrate=19200):
+        """Create Pump object"""
+        return h_comp.Pump(pump_id, seconds, port, baudrate)
 
 
 @pytest.fixture
-def data_dir() -> Path:
-    return Path(__file__).parent / "data"
-
-
-# Fixtures can simply be added as a parameter to the other test or fixture functions to
-# expose them. If we had multiple tests that wanted to use the contents of this file,
-# we could simply add "loaded_example_values" as a parameter for each test.
-@pytest.fixture
-def loaded_example_values(data_dir) -> Dict[str, int]:
-    with open(data_dir / "example_values.json", "r") as read_in:
-        return json.load(read_in)
+def helpers():
+    return Helpers

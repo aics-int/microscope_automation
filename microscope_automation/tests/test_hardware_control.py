@@ -8,9 +8,6 @@ Created on May 25, 2020
 import pytest
 from mock import patch
 from microscope_automation.image_AICS import ImageAICS
-import microscope_automation.hardware.setup_microscope as setup_microscope
-import microscope_automation.preferences as preferences
-import microscope_automation.hardware.hardware_components as h_comp
 from microscope_automation.automation_exceptions import (
     AutomationError,
     AutofocusError,
@@ -24,147 +21,6 @@ os.chdir(os.path.dirname(__file__))
 
 # set skip_all_tests = True to focus on single test
 skip_all_tests = False
-
-
-def setup_local_microscope(prefs_path):
-    """Create microscope object"""
-    prefs = preferences.Preferences(prefs_path)
-    microscope_object = setup_microscope.setup_microscope(prefs)
-    return microscope_object
-
-
-def setup_local_control_software(software):
-    """Create ControlSoftware object"""
-    control_software = h_comp.ControlSoftware(software)
-    return control_software
-
-
-def setup_local_focus_drive(
-    focus_drive_id,
-    max_load_position=0,
-    min_work_position=10,
-    auto_focus_id=None,
-    objective_changer=None,
-    prefs_path=None,
-):
-    """Create FocusDrive object"""
-    if prefs_path:
-        microscope_object = setup_local_microscope(prefs_path)
-    else:
-        microscope_object = None
-
-    focus_drive = h_comp.FocusDrive(
-        focus_drive_id,
-        max_load_position,
-        min_work_position,
-        auto_focus_id,
-        objective_changer,
-        microscope_object,
-    )
-
-    return focus_drive
-
-
-def setup_local_obj_changer(
-    obj_changer_id,
-    n_positions=None,
-    objectives=None,
-    ref_objective=None,
-    prefs_path=None,
-):
-    """Create ObjectiveChanger object"""
-    if prefs_path:
-        microscope_object = setup_local_microscope(prefs_path)
-    else:
-        microscope_object = None
-
-    obj_changer = h_comp.ObjectiveChanger(
-        obj_changer_id, n_positions, objectives, ref_objective, microscope_object
-    )
-
-    if microscope_object:
-        obj_changer.microscope_object.add_microscope_object(obj_changer)
-
-    return obj_changer
-
-
-def setup_local_safety(safety_id):
-    """Create Safety object"""
-    safety = h_comp.Safety(safety_id)
-    return safety
-
-
-def setup_local_stage(
-    stage_id,
-    safe_area=None,
-    safe_position=None,
-    objective_changer=None,
-    prefs_path=None,
-    default_experiment=None,
-):
-    """Create Stage object"""
-    if prefs_path:
-        microscope_object = setup_local_microscope(prefs_path)
-    else:
-        microscope_object = None
-
-    stage = h_comp.Stage(
-        stage_id,
-        safe_area,
-        safe_position,
-        objective_changer,
-        microscope_object,
-        default_experiment,
-    )
-    return stage
-
-
-def setup_local_autofocus(
-    auto_focus_id,
-    default_camera=None,
-    obj_changer=None,
-    default_reference_position=[[50000, 37000, 6900]],
-    prefs_path=None,
-):
-    """Create AutoFocus object"""
-    if prefs_path:
-        microscope_object = setup_local_microscope(prefs_path)
-    else:
-        microscope_object = None
-
-    autofocus = h_comp.AutoFocus(
-        auto_focus_id,
-        default_camera,
-        obj_changer,
-        default_reference_position,
-        microscope_object,
-    )
-
-    return autofocus
-
-
-def setup_local_camera(
-    camera_id,
-    pixel_size=(None, None),
-    pixel_number=(None, None),
-    pixel_type=None,
-    name=None,
-    detector_type="generic",
-    manufacturer=None,
-    model=None,
-):
-    """Create Camera object"""
-    camera = h_comp.Camera(
-        camera_id,
-        pixel_size,
-        pixel_number,
-        pixel_type,
-        name,
-        detector_type,
-        manufacturer,
-        model,
-    )
-    return camera
 
 
 @patch("microscope_automation.automation_exceptions.HardwareError.error_dialog")
@@ -195,9 +51,10 @@ def test_recover_hardware(
     prefs_path,
     error,
     expected,
+    helpers
 ):
     """Test recovering from hardware error"""
-    microscope = setup_local_microscope(prefs_path)
+    microscope = helpers.setup_local_microscope(prefs_path)
     try:
         raise error
     except LoadNotDefinedError as e0:
@@ -233,9 +90,9 @@ def test_recover_hardware(
         ),
     ],
 )
-def test_create_experiment_path(prefs_path, experiment, expected_path):
+def test_create_experiment_path(prefs_path, experiment, expected_path, helpers):
     """Test creation of experiment path"""
-    microscope = setup_local_microscope(prefs_path)
+    microscope = helpers.setup_local_microscope(prefs_path)
     experiment_path = microscope.create_experiment_path(experiment)
     assert os.path.abspath(expected_path) == os.path.abspath(experiment_path)
 
@@ -248,12 +105,12 @@ def test_create_experiment_path(prefs_path, experiment, expected_path):
         ("data/preferences_3i_test.yml", "Slidebook Dummy"),
     ],
 )
-def test_stop_microscope(prefs_path, software):
+def test_stop_microscope(prefs_path, software, helpers):
     """Test creation of experiment path"""
-    microscope = setup_local_microscope(prefs_path)
+    microscope = helpers.setup_local_microscope(prefs_path)
 
     if software:
-        control_software = setup_local_control_software(software)
+        control_software = helpers.setup_local_control_software(software)
         microscope.add_control_software(control_software)
 
     microscope.stop_microscope()
@@ -271,9 +128,9 @@ def test_stop_microscope(prefs_path, software):
         ("data/preferences_3i_test.yml", None, "HardwareCommandNotDefinedError"),
     ],
 )
-def test_reference_position(prefs_path, find_surface, ref_obj_id, expected):
+def test_reference_position(prefs_path, find_surface, ref_obj_id, expected, helpers):
     """Test correction in xyz between objectives"""
-    microscope = setup_local_microscope(prefs_path)
+    microscope = helpers.setup_local_microscope(prefs_path)
     try:
         result = microscope.reference_position(
             find_surface=find_surface, reference_object_id=ref_obj_id, verbose=False
@@ -543,27 +400,29 @@ def test_microscope_is_ready(
     stage_id,
     auto_focus_id,
     expected,
+    helpers
 ):
-    microscope = setup_local_microscope(prefs_path)
+    microscope = helpers.setup_local_microscope(prefs_path)
 
     if focus_drive_id:
-        focus_drive = setup_local_focus_drive(focus_drive_id)
+        focus_drive = helpers.setup_local_focus_drive(helpers, focus_drive_id)
         microscope.add_microscope_object(focus_drive)
 
     if objective_changer_id:
-        obj_changer = setup_local_obj_changer(
-            objective_changer_id, objectives=objectives, prefs_path=prefs_path
+        obj_changer = helpers.setup_local_obj_changer(
+            helpers, objective_changer_id, objectives=objectives, prefs_path=prefs_path
         )
         microscope.add_microscope_object(obj_changer)
 
     if safety_object_id:
-        safety_obj = setup_local_safety(safety_object_id)
+        safety_obj = helpers.setup_local_safety(safety_object_id)
         if safe_area_id:
             safety_obj.add_safe_area(safe_verts, safe_area_id, z_max)
         microscope.add_microscope_object(safety_obj)
 
     if stage_id:
-        stage = setup_local_stage(
+        stage = helpers.setup_local_stage(
+            helpers,
             stage_id,
             safe_area=safe_area_id,
             objective_changer=objective_changer_id,
@@ -572,8 +431,8 @@ def test_microscope_is_ready(
         microscope.add_microscope_object(stage)
 
     if auto_focus_id:
-        autofocus = setup_local_autofocus(
-            auto_focus_id, obj_changer=obj_changer, prefs_path=prefs_path
+        autofocus = helpers.setup_local_autofocus(
+            helpers, auto_focus_id, obj_changer=obj_changer, prefs_path=prefs_path
         )
         microscope.add_microscope_object(autofocus)
 
@@ -634,16 +493,17 @@ def test_change_objective(
     objective_changer_id,
     objectives,
     expected,
+    helpers
 ):
-    microscope = setup_local_microscope(prefs_path)
+    microscope = helpers.setup_local_microscope(prefs_path)
 
     if software:
-        control_software = setup_local_control_software(software)
+        control_software = helpers.setup_local_control_software(software)
         microscope.add_control_software(control_software)
 
     if objective_changer_id:
-        obj_changer = setup_local_obj_changer(
-            objective_changer_id, objectives=objectives, prefs_path=prefs_path
+        obj_changer = helpers.setup_local_obj_changer(
+            helpers, objective_changer_id, objectives=objectives, prefs_path=prefs_path
         )
         microscope.add_microscope_object(obj_changer)
     else:
@@ -669,11 +529,11 @@ def test_change_objective(
         ("DefiniteFocus2", True, {"DefiniteFocus2": {"use_auto_focus": True}}),
     ],
 )
-def test_set_microscope(prefs_path, auto_focus_id, use_auto_focus, expected):
-    microscope = setup_local_microscope(prefs_path)
+def test_set_microscope(prefs_path, auto_focus_id, use_auto_focus, expected, helpers):
+    microscope = helpers.setup_local_microscope(prefs_path)
 
     if auto_focus_id:
-        autofocus = setup_local_autofocus(auto_focus_id)
+        autofocus = helpers.setup_local_autofocus(helpers, auto_focus_id)
         microscope.add_microscope_object(autofocus)
 
     try:
@@ -741,8 +601,9 @@ def test_set_microscope(prefs_path, auto_focus_id, use_auto_focus, expected):
         ),
     ],
 )
-def test_set_objective_is_ready(prefs_path, objective_info, ref_obj_id, expected):
-    microscope = setup_local_microscope(prefs_path)
+def test_set_objective_is_ready(prefs_path, objective_info, ref_obj_id,
+                                expected, helpers):
+    microscope = helpers.setup_local_microscope(prefs_path)
 
     try:
         if isinstance(objective_info, list):
@@ -800,9 +661,9 @@ def test_set_objective_is_ready(prefs_path, objective_info, ref_obj_id, expected
     ],
 )
 def test_get_objective_is_ready(
-    prefs_path, objective_info, ref_obj_id, set_first, expected
+    prefs_path, objective_info, ref_obj_id, set_first, expected, helpers
 ):
-    microscope = setup_local_microscope(prefs_path)
+    microscope = helpers.setup_local_microscope(prefs_path)
 
     try:
         if set_first:
@@ -820,8 +681,8 @@ def test_get_objective_is_ready(
 @pytest.mark.parametrize(
     ("prefs_path, expected"), [("data/preferences_ZSD_test.yml", "TypeError")]
 )
-def test_is_ready_errors(prefs_path, expected):
-    microscope = setup_local_microscope(prefs_path)
+def test_is_ready_errors(prefs_path, expected, helpers):
+    microscope = helpers.setup_local_microscope(prefs_path)
 
     try:
         result = microscope._objective_changer_is_ready(microscope, None)
@@ -861,11 +722,11 @@ def test_is_ready_errors(prefs_path, expected):
 @pytest.mark.parametrize(
     ("object_to_get, expected"), [(None, "HardwareDoesNotExistError"), ("test", "test")]
 )
-def test__get_microscope_object(prefs_path, object_to_get, expected):
-    microscope = setup_local_microscope(prefs_path)
+def test__get_microscope_object(prefs_path, object_to_get, expected, helpers):
+    microscope = helpers.setup_local_microscope(prefs_path)
 
     if object_to_get:
-        focus_drive = setup_local_focus_drive(object_to_get)
+        focus_drive = helpers.setup_local_focus_drive(helpers, object_to_get)
         microscope.add_microscope_object(focus_drive)
 
     try:
@@ -940,19 +801,20 @@ def test__get_microscope_object(prefs_path, object_to_get, expected):
     ],
 )
 def test_setup_microscope_for_initialization(
-    mock_func, prefs_path, experiment, objective_changer_id, camera_id, expected
+    mock_func, prefs_path, experiment, objective_changer_id, camera_id,
+    expected, helpers
 ):
-    microscope = setup_local_microscope(prefs_path)
+    microscope = helpers.setup_local_microscope(prefs_path)
 
     if objective_changer_id:
-        obj_changer = setup_local_obj_changer(
-            objective_changer_id, prefs_path=prefs_path
+        obj_changer = helpers.setup_local_obj_changer(
+            helpers, objective_changer_id, prefs_path=prefs_path
         )
         microscope.add_microscope_object(obj_changer)
 
         if camera_id:
             obj_changer.default_camera = camera_id
-            microscope.add_microscope_object(setup_local_camera(camera_id))
+            microscope.add_microscope_object(helpers.setup_local_camera(camera_id))
     else:
         obj_changer = None
 
@@ -995,15 +857,15 @@ def test_setup_microscope_for_initialization(
         ),
     ],
 )
-def test_get_z_position(prefs_path, software, focus_drive_id, expected):
-    microscope = setup_local_microscope(prefs_path)
+def test_get_z_position(prefs_path, software, focus_drive_id, expected, helpers):
+    microscope = helpers.setup_local_microscope(prefs_path)
 
     if software:
-        control_software = setup_local_control_software(software)
+        control_software = helpers.setup_local_control_software(software)
         microscope.add_control_software(control_software)
 
     if focus_drive_id:
-        focus_drive = setup_local_focus_drive(focus_drive_id)
+        focus_drive = helpers.setup_local_focus_drive(helpers, focus_drive_id)
         microscope.add_microscope_object(focus_drive)
 
     try:
@@ -1144,15 +1006,17 @@ def test_move_to_abs_pos(
     stage_id,
     auto_focus_id,
     expected,
+    helpers
 ):
-    microscope = setup_local_microscope(prefs_path)
+    microscope = helpers.setup_local_microscope(prefs_path)
 
     if software:
-        control_software = setup_local_control_software(software)
+        control_software = helpers.setup_local_control_software(software)
         microscope.add_control_software(control_software)
 
     if focus_drive_id:
-        focus_drive = setup_local_focus_drive(
+        focus_drive = helpers.setup_local_focus_drive(
+            helpers,
             focus_drive_id,
             max_load_position=max_load_position,
             min_work_position=min_work_position,
@@ -1170,19 +1034,20 @@ def test_move_to_abs_pos(
         microscope.add_microscope_object(focus_drive)
 
     if objective_changer_id:
-        obj_changer = setup_local_obj_changer(
-            objective_changer_id, objectives=objectives, prefs_path=prefs_path
+        obj_changer = helpers.setup_local_obj_changer(
+            helpers, objective_changer_id, objectives=objectives, prefs_path=prefs_path
         )
         microscope.add_microscope_object(obj_changer)
 
     if safety_object_id:
-        safety_obj = setup_local_safety(safety_object_id)
+        safety_obj = helpers.setup_local_safety(safety_object_id)
         if safe_area_id:
             safety_obj.add_safe_area(safe_verts, safe_area_id, z_max)
         microscope.add_microscope_object(safety_obj)
 
     if stage_id:
-        stage = setup_local_stage(
+        stage = helpers.setup_local_stage(
+            helpers,
             stage_id,
             safe_area=safe_area_id,
             objective_changer=objective_changer_id,
@@ -1191,8 +1056,8 @@ def test_move_to_abs_pos(
         microscope.add_microscope_object(stage)
 
     if auto_focus_id:
-        autofocus = setup_local_autofocus(
-            auto_focus_id, obj_changer=obj_changer, prefs_path=prefs_path
+        autofocus = helpers.setup_local_autofocus(
+            helpers, auto_focus_id, obj_changer=obj_changer, prefs_path=prefs_path
         )
         microscope.add_microscope_object(autofocus)
 
@@ -1214,8 +1079,8 @@ def test_move_to_abs_pos(
     ("prefs_path, macro_name, macro_param, expected"),
     [("data/preferences_ZSD_test.yml", None, None, None)],
 )
-def test_run_macro(prefs_path, macro_name, macro_param, expected):
-    microscope = setup_local_microscope(prefs_path)
+def test_run_macro(prefs_path, macro_name, macro_param, expected, helpers):
+    microscope = helpers.setup_local_microscope(prefs_path)
 
     result = microscope.run_macro(macro_name, macro_param)
 
@@ -1281,11 +1146,12 @@ def test_execute_experiment(
     file_path,
     z_start,
     expected,
+    helpers,
 ):
-    microscope = setup_local_microscope(prefs_path)
+    microscope = helpers.setup_local_microscope(prefs_path)
 
     if software:
-        control_software = setup_local_control_software(software)
+        control_software = helpers.setup_local_control_software(software)
         microscope.add_control_software(control_software)
 
     try:
@@ -1319,12 +1185,13 @@ def test_execute_experiment(
         ),
     ],
 )
-def test_live_mode(prefs_path, software, camera_id, experiment, live, expected):
-    microscope = setup_local_microscope(prefs_path)
-    microscope.add_microscope_object(setup_local_camera(camera_id))
+def test_live_mode(prefs_path, software, camera_id, experiment, live, expected,
+                   helpers):
+    microscope = helpers.setup_local_microscope(prefs_path)
+    microscope.add_microscope_object(helpers.setup_local_camera(camera_id))
 
     if software:
-        control_software = setup_local_control_software(software)
+        control_software = helpers.setup_local_control_software(software)
         microscope.add_control_software(control_software)
 
     result = microscope.live_mode(camera_id, experiment, live)
@@ -1391,12 +1258,13 @@ def test_save_image(
     file_path,
     interactive,
     expected,
+    helpers
 ):
-    microscope = setup_local_microscope(prefs_path)
-    microscope.add_microscope_object(setup_local_camera(camera_id))
+    microscope = helpers.setup_local_microscope(prefs_path)
+    microscope.add_microscope_object(helpers.setup_local_camera(camera_id))
 
     if software:
-        control_software = setup_local_control_software(software)
+        control_software = helpers.setup_local_control_software(software)
         microscope.add_control_software(control_software)
 
     try:
@@ -1444,13 +1312,14 @@ def test_save_image(
     ],
 )
 def test_load_image(
-    mock_func1, prefs_path, software, camera_id, experiment, image, get_meta, expected
+    mock_func1, prefs_path, software, camera_id, experiment, image, get_meta,
+    expected, helpers
 ):
-    microscope = setup_local_microscope(prefs_path)
-    microscope.add_microscope_object(setup_local_camera(camera_id))
+    microscope = helpers.setup_local_microscope(prefs_path)
+    microscope.add_microscope_object(helpers.setup_local_camera(camera_id))
 
     if software:
-        control_software = setup_local_control_software(software)
+        control_software = helpers.setup_local_control_software(software)
         microscope.add_control_software(control_software)
 
     try:
@@ -1470,11 +1339,11 @@ def test_load_image(
         ("data/preferences_3i_test.yml", "Slidebook Dummy", "ConnectionError"),
     ],
 )
-def test_remove_images(prefs_path, software, expected):
-    microscope = setup_local_microscope(prefs_path)
+def test_remove_images(prefs_path, software, expected, helpers):
+    microscope = helpers.setup_local_microscope(prefs_path)
 
     if software:
-        control_software = setup_local_control_software(software)
+        control_software = helpers.setup_local_control_software(software)
         microscope.add_control_software(control_software)
 
     try:
