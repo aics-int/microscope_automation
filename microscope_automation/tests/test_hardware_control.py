@@ -51,7 +51,7 @@ def test_recover_hardware(
     prefs_path,
     error,
     expected,
-    helpers
+    helpers,
 ):
     """Test recovering from hardware error"""
     microscope = helpers.setup_local_microscope(prefs_path)
@@ -400,7 +400,7 @@ def test_microscope_is_ready(
     stage_id,
     auto_focus_id,
     expected,
-    helpers
+    helpers,
 ):
     microscope = helpers.setup_local_microscope(prefs_path)
 
@@ -493,7 +493,7 @@ def test_change_objective(
     objective_changer_id,
     objectives,
     expected,
-    helpers
+    helpers,
 ):
     microscope = helpers.setup_local_microscope(prefs_path)
 
@@ -601,8 +601,9 @@ def test_set_microscope(prefs_path, auto_focus_id, use_auto_focus, expected, hel
         ),
     ],
 )
-def test_set_objective_is_ready(prefs_path, objective_info, ref_obj_id,
-                                expected, helpers):
+def test_set_objective_is_ready(
+    prefs_path, objective_info, ref_obj_id, expected, helpers
+):
     microscope = helpers.setup_local_microscope(prefs_path)
 
     try:
@@ -801,8 +802,13 @@ def test__get_microscope_object(prefs_path, object_to_get, expected, helpers):
     ],
 )
 def test_setup_microscope_for_initialization(
-    mock_func, prefs_path, experiment, objective_changer_id, camera_id,
-    expected, helpers
+    mock_func,
+    prefs_path,
+    experiment,
+    objective_changer_id,
+    camera_id,
+    expected,
+    helpers,
 ):
     microscope = helpers.setup_local_microscope(prefs_path)
 
@@ -1006,7 +1012,7 @@ def test_move_to_abs_pos(
     stage_id,
     auto_focus_id,
     expected,
-    helpers
+    helpers,
 ):
     microscope = helpers.setup_local_microscope(prefs_path)
 
@@ -1185,8 +1191,9 @@ def test_execute_experiment(
         ),
     ],
 )
-def test_live_mode(prefs_path, software, camera_id, experiment, live, expected,
-                   helpers):
+def test_live_mode(
+    prefs_path, software, camera_id, experiment, live, expected, helpers
+):
     microscope = helpers.setup_local_microscope(prefs_path)
     microscope.add_microscope_object(helpers.setup_local_camera(camera_id))
 
@@ -1258,7 +1265,7 @@ def test_save_image(
     file_path,
     interactive,
     expected,
-    helpers
+    helpers,
 ):
     microscope = helpers.setup_local_microscope(prefs_path)
     microscope.add_microscope_object(helpers.setup_local_camera(camera_id))
@@ -1312,8 +1319,15 @@ def test_save_image(
     ],
 )
 def test_load_image(
-    mock_func1, prefs_path, software, camera_id, experiment, image, get_meta,
-    expected, helpers
+    mock_func1,
+    prefs_path,
+    software,
+    camera_id,
+    experiment,
+    image,
+    get_meta,
+    expected,
+    helpers,
 ):
     microscope = helpers.setup_local_microscope(prefs_path)
     microscope.add_microscope_object(helpers.setup_local_camera(camera_id))

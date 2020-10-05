@@ -26,6 +26,7 @@ def test_FocusSetup(experiment_object, verbose=True):
 
     Input:
      experiment_object: object of class hardware.Experiment
+
      verbose: if verbose == True print debug messages
 
     Output:

@@ -368,8 +368,9 @@ def test_connect_to_microscope_software(software, expected, helpers):
         ),
     ],
 )
-def test_add_safe_area(safety_id, safe_verts, safe_area_id, z_max, path_exp,
-                       helpers, z_exp):
+def test_add_safe_area(
+    safety_id, safe_verts, safe_area_id, z_max, path_exp, helpers, z_exp
+):
     safety = helpers.setup_local_safety(safety_id)
     safety.add_safe_area(safe_verts, safe_area_id, z_max)
     # removing all whitespace to align with expected result
@@ -428,7 +429,7 @@ def test_get_safe_area(
     z_max2,
     path_exp,
     z_exp,
-    helpers
+    helpers,
 ):
     safety = helpers.setup_local_safety(safety_id)
     safety.add_safe_area(safe_verts1, safe_area_id1, z_max1)
@@ -554,7 +555,7 @@ def test_is_safe_position(
     y,
     z,
     expected,
-    helpers
+    helpers,
 ):
     safety = helpers.setup_local_safety(safety_id)
     safety.add_safe_area(safe_verts1, safe_area_id1, z_max1)
@@ -681,7 +682,7 @@ def test_is_safe_travel_path(
     xy,
     z,
     expected,
-    helpers
+    helpers,
 ):
     safety = helpers.setup_local_safety(safety_id)
     safety.add_safe_area(safe_verts1, safe_area_id1, z_max1)
@@ -864,7 +865,7 @@ def test_is_safe_move_from_to(
     y_tar,
     z_tar,
     expected,
-    helpers
+    helpers,
 ):
     safety = helpers.setup_local_safety(safety_id)
     safety.add_safe_area(safe_verts1, safe_area_id1, z_max1)
@@ -954,7 +955,7 @@ def test_show_safe_areas(
     z_max2,
     xy,
     point,
-    helpers
+    helpers,
 ):
     safety = helpers.setup_local_safety(safety_id)
     safety.add_safe_area(safe_verts1, safe_area_id1, z_max1)
@@ -1048,7 +1049,7 @@ def test_get_information_camera(
     model,
     live_exp,
     set_exp,
-    helpers
+    helpers,
 ):
     camera = helpers.setup_local_camera(
         camera_id,
@@ -1204,7 +1205,7 @@ def test_initialize_stage(
     prefs_path,
     default_experiment,
     expected,
-    helpers
+    helpers,
 ):
     control_software = helpers.setup_local_control_software(software)
     com_object = control_software.connection
@@ -1577,7 +1578,7 @@ def test_initialize_obj_changer(
     ref_object_id,
     auto_focus_id,
     expected,
-    helpers
+    helpers,
 ):
     control_software = helpers.setup_local_control_software(software)
     obj_changer = helpers.setup_local_obj_changer(
@@ -1650,12 +1651,13 @@ def test_get_set_num_pos(objective_changer_id, positions, expected, helpers):
         ),
     ],
 )
-def test_get_all_objectives(objective_changer_id, software, positions, expected,
-                            helpers):
+def test_get_all_objectives(
+    objective_changer_id, software, positions, expected, helpers
+):
     control_software = helpers.setup_local_control_software(software)
-    obj_changer = helpers.setup_local_obj_changer(helpers,
-                                                  objective_changer_id,
-                                                  positions)
+    obj_changer = helpers.setup_local_obj_changer(
+        helpers, objective_changer_id, positions
+    )
 
     try:
         result = obj_changer.get_all_objectives(control_software.connection)
@@ -1678,11 +1680,13 @@ def test_get_all_objectives(objective_changer_id, software, positions, expected,
         ),
     ],
 )
-def test_get_objectives_dict(objective_changer_id, software, positions, expected,
-                             helpers):
+def test_get_objectives_dict(
+    objective_changer_id, software, positions, expected, helpers
+):
     control_software = helpers.setup_local_control_software(software)
-    obj_changer = helpers.setup_local_obj_changer(helpers, objective_changer_id,
-                                                  positions)
+    obj_changer = helpers.setup_local_obj_changer(
+        helpers, objective_changer_id, positions
+    )
     if positions:
         obj_changer.get_all_objectives(control_software.connection)
 
@@ -1743,8 +1747,9 @@ def test_get_information_obj_changer(
     objective_changer_id, software, positions, objectives, expected, helpers
 ):
     control_software = helpers.setup_local_control_software(software)
-    obj_changer = helpers.setup_local_obj_changer(helpers, objective_changer_id,
-                                                  positions, objectives)
+    obj_changer = helpers.setup_local_obj_changer(
+        helpers, objective_changer_id, positions, objectives
+    )
     try:
         result = obj_changer.get_information(control_software.connection)
     except Exception as err:
@@ -1866,11 +1871,12 @@ def test_update_objective_offset(
     z_off,
     objective_name,
     expected,
-    helpers
+    helpers,
 ):
     control_software = helpers.setup_local_control_software(software)
-    obj_changer = helpers.setup_local_obj_changer(helpers, objective_changer_id,
-                                                  positions, objectives)
+    obj_changer = helpers.setup_local_obj_changer(
+        helpers, objective_changer_id, positions, objectives
+    )
 
     try:
         result = obj_changer.update_objective_offset(
@@ -1926,11 +1932,12 @@ def test_change_magnification(
     sample_obj,
     use_safe_position,
     expected,
-    helpers
+    helpers,
 ):
     control_software = helpers.setup_local_control_software(software)
-    obj_changer = helpers.setup_local_obj_changer(helpers, objective_changer_id,
-                                                  positions)
+    obj_changer = helpers.setup_local_obj_changer(
+        helpers, objective_changer_id, positions
+    )
 
     # TODO: add tests where use_safe_position = True
     try:
@@ -2037,12 +2044,16 @@ def test_initialize_focus_drive(
     prefs_path,
     action_list,
     expected,
-    helpers
+    helpers,
 ):
     control_software = helpers.setup_local_control_software(software)
     focus_drive = helpers.setup_local_focus_drive(
-        helpers, focus_id, max_load_position, min_work_position, auto_focus_id,
-        obj_changer_id
+        helpers,
+        focus_id,
+        max_load_position,
+        min_work_position,
+        auto_focus_id,
+        obj_changer_id,
     )
 
     try:
@@ -2188,7 +2199,7 @@ def test_get_information_focus_drive(
     prefs_path,
     action_list,
     expected,
-    helpers
+    helpers,
 ):
     control_software = helpers.setup_local_control_software(software)
     focus_drive = helpers.setup_local_focus_drive(
@@ -2284,7 +2295,7 @@ def test_goto_load(
     prefs_path,
     action_list,
     expected,
-    helpers
+    helpers,
 ):
     control_software = helpers.setup_local_control_software(software)
     focus_drive = helpers.setup_local_focus_drive(
@@ -2347,7 +2358,7 @@ def test_goto_work(
     prefs_path,
     action_list,
     expected,
-    helpers
+    helpers,
 ):
     control_software = helpers.setup_local_control_software(software)
     focus_drive = helpers.setup_local_focus_drive(
@@ -2420,11 +2431,13 @@ def test_get_init_experiment(
     auto_focus_id, software, obj_changer_id, positions, objectives, expected, helpers
 ):
     control_software = helpers.setup_local_control_software(software)
-    obj_changer = helpers.setup_local_obj_changer(helpers, obj_changer_id,
-                                                  positions, objectives)
+    obj_changer = helpers.setup_local_obj_changer(
+        helpers, obj_changer_id, positions, objectives
+    )
 
-    autofocus = helpers.setup_local_autofocus(helpers, auto_focus_id,
-                                              obj_changer=obj_changer)
+    autofocus = helpers.setup_local_autofocus(
+        helpers, auto_focus_id, obj_changer=obj_changer
+    )
 
     result = autofocus.get_init_experiment(control_software.connection)
 
@@ -2530,11 +2543,12 @@ def test_initialize_autofocus(
     pixel_type,
     action_list,
     expected,
-    helpers
+    helpers,
 ):
     control_software = helpers.setup_local_control_software(software)
-    obj_changer = helpers.setup_local_obj_changer(helpers, obj_changer_id,
-                                                  positions, objectives)
+    obj_changer = helpers.setup_local_obj_changer(
+        helpers, obj_changer_id, positions, objectives
+    )
 
     autofocus = helpers.setup_local_autofocus(
         helpers, auto_focus_id, obj_changer=obj_changer, prefs_path=prefs_path
@@ -2542,8 +2556,9 @@ def test_initialize_autofocus(
 
     if camera_id:
         autofocus.default_camera = camera_id
-        camera = helpers.setup_local_camera(camera_id, pixel_size, pixel_number,
-                                            pixel_type)
+        camera = helpers.setup_local_camera(
+            camera_id, pixel_size, pixel_number, pixel_type
+        )
         autofocus.microscope_object.add_microscope_object(camera)
 
     try:
@@ -2631,12 +2646,19 @@ def test_initialize_autofocus(
     ],
 )
 def test_get_information_autofocus(
-    auto_focus_id, software, obj_changer_id, positions, objectives, camera_id,
-    expected, helpers
+    auto_focus_id,
+    software,
+    obj_changer_id,
+    positions,
+    objectives,
+    camera_id,
+    expected,
+    helpers,
 ):
     control_software = helpers.setup_local_control_software(software)
-    obj_changer = helpers.setup_local_obj_changer(helpers, obj_changer_id,
-                                                  positions, objectives)
+    obj_changer = helpers.setup_local_obj_changer(
+        helpers, obj_changer_id, positions, objectives
+    )
 
     autofocus = helpers.setup_local_autofocus(
         helpers, auto_focus_id, default_camera=camera_id, obj_changer=obj_changer
@@ -2817,7 +2839,7 @@ def test_recall_focus(
     df_objective,
     obj_name,
     expected,
-    helpers
+    helpers,
 ):
     control_software = helpers.setup_local_control_software(software)
     obj_changer = helpers.setup_local_obj_changer(
