@@ -14,32 +14,32 @@ import numpy
 from os import path
 import warnings
 from collections import OrderedDict
-# import modules from project MicroscopeAutomation
+# import modules from project microscope_automation
 from get_path import get_images_path, get_meta_data_path, get_prefs_path, \
     add_suffix, set_pref_file
 from draw_plate import drawPlate
-import automation_messages_form_layout as message
+from .. import automation_messages_form_layout as message
 from . import find_well_center
 from . import correct_background
-# requires module aicsimagetools
 from . import tile_images
-from load_image_czi import LoadImageCzi
-# from readBarcode import read_barcode
-from metaDataFile import MetaDataFile
+from ..load_image_czi import LoadImageCzi
+from meta_data_file import MetaDataFile
 from positions_list import CreateTilePositions
-from automation_exceptions import ObjectiveNotDefinedError, FileExistsError, \
+from interactive_location_picker_pyqtgraph import ImageLocationPicker
+from ..automation_exceptions import ObjectiveNotDefinedError, FileExistsError, \
     MetaDataNotSavedError
 # we need module hardware only for testing
-import hardware_control
-from interactive_location_picker_pyqtgraph import ImageLocationPicker
+from ..hardware import hardware_control
 
 # create logger
 logger = logging.getLogger('microscopeAutomation')
+
 ################################################################################
 #
 # constants with valid preferences values
 #
 ################################################################################
+
 VALID_FUNCTIONNAME = ['initialize_microscope',
                       'set_up_objectives',
                       'update_plate_well_z_zero',
@@ -63,9 +63,10 @@ VALID_USEPUMP = [True, False]
 VALID_TILE = ['NoTiling', 'Fixed', 'Size']
 VALID_FINDOBJECTS = ['None', 'Cells', 'Colonies']
 VALID_TYPEFINDCELLS = ['False', 'CenterMassCellProfiler', 'TwofoldDistanceMap']
+
 ################################################################################
 #
-# Support functions
+# Helper functions
 #
 ################################################################################
 
@@ -117,8 +118,6 @@ def create_plate(plate_format):
             plate_layout[y_name + x_name] = (x_coord, y_coord, z_center_well)
     return plate_layout
 
-#######################################################################################
-
 
 def create_rect_tile(n_col, n_row, x_pitch, y_pitch, z_pos=0):
     '''Create coordinates for rectangular tile scan..
@@ -142,11 +141,11 @@ def create_rect_tile(n_col, n_row, x_pitch, y_pitch, z_pos=0):
             pos_list.append((i * x_pitch, j * y_pitch, z_pos))
     return pos_list
 
-#######################################################################################
+################################################################################
 #
 # Classes for sample hierarchy
 #
-#######################################################################################
+################################################################################
 
 
 class ImagingSystem(object):
@@ -318,11 +317,11 @@ class ImagingSystem(object):
         '''
         return self.name
 
-#################################################################
+################################################################################
 # Begin
 # Methods to find positions in image
 #
-#################################################################
+################################################################################
 
     def set_interactive_positions(self, tileImageData, location_list=[], app=None):
         """ Opens up the interactive mode and lets user select colonies and

@@ -236,12 +236,13 @@ def add_barcode(name, well_object, layout, prefs=None):
     y_correction = float(layout.get_pref('yCorrectionBarcode'))
     z_correction = float(layout.get_pref('zCorrectionBarcode'))
 
-    barcodeObject = samples.Barcode(name=name, well_object=well_object, center=center,
-                                    x_flip=x_flip, y_flip=y_flip, z_flip=z_flip,
-                                    x_correction=x_correction,
-                                    y_correction=y_correction,
-                                    z_correction=z_correction)
-    well_object.add_barcode({name: barcodeObject})
+    barcode_object = samples.Barcode(name=name, well_object=well_object,
+                                     center=center, x_flip=x_flip,
+                                     y_flip=y_flip, z_flip=z_flip,
+                                     x_correction=x_correction,
+                                     y_correction=y_correction,
+                                     z_correction=z_correction)
+    well_object.add_barcode({name: barcode_object})
 
 
 ###########################################################################
