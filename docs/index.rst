@@ -26,6 +26,7 @@ Welcome to Microscope Automation's documentation!
    connect_zen_blue
    connect_zen_black
    hardware_control_zeiss
+   write_zen_tiles_experiment
    zen_experiment_info
 
 .. toctree::
@@ -55,7 +56,7 @@ Welcome to Microscope Automation's documentation!
    CONTRIBUTING
    LICENSE
 
-..include ../README.rst
+.. include:: ../README.rst
 
 Indices and tables
 ==================

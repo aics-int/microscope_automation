@@ -12,12 +12,11 @@ import os
 
 
 class PositionWriter(object):
-    """
-    Converts positions to stage coordinates, saves positions to .czsh file
+    """Converts positions to stage coordinates, saves positions to .czsh file
+
     Requirements:
      1) Ensure the dummy_tile_positions.czsh path is specified
      in preferences under key "PathDummy"
-
     """
 
     def __init__(self, zsd, plate, production_path, testing_mode=False):
@@ -26,10 +25,13 @@ class PositionWriter(object):
 
         Inputs:
          zsd:             String or integer Id of ZSD used for acquisition
+
          plate:           String of integer Id of plate
+
          production_path  Path of the prouduction folder
-        Return:
-         None
+
+        Output:
+         none
         """
         # Check Inputs
         if production_path is None:
@@ -103,10 +105,13 @@ class PositionWriter(object):
 
         Inputs:
          converted:       positions to write to the czsh file
+
          dummy:           empty (no coordinates) .czsh file to use for writing
+
          name_czsh:       name to save written .czsh file as
-        Return:
-         None
+
+        Output:
+         none
         """
         # Where to write the positions
         to_write = os.path.join(self.path, name_czsh)
@@ -150,12 +155,12 @@ class PositionWriter(object):
             return s
 
     def get_next_pos_name(self, test_mode=False, test_file_names=[]):
-        """
-        Find the next available letter label, but dont backfill files.
+        """Find the next available letter label, but dont backfill files.
 
         Inputs:
          folder: os.normpath'ed folder containing all positions lists.
-        Return:
+
+        Output:
          label: unused alphabetical label for new positions list
         """
 

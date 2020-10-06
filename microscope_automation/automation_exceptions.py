@@ -61,11 +61,12 @@ class AutomationError(Exception):
 
         Input:
          message: error message
-         error_component: instance of hardware instance that caused exception
-                             Default: None
+
+         error_component: instance of hardware instance that caused exception.
+         Default: None
 
         Output:
-         None
+         none
         """
         self.message = message
         self.error_component = error_component
@@ -84,8 +85,10 @@ class HardwareError(AutomationError):
 
     def error_dialog(self):
         """Show error message to user.
+
         Input:
          none
+
         Output:
          none
         """
@@ -105,8 +108,10 @@ class HardwareDoesNotExistError(HardwareError):
 
     def error_dialog(self, advice=""):
         """Show error message to user.
+
         Input:
          none
+
         Output:
          none
         """
@@ -124,8 +129,10 @@ class CrashDangerError(AutomationError):
 
     def error_dialog(self, advice=""):
         """Show error message to user.
+
         Input:
          advice: str with advice to user of how to avoid crash.
+
         Output:
          none
         """
@@ -141,8 +148,10 @@ class HardwareNotReadyError(AutomationError):
 
     def error_dialog(self, advice=""):
         """Show error message to user.
+
         Input:
          advice: str with advice to user of how to avoid crash.
+
         Output:
          none
         """
@@ -160,8 +169,10 @@ class HardwareCommandNotDefinedError(AutomationError):
 
     def error_dialog(self, advice=""):
         """Show error message to user.
+
         Input:
          advice: str with advice to user of how to avoid crash.
+
         Output:
          none
         """
@@ -186,10 +197,16 @@ class AutofocusError(HardwareError):
         """Raise autofocus exception.
         Input:
          message: error message
+
          error_component: instance of hardware instance that caused exception
          Default: None
+
          focus_reference_obj_id: Sample object used as reference for autofocus
+
          message: Test to display as error message
+
+        Output:
+         none
         """
         self.message = message
         self.error_component = error_component
@@ -200,8 +217,10 @@ class AutofocusError(HardwareError):
 
     def error_dialog(self):
         """Show error message to user.
+
         Input:
          none
+
         Output:
          none
         """
@@ -216,8 +235,10 @@ class AutofocusError(HardwareError):
 
     def set_focus_reference_obj_id(self, focus_reference_obj_id):
         """Set object (typcially plate) that is used as reference for autofocus offset.
+
         Input:
          focus_reference_obj_id: Sample object used as reference for autofocus
+
         Output:
          None
         """
@@ -226,8 +247,10 @@ class AutofocusError(HardwareError):
     def get_focus_reference_obj_id(self):
         """Retrieve object (typcially plate) that is used as reference for autofocus
          offset.
+
         Input:
-         None
+         none
+
         Output:
          focus_reference_obj_id: Sample object used as reference for autofocus
         """
@@ -240,15 +263,22 @@ class AutofocusError(HardwareError):
 
 class AutofocusObjectiveChangedError(AutofocusError):
     """Exception if objective was changed since autofocus was initialized
+
     Input:
      focus_reference_obj_id: Sample object used as reference for autofocus
+
      message: Test to display as error message
+
+    Output:
+     none
     """
 
     def error_dialog(self):
         """Show error message to user.
+
         Input:
          none
+
         Output:
          none
         """
@@ -263,15 +293,19 @@ class AutofocusObjectiveChangedError(AutofocusError):
 
 class AutofocusNotSetError(AutofocusError):
     """Exception if objective was changed since autofocus was initialized
+
     Input:
      focus_reference_obj_id: Sample object used as reference for autofocus
+
      message: Test to display as error message
     """
 
     def error_dialog(self):
         """Show error message to user.
+
         Input:
          none
+
         Output:
          none
         """
@@ -283,15 +317,19 @@ class AutofocusNotSetError(AutofocusError):
 
 class AutofocusNoReferenceObjectError(AutofocusError):
     """Exception if no reference object was selected for autofocus
+
     Input:
      focus_reference_obj_id: Sample object used as reference for autofocus
+
      message: Test to display as error message
     """
 
     def error_dialog(self):
         """Show error message to user.
+
         Input:
          none
+
         Output:
          none
         """
@@ -311,8 +349,10 @@ class LoadNotDefinedError(HardwareError):
 
     def error_dialog(self):
         """Show error message to user.
+
         Input:
          none
+
         Output:
          none
         """
@@ -331,8 +371,10 @@ class WorkNotDefinedError(HardwareError):
 
     def error_dialog(self):
         """Show error message to user.
+
         Input:
          none
+
         Output:
          none
         """
@@ -356,8 +398,10 @@ class ObjectiveNotDefinedError(HardwareError):
 
     def error_dialog(self):
         """Show error message to user.
+
         Input:
          none
+
         Output:
          none
         """
@@ -378,8 +422,10 @@ class ExperimentError(HardwareError):
 
     def error_dialog(self):
         """Show error message to user.
+
         Input:
          none
+
         Output:
          none
         """
@@ -399,8 +445,10 @@ class ExperimentNotExistError(ExperimentError):
 
     def error_dialog(self):
         """Show error message to user.
+
         Input:
          none
+
         Output:
          none
         """
@@ -421,8 +469,10 @@ class IOError(AutomationError):
 
     def error_dialog(self):
         """Show error message to user.
+
         Input:
          none
+
         Output:
          none
         """
@@ -438,8 +488,10 @@ class FileExistsError(AutomationError):
 
     def error_dialog(self):
         """Show error message to user.
+
         Input:
          none
+
         Output:
          none
         """
@@ -457,8 +509,10 @@ class MetaDataNotSavedError(AutomationError):
 
     def error_dialog(self):
         """Show error message to user.
+
         Input:
          none
+
         Output:
          none
         """
@@ -479,8 +533,10 @@ class StopCollectingError(AutomationError):
 
     def error_dialog(self):
         """Show error message to user.
+
         Input:
          none
+
         Output:
          none
         """

@@ -1,5 +1,7 @@
 .. contents::
 
+.. _LICENSE:
+
 LICENSE
 =======
 
