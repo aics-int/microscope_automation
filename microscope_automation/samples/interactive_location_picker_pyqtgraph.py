@@ -322,19 +322,19 @@ def test_ImageLocationPicker(prefs, image_save_path, app, verbose=False):
         camera_id="Camera1 (back)", experiment="Setup_20x", live=True
     )
     # set position for next experiments
-    raw_input("Move to image position")
+    input("Move to image position")
     images = slide_object.acquire_images(
         "Setup_20x",
         "Camera1 (Back)",
         reference_object=slide_object.get_reference_object(),
-        filePath=image_save_path + "image1.czi",
-        posList=None,
+        file_path=image_save_path + "image1.czi",
+        pos_list=None,
         load=False,
         verbose=verbose,
     )
 
     # Find position of new object
-    image = microscope_object.load_image(images[0], getMeta=True)
+    image = microscope_object.load_image(images[0], get_meta=True)
     image_data = image.get_data()
     if image_data.ndim == 3:
         # Remove the channel dimension before calling the location_picker module

@@ -99,7 +99,7 @@ if __name__ == "__main__":
     )
 
     rz = load_image_czi.LoadImageCzi()
-    image = rz.load_image(image, getMeta=True).get_data()[:, :, 0]
+    image = rz.load_image(image, get_meta=True).get_data()[:, :, 0]
     print("image (min, max)", image.min(), image.max())
     # imgScaled = np.int8((image-image.min())/(image.max()-image.min())*255)
     img_scaled = ((image - image.min()) / (image.max() - image.min()) * 255).astype(
@@ -110,7 +110,7 @@ if __name__ == "__main__":
     plt.show()
     io.imsave(output_original, img_scaled)
 
-    black_reference = rz.load_image(black_reference, getMeta=True).get_data()
+    black_reference = rz.load_image(black_reference, get_meta=True).get_data()
     print("black_reference (min, max)", black_reference.min(), black_reference.max())
     # imgScaled = np.int8((black_reference-black_reference.min())/(black_reference.max()-black_reference.min())*255)  # noqa
     imgScaled = (

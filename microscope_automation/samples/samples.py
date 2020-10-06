@@ -358,20 +358,22 @@ class ImagingSystem(object):
     #
     ################################################################################
 
-    def set_interactive_positions(self, tileImageData, location_list=[], app=None):
+    def set_interactive_positions(self, tile_image_data, location_list=[], app=None):
         """Opens up the interactive mode and lets user select colonies and
         return the list of coordinates selected
 
         Input:
-        tileImageData: The pixel data of the image of the well - numpy array
+        tile_image_data: The pixel data of the image of the well - numpy array
+
         location_list: The list of coordinates to be pre plotted on the image.
+
         app: pyqt application object initialized in microscopeAutomation.py
 
         Output:
-        location_list: Returns the list of colonies selected by the user
+         location_list: Returns the list of colonies selected by the user
         """
         # Using pyqtgraph module
-        interactive_plot = ImageLocationPicker(tileImageData, location_list, app)
+        interactive_plot = ImageLocationPicker(tile_image_data, location_list, app)
         interactive_plot.plot_points("Well Overview Image")
         return interactive_plot.location_list
 
@@ -490,16 +492,16 @@ class ImagingSystem(object):
     # End
     #################################################################
 
-    def add_samples(self, sampleObjectsDict):
+    def add_samples(self, sample_objects_dict):
         """Adds colonies to well.
 
         Input:
-         colonyObjectsDict: dictionary of form {'name': colonyObject}
+         sample_objects_dict: dictionary of form {'name': sample_object}
 
         Output:
          none
         """
-        self.samples.update(sampleObjectsDict)
+        self.samples.update(sample_objects_dict)
 
     def get_well_object(self):
         """Get well object for subclass.
@@ -1114,12 +1116,12 @@ class ImagingSystem(object):
             absPos = self.get_container().get_abs_position(stage_id, focus_id)
         return absPos
 
-    #####################################################################################
+    ##############################################################################
     #
     # Transformations from container coordinates to object coordinates
     #  Correction factors for this transformation are attached to the object
     #
-    #####################################################################################
+    ##############################################################################
     def calculate_slope_correction(self, x, y, verbose=True):
         """Calculate offset in z because of tilted sample.
 
@@ -1194,8 +1196,8 @@ class ImagingSystem(object):
             else:
                 container_name = self.get_container().get_name()
             print(
-                "\nResults from method get_obj_pos_from_container_pos(xContainer, yContainer, zContainer)"
-            )  # noqa
+                "\nResults from method get_obj_pos_from_container_pos(xContainer, yContainer, zContainer)"  # noqa
+            )
             print(
                 " "
                 + self.get_name()
@@ -1258,12 +1260,12 @@ class ImagingSystem(object):
             )
         return (xPos, yPos, zPos)
 
-    #####################################################################################
+    ##############################################################################
     #
     # Transformations from object coordinates to container coordinates
     #  Correction factors for this transformation are attached to the object
     #
-    #####################################################################################
+    ##############################################################################
     def get_container_pos_from_obj_pos(
         self, x_object, y_object, z_object, verbose=True
     ):
@@ -1306,8 +1308,8 @@ class ImagingSystem(object):
             else:
                 containerName = self.get_container().get_name()
             print(
-                "\nResults from method get_container_pos_from_obj_pos(xObject, yObject, zObject)"
-            )  # noqa
+                "\nResults from method get_container_pos_from_obj_pos(xObject, yObject, zObject)"  # noqa
+            )
             print(
                 " "
                 + containerName
@@ -2679,10 +2681,10 @@ class PlateHolder(ImagingSystem):
     #             message.operate_message('Is focus ok?')
     #             referenceObj.store_focus(referenceObj)
     #             # update z_zero position for plate
-    #             xPlate, yPlate, zPlate = referenceObj.get_pos_from_abs_pos(verbose=False)
+    #             xPlate, yPlate, zPlate = referenceObj.get_pos_from_abs_pos(verbose=False)  # noqa
     #             x_zero, y_zero, z_zero = referenceObj.get_zero()
     #             new_z_zero_plate = z_zero + zPlate
-    #             xPlate, yPlate, z_zeroPlate = referenceObj.update_zero(z=new_z_zero_plate)
+    #             xPlate, yPlate, z_zeroPlate = referenceObj.update_zero(z=new_z_zero_plate)  # noqa
     #
     #         except AutofocusError as error:
     #             focus_reference_obj = error.focus_reference_obj
@@ -2734,7 +2736,7 @@ class PlateHolder(ImagingSystem):
         use_autofocus = microscope_object.get_information([self.get_auto_focus_id()])[
             self.get_auto_focus_id()
         ]["use"]
-        #         use_autofocus = self.recover_hardware(self.focusDrive.get_use_autofocus)
+        # use_autofocus = self.recover_hardware(self.focusDrive.get_use_autofocus)
         return use_autofocus
 
     def find_surface(self, reference_object=None, trials=3, verbose=True):
@@ -3082,52 +3084,52 @@ class ImmersionDelivery(ImagingSystem):
         # Set magnification of lens used with immersion delivery system
         self.magnification = None
 
-    #     def add_pump(self, pumpObject):
-    #         '''Add object for pump that delivers water to immersion delivery system
+    # def add_pump(self, pumpObject):
+    #     '''Add object for pump that delivers water to immersion delivery system
     #
-    #         Input:
-    #          pumpObject: object of type pump from module hardware
-    #                      (only one pump per immersion delivery system)
+    #     Input:
+    #      pumpObject: object of type pump from module hardware
+    #                  (only one pump per immersion delivery system)
     #
-    #         Output:
-    #          none
-    #         '''
-    #         self.pump = pumpObject
+    #     Output:
+    #      none
+    #     '''
+    #     self.pump = pumpObject
     #
-    #     def get_pump(self):
-    #         '''Get object for pump that delivers water to immersion delivery system
+    # def get_pump(self):
+    #     '''Get object for pump that delivers water to immersion delivery system
     #
-    #         Input:
-    #          none
+    #     Input:
+    #      none
     #
-    #         Output:
-    #          pumpObject: object of type pump from module hardware
-    #                      (only one pump per immersion delivery system)
-    #         '''
-    #         return self.pump
-
-    #     def set_magnification(self, magnification):
-    #         '''Set magnification of lens used with immersion delivery system
+    #     Output:
+    #      pumpObject: object of type pump from module hardware
+    #                  (only one pump per immersion delivery system)
+    #     '''
+    #     return self.pump
     #
-    #         Input:
-    #          magnification: magnification of objective used with immersion delivery system
+    # def set_magnification(self, magnification):
+    #     '''Set magnification of lens used with immersion delivery system
     #
-    #         Output:
-    #          none
-    #         '''
-    #         self.magnification = float(magnification)
+    #     Input:
+    #      magnification: magnification of objective used with immersion delivery system
     #
-    #     def get_magnification(self):
-    #         '''Get magnification of lens used with immersion delivery system
+    #     Output:
+    #      none
+    #     '''
+    #     self.magnification = float(magnification)
     #
-    #         Input:
-    #          none
+    # def get_magnification(self):
+    #     '''Get magnification of lens used with immersion delivery system
     #
-    #         Output:
-    #          magnification: magnification of objective used with immersion delivery
-    #          system as float
-    #         '''
-    #         return self.magnification
+    #     Input:
+    #      none
+    #
+    #     Output:
+    #      magnification: magnification of objective used with immersion delivery
+    #      system as float
+    #     '''
+    #     return self.magnification
 
     def trigger_pump(self):
         """Trigger pump to deliver immersion water.
@@ -3632,12 +3634,12 @@ class Well(ImagingSystem):
     def failed_image(self):
         return self._failed_image
 
-    def set_interactive_positions(self, tileImageData, location_list=None, app=None):
+    def set_interactive_positions(self, tile_image_data, location_list=None, app=None):
         """Opens up the interactive mode and lets user select colonies
         and return the list of coordinates selected
 
         Input:
-         tileImageData: The pixel data of the image of the well - numpy array
+         tile_image_data: The pixel data of the image of the well - numpy array
 
          location_list: The list of coordinates to be pre plotted on the image.
 
@@ -3649,7 +3651,7 @@ class Well(ImagingSystem):
         if location_list is None:
             location_list = []
         # Using pyqtgraph module
-        interactive_plot = ImageLocationPicker(tileImageData, location_list, app)
+        interactive_plot = ImageLocationPicker(tile_image_data, location_list, app)
         title = "Well Overview Image - Well " + self.name
         interactive_plot.plot_points(title)
         self._failed_image = interactive_plot.failed_image()
@@ -4354,12 +4356,12 @@ class Colony(ImagingSystem):
         """
         self.cell_line = cell_line
 
-    def set_interactive_positions(self, imageData, location_list=None, app=None):
+    def set_interactive_positions(self, image_data, location_list=None, app=None):
         """Opens up the interactive mode and lets user select cells and
         return the list of coordinates selected
 
         Input:
-         tileImageData: The pixel data of the image of the colony - numpy array
+         image_data: The pixel data of the image of the colony - numpy array
 
          location_list: Coordinates to be preplotted on the image
 
@@ -4371,7 +4373,7 @@ class Colony(ImagingSystem):
         # Using pyqtgraph module
         if location_list is None:
             location_list = []
-        interactive_plot = ImageLocationPicker(imageData, location_list, app)
+        interactive_plot = ImageLocationPicker(image_data, location_list, app)
         interactive_plot.plot_points("Colony Overview Image")
         return interactive_plot.location_list
 
@@ -4882,7 +4884,7 @@ def create_plate_holder_manually(m, prefs):
 
     # Add pump to plateHolder
     im = ImmersionDelivery(name="Immersion", plate_holder_object=ph, center=[0, 0, 0])
-    #     ph.add_immersionDelivery(immersion_delivery_systemsDict={'Water Immersion': im})
+    # ph.add_immersionDelivery(immersion_delivery_systemsDict={'Water Immersion': im})
     ph.immersion_delivery_system = im
 
     # create Plate as part of PlateHolder and add it to PlateHolder
@@ -5118,8 +5120,8 @@ def test_samples(
         # take image of water outlet
         immersion_delivery.live_mode_start(cameraID, experiment)
         message.operate_message(
-            "Move objective under water outlet.\nUse flashlight from below stage to see outlet."
-        )  # noqa
+            "Move objective under water outlet.\nUse flashlight from below stage to see outlet."  # noqa
+        )
         immersion_delivery.live_mode_stop(cameraID, experiment)
 
         # drop objective to load position and store position for water delivery

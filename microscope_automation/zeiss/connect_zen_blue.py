@@ -1516,16 +1516,16 @@ def test_connect_zen_blue(
         print("Start test save_image")
         #     save ImageAICS from within Zeiss software to disk (in czi format)
         #     filePath="F:\\Winfried\\Testdata\\testImage.czi"
-        filePath = "../data/testImages/testImage.czi"
-        m.save_image(filePath)
+        file_path = "../data/testImages/testImage.czi"
+        m.save_image(file_path)
 
         # create image object
-        meta = {"aics_filePath": filePath}
-        imageTest = ImageAICS(meta=meta)
+        meta = {"aics_filePath": file_path}
+        image_test = ImageAICS(meta=meta)
 
         # load ImageAICS from file using bioFormats
-        image = m.load_image(imageTest, get_meta=True)
-        image.show(filePath)
+        image = m.load_image(image_test, get_meta=True)
+        image.show(file_path)
 
         print("save_image passed test")
 

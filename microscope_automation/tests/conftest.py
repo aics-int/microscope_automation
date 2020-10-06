@@ -186,6 +186,10 @@ class Helpers:
         container=None,
         name="",
         image=True,
+        reference_object=None,
+        x_ref=None,
+        y_ref=None,
+        z_ref=None,
         prefs_path=None,
         stage_id=None,
         focus_id=None,
@@ -201,13 +205,21 @@ class Helpers:
 
         # TODO: add in other objects like focus drive and safety here
 
-        return samples.ImagingSystem(container=container, name=name, image=image,
-                                     microscope_object=microscope_object,
-                                     stage_id=stage_id,
-                                     focus_id=focus_id,
-                                     auto_focus_id=auto_focus_id,
-                                     objective_changer_id=objective_changer_id,
-                                     safety_id=safety_id)
+        return samples.ImagingSystem(
+            container=container,
+            name=name,
+            image=image,
+            reference_object=reference_object,
+            x_ref=x_ref,
+            y_ref=y_ref,
+            z_ref=z_ref,
+            microscope_object=microscope_object,
+            stage_id=stage_id,
+            focus_id=focus_id,
+            auto_focus_id=auto_focus_id,
+            objective_changer_id=objective_changer_id,
+            safety_id=safety_id,
+        )
 
 
 @pytest.fixture
