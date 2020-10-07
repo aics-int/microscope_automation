@@ -197,7 +197,7 @@ class ImagingSystem(object):
         (e.g. well, colony, etc).
 
         Input:
-         container: class that contains object (e.g. Plate is container for Well)
+         container: class which holds this object (e.g. Plate is container for Well)
 
          name: sting name of object
 
@@ -228,6 +228,7 @@ class ImagingSystem(object):
         Output:
          None
         """
+        self.samples = {}
         self.images = []
         self.set_name(name)
 
@@ -630,10 +631,10 @@ class ImagingSystem(object):
          none
 
         Output:
-         sampleType: string with name of object type
+         sample_type: string with name of object type
         """
-        sampleType = type(self).__name__
-        return sampleType
+        sample_type = type(self).__name__
+        return sample_type
 
     def set_zero(self, x=None, y=None, z=None, verbose=True):
         """Set center position of object in container coordinates.
@@ -2471,7 +2472,7 @@ class PlateHolder(ImagingSystem):
         immersion_object = immersion_dict[name]
         return immersion_object
 
-    def add_plates(self, plateObjectDict):
+    def add_plates(self, plate_object_dict):
         """Adds Plate to Stage.
 
         Input:
@@ -2480,10 +2481,10 @@ class PlateHolder(ImagingSystem):
         Output:
          none
         """
-        self.plates.update(plateObjectDict)
+        self.plates.update(plate_object_dict)
 
     def get_plates(self):
-        """Return list will all plateObjects associated with plateholder.
+        """Return list will all plate_objects associated with plateholder.
 
         Input:
          none
@@ -3427,14 +3428,14 @@ class Plate(ImagingSystem):
         contain samples of given type.
 
         Input:
-         sampleType: string or set with sample type(s)
+         sample_type: string or set with sample type(s)
          (e.g. {'Sample', 'Colony', 'Barcode'})
 
         Output:
          well_objects_of_type: dict with well objects
         """
         try:
-            # create set of sampleTypes if only one same type was given as string
+            # create set of sample_type if only one same type was given as string
             if isinstance(sample_type, str):
                 sample_type = {sample_type}
             # retrieve list of all well objects for plate
@@ -3442,7 +3443,7 @@ class Plate(ImagingSystem):
             well_objects_of_type = {
                 well_name: well_object
                 for well_name, well_object in well_objects.iteritems()
-                if len(well_object.get_samples(sampleType=sample_type)) > 0
+                if len(well_object.get_samples(sample_type=sample_type)) > 0
             }
         except Exception:
             well_objects_of_type = {}
@@ -3567,9 +3568,9 @@ class Well(ImagingSystem):
         name="Well",
         center=[0, 0, 0],
         diameter=1,
-        plateObject=None,
-        wellPositionNumeric=(1, 1),
-        wellPositionString=("A", "1"),
+        plate_object=None,
+        well_position_numeric=(1, 1),
+        well_position_string=("A", "1"),
         x_flip=1,
         y_flip=1,
         z_flip=1,
@@ -3588,11 +3589,11 @@ class Well(ImagingSystem):
 
          diameter: diameter of well in mum
 
-         plateObject: object of type Plate the well is associated with
+         plate_object: object of type Plate the well is associated with
 
-         wellPositionNumeric: (column, row) as integer tuple (e.g. (0,0) for well A1)
+         well_position_numeric: (column, row) as integer tuple (e.g. (0,0) for well A1)
 
-         wellPositionString: (row, column) as string tuple (e.g. ('A','1'))
+         well_position_string: (row, column) as string tuple (e.g. ('A','1'))
 
          x_flip, y_flip, z_flip: -1 if coordinate system of plate holder
          is flipped in respect to stage
@@ -3604,7 +3605,7 @@ class Well(ImagingSystem):
          none
         """
         super(Well, self).__init__(
-            container=plateObject,
+            container=plate_object,
             name=name,
             x_zero=center[0],
             y_zero=center[1],
@@ -3625,7 +3626,7 @@ class Well(ImagingSystem):
         # use this value for all calculation.
         # Replace this value with a measured value as soon as possible
         self.set_diameter(diameter)
-        self.set_plate_position_numeric(position=wellPositionNumeric)
+        self.set_plate_position_numeric(position=well_position_numeric)
         self._failed_image = False
 
     def get_name(self):
@@ -3705,7 +3706,7 @@ class Well(ImagingSystem):
          none
         """
 
-        self.wellPositionNumeric = position
+        self.well_position_numeric = position
 
     def get_plate_position_numeric(self):
         """Get row and column number.
@@ -3717,7 +3718,7 @@ class Well(ImagingSystem):
          well_position_numeric: (column, row) as integer tuple (e.g. (0,0) for well A1
         """
         try:
-            well_position_numeric = self.wellPositionNumeric
+            well_position_numeric = self.well_position_numeric
         except Exception:
             well_position_numeric = None
         return well_position_numeric
@@ -3731,7 +3732,7 @@ class Well(ImagingSystem):
         Output:
          none
         """
-        self.wellPositionString = position
+        self.well_position_string = position
 
     def get_plate_position_string(self):
         """Get row and column as string.
@@ -3744,7 +3745,7 @@ class Well(ImagingSystem):
          (e.g. ('A','1') for well A1)
         """
         try:
-            well_position_string = self.wellPositionString
+            well_position_string = self.well_position_string
         except AttributeError:
             well_position_string = None
         return well_position_string
@@ -3877,22 +3878,22 @@ class Well(ImagingSystem):
         """
         self.samples.update(colonyObjectsDict)
 
-    def add_samples(self, sampleObjectsDict):
+    def add_samples(self, sample_objects_dict):
         """Adds samples to well.
 
         Input:
-         sampleObjectsDict: dictionary of form {'name': sampleObject}
+         sample_objects_dict: dictionary of form {'name': sampleObject}
 
         Output:
          none
         """
-        self.samples.update(sampleObjectsDict)
+        self.samples.update(sample_objects_dict)
 
-    def get_samples(self, sampleType={"Sample", "Barcode", "Colony"}):
+    def get_samples(self, sample_type={"Sample", "Barcode", "Colony"}):
         """Get all samples in well.
 
         Input:
-         sampleType: list with types of samples to retrieve.
+         sample_type: list with types of samples to retrieve.
          At this moment {'Sample', 'Barcode', 'Colony'} are supported
 
         Output:
@@ -3900,9 +3901,9 @@ class Well(ImagingSystem):
         """
         samples = {}
         try:
-            for name, sampleObject in self.samples.iteritems():
-                if type(sampleObject).__name__ in sampleType:
-                    samples.update({name: sampleObject})
+            for name, sample_obj in self.samples.iteritems():
+                if type(sample_obj).__name__ in sample_type:
+                    samples.update({name: sample_obj})
         except Exception:
             samples = None
         return samples
@@ -3917,7 +3918,7 @@ class Well(ImagingSystem):
          colonies: dict with colony objects
         """
         try:
-            colonies = self.get_samples(sampleType="Colony")
+            colonies = self.get_samples(sample_type="Colony")
         except Exception:
             colonies = None
         return colonies
@@ -4902,7 +4903,7 @@ def create_plate_holder_manually(m, prefs):
         z_correction_y_slope=0,
     )
     p.set_barcode(1234)
-    ph.add_plates(plateObjectDict={"Test Plate": p})
+    ph.add_plates(plate_object_dict={"Test Plate": p})
     print("Plate created and added to PlateHolder")
 
     # create Wells as part of Plate and add to Plate
@@ -4912,9 +4913,9 @@ def create_plate_holder_manually(m, prefs):
         name="D5",
         center=plate_layout["D5"],
         diameter=plate_layout["well_diameter"],
-        plateObject=p,
-        wellPositionNumeric=(4, 5),
-        wellPositionString=("D", "5"),
+        plate_object=p,
+        well_position_numeric=(4, 5),
+        well_position_string=("D", "5"),
         x_flip=1,
         y_flip=1,
         z_flip=1,
@@ -4928,9 +4929,9 @@ def create_plate_holder_manually(m, prefs):
         name="D6",
         center=plate_layout["D6"],
         diameter=plate_layout["well_diameter"],
-        plateObject=p,
-        wellPositionNumeric=(5, 5),
-        wellPositionString=("D", "6"),
+        plate_object=p,
+        well_position_numeric=(5, 5),
+        well_position_string=("D", "6"),
         x_flip=1,
         y_flip=1,
         z_flip=1,

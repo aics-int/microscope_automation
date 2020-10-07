@@ -284,14 +284,20 @@ def test_set_hardware(stage_id_init, stage_id_change, helpers):
 
 @pytest.mark.skipif(skip_all_tests, reason="Exclude all tests")
 @pytest.mark.parametrize(
-    ("name_get, name_set"), [(None, ""), ("test_name", "new_test_name")]
+    ("name_get, name_set, repr"),
+    [
+        (None, "", "<class ImagingSystem: ''>"),
+        ("test_name", "new_test_name", "<class ImagingSystem: 'new_test_name'>"),
+    ],
 )
-def test_get_set_name(name_get, name_set, helpers):
+def test_get_set_name(name_get, name_set, repr, helpers):
     img_sys = helpers.setup_local_imaging_system(helpers, name=name_get)
     assert img_sys.get_name() == name_get
 
     img_sys.set_name(name_set)
     assert img_sys.get_name() == name_set
+
+    assert img_sys.__repr__() == repr
 
 
 @patch("pyqtgraph.TextItem")
@@ -336,16 +342,39 @@ def test_get_set_ref_object(name_get, name_set, helpers):
     [
         (None, 1, 2, None, None, None, None),
         (-1, 1, 0, -1, 1, 0, None),
-        (0, 1, 2, None, None, None, "test_ref_obj")
-    ]
+        (0, 1, 2, None, None, None, "test_ref_obj"),
+    ],
 )
-def test_get_set_ref_position(x_set, y_set, z_set, x_get, y_get, z_get,
-                              ref_obj_name, helpers):
+def test_get_set_ref_position(
+    x_set, y_set, z_set, x_get, y_get, z_get, ref_obj_name, helpers
+):
     if ref_obj_name:
         ref_obj = helpers.setup_local_imaging_system(helpers, name=ref_obj_name)
     else:
         ref_obj = None
 
-    img_sys = helpers.setup_local_imaging_system(helpers, reference_object=ref_obj,
-                                                 x_ref=x_set, y_ref=y_set, z_ref=z_set)
+    img_sys = helpers.setup_local_imaging_system(
+        helpers, reference_object=ref_obj, x_ref=x_set, y_ref=y_set, z_ref=z_set
+    )
     assert img_sys.get_reference_position() == (x_get, y_get, z_get)
+
+
+@pytest.mark.skipif(skip_all_tests, reason="Exclude all tests")
+@pytest.mark.parametrize(
+    ("img_sys_name, sample_obj_name"),
+    [
+        (None, None),
+        ("test_sys", "test_sample"),
+    ],
+)
+def test_add_samples_img_sys(img_sys_name, sample_obj_name, helpers):
+    sample_obj = helpers.setup_local_imaging_system(helpers, name=sample_obj_name)
+    img_sys = helpers.setup_local_imaging_system(helpers, name=img_sys_name)
+
+    img_sys.add_samples({sample_obj_name: sample_obj})
+
+    assert img_sys.samples == {sample_obj_name: sample_obj}
+
+
+# def test_get_well_object_img_sys()
+#     img_sys.get_well_object

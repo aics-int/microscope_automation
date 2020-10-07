@@ -445,7 +445,7 @@ def setup_plate(prefs, colony_file=None, microscope_object=None, barcode=None):
             "Barcode", "Barcode:", default="123", returnCode=False
         )
     plate_object.set_barcode(barcode)
-    plate_holder_object.add_plates(plateObjectDict={barcode: plate_object})
+    plate_holder_object.add_plates(plate_object_dict={barcode: plate_object})
 
     # create Wells and add to Plate
     # get information from microscopeSpecifications.yml file
@@ -463,22 +463,22 @@ def setup_plate(prefs, colony_file=None, microscope_object=None, barcode=None):
     z_correction = float(specifications.get_pref("zCorrectionWell"))
 
     # create all wells for plate and add to plate
-    for colIndex in range(ncol - 1):
-        colName = str(colIndex + 1)
-        colCoord = colIndex * pitch
-        for rowIndex in range(n_row - 1):
+    for col_index in range(ncol - 1):
+        col_name = str(col_index + 1)
+        col_coord = col_index * pitch
+        for row_index in range(n_row - 1):
             # create well
-            rowName = string.ascii_uppercase[rowIndex]
-            yCoord = rowIndex * pitch
-            name = rowName + colName
+            row_name = string.ascii_uppercase[row_index]
+            y_coord = row_index * pitch
+            name = row_name + col_name
 
             well_object = samples.Well(
                 name=name,
-                center=(colCoord, yCoord, z_center_wells),
+                center=(col_coord, y_coord, z_center_wells),
                 diameter=diameter,
-                plateObject=plate_object,
-                wellPositionNumeric=(colIndex, rowIndex),
-                wellPositionString=(rowName, colName),
+                plate_object=plate_object,
+                well_position_numeric=(col_index, row_index),
+                well_position_string=(row_name, col_name),
                 x_flip=x_flip,
                 y_flip=y_flip,
                 z_flip=z_flip,

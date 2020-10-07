@@ -221,6 +221,92 @@ class Helpers:
             safety_id=safety_id,
         )
 
+    def setup_local_well(
+        self,
+        name="Well",
+        center=[0, 0, 0],
+        diameter=1,
+        plate_name=None,
+        well_position_numeric=(1, 1),
+        well_position_string=("A", "1"),
+        x_flip=1,
+        y_flip=1,
+        z_flip=1,
+    ):
+        """Create Well object"""
+        if plate_name:
+            plate_object = self.setup_local_plate()
+        else:
+            plate_object = None
+
+        return samples.Well(
+            name=name,
+            center=center,
+            diameter=diameter,
+            plate_object=plate_object,
+            well_position_numeric=well_position_numeric,
+            well_position_string=well_position_string,
+            x_flip=x_flip,
+            y_flip=y_flip,
+            z_flip=z_flip,
+        )
+
+    def setup_local_plate(
+        self,
+        name="Plate",
+        center=[0, 0, 0],
+        plate_holder_name=None,
+        x_flip=1,
+        y_flip=1,
+        z_flip=1,
+    ):
+        """Create Plate object"""
+        if plate_holder_name:
+            plate_holder_object = self.setup_local_plate_holder()
+        else:
+            plate_holder_object = None
+
+        return samples.Plate(
+            name=name,
+            center=center,
+            plate_holder_object=plate_holder_object,
+            x_flip=x_flip,
+            y_flip=y_flip,
+            z_flip=z_flip,
+        )
+
+    def setup_local_plate_holder(
+        self,
+        name="PlateHolder",
+        prefs_path=None,
+        stage_id=None,
+        focus_id=None,
+        objective_changer_id=None,
+        safety_id=None,
+        center=[0, 0, 0],
+        x_flip=1,
+        y_flip=1,
+        z_flip=1,
+    ):
+        """Create PlateHolder object"""
+        if prefs_path:
+            microscope_object = self.setup_local_microscope(prefs_path)
+        else:
+            microscope_object = None
+
+        return samples.Plate(
+            name=name,
+            center=center,
+            microscope_object=microscope_object,
+            stage_id=stage_id,
+            focus_id=focus_id,
+            objective_changer_id=objective_changer_id,
+            safety_id=safety_id,
+            x_flip=x_flip,
+            y_flip=y_flip,
+            z_flip=z_flip,
+        )
+
 
 @pytest.fixture
 def helpers():
