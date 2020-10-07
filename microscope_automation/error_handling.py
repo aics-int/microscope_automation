@@ -4,7 +4,7 @@ Created on Jul 31, 2016
 
 @author: winfriedw
 """
-# import modules
+
 import logging
 from .get_path import get_log_file_path
 

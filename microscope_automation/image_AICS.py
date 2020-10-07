@@ -73,9 +73,6 @@ class ImageAICS:
         if meta:
             self.meta.update(meta)
 
-    #         else:
-    #             self.meta = {}
-
     def get_meta(self, key=None):
         """Retrieve meta data. Use keys as defined in OME-XML.
 

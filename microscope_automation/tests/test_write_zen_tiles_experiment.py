@@ -13,8 +13,6 @@ def test_init():
     # Check data fed into next step
     assert testclass.path == "data" + os.path.sep + "1234" + os.path.sep + "testZsd"
     assert testclass.zsd == "testZsd"
-    # Removed below assert statement since attribute no longer exists
-    # assert isinstance(testclass.pos_list, list)
 
 
 sample_coords_from_automation = [
