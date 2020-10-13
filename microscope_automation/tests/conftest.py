@@ -294,7 +294,7 @@ class Helpers:
         else:
             microscope_object = None
 
-        return samples.Plate(
+        return samples.PlateHolder(
             name=name,
             center=center,
             microscope_object=microscope_object,
@@ -306,6 +306,31 @@ class Helpers:
             y_flip=y_flip,
             z_flip=z_flip,
         )
+
+    @staticmethod
+    def create_sample_object(sample_type, container=None,
+                             microscope_obj=None, stage_id=None, focus_id=None,
+                             autofocus_id=None):
+        """Create an object of the type passed in, e.g. PlateHolder or Well"""
+        if sample_type == "plate_holder":
+            obj = samples.PlateHolder(microscope_object=microscope_obj,
+                                      stage_id=stage_id,
+                                      auto_focus_id=autofocus_id,
+                                      focus_id=focus_id)
+        elif sample_type == "plate":
+            obj = samples.Plate(plate_holder_object=container)
+        elif sample_type == "well":
+            obj = samples.Well(plate_object=container)
+        elif sample_type == "img_sys":
+            obj = samples.ImagingSystem(container=container,
+                                        microscope_object=microscope_obj,
+                                        stage_id=stage_id,
+                                        auto_focus_id=autofocus_id,
+                                        focus_id=focus_id)
+        elif sample_type is None:
+            obj = None
+
+        return obj
 
 
 @pytest.fixture

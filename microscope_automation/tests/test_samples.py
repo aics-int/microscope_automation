@@ -302,8 +302,8 @@ def test_get_set_name(name_get, name_set, repr, helpers):
 
 @patch("pyqtgraph.TextItem")
 @patch(
-    "microscope_automation.samples.interactive_location_picker_pyqtgraph.ImageLocationPicker.plot_points"
-)  # noqa
+    "microscope_automation.samples.interactive_location_picker_pyqtgraph.ImageLocationPicker.plot_points"  # noqa
+)
 @pytest.mark.skipif(skip_all_tests, reason="Exclude all tests")
 @pytest.mark.parametrize(
     ("location_list, expected"), [(None, "TypeError"), ([], []), ([(1, 2)], [(1, 0)])]
@@ -376,5 +376,173 @@ def test_add_samples_img_sys(img_sys_name, sample_obj_name, helpers):
     assert img_sys.samples == {sample_obj_name: sample_obj}
 
 
-# def test_get_well_object_img_sys()
-#     img_sys.get_well_object
+@pytest.mark.skipif(skip_all_tests, reason="Exclude all tests")
+@pytest.mark.parametrize(
+    ("img_sys_name, well_obj_name, expected"),
+    [
+        (None, None, "AttributeError"),
+        ("test_sys", "test_well", "test_well"),
+    ],
+)
+def test_get_well_object_img_sys(img_sys_name, well_obj_name, expected, helpers):
+    if well_obj_name:
+        well_obj = helpers.setup_local_well(helpers, name=well_obj_name)
+    else:
+        well_obj = None
+
+    try:
+        img_sys = helpers.setup_local_imaging_system(helpers, name=img_sys_name,
+                                                     container=well_obj)
+        result = img_sys.get_well_object().name
+    except Exception as err:
+        result = type(err).__name__
+
+    assert expected == result
+
+
+@pytest.mark.skipif(skip_all_tests, reason="Exclude all tests")
+@pytest.mark.parametrize(
+    ("image_set, image_get"),
+    [
+        (None, True),
+        (True, True),
+        (False, True),
+    ],
+)
+def test_get_set_image(image_set, image_get, helpers):
+    if image_set:
+        img_sys = helpers.setup_local_imaging_system(helpers, image=image_set)
+    else:
+        img_sys = helpers.setup_local_imaging_system(helpers)
+
+    assert img_sys.get_image() == image_get
+
+
+@pytest.mark.skipif(skip_all_tests, reason="Exclude all tests")
+@pytest.mark.parametrize(
+    ("list_name, sample_object_types, position, expected"),
+    [
+        ("test_dir", None, None, []),
+        ("test_dir", "well", None, ["Well"]),
+        ("test_dir", "well", 0, ["Well"]),
+        ("test_dir", "well", 3, ["Well"]),
+        ("test_dir", ["well", "well"], None, ["Well", "Well"]),
+        ("test_dir", ["well", "plate", "plate_holder"], None,
+         ["Well", "Plate", "PlateHolder"])
+    ],
+)
+def test_add_to_get_from_image_dir(list_name, sample_object_types, position,
+                                   expected, helpers):
+    img_sys = helpers.setup_local_imaging_system(helpers)
+
+    if sample_object_types:
+        if isinstance(sample_object_types, list):
+            sample_objects = []
+            for t in sample_object_types:
+                obj = helpers.create_sample_object(t)
+                sample_objects.append(obj)
+        else:
+            sample_objects = helpers.create_sample_object(sample_object_types)
+    else:
+        sample_objects = None
+
+    img_sys.add_to_image_dir(list_name, sample_objects, position)
+    result = img_sys.get_from_image_dir(list_name)
+
+    if result:
+        result2 = []
+        for sample in result:
+            result2.append(sample.name)
+
+        result = result2
+
+    assert result == expected
+
+
+@pytest.mark.skipif(skip_all_tests, reason="Exclude all tests")
+@pytest.mark.parametrize(
+    ("plate_obj_name, barcode, expected"),
+    [
+        (None, None, "AttributeError"),
+        ("test_plate", None, None),
+        ("test_plate", "1234", "1234"),
+    ],
+)
+def test_get_set_barcode_img_sys(plate_obj_name, barcode, expected, helpers):
+    if plate_obj_name:
+        well_obj = helpers.setup_local_plate(helpers, name=plate_obj_name)
+    else:
+        well_obj = None
+
+    try:
+        img_sys = helpers.setup_local_imaging_system(helpers, container=well_obj)
+
+        img_sys.set_barcode(barcode)
+        result = img_sys.get_barcode()
+    except Exception as err:
+        result = type(err).__name__
+
+    assert result == expected
+
+
+@pytest.mark.skipif(skip_all_tests, reason="Exclude all tests")
+@pytest.mark.parametrize(
+    ("sample_type, expected"),
+    [
+        ("plate_holder", "PlateHolder"),
+        ("plate", "Plate"),
+        ("well", "Well"),
+        ("img_sys", "ImagingSystem"),
+    ],
+)
+def test_get_sample_type(sample_type, expected, helpers):
+    obj = helpers.create_sample_object(sample_type)
+    result = obj.get_sample_type()
+
+    assert result == expected
+
+
+@pytest.mark.skipif(skip_all_tests, reason="Exclude all tests")
+@pytest.mark.parametrize(
+    ("sample_type, container_type, prefs_path, x, y, z, verbose, expected"),
+    [
+        ("img_sys", None, None, None, None, None, True, "AttributeError"),
+        ("img_sys", "well", None, None, None, None, True, "AttributeError"),
+        ("img_sys", "plate_holder", None, None, None, None, True, "AttributeError"),
+        ("plate_holder", None, None, None, None, None, True, "AttributeError"),
+        ("img_sys", "plate_holder", "data/preferences_ZSD_test.yml", None,
+         None, None, True, "TypeError"),
+        ("plate_holder", None, "data/preferences_ZSD_test.yml",
+         None, None, None, True, (None, None, 500)),
+        ("img_sys", "well", None, 1, 2, 3, False, (1, 2, 3)),
+    ],
+)
+def test_set_zero(sample_type, container_type, prefs_path, x, y, z, verbose,
+                  expected, helpers):
+    if prefs_path:
+        stage = helpers.setup_local_stage(helpers, "Marzhauser")
+        autofocus = helpers.setup_local_autofocus(helpers, "DefiniteFocus2")
+        focus_drive = helpers.setup_local_focus_drive(helpers, "MotorizedFocus")
+
+        microscope_obj = helpers.setup_local_microscope(prefs_path)
+        microscope_obj.add_microscope_object([stage, autofocus, focus_drive])
+    else:
+        microscope_obj = None
+
+    container_obj = helpers.create_sample_object(container_type,
+                                                 microscope_obj=microscope_obj,
+                                                 stage_id="Marzhauser",
+                                                 autofocus_id="DefiniteFocus2",
+                                                 focus_id="MotorizedFocus")
+    sample_obj = helpers.create_sample_object(sample_type, container=container_obj,
+                                              microscope_obj=microscope_obj,
+                                              stage_id="Marzhauser",
+                                              autofocus_id="DefiniteFocus2",
+                                              focus_id="MotorizedFocus")
+
+    try:
+        result = sample_obj.set_zero(x, y, z, verbose)
+    except Exception as err:
+        result = type(err).__name__
+
+    assert result == expected

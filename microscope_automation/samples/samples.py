@@ -540,15 +540,15 @@ class ImagingSystem(object):
         return image
 
     def add_to_image_dir(self, list_name, sample_object=None, position=None):
-        """Add sample object to list with name listName of objects to be imaged.
+        """Add sample object to list with name list_name of objects to be imaged.
 
         Input:
-         list_name: string with name of list (e.g. 'ColoniesPreScan'
+         list_name: string with name of list (e.g. 'ColoniesPreScan')
 
          sample_object: object to be imaged. Can be list. List will always added at end
 
          position: position of object in list. Position will determine order of imaging.
-                    Default: None = Append to end. Has no effect if object is list.
+          Default: None = Append to end. Has no effect if object is list.
 
         Output:
          none
@@ -557,26 +557,26 @@ class ImagingSystem(object):
             self.image_dirs[list_name] = []
         if isinstance(sample_object, list):
             self.image_dirs[list_name].extend(sample_object)
-        else:
+        elif sample_object:
             if position is None:
                 self.image_dirs[list_name].append(sample_object)
             else:
-                self.image_dirs[list_name].insert(sample_object, position)
+                self.image_dirs[list_name].insert(position, sample_object)
 
-    def get_from_image_dir(self, listName):
-        """Get list with name listName of objects to be imaged.
+    def get_from_image_dir(self, list_name):
+        """Get list with name list_name of objects to be imaged.
 
         Input:
-         listName: string with name of list (e.g. 'ColoniesPreScan'
+         list_name: string with name of list (e.g. 'ColoniesPreScan')
 
         Output:
-         sampleObjects: list of name listName with objects to be imaged
+         sample_objects: list of name list_name with objects to be imaged
         """
-        sampleObjects = None
+        sample_objects = None
         for key in self.image_dirs.keys():
-            if listName in self.image_dirs.keys():
-                sampleObjects = self.image_dirs[listName]
-        return sampleObjects
+            if list_name in self.image_dirs.keys():
+                sample_objects = self.image_dirs[list_name]
+        return sample_objects
 
     def set_barcode(self, barcode):
         """Set barcode for plate.
@@ -594,12 +594,13 @@ class ImagingSystem(object):
 
         Input:
          none
+
         Output:
          barcode: string with barcode
         """
         try:
             barcode = self.container.get_barcode()
-        except Exception:
+        except AttributeError:
             barcode = None
         return barcode
 
@@ -1240,26 +1241,26 @@ class ImagingSystem(object):
         """
         if self.get_container() is None:
             if (x is None) or (y is None) or (z is None):
-                xStage, yStage, zStage = self.get_corrected_stage_position()
+                x_stage, y_stage, z_stage = self.get_corrected_stage_position()
             if x is None:
-                x = xStage
+                x = x_stage
             if y is None:
-                y = yStage
+                y = y_stage
             if z is None:
-                z = zStage
-            xPos = x - self.x_zero
-            yPos = y - self.y_zero
-            zPos = z - self.z_zero
+                z = z_stage
+            x_pos = x - self.x_zero
+            y_pos = y - self.y_zero
+            z_pos = z - self.z_zero
         else:
             (
-                xContainer,
-                yContainer,
-                zContainer,
+                x_container,
+                y_container,
+                z_container,
             ) = self.get_container().get_pos_from_abs_pos(x, y, z, verbose=verbose)
-            xPos, yPos, zPos = self.get_obj_pos_from_container_pos(
-                xContainer, yContainer, zContainer, verbose=verbose
+            x_pos, y_pos, z_pos = self.get_obj_pos_from_container_pos(
+                x_container, y_container, z_container, verbose=verbose
             )
-        return (xPos, yPos, zPos)
+        return (x_pos, y_pos, z_pos)
 
     ##############################################################################
     #
@@ -2309,7 +2310,7 @@ class PlateHolder(ImagingSystem):
         objective_changer_id=None,
         safety_id=None,
         immersion_delivery=None,
-        cameraIdList=[],
+        camera_id_list=[],
         center=[0, 0, 0],
         x_flip=1,
         y_flip=1,
@@ -2604,9 +2605,9 @@ class PlateHolder(ImagingSystem):
 
     def set_stage_position(
         self,
-        xStage,
-        yStage,
-        zStage=None,
+        x_stage,
+        y_stage,
+        z_stage=None,
         reference_object=None,
         load=True,
         verbose=True,
@@ -2614,7 +2615,7 @@ class PlateHolder(ImagingSystem):
         """Move stage to position in stage coordinates in mum.
 
         Input:
-         xStage, yStage, zStage: stage position in mum
+         x_stage, y_stage, z_stage: stage position in mum
 
          reference_object: object of type sample (ImagingSystem).
          Used to correct for xyz offset between different objectives
@@ -2634,79 +2635,15 @@ class PlateHolder(ImagingSystem):
             objective_changer_id=self.objective_changer_id,
             auto_focus_id=self.auto_focus_id,
             safety_id=self.safety_id,
-            x_target=xStage,
-            y_target=yStage,
-            z_target=zStage,
+            x_target=x_stage,
+            y_target=y_stage,
+            z_target=z_stage,
             reference_object=reference_object,
             load=load,
             verbose=verbose,
         )
 
         return x, y, z
-
-    ###############################################################
-    #
-    # Methods to control autofocus
-    #
-    ###############################################################
-
-    #     def recover_autofocus(self):
-    #         '''Execute autofocusFunction and try to recover from failure.
-    #
-    #         Input:
-    #          autofocusFunction: function that that interacts with microscope autofocus
-    #          args: arguments for autofocusFunction
-    #
-    #         Output:
-    #          returnValue: return value from autofocusFunction
-    #
-    #         autofocusFunction has to throw exception AutofocusError in error case
-    #         '''
-    # #         success = False
-    # #         while not success:
-    #         try:
-    #             raise
-    #         except (AutofocusObjectiveChangedError, AutofocusNotSetError)  as error:
-    #             # show error dialog from exception
-    #             error.error_dialog()
-    #
-    #             # retrieve focus reference object (typcially plate)
-    #             referenceObj = error.get_focus_reference_obj()
-    #             # try to find coverslip
-    #             message.operate_message('Press ok and wait until autofocus found coverslip.\nThan focus on {} to set autofocus reference.'.format(referenceObj.get_name()))  # noqa
-    #             # start with autofocus to find coverslip.
-    #             focusDriveObject = self.get_focus()
-    #             if isinstance(error, AutofocusObjectiveChangedError):
-    #                 z = focusDriveObject.focusDrive.recover_focus()
-    #             referenceObj.find_surface()
-    #             message.operate_message('Is focus ok?')
-    #             referenceObj.store_focus(referenceObj)
-    #             # update z_zero position for plate
-    #             xPlate, yPlate, zPlate = referenceObj.get_pos_from_abs_pos(verbose=False)  # noqa
-    #             x_zero, y_zero, z_zero = referenceObj.get_zero()
-    #             new_z_zero_plate = z_zero + zPlate
-    #             xPlate, yPlate, z_zeroPlate = referenceObj.update_zero(z=new_z_zero_plate)  # noqa
-    #
-    #         except AutofocusError as error:
-    #             focus_reference_obj = error.focus_reference_obj
-    #             message.operate_message(
-    #                 'Autofocus returned with error:\n"{}"\nPlease focus on {}\nor cancel program.'.format(error.message, focus_reference_obj.get_name()),  # noqa
-    #                 returnCode = False)
-    #             focus_reference_obj.set_use_autofocus(False)
-    #
-    #             # update z_zero position for reference object
-    #             xPlate, yPlate, zPlate = self.recover_hardware(
-    #                 focus_reference_obj.get_pos_from_abs_pos, verbose=False)
-    #             x_zero, y_zero, z_zero = self.recover_hardware(
-    #                 focus_reference_obj.get_zero)
-    #                 xPlate, yPlate, zPlate = self.recover_hardware(
-    #                     focus_reference_obj.get_pos_from_abs_pos, verbose=False)
-    #             x_zero, y_zero, z_zero = self.recover_hardware(
-    #                 focus_reference_obj.get_zero)
-    #
-    #             new_z_zero_plate = z_zero + zPlate
-    #             x_pate, y_plate, z_zero_plate = focus_reference_obj.update_zero(
-    #                 z = new_z_zero_plate)
 
     def set_use_autofocus(self, flag):
         """Set flag to enable the use of autofocus.
@@ -2721,7 +2658,7 @@ class PlateHolder(ImagingSystem):
         microscope_object.set_microscope(
             {self.get_auto_focus_id(): {"use_auto_focus": flag}}
         )
-        #         self.recover_hardware(self.focusDrive.set_use_autofocus, flag)
+
         return self.get_use_autofocus()
 
     def get_use_autofocus(self):
@@ -3388,12 +3325,13 @@ class Plate(ImagingSystem):
 
         Input:
          none
+
         Output:
          barcode: string with barcode
         """
         try:
             barcode = self.barcode
-        except Exception:
+        except AttributeError:
             barcode = None
         return barcode
 
@@ -3621,11 +3559,11 @@ class Well(ImagingSystem):
         )
 
         self.samples = {}
-        self.set_set_diameter(set_diameter=diameter)
         # As long as only a set diameter from specifications exists,
         # use this value for all calculation.
         # Replace this value with a measured value as soon as possible
         self.set_diameter(diameter)
+        self.set_set_diameter(set_diameter=diameter)
         self.set_plate_position_numeric(position=well_position_numeric)
         self._failed_image = False
 
@@ -3867,22 +3805,22 @@ class Well(ImagingSystem):
         else:
             self.set_correction(correction, correction)
 
-    def add_colonies(self, colonyObjectsDict):
+    def add_colonies(self, colony_objects_dict):
         """Adds colonies to well.
 
         Input:
-         colonyObjectsDict: dictionary of form {'name': colonyObject}
+         colony_objects_dict: dictionary of form {'name': colony_object}
 
         Output:
          none
         """
-        self.samples.update(colonyObjectsDict)
+        self.samples.update(colony_objects_dict)
 
     def add_samples(self, sample_objects_dict):
         """Adds samples to well.
 
         Input:
-         sample_objects_dict: dictionary of form {'name': sampleObject}
+         sample_objects_dict: dictionary of form {'name': sample_object}
 
         Output:
          none
