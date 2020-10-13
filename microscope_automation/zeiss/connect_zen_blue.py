@@ -899,11 +899,11 @@ class ConnectMicroscope:
             )
 
         # move to load position if defined
-        zFocus = self.move_focus_to(self.zLoad)
+        z_focus = self.move_focus_to(self.zLoad)
 
-        log.info("moved focus to load position: %s", str(zFocus))
+        log.info("moved focus to load position: %s", str(z_focus))
 
-        return zFocus
+        return z_focus
 
     def move_focus_to_work(self):
         """Move focus to work position if defined.

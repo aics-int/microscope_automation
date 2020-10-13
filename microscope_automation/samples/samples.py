@@ -671,6 +671,7 @@ class ImagingSystem(object):
 
     def update_zero(self, x=None, y=None, z=None, verbose=True):
         """Update center position of object in container coordinates.
+
         Input:
          x, y, z: position of object center in mum in coordinate system
          of inclosing container. If None, use current position
@@ -708,10 +709,10 @@ class ImagingSystem(object):
         Output:
          x_zero, y_zero, z_zero: center of object in mum in stage coordinates
         """
-        xStageZero, yStageZero, zStageZero = self.get_abs_pos_from_obj_pos(
+        x_stage_zero, y_stage_zero, z_stage_zero = self.get_abs_pos_from_obj_pos(
             0, 0, 0, verbose=verbose
         )
-        return (xStageZero, yStageZero, zStageZero)
+        return (x_stage_zero, y_stage_zero, z_stage_zero)
 
     def set_safe(self, x, y, z):
         """Set safe stage position to start any movement without danger
@@ -836,8 +837,8 @@ class ImagingSystem(object):
         z_correction=1,
         z_correction_x_slope=0,
         z_correction_y_slope=0,
-        xyz_correction_x_zero=0,
-        xyz_correction_y_zero=0,
+        z_correction_z_slope=0,
+        z_correction_offset=0,
     ):
         """Multiply existing correction terms if scaling for object coordinate
         system is slightly off relative to container coordinate system
@@ -854,11 +855,11 @@ class ImagingSystem(object):
         self.x_correction = self.x_correction * x_correction
         self.y_correction = self.y_correction * y_correction
         self.z_correction = self.z_correction * z_correction
-        #         self.z_correction_offset=self.z_correction_offset*z_correction_offset
+        # self.z_correction_offset=self.z_correction_offset*z_correction_offset
         self.z_correction_x_slope = self.z_correction_x_slope * z_correction_x_slope
         self.z_correction_y_slope = self.z_correction_y_slope * z_correction_y_slope
-        self.xyz_correction_x_zero = xyz_correction_x_zero
-        self.xyz_correction_y_zero = xyz_correction_y_zero
+        self.z_correction_z_slope = self.z_correction_z_slope * z_correction_z_slope
+        self.z_correction_offset = z_correction_offset
 
         return self.x_correction, self.y_correction, self.z_correction
 
@@ -927,6 +928,10 @@ class ImagingSystem(object):
         objective_changer_id = self.get_objective_changer_id()
         safety_object_id = self.get_safety_id()
         microscope_object = self.get_microscope()
+        if reference_object:
+            reference_object_id = reference_object.get_name()
+        else:
+            reference_object_id = None
 
         test_ready_dict = OrderedDict(
             [
@@ -942,7 +947,7 @@ class ImagingSystem(object):
             focus_drive_id=focus_drive_id,
             objective_changer_id=objective_changer_id,
             safety_object_id=safety_object_id,
-            reference_object=reference_object,
+            reference_object_id=reference_object_id,
             load=load,
             make_ready=make_ready,
             trials=trials,
@@ -1008,11 +1013,10 @@ class ImagingSystem(object):
         Output:
          x, y, z: new position in stage coordinates in mum
         """
-
         x, y, z = self.get_safe()
         if z is None:
-            focusDriveObject = self.get_focus()
-            z = focusDriveObject.get_load_position()
+            focus_drive_object = self.get_focus()
+            z = focus_drive_object.get_load_position()
 
         return self.move_to_abs_position(x, y, z, load=load, verbose=verbose)
 
@@ -1059,15 +1063,15 @@ class ImagingSystem(object):
          verbose: if True print debug information (Default = True)
 
         Output:
-         xStage, yStage: x, y position on stage in mum
+         x_stage, y_stage: x, y position on stage in mum
         """
         phi_r = math.radians(phi)
         x = r * math.sin(phi_r)
         y = r * math.cos(phi_r)
-        xStage, yStage, zStage = self.move_to_xyz(
+        x_stage, y_stage, z_stage = self.move_to_xyz(
             x, y, z=None, load=load, verbose=verbose
         )
-        return xStage, yStage, zStage
+        return x_stage, y_stage, z_stage
 
     def move_delta_xyz(self, x, y, z=0, load=True, verbose=True):
         """Move in direction x,y,z in micrometers from current position.
@@ -1080,30 +1084,30 @@ class ImagingSystem(object):
          verbose: if True print debug information (Default = True)
 
         Output:
-         xStage, yStage: x, y position on stage in mum
+         x_stage, y_stage: x, y position on stage in mum
         """
         # get current stage position in absolute stage coordinates
-        xStage, yStage, zStage = self.get_abs_position()
-        xNew = xStage + x
-        yNew = yStage + y
-        zNew = zStage + z
+        x_stage, y_stage, z_stage = self.get_abs_position()
+        x_new = x_stage + x
+        y_new = y_stage + y
+        z_new = z_stage + z
 
-        xNewStage, yNewStage, zNewStage = self.move_to_abs_position(
-            xNew, yNew, zNew, load=load, verbose=verbose
+        x_new_stage, y_new_stage, z_new_stage = self.move_to_abs_position(
+            x_new, y_new, z_new, load=load, verbose=verbose
         )
-        return xNewStage, yNewStage, zNewStage
+        return x_new_stage, y_new_stage, z_new_stage
 
     def get_abs_position(self, stage_id=None, focus_id=None):
         """Return current stage position.
+        Positions are corrected for centricity and parfocality.
+
         Input:
          stage_id: string id to identify stage information is collected from
 
          focus_id: string id to identify focus drive information is collected from
 
         Output:
-         absPos: absolute (x, y, z) position of stage in mum
-
-        Positions are corrected for centricity and parfocality
+         abs_pos: absolute (x, y, z) position of stage in mum
         """
         # use stage_id and focus_id from most top level object
         # (e.g. use from well if available, not from plate)
@@ -1115,8 +1119,8 @@ class ImagingSystem(object):
         if self.get_container() is None:
             return self.get_abs_stage_position(stage_id, focus_id)
         else:
-            absPos = self.get_container().get_abs_position(stage_id, focus_id)
-        return absPos
+            abs_pos = self.get_container().get_abs_position(stage_id, focus_id)
+        return abs_pos
 
     ##############################################################################
     #
@@ -1134,12 +1138,12 @@ class ImagingSystem(object):
          verbose: if True print debug information (Default = True)
 
         Output:
-         zSlopeCorrection: offset in z in um
+         z_slope_correction: offset in z in um
         """
         if self.z_correction_z_slope == 0:
-            zSlopeCorrection = 0
+            z_slope_correction = 0
         else:
-            zSlopeCorrection = (
+            z_slope_correction = (
                 self.z_correction_offset
                 - (x * self.z_correction_x_slope)
                 - (y * self.z_correction_y_slope)
@@ -1155,9 +1159,9 @@ class ImagingSystem(object):
             print(" z_correction_y_slope: ", self.z_correction_y_slope)
             print(" z_correction_z_slope: ", self.z_correction_z_slope)
             print(" z_correction_offset: ", self.z_correction_offset)
-            print(" Calculated slope correction offset: ", zSlopeCorrection)
+            print(" Calculated slope correction offset: ", z_slope_correction)
 
-        return zSlopeCorrection
+        return z_slope_correction
 
     def get_obj_pos_from_container_pos(
         self, x_container, y_container, z_container, verbose=True
@@ -1170,7 +1174,8 @@ class ImagingSystem(object):
          verbose: if True print debug information (Default = True)
 
         Output:
-         xObject, yObject, zObject: object coordinates in mum for container coordinates
+         x_object, y_object, z_object: object coordinates in mum for container
+         coordinates
         """
         # calculate translation
         # the origin of the object coordinate system in container coordinates
@@ -1184,11 +1189,11 @@ class ImagingSystem(object):
         if self.y_flip == -1:
             pass
 
-        xObject = x_offfset_container * self.x_flip * self.x_correction
-        yObject = y_offfset_container * self.y_flip * self.y_correction
-        zObject = (
+        x_object = x_offfset_container * self.x_flip * self.x_correction
+        y_object = y_offfset_container * self.y_flip * self.y_correction
+        z_object = (
             z_offfset_container * self.z_flip * self.z_correction
-            - self.calculate_slope_correction(xObject, yObject, verbose=verbose)
+            - self.calculate_slope_correction(x_object, y_object, verbose=verbose)
         )
 
         # Output for debugging
@@ -1208,7 +1213,7 @@ class ImagingSystem(object):
                 + " coordinates"
             )
             print(" Container coordinates: ", x_container, y_container, z_container)
-            print(" Object coordinates: ", xObject, yObject, zObject)
+            print(" Object coordinates: ", x_object, y_object, z_object)
             print(
                 " ObjectObject.zero in container coordinates (flip not applied): ",
                 self.x_zero,
@@ -1222,7 +1227,7 @@ class ImagingSystem(object):
                 self.z_flip,
             )
 
-        return xObject, yObject, zObject
+        return x_object, y_object, z_object
 
     def get_pos_from_abs_pos(self, x=None, y=None, z=None, verbose=True):
         """Return current position in object coordinates in mum.
@@ -1306,15 +1311,15 @@ class ImagingSystem(object):
         # Output for debugging
         if verbose:
             if self.get_container() is None:
-                containerName = "Stage Position"
+                container_name = "Stage Position"
             else:
-                containerName = self.get_container().get_name()
+                container_name = self.get_container().get_name()
             print(
                 "\nResults from method get_container_pos_from_obj_pos(xObject, yObject, zObject)"  # noqa
             )
             print(
                 " "
-                + containerName
+                + container_name
                 + " coordinates calculated from "
                 + self.get_name()
                 + " coordinates"
@@ -1371,20 +1376,6 @@ class ImagingSystem(object):
     #
     ###############################################################
 
-    #     def recover_hardware(self, hardwareFunction, *args, **kwargs):
-    #         '''Execute hardwareFunction and try to recover from failure.
-    #
-    #         Input:
-    #          autofocusFunction: function that that interacts with microscope autofocus
-    #          args: arguments for autofocusFunction
-    #
-    #         Output:
-    #          returnValue: return value from autofocusFunction
-    #
-    #         autofocusFunction has to throw exception AutofocusError in error case
-    #         '''
-    #         return self.container.recover_hardware(hardwareFunction, *args, **kwargs)
-    #
     def set_use_autofocus(self, flag):
         """Set flag to enable the use of autofocus.
 
@@ -2007,7 +1998,7 @@ class ImagingSystem(object):
         try:
             microscope_object = self.container.get_microscope()
         except AttributeError:
-            microscope_object = None
+            microscope_object = self.microscope
         return microscope_object
 
     def get_stage_id(self):
@@ -2422,9 +2413,13 @@ class PlateHolder(ImagingSystem):
          none
 
         Output:
-         focus_drive: object of class focusDrive from module hardware
+         focus_drive: object of class FocusDrive from module hardware
         """
-        return self.focus_drive
+        try:
+            focus_drive = self.microscope._get_microscope_object(self.focus_id)
+        except AttributeError:
+            focus_drive = None
+        return focus_drive
 
     def get_objective_changer(self):
         """Return object that describes objective changer and information
@@ -2629,6 +2624,11 @@ class PlateHolder(ImagingSystem):
 
         If use_autofocus is set, correct z value according to new autofocus position.
         """
+        if reference_object:
+            reference_object_id = reference_object.get_name()
+        else:
+            reference_object_id = None
+
         x, y, z = self.microscope.move_to_abs_pos(
             stage_id=self.stage_id,
             focus_drive_id=self.focus_id,
@@ -2638,7 +2638,7 @@ class PlateHolder(ImagingSystem):
             x_target=x_stage,
             y_target=y_stage,
             z_target=z_stage,
-            reference_object=reference_object,
+            reference_object_id=reference_object_id,
             load=load,
             verbose=verbose,
         )
@@ -3016,7 +3016,7 @@ class ImmersionDelivery(ImagingSystem):
         )
         self.id = name
         self.safety_id = safety_id
-        #         self.add_pump(pumpObject)
+        # self.add_pump(pumpObject)
         # counter will be incremented by self.add_counter
         self.count = 0
         # Set magnification of lens used with immersion delivery system
@@ -4436,7 +4436,7 @@ class Colony(ImagingSystem):
          none
         """
         cell_name = self.name + "_0001"
-        new_cell = Cell(name=cell_name, center=[0, 0, 0], colonyObject=self)
+        new_cell = Cell(name=cell_name, center=[0, 0, 0], colony_object=self)
         cell_dict = {cell_name: new_cell}
         self.add_cells(cell_dict)
 
@@ -4470,7 +4470,7 @@ class Colony(ImagingSystem):
         cell_dict = {}
         cell_name = self.name + "_{:04}".format(1)
         cell_to_add = Cell(
-            name=cell_name, center=[location[0], location[1], 0], colonyObject=self
+            name=cell_name, center=[location[0], location[1], 0], colony_object=self
         )
         cell_dict[cell_name] = cell_to_add
         self.add_cells(cell_dict)
@@ -4541,7 +4541,7 @@ class Cell(ImagingSystem):
         self,
         name="Cell",
         center=[0, 0, 0],
-        colonyObject=None,
+        colony_object=None,
         x_flip=1,
         y_flip=1,
         z_flip=1,
@@ -4558,7 +4558,7 @@ class Cell(ImagingSystem):
 
          center: (x, y, z) center of cell relative to colony center in mum
 
-         colonyObject: object of type Colony the cell is associated with
+         colony_object: object of type Colony the cell is associated with
 
          x_flip, y_flip, z_flip: -1 if coordinate system of plate holder
          is flipped in respect to stage
@@ -4570,7 +4570,7 @@ class Cell(ImagingSystem):
          None
         """
         super(Cell, self).__init__(
-            container=colonyObject,
+            container=colony_object,
             name=name,
             x_zero=center[0],
             y_zero=center[1],
@@ -4948,7 +4948,7 @@ def create_plate_holder_manually(m, prefs):
     c1d5_1 = Cell(
         name="c1d5_1",
         center=[0, 0, 0],
-        colonyObject=c1d5,
+        colony_oject=c1d5,
         x_flip=1,
         y_flip=1,
         z_flip=1,
