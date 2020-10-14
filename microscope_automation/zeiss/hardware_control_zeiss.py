@@ -98,19 +98,14 @@ class SpinningDiskZeiss(BaseMicroscope):
         self.objective_ready_dict = {}
 
     def recover_hardware(self, error):
-        """Execute hardwareFunction and try to recover from failure.
+        """Try to recover from failure of a hardware function
 
         Input:
-         autofocusFunction: function that that interacts with microscope autofocus
-
-         args: arguments for autofocusFunction
+         error: exception to recover from
 
         Output:
-         returnValue: return value from autofocusFunction
-
-        autofocusFunction has to throw exception AutofocusError in error case
+         return_dialog: value of the error dialog
         """
-
         if isinstance(error, AutofocusError):
             return_dialog = error.error_dialog()
             if return_dialog == 1:

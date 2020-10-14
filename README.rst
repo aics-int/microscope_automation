@@ -30,7 +30,8 @@ Installation
 
 Development
 ===========
-See :ref:`CONTRIBUTING` for information related to developing the code.
+See `CONTRIBUTING <https://github.com/aics-int/microscope_automation/blob/master/CONTRIBUTING.rst/>`_
+for information related to developing the code.
 
 The Four Commands You Need To Know
 ==================================
@@ -58,5 +59,5 @@ The Four Commands You Need To Know
 Legal Documents
 ===============
 
-- :ref:`LICENSE`
-- :ref:`CONTRIBUTING`
+- `LICENS <https://github.com/aics-int/microscope_automation/blob/master/LICENSE.txt/>`_
+- `CONTRIBUTING <https://github.com/aics-int/microscope_automation/blob/master/CONTRIBUTING.rst/>`_
