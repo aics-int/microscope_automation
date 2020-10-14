@@ -9,7 +9,6 @@ Split into hardware_control and hardware_components on May 25, 2020
 @author: winfriedw
 """
 
-# matplotlib.use('Agg')
 import matplotlib.pyplot as plt
 from matplotlib.path import Path as mpl_path
 import matplotlib.patches as patches

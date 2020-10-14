@@ -59,5 +59,5 @@ The Four Commands You Need To Know
 Legal Documents
 ===============
 
-- `LICENS <https://github.com/aics-int/microscope_automation/blob/master/LICENSE.txt/>`_
+- `LICENSE <https://github.com/aics-int/microscope_automation/blob/master/LICENSE.txt/>`_
 - `CONTRIBUTING <https://github.com/aics-int/microscope_automation/blob/master/CONTRIBUTING.rst/>`_
