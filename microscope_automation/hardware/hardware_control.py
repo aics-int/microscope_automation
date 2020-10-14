@@ -179,6 +179,33 @@ class BaseMicroscope(object):
         is_ready["Microscope"] = all(is_ready.values())
         return is_ready
 
+    def goto_load(self, focus_drive_id):
+        """Set focus position to load position.
+
+        Input:
+         focus_drive_id: id of focus drive to set load position on
+
+        Output:
+         z_load: load position in mum
+        """
+        focus_drive_object = self._get_microscope_object(focus_drive_id)
+        communication_object = self._get_control_software().connection
+
+        return focus_drive_object.goto_load(communication_object)
+
+    def get_load_position(self, focus_drive_id):
+        """Get load position of focus drive.
+
+        Input:
+         focus_drive_id: id of focus drive to get load position of
+
+        Output:
+         z_load: load position in mum
+        """
+        focus_drive_object = self._get_microscope_object(focus_drive_id)
+
+        return focus_drive_object.get_load_position()
+
     def live_mode(self, camera_id, experiment=None, live=True):
         """Start/stop live mode of ZEN software.
 

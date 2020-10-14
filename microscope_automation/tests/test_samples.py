@@ -644,7 +644,7 @@ def test_get_update_flip(x, y, z, expected, helpers):
                 "z_correction_x_slope": 0,
                 "z_correction_y_slope": 0,
                 "z_correction_z_slope": 0,
-                "z_correction_offset": 1,
+                "z_correction_offset": 0,
             }
         ),
         (
@@ -657,7 +657,7 @@ def test_get_update_flip(x, y, z, expected, helpers):
                 "z_correction_x_slope": 0,
                 "z_correction_y_slope": 0,
                 "z_correction_z_slope": 0,
-                "z_correction_offset": 1,
+                "z_correction_offset": 0,
             }
         ),
     ],
@@ -1032,6 +1032,91 @@ def test_get_abs_position(sample_type, container_type, prefs_path, stage_id,
 
     assert result == expected
 
+
+@pytest.mark.skipif(skip_all_tests, reason="Exclude all tests")
+@pytest.mark.parametrize(
+    ("z_slope_z_correction, x, y, expected"),
+    [
+        (0, None, None, 0),
+        (1, 0, 0, 0),
+        (-1, 1, 1, 0),
+    ]
+)
+def test_calculate_slope_correction(z_slope_z_correction, x, y, expected, helpers):
+    img_sys = helpers.setup_local_imaging_system(helpers)
+    img_sys.z_correction_z_slope = z_slope_z_correction
+
+    result = img_sys.calculate_slope_correction(x, y)
+    assert result == expected
+
+
+@pytest.mark.skipif(skip_all_tests, reason="Exclude all tests")
+@pytest.mark.parametrize(
+    ("sample_type, container_type, x_container, y_container, z_container, expected"),
+    [
+        ("img_sys", None, 0, 0, 0, (0, 0, 0)),
+        ("img_sys", None, 3, 2, 1, (0, 0, 0)),
+        ("plate_holder", None, 3, 2, 1, (3, 2, 1)),
+        ("img_sys", "plate_holder", 0, 0, 0, (0, 0, 0)),
+        ("img_sys", "plate_holder", 1, 2, 3, (0, 0, 0)),
+    ]
+)
+def test_get_obj_pos_from_container_pos(sample_type, container_type, x_container,
+                                        y_container, z_container, expected, helpers):
+    if container_type:
+        container = helpers.create_sample_object(container_type)
+    else:
+        container = None
+
+    sample = helpers.create_sample_object(sample_type, container=container)
+    result = sample.get_obj_pos_from_container_pos(x_container,
+                                                   y_container, z_container)
+
+    assert result == expected
+
+
+@pytest.mark.skipif(skip_all_tests, reason="Exclude all tests")
+@pytest.mark.parametrize(
+    ("sample_type, container_type, prefs_path, x, y, z, expected"),
+    [
+        ("img_sys", None, None, 0, 0, 0, (0, 0, 0)),
+        ("img_sys", None, None, None, None, None, "AttributeError"),
+        ("plate_holder", None, None, None, None, None, "AttributeError"),
+        ("plate_holder", None, "data/preferences_ZSD_test.yml", None, None, None,
+         (0, 0, 500)),
+        ("plate_holder", None, "data/preferences_ZSD_test.yml", 50000, 10000, None,
+         (50000, 10000, 500)),
+        ("img_sys", "plate_holder", None, 2, 3, 1, (0, 0, 0)),
+        ("plate_holder", "img_sys", None, 2, 3, 1, (2, 3, 1)),
+    ]
+)
+def test_get_pos_from_abs_pos(sample_type, container_type, prefs_path, x, y, z,
+                              expected, helpers):
+    if prefs_path:
+        microscope, stage_id, focus_id, autofocus_id, obj_changer_id, safety_id = helpers.microscope_for_samples_testing(helpers, prefs_path)  # noqa
+    else:
+        microscope = None
+        stage_id = None
+        focus_id = None
+
+    if container_type:
+        container = helpers.create_sample_object(container_type,
+                                                 microscope_obj=microscope,
+                                                 stage_id=stage_id,
+                                                 focus_id=focus_id)
+    else:
+        container = None
+
+    sample = helpers.create_sample_object(sample_type, container=container,
+                                          microscope_obj=microscope,
+                                          stage_id=stage_id,
+                                          focus_id=focus_id)
+    try:
+        result = sample.get_pos_from_abs_pos(x, y, z)
+    except Exception as err:
+        result = type(err).__name__
+
+    assert result == expected
 
 ###############################################################################
 #

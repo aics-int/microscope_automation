@@ -846,7 +846,7 @@ class ImagingSystem(object):
 
         Input:
          x_correction, y_correction, z_correction z_correction_x_slope,
-         xyz_correction_x_zero, xyz_correction_y_zero:
+         z_correction_y_slope, z_correction_z_slope, z_correction_offset:
          Additional multiplicative correction terms
 
         Output:
@@ -855,11 +855,10 @@ class ImagingSystem(object):
         self.x_correction = self.x_correction * x_correction
         self.y_correction = self.y_correction * y_correction
         self.z_correction = self.z_correction * z_correction
-        # self.z_correction_offset=self.z_correction_offset*z_correction_offset
         self.z_correction_x_slope = self.z_correction_x_slope * z_correction_x_slope
         self.z_correction_y_slope = self.z_correction_y_slope * z_correction_y_slope
         self.z_correction_z_slope = self.z_correction_z_slope * z_correction_z_slope
-        self.z_correction_offset = z_correction_offset
+        self.z_correction_offset = self.z_correction_offset * z_correction_offset
 
         return self.x_correction, self.y_correction, self.z_correction
 
@@ -1015,8 +1014,7 @@ class ImagingSystem(object):
         """
         x, y, z = self.get_safe()
         if z is None:
-            focus_drive_object = self.get_focus()
-            z = focus_drive_object.get_load_position()
+            z = self.microscope.get_load_position(self.focus_id)
 
         return self.move_to_abs_position(x, y, z, load=load, verbose=verbose)
 
@@ -2391,59 +2389,6 @@ class PlateHolder(ImagingSystem):
             microscope_object = None
         return microscope_object
 
-    def get_stage(self):
-        """Return object that describes connection to microscope stage.
-
-        Input:
-         none
-
-        Output:
-         stage_object: object of class Stage from module hardware
-        """
-        try:
-            stage_object = self.stage
-        except AttributeError:
-            stage_object = None
-        return stage_object
-
-    def get_focus(self):
-        """Return object that describes connection to microscope focus drive.
-
-        Input:
-         none
-
-        Output:
-         focus_drive: object of class FocusDrive from module hardware
-        """
-        try:
-            focus_drive = self.microscope._get_microscope_object(self.focus_id)
-        except AttributeError:
-            focus_drive = None
-        return focus_drive
-
-    def get_objective_changer(self):
-        """Return object that describes objective changer and information
-        about objectives.
-
-        Input:
-         none
-
-        Output:
-         objective_changer: object of class ObjectiveChanger from module hardware
-        """
-        return self.objective_changer
-
-    def get_cameras(self):
-        """Return objects that describes connection to cameras.
-
-        Input:
-         none
-
-        Output:
-         cameraObjects: object of class Camera from module hardware
-        """
-        return self.cameras
-
     def get_immersion_delivery_systems(self):
         """Return dictionary with objects that describes immersion water delivery system
 
@@ -3095,14 +3040,13 @@ class ImmersionDelivery(ImagingSystem):
          none
         """
         # get autofocus status and switch off autofocus
-        autofocusUse = self.get_use_autofocus()
+        autofocus_use = self.get_use_autofocus()
         self.set_use_autofocus(flag=False)
 
         # Get original position of stage and focus
-        xPos, yPos, zPos = self.get_abs_position()
+        x_pos, y_pos, z_pos = self.get_abs_position()
         # Move objective in load positionss
-        focusObject = self.get_focus()
-        self.recover_hardware(focusObject.goto_load)
+        self.microscope.goto_load(self.focus_id)
 
         # Change objective
         if objective_magnification is not None:
@@ -3122,10 +3066,10 @@ class ImmersionDelivery(ImagingSystem):
                     returnCode=False,
                 )
         # Move objective below water outlet, do not use autofocus
-        storeAutofocusFlag = self.get_use_autofocus()
+        store_autofocus_flag = self.get_use_autofocus()
         self.set_use_autofocus(False)
         self.move_to_zero(load=True, verbose=verbose)
-        self.set_use_autofocus(storeAutofocusFlag)
+        self.set_use_autofocus(store_autofocus_flag)
         # trigger pump
         if automatic:
             self.trigger_pump()
@@ -3136,16 +3080,16 @@ class ImmersionDelivery(ImagingSystem):
 
         # Return to original position
         self.move_to_abs_position(
-            xPos,
-            yPos,
-            zPos,
+            x_pos,
+            y_pos,
+            z_pos,
             reference_object=self.get_reference_object(),
             load=True,
             verbose=verbose,
         )
 
         # Switch autofocus back on if it was switch on when starting get_water
-        self.set_use_autofocus(flag=autofocusUse)
+        self.set_use_autofocus(flag=autofocus_use)
 
     def add_counter(self, increment=1):
         """Increment counter.
@@ -4969,229 +4913,3 @@ def create_plate_holder_manually(m, prefs):
     print("Number of cells in colony ", c1d5.name, ": ", c1d5.number_cells())
 
     return c1d5
-
-
-def test_samples(
-    software,
-    file_path,
-    test=["find_well_center", "find_well_center_fine", "move_to_zero"],
-):
-    """Test suite to test module with Zeiss SD hardware or test hardware.
-
-    Input:
-     software: software to connect to hardware (e.g. ''ZEN Blue', 'Test)
-
-     file_path: path to store test images
-
-     test: list with tests to perform
-
-    Output:
-     Success: True when test was passed
-    """
-    import setup_samples
-    from ..preferences import Preferences
-
-    # get all information about experiment
-    prefs = Preferences(get_prefs_path())
-
-    # create microscope
-    m = create_microscope(software, prefs)
-    # setup microscope
-    m = setup_samples.setup_microscope(prefs)
-
-    ph = setup_samples.setup_plate(prefs, colony_file=None, microscope_object=m)
-
-    # TODO: check with Winfried this is the right way to get cell out of colony
-    c1d5_1 = create_plate_holder_manually(m, prefs).get_cells()["c1d5_1"]
-
-    # test background correction
-    if "test_background_correction" in test:
-        c1d5_1.acquire_image(
-            experiment="ScanCells.czexp", cameraID="sCMOS_mCherry", file_path=None
-        )
-
-    # test water delivery system for immersion water
-    if "test_immersion_delivery" in test:
-        # TODO: this function should be part of pump.initialize() in hardware_control.py
-        # set up immersion delivery system
-        # set debugging level
-        verbose = True
-        print("\n\nSet-up water immersion system (setup_immersion_system)")
-
-        # get immersion delivery system object
-        # name = prefs.get_pref('NameImmersionSystem')
-        immersion_delivery = ph.immersion_delivery_system
-
-        # move objective under immersion water outlet and assign position of outlet
-        # to immersion_delivery object
-        focusObject = ph.get_focus()
-        loadPos = focusObject.get_load_position()
-
-        # get communication object
-        communication_object = ph.microscope._get_control_software().connection
-
-        # Make sure load position is defined for focus drive
-        if loadPos is None:
-            message.operate_message("Move objective to load position.")
-            focusObject.define_load_position(communication_object)
-            loadPos = focusObject.get_load_position()
-
-        xPos = 50
-        yPos = 70
-
-        # Execute experiment before moving stage to ensure that proper objective
-        # (typically 10x) in in place to avoid collision.
-        experiment = "ExperimentSetupImmersionSystem"
-        cameraID = "sCMOS_mCherry"
-
-        immersion_delivery.execute_experiment(
-            experiment, cameraID, file_path=None, verbose=verbose
-        )
-        immersion_delivery.move_to_abs_position(
-            xPos,
-            yPos,
-            loadPos,
-            reference_object=immersion_delivery.get_reference_object(),
-            load=True,
-            verbose=verbose,
-        )
-
-        # take image of water outlet
-        immersion_delivery.live_mode_start(cameraID, experiment)
-        message.operate_message(
-            "Move objective under water outlet.\nUse flashlight from below stage to see outlet."  # noqa
-        )
-        immersion_delivery.live_mode_stop(cameraID, experiment)
-
-        # drop objective to load position and store position for water delivery
-        # water will always be delivered with objective in load position
-        # to avoid collision
-        focusObject.goto_load(communication_object)
-        immersion_delivery.set_zero(verbose=verbose)
-
-        # move away from delivery system to avoid later collisions
-        immersion_delivery.move_to_safe()
-        magnification = 100
-        immersion_delivery.magnification = magnification
-
-        # test immersion delivery system
-
-    # create Plate object
-    # get plate object
-    # get dictionary of all plates associated with plate holder
-    plate_objects = ph.get_plates()
-    # get object for plate with name plateName, typically the barcode
-    p = plate_objects["Test Plate"]
-
-    # test retrieve wells with given content
-    if "test_get_by_type" in test:
-        for type in ["Colony", "Barcode", "Sample"]:
-            print("Wells of type ", type, ": ", p.get_wells_by_type(type))
-
-    # move stage to cells and acquire image
-    if "image_cells" in test:
-        # enable autofocus
-        p.set_use_autofocus(True)
-
-        # iterate through wells
-        for well_name, well_object in p.wells.iteritems():
-            print("Well: ", well_name)
-            print("Zero well position: ", well_object.get_zero())
-            print(
-                "Well position in stage coordinates after move: ",
-                well_object.move_to_zero(),
-            )
-            message.operate_message("Check if position is correct")
-            for col_name, col_object in well_object.get_colonies().iteritems():
-                print(".Colony: ", col_name)
-                print("Zero colony position: ", col_object.get_zero())
-                print(col_object.move_to_zero())
-                message.operate_message("Check if position is correct")
-                for cell_name, cell_object in col_object.cells.iteritems():
-                    # get preferences for cell imaging
-                    cell_prefs = prefs.get_pref_as_meta("ScanCells")
-                    print("...Well: ", well_name)
-                    print("...Colony: ", col_name)
-                    print("...Cell: ", cell_name)
-                    print("Zero cell position: ", cell_object.get_zero())
-                    print(cell_object.move_to_zero())
-                    message.operate_message("Check if position is correct")
-                    meta_dict = {
-                        "aics_well": well_name,
-                        "aics_colony": col_name,
-                        "aics_cell": cell_name,
-                        "aics_barcode": p.get_name(),
-                        "aics_xTile": 0,
-                        "aics_yTile": 0,
-                    }
-                    # acquire and save image using test.czexp settings
-                    # and save as .czi file
-                    image = cell_object.execute_experiment(
-                        experiment="test.czexp",
-                        cameraID="Camera1 (Back)",
-                        file_path=file_path + "test2.czi",
-                        meta_dict=meta_dict,
-                    )
-                    print("Image acquired and saved at ", file_path + "test2.czi")
-                    print("Meta data: ", image.get_meta())
-
-                    # repeat experiment
-                    # assemble file name based on pattern stored in preferences
-                    template = cell_prefs.get_pref("FileName")
-                    template.insert(-1, cell_name)
-                    fileName = image.create_file_name(template)
-                    fileDirPath = path.join(file_path, fileName)
-                    image = cell_object.execute_experiment(
-                        experiment="test.czexp",
-                        cameraID="Camera1 (Back)",
-                        file_path=fileDirPath,
-                        meta_dict=meta_dict,
-                    )
-                    print("Image acquired and saved at ", fileDirPath)
-                    print("Meta data: ", image.get_meta())
-
-    return True
-
-
-################################################################################
-#
-# Start main
-#
-################################################################################
-
-
-if __name__ == "__main__":
-    # import libraries used for testing only
-    import argparse
-
-    # define file_path to store results
-    file_path = "D:\\Winfried\\testImages\\"
-    #     file_path="F:\\Winfried\\Testdata\\"
-    if getpass.getuser() == "mattb":
-        file_path = "C:/Users/matthewbo/Git/microscopeautomation/data/testImages"
-    #     file_path="/Users/winfriedw/Documents/Programming/ResultTestImages/"
-    # Regularized argument parsing
-    arg_parser = argparse.ArgumentParser()
-    arg_parser.add_argument("-p", "--preferences", help="path to the preferences file")
-    args = arg_parser.parse_args()
-    if args.preferences is not None:
-        set_pref_file(args.preferences)
-
-    # test classes
-    # list with tests to perform
-    #     test=['test_background_correction',
-    #           'test_immersionDelivery',
-    #           'test_get_by_type',
-    #           'test_coordinates',
-    #           'find_well_center',
-    #           'find_well_center_fine',
-    #           'move_to_zero',
-    #           'test_auto_focus',
-    #           'image_cells',
-    #           'test_tile_scan']
-    test = ["test_auto_focus"]
-    software = "ZEN Blue"
-    #     software='Test'
-
-    if test_samples(software=software, file_path=file_path, test=test):
-        print("Tests performed successful: ", test)
