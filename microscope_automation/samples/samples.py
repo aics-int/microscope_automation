@@ -1869,14 +1869,16 @@ class ImagingSystem(object):
 
         Input:
          load: if true, will load image data before returning dictionary
+
          get_meta: if true, load meta data
 
         Output:
-         imageDir: directory with images.
+         images: list of images.
         """
-        for imageName, imageObject in self.images:
-            if imageObject.data is None:
-                self.load_image(imageObject, get_meta=get_meta)
+        if load:
+            for image_name, image_object in self.images:
+                if image_object.data is None:
+                    self.load_image(image_object, get_meta=get_meta)
         return self.images
 
     def background_correction(self, uncorrected_image, settings):
@@ -1884,7 +1886,9 @@ class ImagingSystem(object):
         or one of it's superclasses.
 
         Input:
-         image: object of class ImageAICS
+         uncorrected_image: object of class ImageAICS
+
+         settings: object of class Preferences which holds image settings
 
         Output:
          corrected: object of class ImageAICS after background correction.
@@ -1924,6 +1928,8 @@ class ImagingSystem(object):
         Input:
          images: list with image objects of class ImageAICS
 
+         settings: object of class Preferences which holds image settings
+
         Output:
          tile: ImageAICS object with tile
         """
@@ -1932,12 +1938,12 @@ class ImagingSystem(object):
         #         if not settings.get_pref('Tile', validValues = VALID_TILE):
         #             return images[(len(images)-1)/2] # return the x-0, y-0 image
 
-        corrected_images = []
         # apply background correction
+        corrected_images = []
 
         ######################################################################
         #
-        # ToDo: Catch if background image does not exist
+        # Todo: Catch if background image does not exist
         #
         ######################################################################
         for i, image in enumerate(images):
@@ -1969,6 +1975,7 @@ class ImagingSystem(object):
 
         Input:
          key:  string with name of image (e.g. 'backgroundGreen_10x')
+
          image: image object of class ImageAICS
 
         Output:
@@ -1986,26 +1993,25 @@ class ImagingSystem(object):
          image: image object of class ImageAICS
         """
         image = self.image_dict.get(key)
-        if not (image):
+        if not image:
             if self.container is not None:
                 image = self.container.get_attached_image(key)
             else:
-                # need to get a default image here
+                # TODO: need to get a default image here
                 print("Default Image")
 
         return image
 
-    def remove_images(self, image):
+    def remove_images(self):
         """Remove all images from microscope software display.
 
         Input:
-         image: image taken with same camera as images to be removed
+         none
 
         Output:
          none
         """
-        image = self.container.remove_images(image)
-        return image
+        self.container.remove_images()
 
     ################################################################################
     #
@@ -2139,41 +2145,24 @@ class ImagingSystem(object):
         ###############################################
         try:
             camera_ids = self.camera_ids
-            if camera_ids is None:
+            if camera_ids is []:
                 camera_ids = self.get_container().get_camera_ids()
         except AttributeError:
-            camera_ids = None
+            camera_ids = []
         return camera_ids
 
-    def get_immersion_delivery_systems(self):
-        """Return dictionary with objects that describes immersion water delivery system
+    def get_immersion_delivery_system(self):
+        """Return the object that describes immersion water delivery system
 
         Input:
          none
 
         Output:
-         immersion_delivery_systems: object of class Pump from module hardware
-        """
-        try:
-            immersion_delivery_systems = self.container.get_immersion_delivery_systems()
-        except AttributeError:
-            immersion_delivery_systems = None
-        return immersion_delivery_systems
-
-    def get_immersion_delivery_system(self, name):
-        """Return dictionary with objects that describes immersion water delivery system
-
-        Input:
-         name: string id for immersion water delivery system
-
-        Output:
          immersion_delivery_system: object of class ImmersionDelivery
         """
         try:
-            immersion_delivery_system = self.container.get_immersion_delivery_system(
-                name
-            )
-        except (AttributeError, KeyError):
+            immersion_delivery_system = self.container.get_immersion_delivery_system()
+        except AttributeError:
             immersion_delivery_system = None
         return immersion_delivery_system
 
@@ -2418,29 +2407,17 @@ class PlateHolder(ImagingSystem):
             microscope_object = None
         return microscope_object
 
-    def get_immersion_delivery_systems(self):
-        """Return dictionary with objects that describes immersion water delivery system
+    def get_immersion_delivery_system(self):
+        """Return object that describes immersion water delivery system for
+        this plate holder.
 
         Input:
          none
 
         Output:
-         pump_dict: dictionary of objects of class Pump from module hardware
-        """
-        return self.immersion_delivery_systems
-
-    def get_immersion_delivery_system(self, name):
-        """Return object that describes immersion water delivery system.
-
-        Input:
-         name: string id for immersion water delivery system
-
-        Output:
          immersion_object: object of class ImmersionDelivery
         """
-        immersion_dict = self.get_immersion_delivery_systems()
-        immersion_object = immersion_dict[name]
-        return immersion_object
+        return self.immersion_delivery_system
 
     def add_plates(self, plate_object_dict):
         """Adds Plate to Stage.
@@ -2929,11 +2906,11 @@ class PlateHolder(ImagingSystem):
         image = self.get_microscope().load_image(image, get_meta)
         return image
 
-    def remove_images(self, image):
+    def remove_images(self):
         """Remove all images from microscope software display.
 
         Input:
-         image: image taken with same camera as images to be removed
+         none
 
         Output:
          none
@@ -2961,6 +2938,7 @@ class ImmersionDelivery(ImagingSystem):
         z_correction=1,
         z_correction_x_slope=0,
         z_correction_y_slope=0,
+        microscope_object=None,
     ):
         """Initialize immersion water delivery system.
 
@@ -2994,6 +2972,7 @@ class ImmersionDelivery(ImagingSystem):
             z_correction=z_correction,
             z_correction_x_slope=z_correction_x_slope,
             z_correction_y_slope=z_correction_y_slope,
+            microscope_object=microscope_object,
         )
         self.id = name
         self.safety_id = safety_id

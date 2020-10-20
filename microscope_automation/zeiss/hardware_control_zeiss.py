@@ -989,6 +989,18 @@ class SpinningDiskZeiss(BaseMicroscope):
         z_positions = focus_drive_instance.get_information(communications_object)
         return z_positions
 
+    def _get_reference_position(self, reference_object_id):
+        """Set reference position in object coordinates.
+
+        Input:
+         reference_object_id: ID of plate, plate holder or other sample object
+         the hardware is initialized for. Used for setting up of autofocus
+
+        Output:
+         x, y, z: position of reference structure in object coordinates
+        """
+        self.not_implemented("_get_reference_position")
+
     def _set_reference_position(
         self, reference_object_id, find_surface=False, verbose=True
     ):

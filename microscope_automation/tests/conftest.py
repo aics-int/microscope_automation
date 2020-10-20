@@ -313,11 +313,44 @@ class Helpers:
             z_flip=z_flip,
         )
 
+    def setup_local_immersion_delivery(
+        self,
+        name=None,
+        plate_holder_name=None,
+        prefs_path=None,
+        safety_id=None,
+        center=[0, 0, 0],
+        x_flip=1,
+        y_flip=1,
+        z_flip=1,
+    ):
+        """Create PlateHolder object"""
+        if prefs_path:
+            microscope_object = self.setup_local_microscope(prefs_path)
+        else:
+            microscope_object = None
+
+        if plate_holder_name:
+            plate_holder_object = self.setup_local_plate_holder(plate_holder_name)
+        else:
+            plate_holder_object = None
+
+        return samples.ImmersionDelivery(
+            name=name,
+            plate_holder_object=plate_holder_object,
+            center=center,
+            microscope_object=microscope_object,
+            safety_id=safety_id,
+            x_flip=x_flip,
+            y_flip=y_flip,
+            z_flip=z_flip,
+        )
+
     @staticmethod
     def create_sample_object(sample_type, container=None,
                              microscope_obj=None, stage_id=None, focus_id=None,
                              autofocus_id=None, obj_changer_id=None,
-                             safety_id=None, ref_obj=None):
+                             safety_id=None, ref_obj=None, immersion_delivery=None):
         """Create an object of the type passed in, e.g. PlateHolder or Well.
 
         This method is usually used for simple objects, whereas the other
@@ -329,11 +362,14 @@ class Helpers:
                                       auto_focus_id=autofocus_id,
                                       focus_id=focus_id,
                                       objective_changer_id=obj_changer_id,
-                                      safety_id=safety_id)
+                                      safety_id=safety_id,
+                                      immersion_delivery=immersion_delivery)
         elif sample_type == "plate":
             obj = samples.Plate(plate_holder_object=container)
         elif sample_type == "well":
             obj = samples.Well(plate_object=container)
+        elif sample_type == "background":
+            obj = samples.Background(well_object=container)
         elif sample_type == "img_sys":
             obj = samples.ImagingSystem(container=container,
                                         microscope_object=microscope_obj,

@@ -23,14 +23,12 @@ class MetaDataFile:
         Output:
          none
         """
-        # meta = {el:'' for el in [i.strip() for i in metaHeader.split(',')]}
-        # write_csv(meta, filePath)
         if format != "csv":
             print("Format {} is not supported.".format(format))
             return
         else:
             self.format = format
-        self.file_path = filePath
+        self.file_path = file_path
         self.meta_data = pandas.DataFrame()
 
     def write_csv(self, meta, file_path):

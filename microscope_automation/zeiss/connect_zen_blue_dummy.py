@@ -252,8 +252,6 @@ class Experiments(object):
 
 class Image(object):
     def Save_2(self, fileName):
-        print(os.getcwd())
-        print(fileName)
         if not (os.path.exists(fileName)):
             exampleImage = "../data/testImages/WellEdge_0.czi"
             copy2(exampleImage, fileName)
