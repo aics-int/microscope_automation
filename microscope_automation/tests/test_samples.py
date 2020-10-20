@@ -8,6 +8,8 @@ Created on October 5, 2020
 import pytest
 import numpy as np
 from mock import patch
+from microscope_automation.image_AICS import ImageAICS
+from microscope_automation.preferences import Preferences
 from microscope_automation.samples import samples
 import os
 
@@ -263,6 +265,21 @@ def test_create_rect_tile(n_col, n_row, x_pitch, y_pitch, z_pos, expected):
     print(samples.create_rect_tile(n_col, n_row, x_pitch, y_pitch, z_pos))
     assert samples.create_rect_tile(n_col, n_row, x_pitch, y_pitch, z_pos) == expected
 
+
+@pytest.mark.skipif(skip_all_tests, reason="Exclude all tests")
+@pytest.mark.parametrize(
+    ("prefs_path, expected_cell_count, expected_name"),
+    [("data/preferences_ZSD_test.yml", 1, "C1D5")]
+)
+def test_create_plate_holder_manually(prefs_path, expected_cell_count,
+                                      expected_name, helpers):
+    m = helpers.setup_local_microscope(prefs_path)
+    prefs = Preferences(prefs_path)
+
+    result = samples.create_plate_holder_manually(m, prefs)
+
+    assert result.name == expected_name
+    assert result.number_cells() == expected_cell_count
 
 ###############################################################################
 #
@@ -948,6 +965,7 @@ def test_move_to_r_phi(mock_show, mock_recover, sample_type, prefs_path,
 
     assert result == expected
 
+
 @patch(
     "microscope_automation.zeiss.hardware_control_zeiss.SpinningDiskZeiss.recover_hardware"  # noqa
 )
@@ -1131,7 +1149,7 @@ def test_get_pos_from_abs_pos(sample_type, container_type, prefs_path, x, y, z,
         ("plate_holder", None, "data/preferences_ZSD_test.yml", 50000, 10000, None,
          (50000.0, 10000.0, None)),
         ("img_sys", "plate_holder", None, 2, 3, 1, "ZeroDivisionError"),
-        ("plate_holder", "img_sys", None, 2, 3, 1, (2.0, 3.0, 1.0)),
+        ("plate", "plate_holder", None, 2, 3, 1, (2.0, 3.0, 1.0)),
     ]
 )
 def test_get_abs_pos_from_obj_pos(sample_type, container_type, prefs_path, x, y, z,
@@ -1162,8 +1180,563 @@ def test_get_abs_pos_from_obj_pos(sample_type, container_type, prefs_path, x, y,
 
     assert result == expected
 
+
+@pytest.mark.skipif(skip_all_tests, reason="Exclude all tests")
+@pytest.mark.parametrize(
+    ("sample_type, container_type, prefs_path, x, y, z, expected"),
+    [
+        ("img_sys", None, None, 0, 0, 0, "ZeroDivisionError"),
+        ("img_sys", None, None, None, None, None, "TypeError"),
+        ("plate_holder", None, None, None, None, None, "TypeError"),
+        ("plate_holder", None, "data/preferences_ZSD_test.yml", None, None, None,
+         "TypeError"),
+        ("plate_holder", None, "data/preferences_ZSD_test.yml", 50000, 10000, None,
+         (50000.0, 10000.0, None)),
+        ("img_sys", "plate_holder", None, 2, 3, 1, "ZeroDivisionError"),
+        ("plate", "plate_holder", None, 2, 3, 1, (2.0, 3.0, 1.0)),
+    ]
+)
+def test_get_container_pos_from_obj_pos(sample_type, container_type, prefs_path,
+                                        x, y, z, expected, helpers):
+    if prefs_path:
+        microscope, stage_id, focus_id, autofocus_id, obj_changer_id, safety_id = helpers.microscope_for_samples_testing(helpers, prefs_path)  # noqa
+    else:
+        microscope = None
+        stage_id = None
+        focus_id = None
+
+    if container_type:
+        container = helpers.create_sample_object(container_type,
+                                                 microscope_obj=microscope,
+                                                 stage_id=stage_id,
+                                                 focus_id=focus_id)
+    else:
+        container = None
+
+    sample = helpers.create_sample_object(sample_type, container=container,
+                                          microscope_obj=microscope,
+                                          stage_id=stage_id,
+                                          focus_id=focus_id)
+
+    try:
+        result = sample.get_container_pos_from_obj_pos(x, y, z)
+    except Exception as err:
+        result = type(err).__name__
+
+    assert result == expected
+
+
+@pytest.mark.skipif(skip_all_tests, reason="Exclude all tests")
+@pytest.mark.parametrize(
+    ("container_type, prefs_path, flag, expected"),
+    [
+        (None, None, None, "AttributeError"),
+        ("plate_holder", "data/preferences_ZSD_test.yml", False, False),
+        ("plate_holder", "data/preferences_ZSD_test.yml", True, True),
+    ]
+)
+def test_get_set_autofocus(container_type, prefs_path, flag,
+                           expected, helpers):
+    if prefs_path:
+        microscope, stage_id, focus_id, autofocus_id, obj_changer_id, safety_id = helpers.microscope_for_samples_testing(helpers, prefs_path)  # noqa
+    else:
+        microscope = None
+        autofocus_id = None
+        obj_changer_id = None
+
+    if container_type:
+        container = helpers.create_sample_object(container_type,
+                                                 microscope_obj=microscope,
+                                                 autofocus_id=autofocus_id,
+                                                 obj_changer_id=obj_changer_id)
+    else:
+        container = None
+
+    sample = helpers.setup_local_imaging_system(helpers, container,
+                                                prefs_path=prefs_path,
+                                                auto_focus_id=autofocus_id,
+                                                objective_changer_id=obj_changer_id)
+    try:
+        if flag:
+            sample.set_use_autofocus(flag)
+        result = sample.get_use_autofocus()
+    except Exception as err:
+        result = type(err).__name__
+
+    assert result == expected
+
+
+@patch("microscope_automation.zeiss.hardware_control_zeiss.SpinningDiskZeiss.setup_microscope_for_initialization")  # noqa
+@pytest.mark.skipif(skip_all_tests, reason="Exclude all tests")
+@pytest.mark.parametrize(
+    ("container_type, ref_object_type, prefs_path, expected"),
+    [
+        (None, None, None, "AttributeError"),
+        ("plate_holder", None, "data/preferences_ZSD_test.yml",
+         {'DefiniteFocus2': {'initial_focus': 9000, 'use': False,
+          'experiment': 'Not defined', 'camera': None, 'live_mode': True,
+          'reference_object_id': None, 'delta_z': None}}),
+        ("plate_holder", "plate", "data/preferences_ZSD_test.yml",
+         "HardwareCommandNotDefinedError"),
+    ]
+)
+def test_find_surface(mock_setup, container_type, ref_object_type, prefs_path,
+                      expected, helpers):
+    if prefs_path:
+        microscope, stage_id, focus_id, autofocus_id, obj_changer_id, safety_id = helpers.microscope_for_samples_testing(helpers, prefs_path)  # noqa
+    else:
+        microscope = None
+        autofocus_id = None
+
+    if ref_object_type:
+        ref_object = helpers.create_sample_object(ref_object_type)
+    else:
+        ref_object = None
+
+    if container_type:
+        container = helpers.create_sample_object(container_type,
+                                                 microscope_obj=microscope,
+                                                 autofocus_id=autofocus_id)
+    else:
+        container = None
+
+    sample = helpers.setup_local_imaging_system(helpers, container,
+                                                prefs_path=prefs_path,
+                                                auto_focus_id=autofocus_id,
+                                                reference_object=ref_object)
+
+    try:
+        result = sample.find_surface()
+    except Exception as err:
+        result = type(err).__name__
+
+    assert result == expected
+
+
+@pytest.mark.skipif(skip_all_tests, reason="Exclude all tests")
+@pytest.mark.parametrize(
+    ("container_type, ref_object_type, prefs_path, expected"),
+    [
+        (None, None, None, "AttributeError"),
+        ("plate_holder", None, "data/preferences_ZSD_test.yml",
+         {'DefiniteFocus2':
+          {'initial_focus': 500, 'use': False,
+           'experiment': 'Not defined', 'camera': None, 'live_mode': True,
+           'reference_object_id': '', 'delta_z': None}}),
+        ("plate_holder", "plate", "data/preferences_ZSD_test.yml",
+         {'DefiniteFocus2':
+          {'initial_focus': 500, 'use': False,
+           'experiment': 'Not defined', 'camera': None, 'live_mode': True,
+           'reference_object_id': 'Plate', 'delta_z': None}}),
+    ]
+)
+def test_store_focus(container_type, ref_object_type, prefs_path,
+                     expected, helpers):
+    if prefs_path:
+        microscope, stage_id, focus_id, autofocus_id, obj_changer_id, safety_id = helpers.microscope_for_samples_testing(helpers, prefs_path)  # noqa
+    else:
+        microscope = None
+        autofocus_id = None
+
+    if ref_object_type:
+        ref_object = helpers.create_sample_object(ref_object_type)
+    else:
+        ref_object = None
+
+    if container_type:
+        container = helpers.create_sample_object(container_type,
+                                                 microscope_obj=microscope,
+                                                 autofocus_id=autofocus_id)
+    else:
+        container = None
+
+    sample = helpers.setup_local_imaging_system(helpers, container,
+                                                prefs_path=prefs_path,
+                                                auto_focus_id=autofocus_id,
+                                                reference_object=ref_object)
+
+    try:
+        result = sample.store_focus(focus_reference_obj=ref_object)
+    except Exception as err:
+        result = type(err).__name__
+
+    assert result == expected
+
+
+@pytest.mark.skipif(skip_all_tests, reason="Exclude all tests")
+@pytest.mark.parametrize(
+    ("container_type, camera_id, experiment, prefs_path, expected"),
+    [
+        (None, None, None, None, "AttributeError"),
+        ("plate_holder", "Camera1 (back)", "WellTile_10x_true.czexp",
+         "data/preferences_ZSD_test.yml", "AttributeError"),
+    ]
+)
+def test_recall_focus(container_type, camera_id, experiment, prefs_path,
+                      expected, helpers):
+    if prefs_path:
+        microscope = helpers.setup_local_microscope(prefs_path)
+        microscope.add_microscope_object(helpers.setup_local_camera(camera_id))
+    else:
+        microscope = None
+
+    if container_type:
+        container = helpers.create_sample_object(container_type,
+                                                 microscope_obj=microscope)
+    else:
+        container = None
+
+    sample = helpers.setup_local_imaging_system(helpers, container,
+                                                prefs_path=prefs_path)
+
+    try:
+        result = sample.recall_focus(camera_id, experiment)
+    except Exception as err:
+        result = type(err).__name__
+
+    assert result == expected
+
+
+@pytest.mark.skipif(skip_all_tests, reason="Exclude all tests")
+@pytest.mark.parametrize(
+    ("container_type, camera_id, experiment, prefs_path, expected"),
+    [
+        (None, "Camera1 (back)", "WellTile_10x_true.czexp",
+         "data/preferences_ZSD_test.yml", "AttributeError"),
+        ("plate_holder", "Camera1 (back)",
+         "WellTile_10x_true.czexp", "data/preferences_ZSD_test.yml", None),
+    ]
+)
+def test_live_mode_start_stop(container_type, camera_id, experiment, prefs_path,
+                              expected, helpers):
+    if prefs_path:
+        microscope = helpers.setup_local_microscope(prefs_path)
+        microscope.add_microscope_object(helpers.setup_local_camera(camera_id))
+    else:
+        microscope = None
+
+    if container_type:
+        container = helpers.create_sample_object(container_type,
+                                                 microscope_obj=microscope)
+    else:
+        container = None
+
+    sample = helpers.setup_local_imaging_system(helpers, container,
+                                                prefs_path=prefs_path)
+
+    try:
+        result = sample.live_mode_start(camera_id, experiment)
+        result = sample.live_mode_stop(camera_id, experiment)
+    except Exception as err:
+        result = type(err).__name__
+
+    assert result == expected
+
+
+@patch("microscope_automation.zeiss.connect_zen_blue.ConnectMicroscope.save_image")
+@patch(
+    "microscope_automation.zeiss.connect_zen_blue.ConnectMicroscope.close_experiment"
+)  # noqa
+@pytest.mark.skipif(skip_all_tests, reason="Exclude all tests")
+@pytest.mark.parametrize(
+    ("container_type, ref_object_type, camera_id, experiment, file_path, "
+     "meta_dict, prefs_path, expected"),
+    [
+        (None, None, "Camera1 (back)", "WellTile_10x_true.czexp", None, None,
+         "data/preferences_ZSD_test.yml", "AttributeError"),
+        ("plate_holder", None, "Camera1 (back)", "WellTile_10x_true.czexp", None,
+         {}, "data/preferences_ZSD_test.yml", ImageAICS),
+        ("plate_holder", "plate", "Camera1 (back)", "WellTile_10x_true.czexp",
+         "data/test_sample_image.czi", None, "data/preferences_ZSD_test.yml",
+         ImageAICS),
+    ]
+)
+def test_execute_experiment(mock_close, mock_save, container_type, ref_object_type,
+                            camera_id, experiment, file_path, meta_dict,
+                            prefs_path, expected, helpers):
+    if prefs_path:
+        microscope, stage_id, focus_id, autofocus_id, obj_changer_id, safety_id = helpers.microscope_for_samples_testing(helpers, prefs_path)  # noqa
+        microscope.add_microscope_object(helpers.setup_local_camera(camera_id))
+    else:
+        microscope = None
+        focus_id = None
+
+    if ref_object_type:
+        ref_object = helpers.create_sample_object(ref_object_type)
+    else:
+        ref_object = None
+
+    if container_type:
+        container = helpers.create_sample_object(container_type,
+                                                 microscope_obj=microscope,
+                                                 focus_id=focus_id,
+                                                 stage_id=stage_id,
+                                                 autofocus_id=autofocus_id)
+    else:
+        container = None
+
+    sample = helpers.setup_local_imaging_system(helpers, container,
+                                                reference_object=ref_object,
+                                                prefs_path=prefs_path,
+                                                focus_id=focus_id,
+                                                stage_id=stage_id,
+                                                auto_focus_id=autofocus_id)
+
+    try:
+        result = sample.execute_experiment(experiment, camera_id,
+                                           reference_object=ref_object,
+                                           file_path=file_path,
+                                           meta_dict=meta_dict)
+        result = result.__class__
+    except Exception as err:
+        result = type(err).__name__
+
+    assert result == expected
+
+
+@patch("microscope_automation.hardware.hardware_components.ObjectiveChanger.initialize")
+@patch(
+    "microscope_automation.hardware.hardware_control.BaseMicroscope.recover_hardware"
+)  # noqa
+@patch("microscope_automation.hardware.hardware_components.Safety.show_safe_areas")
+@patch("microscope_automation.zeiss.connect_zen_blue.ConnectMicroscope.save_image")
+@patch(
+    "microscope_automation.zeiss.connect_zen_blue.ConnectMicroscope.close_experiment"
+)  # noqa
+@pytest.mark.skipif(skip_all_tests, reason="Exclude all tests")
+@pytest.mark.parametrize(
+    ("container_type, ref_object_type, camera_id, experiment, file_path, "
+     "pos_list, meta_dict, use_reference, prefs_path, expected"),
+    [
+        (None, None, "Camera1 (back)", "WellTile_10x_true.czexp", None, None, None,
+         False, "data/preferences_ZSD_test.yml", "AttributeError"),
+        ("plate_holder", None, "Camera1 (back)", "WellTile_10x_true.czexp", None, {},
+         None, False, "data/preferences_ZSD_test.yml", []),
+        ("plate_holder", "plate", "Camera1 (back)", "WellTile_10x_true.czexp",
+         "data/test_sample_image.czi", None, None, True,
+         "data/preferences_ZSD_test.yml", [ImageAICS]),
+        ("plate_holder", "plate", "Camera1 (back)", "WellTile_10x_true.czexp",
+         "data/test_sample_image.czi", None, {}, True,
+         "data/preferences_ZSD_test.yml", [ImageAICS]),
+        ("plate_holder", "plate", "Camera1 (back)", "WellTile_10x_true.czexp",
+         "data/test_sample_image.czi", [(1, 2, 3)], {}, True,
+         "data/preferences_ZSD_test.yml", [ImageAICS]),
+    ]
+)
+def test_acquire_images(mock_close, mock_save, mock_show, mock_recover, mock_init,
+                        container_type, ref_object_type, camera_id, experiment,
+                        file_path, pos_list, meta_dict, use_reference,
+                        prefs_path, expected, helpers):
+    if prefs_path:
+        microscope, stage_id, focus_id, autofocus_id, obj_changer_id, safety_id = helpers.microscope_for_samples_testing(helpers, prefs_path)  # noqa
+        microscope.add_microscope_object(helpers.setup_local_camera(camera_id))
+    else:
+        microscope = None
+        focus_id = None
+        obj_changer_id = None
+        focus_id = None
+        stage_id = None
+        autofocus_id = None
+        safety_id = None
+
+    if ref_object_type:
+        ref_object = helpers.create_sample_object(ref_object_type)
+    else:
+        ref_object = None
+
+    if container_type:
+        container = helpers.create_sample_object(container_type,
+                                                 microscope_obj=microscope,
+                                                 focus_id=focus_id,
+                                                 stage_id=stage_id,
+                                                 autofocus_id=autofocus_id,
+                                                 obj_changer_id=obj_changer_id,
+                                                 safety_id=safety_id)
+    else:
+        container = None
+
+    sample = helpers.create_sample_object("img_sys", container=container,
+                                          microscope_obj=microscope,
+                                          ref_obj=ref_object,
+                                          focus_id=focus_id,
+                                          stage_id=stage_id,
+                                          autofocus_id=autofocus_id,
+                                          obj_changer_id=obj_changer_id,
+                                          safety_id=safety_id)
+
+    try:
+        results = sample.acquire_images(experiment, camera_id,
+                                        reference_object=ref_object,
+                                        file_path=file_path,
+                                        pos_list=pos_list)
+        final_result = []
+        for r in results:
+            final_result.append(r.__class__)
+    except Exception as err:
+        final_result = type(err).__name__
+
+    assert final_result == expected
+
+
+@pytest.mark.skipif(skip_all_tests, reason="Exclude all tests")
+@pytest.mark.parametrize(
+    ("sample_type, prefs_path, pref_name, tile_obj, expected"),
+    [
+        ("img_sys", None, None, None, "ZeroDivisionError"),
+        ("plate_holder", None, None, None, "ValueError"),
+        ("plate_holder", None, None, "NoTiling",
+            {'center': (0.0, 0.0, 0.0),
+             'degrees': None,
+             'percentage': 100,
+             'tile_number': (1, 1),
+             'tile_size': (None, None),
+             'tile_type': 'none'}),
+        ("plate_holder", None, None, "Fixed", "AttributeError"),
+        ("plate_holder", "data/preferences_ZSD_test.yml", "ScanPlate", "Fixed",
+         {'center': (0.0, 0.0, 0.0),
+          'degrees': 0,
+          'percentage': 100,
+          'tile_number': (2, 2),
+          'tile_size': (1000, 756.17),
+          'tile_type': 'rectangle'}),
+        ("well", "data/preferences_ZSD_test.yml", "ScanCells", "Well", "TypeError"),
+        ("well", "data/preferences_ZSD_test.yml", "ScanPlate", "Well",
+         {'center': (0.0, 0.0, 0.0),
+          'degrees': 0,
+          'percentage': 20,
+          'tile_number': (1, 1),
+          'tile_size': (1000, 756.17),
+          'tile_type': 'ellipse'}),
+        ("colony", "data/preferences_ZSD_test.yml", "ScanCells", "ColonySize",
+         {'center': (0.0, 0.0, 0.0),
+          'degrees': None,
+          'percentage': 100,
+          'tile_number': (None, None),
+          'tile_size': (100.32, 75.62),
+          'tile_type': 'ellipse'}),
+    ]
+)
+def test_get_tile_params(sample_type, prefs_path, pref_name, tile_obj,
+                         expected, helpers):
+    if prefs_path:
+        prefs = Preferences(pref_path=prefs_path)
+        image_settings = prefs.get_pref_as_meta(pref_name)
+    else:
+        image_settings = None
+
+    sample = helpers.create_sample_object(sample_type)
+    try:
+        result = sample._get_tile_params(image_settings, tile_obj)
+    except Exception as err:
+        result = type(err).__name__
+
+    assert result == expected
+
+
+@pytest.mark.skipif(skip_all_tests, reason="Exclude all tests")
+@pytest.mark.parametrize(
+    ("tile_params, expected"),
+    [
+        ({}, "KeyError"),
+        ({'center': (0.0, 0.0, 0.0),
+          'degrees': None,
+          'percentage': 100,
+          'tile_number': (None, None),
+          'tile_size': (100.32, 75.62),
+          'tile_type': 'ellipse'}, "TypeError"),
+        ({'center': (0.0, 0.0, 0.0),
+          'degrees': None,
+          'percentage': 100,
+          'tile_number': (2, 2),
+          'tile_size': (100.32, 75.62),
+          'tile_type': 'ellipse'}, [(-50.16, -37.81, 0.0), (-50.16, 37.81, 0.0),
+                                    (50.16, -37.81, 0.0), (50.16, 37.81, 0.0)]),
+    ]
+)
+def test_compute_tile_positions_list(tile_params, expected, helpers):
+    img_sys = helpers.setup_local_imaging_system(helpers)
+
+    try:
+        result = img_sys._compute_tile_positions_list(tile_params)
+    except Exception as err:
+        result = type(err).__name__
+
+    assert result == expected
+
+
+@pytest.mark.skipif(skip_all_tests, reason="Exclude all tests")
+@pytest.mark.parametrize(
+    ("sample_type, prefs_path, pref_name, tile_object, expected"),
+    [
+        ("img_sys", None, None, "NoTiling", "ZeroDivisionError"),
+        ("colony", None, None, "NoTiling", [(0.0, 0.0, 0.0)]),
+        ("colony", "data/preferences_ZSD_test.yml", "ScanCells", "ColonySize",
+         "TypeError"),
+        ("well", "data/preferences_ZSD_test.yml", "ScanCells", "Well",
+         None),
+        ("well", "data/preferences_ZSD_test.yml", "ScanPlate", "Well",
+         [(0.0, 0.0, 0.0)]),
+        ("plate_holder", "data/preferences_ZSD_test.yml", "ScanPlate", "Well",
+         "AttributeError"),
+        ("plate_holder", "data/preferences_ZSD_test.yml", "ScanPlate", "Fixed",
+         [(-500.0, -378.085, 0.0), (-500.0, 378.085, 0.0),
+          (500.0, -378.085, 0.0), (500.0, 378.085, 0.0)]),
+    ]
+)
+def test_get_tile_positions_list(sample_type, prefs_path, pref_name,
+                                 tile_object, expected, helpers):
+    if prefs_path:
+        prefs = Preferences(pref_path=prefs_path)
+        image_settings = prefs.get_pref_as_meta(pref_name)
+    else:
+        image_settings = None
+
+    sample = helpers.create_sample_object(sample_type)
+
+    try:
+        result = sample.get_tile_positions_list(image_settings, tile_object)
+    except Exception as err:
+        result = type(err).__name__
+
+    assert result == expected
+
+
+@patch("microscope_automation.zeiss.connect_zen_blue.ConnectMicroscope.load_image")
+@pytest.mark.skipif(skip_all_tests, reason="Exclude all tests")
+@pytest.mark.parametrize(
+    ("container_type, prefs_path, image, get_meta, expected"),
+    [
+        (None, "data/preferences_ZSD_test.yml", ImageAICS(), False, "AttributeError"),
+        ("plate_holder", "data/preferences_ZSD_test.yml", ImageAICS(), True,
+         "<class 'mock.mock.MagicMock'>")
+    ]
+)
+def test_load_image(mock_load, container_type, prefs_path, image, get_meta,
+                    expected, helpers):
+    if prefs_path:
+        microscope = helpers.setup_local_microscope(prefs_path)
+    else:
+        microscope = None
+
+    if container_type:
+        container = helpers.create_sample_object(container_type,
+                                                 microscope_obj=microscope)
+    else:
+        container = None
+
+    sample = helpers.create_sample_object("img_sys", container=container,
+                                          microscope_obj=microscope)
+
+    try:
+        result = sample.load_image(image, get_meta)
+        result = str(result.__class__)
+    except Exception as err:
+        result = type(err).__name__
+
+    assert result == expected
+
 ###############################################################################
 #
-# Tests for the Background class
+# Tests for the PlateHolder class
 #
 ###############################################################################

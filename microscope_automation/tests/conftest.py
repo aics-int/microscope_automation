@@ -343,6 +343,8 @@ class Helpers:
                                         objective_changer_id=obj_changer_id,
                                         safety_id=safety_id,
                                         reference_object=ref_obj,)
+        elif sample_type == "colony":
+            obj = samples.Colony(well_object=container)
         elif sample_type is None:
             obj = None
 
@@ -379,7 +381,11 @@ class Helpers:
                                        safe_area=safe_area_id,
                                        objective_changer=obj_changer_id,
                                        prefs_path=prefs_path,)
-        autofocus = self.setup_local_autofocus(self, autofocus_id)
+        obj_changer = self.setup_local_obj_changer(self, obj_changer_id,
+                                                   objectives=objectives,
+                                                   prefs_path=prefs_path)
+        autofocus = self.setup_local_autofocus(self, autofocus_id,
+                                               obj_changer=obj_changer)
         focus_drive = self.setup_local_focus_drive(
             self,
             focus_id,
@@ -395,9 +401,6 @@ class Helpers:
             verbose=False,
             test=True,
         )
-        obj_changer = self.setup_local_obj_changer(self, obj_changer_id,
-                                                   objectives=objectives,
-                                                   prefs_path=prefs_path)
         safety = self.setup_local_safety(safety_id)
         safety.add_safe_area(safe_verts, safe_area_id, z_max)
 
@@ -405,6 +408,8 @@ class Helpers:
         microscope.add_control_software(control_software)
         microscope.add_microscope_object([stage, autofocus, focus_drive,
                                           obj_changer, safety])
+
+        autofocus.microscope_object = microscope
 
         return microscope, stage_id, focus_id, autofocus_id, obj_changer_id, safety_id
 

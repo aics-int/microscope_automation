@@ -9,7 +9,7 @@ import numpy
 import matplotlib.pyplot as plt
 import math
 
-VALID_TILE_TYPE = ["noTiling", "rectangle", "ellipse"]
+VALID_TILE_TYPE = ["none", "rectangle", "ellipse"]
 
 
 class CreateTilePositions(object):
@@ -18,13 +18,13 @@ class CreateTilePositions(object):
     """
 
     def __init__(
-        self, tile_type="noTiling", tile_number=(2, 2), tile_size=(1, 1), degrees=0
+        self, tile_type="none", tile_number=(2, 2), tile_size=(1, 1), degrees=0
     ):
         """Create position lists for tiling and multi-position imaging.
 
         Input:
          tile_type: string to describe type of tiling. Allowed values:
-          'noTiling': do not tile
+          'none': do not tile
 
           'rectangle': tiles are arranged to form a rectangle
 
@@ -44,12 +44,12 @@ class CreateTilePositions(object):
         self.set_tile_size(tile_size)
         self.set_field_rotation(degrees)
 
-    def set_tile_type(self, tile_type="noTiling"):
+    def set_tile_type(self, tile_type="none"):
         """Set type of tiling.
 
         Input:
          tile_type: string to describe type of tiling. Allowed values:
-          'noTiling': do not tile
+          'none': do not tile
 
           'rectangle': tiles are arranged to form a rectangle
 
@@ -58,6 +58,7 @@ class CreateTilePositions(object):
         Output:
          none
         """
+        # TODO: Check that tile type is valid and throw error if not
         self.tile_type = tile_type
 
     def get_tile_type(self):
@@ -68,9 +69,11 @@ class CreateTilePositions(object):
 
         Output:
          tile_type: string to describe type of tiling. Allowed values:
-          'None': no tiling (default)
+          'none': do not tile
 
-          'rectangle': rectangular area of tiles
+          'rectangle': tiles are arranged to form a rectangle
+
+          'ellipse': tiles are arranged to form an ellipse
 
         """
         tile_type = self.tile_type

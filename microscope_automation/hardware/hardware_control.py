@@ -206,6 +206,42 @@ class BaseMicroscope(object):
 
         return focus_drive_object.get_load_position()
 
+    def _get_focus_id(self, reference_object_id):
+        """Set reference position in object coordinates.
+
+        Input:
+         reference_object_id: ID of plate, plate holder or other sample object
+         the hardware is initialized for. Used for setting up of autofocus
+
+        Output:
+         focus_id: ID of focus drive attached to the reference object
+        """
+        self.not_implemented("_get_focus_id")
+
+    def _get_safety_id(self, reference_object_id):
+        """Set reference position in object coordinates.
+
+        Input:
+         reference_object_id: ID of plate, plate holder or other sample object
+         the hardware is initialized for. Used for setting up of autofocus
+
+        Output:
+         safety: ID of safety attached to the reference object
+        """
+        self.not_implemented("_get_safety_id")
+
+    def _get_objective_changer_id(self, reference_object_id):
+        """Set reference position in object coordinates.
+
+        Input:
+         reference_object_id: ID of plate, plate holder or other sample object
+         the hardware is initialized for. Used for setting up of autofocus
+
+        Output:
+         obj_changer_id: ID of objective changer attached to the reference object
+        """
+        self.not_implemented("_get_objective_changer_id")
+
     def live_mode(self, camera_id, experiment=None, live=True):
         """Start/stop live mode of ZEN software.
 

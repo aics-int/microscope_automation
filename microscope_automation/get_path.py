@@ -115,7 +115,9 @@ def get_daily_folder(prefs, barcode=None):
 
     Input:
      prefs: Dictionary with preferences
+
      barcode: Use the plate barcode to make the folder
+
     Output:
      folderPath: path to daily folder. No '/' at end.
     """

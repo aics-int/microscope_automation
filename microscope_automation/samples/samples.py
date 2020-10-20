@@ -9,7 +9,6 @@ import logging
 import math
 import string
 import pandas
-import getpass
 import numpy
 from os import path
 import warnings
@@ -18,10 +17,7 @@ from collections import OrderedDict
 # import modules from project microscope_automation
 from ..get_path import (
     get_images_path,
-    get_meta_data_path,
-    get_prefs_path,
     add_suffix,
-    set_pref_file,
 )
 from .draw_plate import draw_plate
 from .. import automation_messages_form_layout as message
@@ -29,7 +25,6 @@ from . import find_well_center
 from . import correct_background
 from . import tile_images
 from ..load_image_czi import LoadImageCzi
-from .meta_data_file import MetaDataFile
 from .positions_list import CreateTilePositions
 from .interactive_location_picker_pyqtgraph import ImageLocationPicker
 from ..automation_exceptions import (
@@ -39,7 +34,7 @@ from ..automation_exceptions import (
 )
 
 # we need module hardware only for testing
-from ..hardware import hardware_control
+from ..hardware import hardware_components
 
 # create logger
 logger = logging.getLogger("microscopeAutomation")
@@ -72,7 +67,7 @@ VALID_LOAD = [True, False]
 VALID_LOADBETWEENWELLS = [True, False]
 VALID_ADDIMERSIONWATER = [True, False]
 VALID_USEPUMP = [True, False]
-VALID_TILE = ["NoTiling", "Fixed", "Size"]
+VALID_TILE = ["NoTiling", "Fixed", "ColonySize", "Well"]
 VALID_FINDOBJECTS = ["None", "Cells", "Colonies"]
 VALID_TYPEFINDCELLS = ["False", "CenterMassCellProfiler", "TwofoldDistanceMap"]
 
@@ -192,6 +187,7 @@ class ImagingSystem(object):
         auto_focus_id=None,
         objective_changer_id=None,
         safety_id=None,
+        camera_ids=[],
     ):
         """This is the superclass for all sample related classes
         (e.g. well, colony, etc).
@@ -224,6 +220,21 @@ class ImagingSystem(object):
          x_ref, y_ref, z_ref: positions used as reference to correct for xyz
          offset between different objectives.
          Use only one of reference object or reference positions
+
+         microscope_object: object of class Microscope from module hardware
+
+         stage_id: id string for stage.
+
+         focus_id: id string with name for focus drive
+
+         auto_focus_id: id string with name for auto-focus
+
+         objective_changer_id: id string with name for objective changer
+
+         safety_id: id string for safety area that prevents objective damage
+         during stage movement
+
+         camera_ids: list with ids for cameras used with this sample
 
         Output:
          None
@@ -280,6 +291,7 @@ class ImagingSystem(object):
             auto_focus_id=auto_focus_id,
             objective_changer_id=objective_changer_id,
             safety_id=safety_id,
+            camera_ids=camera_ids
         )
 
         # reference positions for auto-focus
@@ -305,6 +317,7 @@ class ImagingSystem(object):
         auto_focus_id=None,
         objective_changer_id=None,
         safety_id=None,
+        camera_ids=[],
     ):
         """Store object that describes connection to hardware.
 
@@ -322,6 +335,8 @@ class ImagingSystem(object):
          safety_id: id string for safety area that prevents objective damage
          during stage movement
 
+         camera_ids: list with ids for cameras used with this sample
+
         Output:
          none
         """
@@ -331,12 +346,25 @@ class ImagingSystem(object):
         self.auto_focus_id = auto_focus_id
         self.objective_changer_id = objective_changer_id
         self.safety_id = safety_id
+        self.camera_ids = camera_ids
+
+    def add_camera_id(self, camera_id):
+        """Add ID to camera_ids without removing the existing IDs.
+
+        Input:
+         camera_id: ID to add to the list of IDs
+
+        Output:
+         none
+        """
+        self.camera_ids.append(camera_id)
 
     def set_name(self, name=""):
         """Set name of object
 
         Input:
          name: string with name of object
+
         Output:
          none
         """
@@ -1408,7 +1436,9 @@ class ImagingSystem(object):
          z: position of focus drive after find surface
         """
         return self.container.find_surface(
-            reference_object=self.get_reference_object(), trials=trials, verbose=verbose
+            reference_object=self.get_reference_object(),
+            trials=trials,
+            verbose=verbose
         )
 
     def store_focus(self, focus_reference_obj=None, trials=3, verbose=True):
@@ -1430,27 +1460,27 @@ class ImagingSystem(object):
             focus_reference_obj, trials=trials, verbose=verbose
         )
 
-    def recall_focus(self, cameraID, experiment):
+    def recall_focus(self, camera_id, experiment):
         """Find stored focus position as offset from coverslip.
 
         Input:
-         cameraID: sting with camera ID for experiment
+         camera_id: sting with camera ID for experiment
 
          experiment: string with experiment name as defined in microscope software.
 
         Output:
          z: position of focus drive after recall focus
         """
-        return self.container.recall_focus(cameraID, experiment)
+        return self.container.recall_focus(camera_id, experiment)
 
-    def live_mode_start(self, cameraID, experiment):
+    def live_mode_start(self, camera_id, experiment):
         """Start live mode in microscope software.
 
         Methods calls method of container instance until container has
         method implemented that actually performs action.
 
         Input:
-         cameraID: string with unique camera ID
+         camera_id: string with unique camera ID
 
          experiment: string with experiment name as defined within microscope software
          If None use actual experiment.
@@ -1458,16 +1488,16 @@ class ImagingSystem(object):
         Output:
           none
         """
-        self.container.live_mode_start(cameraID, experiment)
+        self.container.live_mode_start(camera_id, experiment)
 
-    def live_mode_stop(self, cameraID, experiment=None):
+    def live_mode_stop(self, camera_id, experiment=None):
         """Stop live mode in microscope software.
 
         Methods calls method of container instance until container has
         method implemented that actually performs action.
 
         Input:
-         cameraID: string with unique camera ID
+         camera_id: string with unique camera ID
 
          experiment: string with experiment name as defined within microscope software
          If None use actual experiment.
@@ -1475,12 +1505,12 @@ class ImagingSystem(object):
         Output:
          none
         """
-        self.container.live_mode_stop(cameraID, experiment)
+        self.container.live_mode_stop(camera_id, experiment)
 
     def execute_experiment(
         self,
         experiment,
-        cameraID,
+        camera_id,
         reference_object=None,
         file_path=None,
         meta_dict={},
@@ -1496,7 +1526,7 @@ class ImagingSystem(object):
         Input:
          experiment: string with experiment name as defined within microscope software
 
-         cameraID: string with unique camera ID
+         camera_id: string with unique camera ID
 
          reference_object: object of type sample (ImagingSystem) used to correct
          for xyz offset between different objectives
@@ -1558,7 +1588,7 @@ class ImagingSystem(object):
 
         image = self.container.execute_experiment(
             experiment,
-            cameraID,
+            camera_id,
             reference_object=reference_object,
             file_path=file_path,
             meta_dict=meta_dict,
@@ -1591,7 +1621,7 @@ class ImagingSystem(object):
     def acquire_images(
         self,
         experiment,
-        cameraID,
+        camera_id,
         reference_object=None,
         file_path=None,
         pos_list=None,
@@ -1610,7 +1640,7 @@ class ImagingSystem(object):
         Input:
          experiment: string with experiment name as defined within microscope software
 
-         cameraID: string with unique camera ID
+         camera_id: string with unique camera ID
 
          reference_object: object used to set parfocality and parcentricity,
          typically a well in plate
@@ -1642,7 +1672,7 @@ class ImagingSystem(object):
             images = [
                 self.execute_experiment(
                     experiment,
-                    cameraID,
+                    camera_id,
                     reference_object=reference_object,
                     file_path=file_path,
                     meta_dict=meta_dict,
@@ -1654,13 +1684,9 @@ class ImagingSystem(object):
             images = []
             for x, y, z in pos_list:
                 # check if microscope is ready and initialize if necessary
-                self.get_microscope().microscope_is_ready(
+                self.microscope_is_ready(
                     experiment=experiment,
-                    component_dict={self.get_objective_changer_id(): []},
-                    focus_drive_id=self.get_focus_id(),
-                    objective_changer_id=self.get_objective_changer_id(),
-                    safety_object_id=self.get_safety_id(),
-                    reference_object=self.get_reference_object(),
+                    reference_object=reference_object,
                     load=load,
                     use_reference=use_reference,
                     use_auto_focus=use_auto_focus,
@@ -1706,7 +1732,7 @@ class ImagingSystem(object):
                         pass
                 image = self.execute_experiment(
                     experiment,
-                    cameraID,
+                    camera_id,
                     reference_object,
                     newPath,
                     meta_dict=meta_dict,
@@ -1762,8 +1788,7 @@ class ImagingSystem(object):
             degrees = None
             percentage = 100
         else:
-            # Tile object is not implemented
-            raise (ValueError, "Tiling object not implemented")
+            raise ValueError("Tiling object not implemented")
 
         tile_params = {
             "center": center,
@@ -1795,24 +1820,28 @@ class ImagingSystem(object):
         tile_positions_list = tileObject.get_pos_list(tile_params["center"])
         return tile_positions_list
 
-    def get_tile_positions_list(self, prefs, tile_type="NoTiling", verbose=True):
+    def get_tile_positions_list(self, prefs, tile_object="NoTiling", verbose=True):
         """Get positions for tiles in absolute coordinates.
         Subclasses have additional tile_objects (e.g. ColonySize, Well).
 
         Input:
          prefs: dictionary with preferences for tiling
 
-         tile_type: type of tiling.  Possible options:
+         tile_type: tile object passed in by preferences. Possible options:
           'NoTiling': do not tile
-          'rectangle': calculate tiling to image a rectangular area
-          'ellipse': cover ellipse (e.g. well) with tiles
+
+          'Fixed': calculate tiling to image a rectangular area
+
+          'Well': cover a well with tiles using an elliptical area
+
+          'ColonySize': cover a colony with tiles using an ellipse
 
          verbose: print debugging information
 
         Output:
          tile_position_list: list with absolute positions for tiling
         """
-        tile_params = self._get_tile_params(prefs, tile_type, verbose=verbose)
+        tile_params = self._get_tile_params(prefs, tile_object, verbose=verbose)
         tile_positions_list = self._compute_tile_positions_list(tile_params)
         return tile_positions_list
 
@@ -2095,7 +2124,7 @@ class ImagingSystem(object):
             safety_id = None
         return safety_id
 
-    def get_cameras_ids(self):
+    def get_camera_ids(self):
         """Return ids for cameras used with this sample.
         Searches through all containers until id is found.
 
@@ -2103,18 +2132,18 @@ class ImagingSystem(object):
          none
 
         Output:
-         cameras_ids: list with ids for cameras used with this sample
+         camera_ids: list with ids for cameras used with this sample
         """
-        #########################################
-        # TODO: camera_ids not implemented
-        #############################################
+        ###############################################
+        # TODO: camera_ids not implemented in container
+        ###############################################
         try:
-            cameras_ids = self.cameras_ids
-            if cameras_ids is None:
-                cameras_ids = self.get_container().get_cameras_ids()
+            camera_ids = self.camera_ids
+            if camera_ids is None:
+                camera_ids = self.get_container().get_camera_ids()
         except AttributeError:
-            cameras_ids = None
-        return cameras_ids
+            camera_ids = None
+        return camera_ids
 
     def get_immersion_delivery_systems(self):
         """Return dictionary with objects that describes immersion water delivery system
@@ -2637,15 +2666,17 @@ class PlateHolder(ImagingSystem):
          positions_dict: dictionary {'absolute': z_abs, 'focality_corrected': z_cor}
          with focus position in mum
         """
-        # communication_object = self.get_microscope(
-        #    )._get_control_software().connection
-        # z = self.recover_hardware(self.focusDrive.find_surface, communication_object)
+        if reference_object:
+            reference_object_id = reference_object.get_name()
+        else:
+            reference_object_id = None
+
         microscope_object = self.get_microscope()
         microscope_object.initialize_hardware(
             initialize_components_ordered_dict={
                 self.get_auto_focus_id(): ["find_surface"]
             },
-            reference_object=reference_object,
+            reference_object_id=reference_object_id,
             trials=trials,
             verbose=verbose,
         )
@@ -2668,12 +2699,17 @@ class PlateHolder(ImagingSystem):
          positions_dict: dictionary {'absolute': z_abs, 'focality_corrected': z_cor}
          with focus position in mum
         """
+        if focus_reference_obj:
+            reference_object_id = focus_reference_obj.get_name()
+        else:
+            reference_object_id = None
+
         microscope_object = self.get_microscope()
         microscope_object.initialize_hardware(
             initialize_components_ordered_dict={
                 self.get_auto_focus_id(): ["no_find_surface", "no_interaction"]
             },
-            reference_object=focus_reference_obj,
+            reference_object_id=reference_object_id,
             trials=trials,
             verbose=verbose,
         )
@@ -2685,7 +2721,7 @@ class PlateHolder(ImagingSystem):
     def execute_experiment(
         self,
         experiment,
-        cameraID,
+        camera_id,
         reference_object=None,
         file_path=None,
         meta_dict={
@@ -2702,7 +2738,7 @@ class PlateHolder(ImagingSystem):
         Input:
          experiment: string with experiment name as defined within microscope software
 
-         cameraID: string with unique camera ID
+         camera_id: string with unique camera ID
 
          reference_object: object of type sample (ImagingSystem) used to correct for .
          xyz offset between different objectives
@@ -2717,7 +2753,7 @@ class PlateHolder(ImagingSystem):
         Output:
           image: image of class ImageAICS
 
-        Method adds cameraID to image.
+        Method adds camera_id to image.
         """
         # The method execute_experiment will send a command to the microscope
         # software to acquire an image.
@@ -2725,20 +2761,24 @@ class PlateHolder(ImagingSystem):
         # to acquire the image. The method does not return the image, nor does it
         # save it. use PlateHolder.save_image to trigger the microscope software
         # to save the image.
+        if reference_object:
+            reference_object_id = reference_object.get_name()
+        else:
+            reference_object_id = None
 
         # Use an instance of Microscope from module hardware.
         microscope_instance = self.get_microscope()
         image = microscope_instance.execute_experiment(experiment)
 
         # retrieve information about camera and add to meta data
-        image.add_meta({"aics_cameraID": cameraID})
+        image.add_meta({"aics_cameraID": camera_id})
 
         # retrieve information hardware status
         information_dict = microscope_instance.get_information()
         stage_z_corrected = microscope_instance.get_z_position(
             focus_drive_id=self.focus_id,
             auto_focus_id=self.auto_focus_id,
-            reference_object=reference_object,
+            reference_object_id=reference_object_id,
             verbose=verbose,
         )
 
@@ -2785,8 +2825,8 @@ class PlateHolder(ImagingSystem):
         # add meta data imported into method
         image.add_meta(meta_dict)
 
-        if None not in file_path:
-            image = self.save_image(file_path, cameraID, image)
+        if file_path:
+            image = self.save_image(file_path, camera_id, image)
         return image
 
     def live_mode_start(self, camera_id, experiment=None):
@@ -2806,9 +2846,6 @@ class PlateHolder(ImagingSystem):
         # It does not acquire an image
         # experiment is the name of the settings used by the microscope software
         # to acquire the image.
-
-        # self.recover_hardware(self.microscope.live_mode, camera_id, experiment,
-        #                       live=True)
         self.microscope.live_mode(camera_id, experiment, live=True)
 
     def live_mode_stop(
@@ -2832,18 +2869,15 @@ class PlateHolder(ImagingSystem):
         # It does not acquire an image
         # experiment is the name of the settings used by the microscope software
         # to acquire the image.
-
-        # self.recover_hardware(self.microscope.live_mode, camera_id, experiment,
-        #                       live=False)
         self.microscope.live_mode(camera_id, experiment, live=False)
 
-    def save_image(self, file_path, cameraID, image):
+    def save_image(self, file_path, camera_id, image):
         """save original image acquired with given camera using microscope software
 
         Input:
          file_path: string with filename with path for saved image in original format
                     or tuple with path to directory and template for file name
-         cameraID: name of camera used for data acquisition
+         camera_id: name of camera used for data acquisition
          image: image of class ImageAICS
 
         Output:
@@ -2861,7 +2895,7 @@ class PlateHolder(ImagingSystem):
             try:
                 # Do Not need the file_path counter - Better for uploading it to FMS
                 # file_pathCounter = splitExt[0] + '_{}'.format(counter) + splitExt[1]
-                # image=self.cameras[cameraID].save_image(file_pathCounter, image)
+                # image=self.cameras[camera_id].save_image(file_pathCounter, image)
                 image = self.get_microscope().save_image(file_path_updated, image)
             except FileExistsError:
                 # We need to update the file_path, otherwise there's an infinite loop
@@ -2887,8 +2921,10 @@ class PlateHolder(ImagingSystem):
          image: meta data as ImageAICS object. No image data loaded so far
          (if image data exists, it will be replaced)
 
+         get_meta: boolean of whether to obtain meta data for the image
+
         Output:
-         image: image and meta data as ImageAICS object
+         image: image and meta data (if requested) as ImageAICS object
         """
         image = self.get_microscope().load_image(image, get_meta)
         return image
@@ -3817,7 +3853,7 @@ class Well(ImagingSystem):
         self.samples.update(barcodeObjectsDict)
 
     def find_well_center_fine(
-        self, experiment, well_diameter, cameraID, dictPath, verbose=True
+        self, experiment, well_diameter, camera_id, dictPath, verbose=True
     ):
         """Find center of well with higher precision.
 
@@ -3829,7 +3865,7 @@ class Well(ImagingSystem):
 
          well_diameter: diameter of reference well in mum
 
-         cameraID: string with name of camera
+         camera_id: string with name of camera
 
          dictPath: dictionary to store images
 
@@ -3860,7 +3896,7 @@ class Well(ImagingSystem):
         }
         image = self.execute_experiment(
             experiment,
-            cameraID,
+            camera_id,
             add_suffix(file_path, "-1_0"),
             meta_dict=meta_dict,
             verbose=verbose,
@@ -3886,7 +3922,7 @@ class Well(ImagingSystem):
         }
         image = self.execute_experiment(
             experiment,
-            cameraID,
+            camera_id,
             add_suffix(file_path, "1_0"),
             meta_dict=meta_dict,
             verbose=verbose,
@@ -3915,7 +3951,7 @@ class Well(ImagingSystem):
         }
         image = self.execute_experiment(
             experiment,
-            cameraID,
+            camera_id,
             add_suffix(file_path, "0_1"),
             meta_dict=meta_dict,
             verbose=verbose,
@@ -3938,7 +3974,7 @@ class Well(ImagingSystem):
         }
         image = self.execute_experiment(
             experiment,
-            cameraID,
+            camera_id,
             add_suffix(file_path, "0_-1"),
             meta_dict=meta_dict,
             verbose=verbose,
@@ -4113,14 +4149,14 @@ class Barcode(ImagingSystem):
         # self.container = well_object
 
     def read_barcode_data_acquisition(
-        self, experiment, cameraID, file_path, verbose=True
+        self, experiment, camera_id, file_path, verbose=True
     ):
         """Take image of barcode.
 
         Input:
          experiment: string with name for experiment used in microscope software
 
-         cameraID: unique ID for camera used to acquire image
+         camera_id: unique ID for camera used to acquire image
 
          file_path: path to directory for alignment images
 
@@ -4130,17 +4166,17 @@ class Barcode(ImagingSystem):
          image: Image of barcode. Images will be used to decode barcode.
         """
         image = self.execute_experiment(
-            experiment, cameraID, file_path=file_path, verbose=verbose
+            experiment, camera_id, file_path=file_path, verbose=verbose
         )
         return image
 
-    def read_barcode(self, experiment, cameraID, file_path, verbose=True):
+    def read_barcode(self, experiment, camera_id, file_path, verbose=True):
         """Take image of barcode and return code.
 
         Input:
          experiment: string with imaging conditions as defined within microscope sofware
 
-         cameraID: string with name of camera
+         camera_id: string with name of camera
 
          file_path: filename with path to store images
 
@@ -4150,7 +4186,7 @@ class Barcode(ImagingSystem):
          code: string encoded in barcode
         """
         image = self.read_barcode_data_acquisition(
-            experiment, cameraID, file_path, verbose=verbose
+            experiment, camera_id, file_path, verbose=verbose
         )
         image = self.load_image(image, get_meta=False)
         # code=read_barcode(image)
@@ -4224,7 +4260,7 @@ class Colony(ImagingSystem):
         #         self.name=name
         self.ellipse = ellipse
         #         self.xCenter, self.yCenter=center
-        if meta:
+        if meta is not None:
             self.area = meta.Area
             self.meta = meta
 
@@ -4345,7 +4381,7 @@ class Colony(ImagingSystem):
         """
         self.cells.update(cell_objects_dict)
 
-        for cell in cell_objects_dict.itervalues():
+        for cell in cell_objects_dict.values():
             cell.set_cell_line(self.get_cell_line())
             cell.set_clone(self.get_clone())
 
@@ -4402,7 +4438,7 @@ class Colony(ImagingSystem):
             # TODO: Works only with Zeiss, not with 3i
             li = LoadImageCzi()
             li.load_image(image, True)
-        if prefs.get_pref("Tile", validValues=VALID_TILE) != "Fixed":
+        if prefs.get_pref("Tile", valid_values=VALID_TILE) != "Fixed":
             image.data = numpy.transpose(image.data, (1, 0, 2))
         cell_finder = find_cells.CellFinder(
             image, prefs.get_pref_as_meta("CellFinder"), self
@@ -4423,7 +4459,7 @@ class Colony(ImagingSystem):
     def execute_experiment(
         self,
         experiment,
-        cameraID,
+        camera_id,
         reference_object=None,
         file_path=None,
         meta_dict=None,
@@ -4438,7 +4474,7 @@ class Colony(ImagingSystem):
         Input:
          experiment: string with experiment name as defined within microscope software
 
-         cameraID: string with unique camera ID
+         camera_id: string with unique camera ID
 
          reference_object: object of type sample (ImagingSystem) used to correct for
          xyz offset between different objectives
@@ -4461,7 +4497,7 @@ class Colony(ImagingSystem):
         meta_dict.update({"aics_colonyClone": clone, "aics_colonyCellLine": cell_line})
         image = self.container.execute_experiment(
             experiment,
-            cameraID,
+            camera_id,
             reference_object=reference_object,
             file_path=file_path,
             meta_dict=meta_dict,
@@ -4602,7 +4638,7 @@ class Cell(ImagingSystem):
     def execute_experiment(
         self,
         experiment,
-        cameraID,
+        camera_id,
         reference_object=None,
         file_path=None,
         meta_dict={},
@@ -4617,7 +4653,7 @@ class Cell(ImagingSystem):
         Input:
          experiment: string with experiment name as defined within microscope software
 
-         cameraID: string with unique camera ID
+         camera_id: string with unique camera ID
 
          reference_object: object of type sample (ImagingSystem) used to correct for
          xyz offset between different objectives
@@ -4643,7 +4679,7 @@ class Cell(ImagingSystem):
         )
         image = self.container.execute_experiment(
             experiment,
-            cameraID,
+            camera_id,
             reference_object=reference_object,
             file_path=file_path,
             meta_dict=meta_dict,
@@ -4658,78 +4694,6 @@ class Cell(ImagingSystem):
 # Functions for testing of module
 #
 #################################################################
-
-
-def create_microscope(software, prefs):
-    """Create a microscope object.
-
-    Input:
-     software: sting with name of software that controlls microscope
-     (e.g. 'ZEN Blue', 'Test')
-
-     prefs: dictionary with preferences
-
-    Output:
-     microscope: microscope object
-    """
-    # create microscope
-    # we need module hardware only for testing
-    # import hardware_control as hw  # noqa
-
-    # get object to connect to software based on software name
-    connectObject = hardware_control.ControlSoftware(software)
-    # create microscope components
-    # create two sCMOS cameras
-    c1 = hardware_control.Camera(
-        "Camera1 (Back)",
-        pixel_size=(6.5, 6.5),
-        pixel_number=(2048 / 2, 2048 / 2),
-        pixel_type=numpy.int32,
-        name="Orca Flash 4.0V2",
-        detector_type="sCMOS",
-        manufacturer="Hamamatsu",
-    )
-
-    c2 = hardware_control.Camera(
-        "sCMOS_mCherry",
-        pixel_size=(6.5, 6.5),
-        pixel_number=(2048 / 2, 2048 / 2),
-        pixel_type=numpy.int32,
-        name="Orca Flash 4.0V2",
-        detector_type="sCMOS",
-        manufacturer="Hamamatsu",
-    )
-
-    s = hardware_control.Stage("TestStage")
-    fd = hardware_control.FocusDrive("Focus")
-    oc = hardware_control.ObjectiveChanger("Nosepiece", n_positions=6)
-    p = hardware_control.Pump(
-        pump_id="Immersion", seconds=1, port="COM1", baudrate=19200
-    )
-
-    # Create safety object to avoid hardware damage and add to Microscope
-    # if multiple overlapping safety areas are created,
-    # the minimum of all allowed z values is selected
-    # stage will not be allowed to travel outside safety area
-    safetyObject_immersion = hardware_control.Safety("SafeArea_immersion")
-    stage_area = [(10, 10), (10, 90), (90, 90), (90, 10)]
-    safetyObject_immersion.add_safe_area(stage_area, "Stage", 9000)
-    pump_area = [(30, 10), (40, 10), (40, -5), (30, -5)]
-    safetyObject_immersion.add_safe_area(pump_area, "Pump", 100)
-
-    safetyObject_plateHolder = hardware_control.Safety("SafeArea_plateHolder")
-    stage_area = [(10, 10), (10, 90), (90, 90), (90, 10)]
-    safetyObject_plateHolder.add_safe_area(stage_area, "PlateHolder", 9000)
-
-    # create microscope and add components
-    m = hardware_control.Microscope(
-        name="Test Microscope",
-        control_software_object=connectObject,
-        safeties=[safetyObject_immersion, safetyObject_plateHolder],
-        microscope_components=[fd, s, oc, c1, c2, p],
-    )
-
-    return m
 
 
 def create_plate_holder_manually(m, prefs):
@@ -4754,16 +4718,12 @@ def create_plate_holder_manually(m, prefs):
         z_correction_x_slope=0,
         z_correction_y_slope=0,
     )
-    meta_data_file_path = get_meta_data_path(prefs)
-    meta_data_format = prefs.get_pref("MetaDataFormat")
-    meta_data_file_object = MetaDataFile(meta_data_file_path, meta_data_format)
-    ph.add_meta_data_file(meta_data_file_object)
 
     print("PlateHolder created")
 
     # create immersion delivery system as part of PlateHolder and add to PlateHolder
-    pumpObject = hardware_control.Pump("Immersion")
-    m.add_microscope_object(pumpObject)
+    pump_object = hardware_components.Pump("Immersion")
+    m.add_microscope_object(pump_object)
 
     # Add pump to plateHolder
     im = ImmersionDelivery(name="Immersion", plate_holder_object=ph, center=[0, 0, 0])
@@ -4892,7 +4852,7 @@ def create_plate_holder_manually(m, prefs):
     c1d5_1 = Cell(
         name="c1d5_1",
         center=[0, 0, 0],
-        colony_oject=c1d5,
+        colony_object=c1d5,
         x_flip=1,
         y_flip=1,
         z_flip=1,
