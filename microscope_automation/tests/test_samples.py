@@ -2025,7 +2025,7 @@ def test_get_add_camera_ids(sample_type, container_type, camera_ids,
 
 @pytest.mark.skipif(skip_all_tests, reason="Exclude all tests")
 @pytest.mark.parametrize(
-    ("add_meta1, get_meta1, add_meta2, get_meta2"),
+    ("add_meta0, get_meta0, add_meta1, get_meta1"),
     [
         (None, None,
          {"aics_imagePosX": 0, "aics_imagePosY": 0, "aics_imagePosZ": 0},
@@ -2037,15 +2037,15 @@ def test_get_add_camera_ids(sample_type, container_type, camera_ids,
           "aics_imagePosZ": 30}),
     ]
 )
-def test_get_add_meta(add_meta1, get_meta1, add_meta2, get_meta2, helpers):
+def test_get_add_meta(add_meta0, get_meta0, add_meta1, get_meta1, helpers):
     img_sys = helpers.setup_local_imaging_system(helpers)
+    img_sys.add_meta(add_meta0)
+    result = img_sys.get_meta()
+    assert result == get_meta0
+
     img_sys.add_meta(add_meta1)
     result = img_sys.get_meta()
     assert result == get_meta1
-
-    img_sys.add_meta(add_meta2)
-    result = img_sys.get_meta()
-    assert result == get_meta2
 
 
 @pytest.mark.skipif(skip_all_tests, reason="Exclude all tests")
@@ -2065,7 +2065,114 @@ def test_get_add_meta_data_file(helpers):
 # Tests for the PlateHolder class
 #
 ###############################################################################
-#
-# def test_get_add_plates()
-#
-# def test_get_add_slides()
+
+
+@pytest.mark.skipif(skip_all_tests, reason="Exclude all tests")
+@pytest.mark.parametrize(
+    ("plate_name0, plate_name1, expected_keys"),
+    [
+        ("test_plate_0", "test_plate_0", ["test_plate_0"]),
+        ("test_plate_0", "test_plate_1", ["test_plate_0", "test_plate_1"]),
+    ]
+)
+def test_get_add_plates(plate_name0, plate_name1, expected_keys, helpers):
+    plate0 = helpers.setup_local_plate(helpers, name=plate_name0)
+    plate1 = helpers.setup_local_plate(helpers, name=plate_name1)
+
+    plate_holder = helpers.setup_local_plate_holder(helpers)
+    plate_holder.add_plates({plate_name0: plate0})
+    plate_holder.add_plates({plate_name1: plate1})
+
+    result = plate_holder.get_plates()
+
+    for plate in result.values():
+        assert plate.__class__ == samples.Plate
+
+    assert list(result.keys()) == expected_keys
+
+
+@pytest.mark.skipif(skip_all_tests, reason="Exclude all tests")
+@pytest.mark.parametrize(
+    ("slide_name0, slide_name1, expected_keys"),
+    [
+        ("test_slide_0", "test_slide_0", ["test_slide_0"]),
+        ("test_slide_0", "test_slide_1", ["test_slide_0", "test_slide_1"]),
+    ]
+)
+def test_get_add_slides(slide_name0, slide_name1, expected_keys, helpers):
+    slide0 = helpers.setup_local_slide(helpers)
+    slide1 = helpers.setup_local_slide(helpers)
+
+    plate_holder = helpers.setup_local_plate_holder(helpers)
+    plate_holder.add_slides({slide_name0: slide0})
+    plate_holder.add_slides({slide_name1: slide1})
+
+    result = plate_holder.get_slides()
+
+    for slide in result.values():
+        assert slide.__class__ == samples.Slide
+
+    assert list(result.keys()) == expected_keys
+
+
+@pytest.mark.skipif(skip_all_tests, reason="Exclude all tests")
+@pytest.mark.parametrize(
+    ("x, y, z, prefs_path, expected"),
+    [
+        (None, None, None, None, "AttributeError"),
+        (None, None, None, "data/preferences_ZSD_test.yml", (0, 0, 500)),
+        (1, 2, 3, None, (1, 2, 3)),
+    ]
+)
+def test_set_plate_holder_pos_to_zero(x, y, z, prefs_path, expected, helpers):
+    if prefs_path:
+        microscope, stage_id, focus_id, autofocus_id, obj_changer_id, safety_id = helpers.microscope_for_samples_testing(helpers, prefs_path)  # noqa
+    else:
+        microscope = None
+        stage_id = None
+        focus_id = None
+
+    plate_holder = helpers.create_sample_object("plate_holder",
+                                                microscope_obj=microscope,
+                                                stage_id=stage_id,
+                                                focus_id=focus_id)
+    try:
+        result = plate_holder.set_plate_holder_pos_to_zero(x, y, z)
+    except Exception as err:
+        result = type(err).__name__
+
+    assert result == expected
+
+
+@pytest.mark.skipif(skip_all_tests, reason="Exclude all tests")
+@pytest.mark.parametrize(
+    ("stage_id_for_func, focus_drive_id_for_func, prefs_path, expected"),
+    [
+        (None, None, None, "AttributeError"),
+        (None, None, "data/preferences_ZSD_test.yml", (0, 0, 500)),
+        ("Marzhauser", "MotorizedFocus",
+         "data/preferences_ZSD_test.yml", (0, 0, 500)),
+        ("InvalidStage", "MotorizedFocus",
+         "data/preferences_ZSD_test.yml", "HardwareDoesNotExistError"),
+    ]
+)
+def test_get_abs_stage_position(stage_id_for_func, focus_drive_id_for_func,
+                                prefs_path, expected, helpers):
+    if prefs_path:
+        microscope, stage_id, focus_id, autofocus_id, obj_changer_id, safety_id = helpers.microscope_for_samples_testing(helpers, prefs_path)  # noqa
+    else:
+        microscope = None
+        stage_id = None
+        focus_id = None
+
+    plate_holder = helpers.create_sample_object("plate_holder",
+                                                microscope_obj=microscope,
+                                                stage_id=stage_id,
+                                                focus_id=focus_id)
+    try:
+        result = plate_holder.get_abs_stage_position(stage_id_for_func,
+                                                     focus_drive_id_for_func)
+    except Exception as err:
+        result = type(err).__name__
+
+    assert result == expected

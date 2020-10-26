@@ -2296,7 +2296,7 @@ class Background(ImagingSystem):
 class PlateHolder(ImagingSystem):
     """Class to describe and navigate Stage.
 
-    A Stage is the superclass for everything that can be imaged on a microscope
+    A PlateHolder is the superclass for everything that can be imaged on a microscope
     (e.g. plates, wells, colonies, cells).
 
     A Stage has it's own coordinate system measured in mum and nows it's position
@@ -2447,11 +2447,7 @@ class PlateHolder(ImagingSystem):
         Output:
          plate_objects: dictionary with plate objects
         """
-        try:
-            plate_objects = self.plates
-        except AttributeError:
-            plate_objects = {}
-        return plate_objects
+        return self.plates
 
     def add_slides(self, slide_object_dict):
         """Adds Slide to PlateHolder.
@@ -2473,24 +2469,17 @@ class PlateHolder(ImagingSystem):
         Output:
          slide_object: dictionary with slide objects
         """
-        try:
-            slide_objects = self.slides
-        except AttributeError:
-            slide_objects = {}
-        return slide_objects
+        return self.slides
 
     def set_plate_holder_pos_to_zero(self, x=None, y=None, z=None):
-        """Set current stage position as zero position for Stage in stage coordinates.
-
-        Superclass for all sample related classes. Handles connection to microscope
-        hardware through Microscope class in module hardware.
+        """Set current stage position as zero position for PlateHolder.
 
         Input:
          x, y, z: optional position in stage coordinates to set as zero position
-         for Stage. If omitted, actual stage position will be used.
+         for PlateHolder. If omitted, actual stage position will be used.
 
         Output:
-         x, y, z: new zero position in stage coordinates
+         x, y, z: new PlateHolder zero position
         """
         if (x is None) or (y is None) or (z is None):
             xStage, yStage, zStage = self.get_corrected_stage_position()
@@ -2501,7 +2490,7 @@ class PlateHolder(ImagingSystem):
         if z is None:
             z = zStage
 
-        self.set_zero(x_zero=x, y_zero=y, z_zero=z)
+        self.set_zero(x, y, z)
         return x, y, z
 
     def get_corrected_stage_position(self, verbose=False):
@@ -2511,8 +2500,7 @@ class PlateHolder(ImagingSystem):
          none
 
         Output:
-         Stage position after centricity correction
-         Focus position after drift corrections (as if no drift occurred)
+         x, y, z: Stage position after centricity correction
         """
         # get position in x and y from stage and z focus drive
         positions_dict = self.get_microscope().get_information([self.stage_id])
@@ -2944,9 +2932,6 @@ class PlateHolder(ImagingSystem):
         self.get_microscope().remove_images()
 
 
-#######################################################
-
-
 class ImmersionDelivery(ImagingSystem):
     """Class for pump and tubing to deliver immersion water to objective."""
 
@@ -3002,58 +2987,8 @@ class ImmersionDelivery(ImagingSystem):
         )
         self.id = name
         self.safety_id = safety_id
-        # self.add_pump(pumpObject)
         # counter will be incremented by self.add_counter
         self.count = 0
-        # Set magnification of lens used with immersion delivery system
-        self.magnification = None
-
-    # def add_pump(self, pumpObject):
-    #     '''Add object for pump that delivers water to immersion delivery system
-    #
-    #     Input:
-    #      pumpObject: object of type pump from module hardware
-    #                  (only one pump per immersion delivery system)
-    #
-    #     Output:
-    #      none
-    #     '''
-    #     self.pump = pumpObject
-    #
-    # def get_pump(self):
-    #     '''Get object for pump that delivers water to immersion delivery system
-    #
-    #     Input:
-    #      none
-    #
-    #     Output:
-    #      pumpObject: object of type pump from module hardware
-    #                  (only one pump per immersion delivery system)
-    #     '''
-    #     return self.pump
-    #
-    # def set_magnification(self, magnification):
-    #     '''Set magnification of lens used with immersion delivery system
-    #
-    #     Input:
-    #      magnification: magnification of objective used with immersion delivery system
-    #
-    #     Output:
-    #      none
-    #     '''
-    #     self.magnification = float(magnification)
-    #
-    # def get_magnification(self):
-    #     '''Get magnification of lens used with immersion delivery system
-    #
-    #     Input:
-    #      none
-    #
-    #     Output:
-    #      magnification: magnification of objective used with immersion delivery
-    #      system as float
-    #     '''
-    #     return self.magnification
 
     def trigger_pump(self):
         """Trigger pump to deliver immersion water.
@@ -3064,7 +2999,7 @@ class ImmersionDelivery(ImagingSystem):
         Output:
          none
         """
-        self.recover_hardware(self.pump.trigger_pump)
+        self.get_microscope().trigger_pump()
 
     def get_water(self, objective_magnification=None, verbose=True, automatic=False):
         """Move objective to water outlet and add drop of water to objective.
@@ -3091,14 +3026,15 @@ class ImmersionDelivery(ImagingSystem):
 
         # Change objective
         if objective_magnification is not None:
-            objective_changer_object = self.get_objective_changer()
+            # objective_changer_object = self.get_objective_changer_id()
             try:
-                objective_changer_object.change_magnification(
-                    objective_magnification,
-                    self,
-                    use_safe_position=True,
-                    verbose=verbose,
-                )
+                self.get_microscope().change_magnification()
+                # objective_changer_object.change_magnification(
+                #     objective_magnification,
+                #     self,
+                #     use_safe_position=True,
+                #     verbose=verbose,
+                # )
             except ObjectiveNotDefinedError as error:
                 message.error_message(
                     'Please switch objective manually.\nError:\n"{}"'.format(
@@ -3154,11 +3090,7 @@ class ImmersionDelivery(ImagingSystem):
         Output:
          count: current counter value
         """
-        try:
-            count = self.count
-        except AttributeError:
-            count = None
-        return count
+        return self.count
 
     def reset_counter(self):
         """Reset counter value to 0.
@@ -3172,17 +3104,17 @@ class ImmersionDelivery(ImagingSystem):
         self.count = 0
         return self.count
 
-    def set_counter_stop_value(self, counterStopValue):
+    def set_counter_stop_value(self, counter_stop_value):
         """Set value to stop counter and trigger pumping of immersion water.
 
         Input:
          none
 
         Output:
-         counterStopValue: current counter stop value
+         counter_stop_value: current counter stop value
         """
-        self.counterStopValue = counterStopValue
-        return self.counterStopValue
+        self.counter_stop_value = counter_stop_value
+        return self.counter_stop_value
 
     def get_counter_stop_value(self):
         """Get value for counter to stop.
@@ -3194,7 +3126,7 @@ class ImmersionDelivery(ImagingSystem):
          counter_stop_value: value for counter to stop
         """
         try:
-            counter_stop_value = self.counterStopValue
+            counter_stop_value = self.counter_stop_value
         except AttributeError:
             counter_stop_value = None
         return counter_stop_value
@@ -3228,9 +3160,6 @@ class ImmersionDelivery(ImagingSystem):
             )
 
         return counter
-
-
-#######################################################
 
 
 class Plate(ImagingSystem):

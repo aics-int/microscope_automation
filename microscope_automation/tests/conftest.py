@@ -291,11 +291,35 @@ class Helpers:
             z_flip=z_flip,
         )
 
+    def setup_local_slide(
+        self,
+        name="Slide",
+        plate_holder_name=None,
+        center=[0, 0, 0],
+        x_flip=1,
+        y_flip=1,
+        z_flip=1,
+    ):
+        """Create Slide object"""
+        if plate_holder_name:
+            plate_holder_object = self.setup_local_plate_holder(self)
+        else:
+            plate_holder_object = None
+
+        return samples.Slide(
+            name=name,
+            center=center,
+            plate_holder_object=plate_holder_object,
+            x_flip=x_flip,
+            y_flip=y_flip,
+            z_flip=z_flip,
+        )
+
     def setup_local_plate(
         self,
         name="Plate",
-        center=[0, 0, 0],
         plate_holder_name=None,
+        center=[0, 0, 0],
         x_flip=1,
         y_flip=1,
         z_flip=1,

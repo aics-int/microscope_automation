@@ -12,6 +12,7 @@ from ..automation_exceptions import (
     HardwareError,
     AutofocusError,
     HardwareCommandNotDefinedError,
+    HardwareDoesNotExistError,
     LoadNotDefinedError,
     CrashDangerError,
 )
@@ -192,6 +193,70 @@ class BaseMicroscope(object):
         communication_object = self._get_control_software().connection
 
         return focus_drive_object.goto_load(communication_object)
+
+    def add_control_software(self, control_software_object):
+        """Add object that connects this code to the  vendor specific microscope
+        control code to Microscope.
+
+        Input:
+         controlSoftwareObject: single object connecting to vendor software
+
+        Output:
+         none
+        """
+        hardware_components.log_method(self, "add_control_software")
+        self.__control_software = control_software_object
+
+    def _get_control_software(self):
+        """Returns object that connects this code to the vendor specific
+         microscope control code to Microscope.
+
+        Input:
+         none
+
+        Output:
+         controlSoftwareObject: single object connecting to vendor software
+
+        """
+        hardware_components.log_method(self, "_get_control_software")
+        return self.__control_software
+
+    def add_microscope_object(self, component_objects):
+        """Add component to microscope.
+
+        Input:
+         component_objects: object of a component class (e.g. Stage, Camera)
+         or list of component classes
+
+        Output:
+         none
+        """
+        if not isinstance(component_objects, list):
+            component_objects = [component_objects]
+
+        for component_object in component_objects:
+            if isinstance(component_object, hardware_components.MicroscopeComponent):
+                self.microscope_components_ordered_dict[
+                    component_object.get_id()
+                ] = component_object
+                # attach microscope to let component know to what microscope it belongs
+                component_object.microscope = self
+
+    def _get_microscope_object(self, component_id):
+        """Get component of microscope.
+
+        Input:
+         component_id: Unique string id for microscope component
+
+        Output:
+         component_object: object of a component class (e.g. Stage, Camera)
+         or list of component classes
+        """
+        # Test if component exists.
+        # If component does note exist raise exeption
+        if component_id not in list(self.microscope_components_ordered_dict.keys()):
+            raise HardwareDoesNotExistError(error_component=component_id)
+        return self.microscope_components_ordered_dict[component_id]
 
     def get_load_position(self, focus_drive_id):
         """Get load position of focus drive.
