@@ -1939,7 +1939,7 @@ class AutoFocus(MicroscopeComponent):
     def recall_focus(
         self,
         communication_object,
-        reference_object_id,
+        reference_object_id=None,
         verbose=False,
         pre_set_focus=True,
     ):

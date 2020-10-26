@@ -17,10 +17,42 @@ Docs: https://docs.pytest.org/en/latest/example/simple.html
 """
 
 import pytest
+import numpy as np
+from microscope_automation.image_AICS import ImageAICS
 import microscope_automation.hardware.setup_microscope as setup_microscope
 import microscope_automation.preferences as preferences
 import microscope_automation.hardware.hardware_components as h_comp
 import microscope_automation.samples.samples as samples
+
+
+@pytest.fixture
+def test_image_all_black():
+    """A 5x5 all black image of class ImageAICS"""
+    shape = np.arange(25).reshape(5, 5)
+    data = np.ones_like(shape)
+    meta = {
+        "aics_imageObjectPosX": 0,
+        "aics_imageObjectPosY": 1,
+        "aics_imageObjectPosZ": 0.0,
+        "Type": int,
+    }
+
+    return ImageAICS(data=data, meta=meta)
+
+
+@pytest.fixture
+def test_image_all_white():
+    """A 5x5 all white image of class ImageAICS"""
+    shape = np.arange(25).reshape(5, 5)
+    data = np.zeros_like(shape)
+    meta = {
+        "aics_imageObjectPosX": 1,
+        "aics_imageObjectPosY": 0,
+        "aics_imageObjectPosZ": 0.0,
+        "Type": int,
+    }
+
+    return ImageAICS(data=data, meta=meta)
 
 
 class Helpers:
@@ -199,6 +231,7 @@ class Helpers:
         auto_focus_id=None,
         objective_changer_id=None,
         safety_id=None,
+        camera_ids=[],
     ):
         """Create ImagingSystem object"""
         if prefs_path:
@@ -225,6 +258,7 @@ class Helpers:
             auto_focus_id=auto_focus_id,
             objective_changer_id=objective_changer_id,
             safety_id=safety_id,
+            camera_ids=camera_ids,
         )
 
     def setup_local_well(
@@ -289,6 +323,7 @@ class Helpers:
         focus_id=None,
         objective_changer_id=None,
         safety_id=None,
+        camera_ids=[],
         center=[0, 0, 0],
         x_flip=1,
         y_flip=1,
@@ -308,6 +343,7 @@ class Helpers:
             focus_id=focus_id,
             objective_changer_id=objective_changer_id,
             safety_id=safety_id,
+            camera_ids=camera_ids,
             x_flip=x_flip,
             y_flip=y_flip,
             z_flip=z_flip,
@@ -350,7 +386,8 @@ class Helpers:
     def create_sample_object(sample_type, container=None,
                              microscope_obj=None, stage_id=None, focus_id=None,
                              autofocus_id=None, obj_changer_id=None,
-                             safety_id=None, ref_obj=None, immersion_delivery=None):
+                             camera_ids=[], safety_id=None, ref_obj=None,
+                             immersion_delivery=None):
         """Create an object of the type passed in, e.g. PlateHolder or Well.
 
         This method is usually used for simple objects, whereas the other
@@ -363,6 +400,7 @@ class Helpers:
                                       focus_id=focus_id,
                                       objective_changer_id=obj_changer_id,
                                       safety_id=safety_id,
+                                      camera_ids=camera_ids,
                                       immersion_delivery=immersion_delivery)
         elif sample_type == "plate":
             obj = samples.Plate(plate_holder_object=container)
@@ -378,6 +416,7 @@ class Helpers:
                                         focus_id=focus_id,
                                         objective_changer_id=obj_changer_id,
                                         safety_id=safety_id,
+                                        camera_ids=camera_ids,
                                         reference_object=ref_obj,)
         elif sample_type == "colony":
             obj = samples.Colony(well_object=container)
@@ -390,6 +429,11 @@ class Helpers:
         self,
         prefs_path="data/preferences_ZSD_test.yml"
     ):
+        """Create a microscope object with a number of components already attached.
+
+        This is useful for initializing a microscope to attach to objects from
+        samples.py
+        """
         stage_id = "Marzhauser"
         focus_id = "MotorizedFocus"
         max_load_position = 500
@@ -452,4 +496,7 @@ class Helpers:
 
 @pytest.fixture
 def helpers():
+    """Class containing a number of helper functions for testing the
+    microscope_automation package.
+    """
     return Helpers

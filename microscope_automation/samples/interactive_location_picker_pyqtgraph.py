@@ -315,7 +315,7 @@ def test_ImageLocationPicker(prefs, image_save_path, app, verbose=False):
         prefs, microscope_object=microscope_object
     )
     # get slide object, we will need object coordinates for reference correction to work
-    slide_object = plate_holder_object.get_slide()
+    slide_object = next(iter(plate_holder_object.get_slides().values()))
 
     # switch to live mode with 20 x and select position
     microscope_object.live_mode(

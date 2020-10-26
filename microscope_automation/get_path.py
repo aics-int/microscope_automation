@@ -18,27 +18,30 @@ from .preferences import Preferences
 pref_path = None
 
 
-def add_suffix(filePath, suffix):
+def add_suffix(file_path, suffix):
     """Add suffix to end of file name.
 
     Input:
-     filePath: path to file name
+     file_path: path to file name
      suffix: suffix to put between end of filename and file extension
 
     Output:
-     newFilePath: filePath with suffix
+     new_file_path: file_path with suffix
     """
-    split_path = os.path.splitext(filePath)
-    newFilePath = split_path[0] + "_" + suffix + split_path[1]
-    return newFilePath
+    split_path = os.path.splitext(file_path)
+    new_file_path = split_path[0] + "_" + suffix + split_path[1]
+    return new_file_path
 
 
 def set_pref_file(prefs):
     """
     Set the preferences file location for the application during runtime
     TODO: This should be an object
-    :param prefs: file location
-    :return:
+    Input:
+     prefs: file location
+
+    Output:
+     none
     """
     global pref_path
     pref_path = prefs
@@ -79,10 +82,8 @@ def get_valid_path_from_prefs(prefs, key, search_dir=True, validate=False):
                 if os.path.isfile(path):
                     return_path = path
                     break
-    assert len(return_path), "No valid path found in preferences for key: " + key
-    return return_path
     if validate:
-        assert return_path is not None, (
+        assert return_path is not None and len(return_path), (
             "No valid path found in preferences for key: " + key
         )
     return return_path
@@ -119,7 +120,7 @@ def get_daily_folder(prefs, barcode=None):
      barcode: Use the plate barcode to make the folder
 
     Output:
-     folderPath: path to daily folder. No '/' at end.
+     daily_path: path to daily folder. No '/' at end.
     """
     # Add the microscope name level in the folder structure to
     # make it more aligned with pipeline & FMS standard
@@ -130,33 +131,35 @@ def get_daily_folder(prefs, barcode=None):
     if barcode is None:
         # get today's date and construct folder name
         today = date.today()
-        folderName = str(today.year) + "_" + str(today.month) + "_" + str(today.day)
+        folder_name = str(today.year) + "_" + str(today.month) + "_" + str(today.day)
     else:
-        folderName = str(barcode)
+        folder_name = str(barcode)
 
     # find path to daily folder. Should reside in settings file.
     # read list with possible paths for daily folder from preferences.yml
-    dailyFolder = get_valid_path_from_prefs(prefs, "PathDailyFolder")
-    dailyPath = os.path.normpath(os.path.join(dailyFolder, folderName, microscope_name))
+    daily_folder = get_valid_path_from_prefs(prefs, "PathDailyFolder")
+    daily_path = os.path.normpath(os.path.join(daily_folder, folder_name,
+                                               microscope_name))
 
     # test if folder exists, if not, create folder
-    if not os.path.isdir(dailyPath):
-        os.makedirs(dailyPath)
-    global daily_folder_path
-    daily_folder_path = dailyPath
-    return dailyPath
+    if not os.path.isdir(daily_path):
+        os.makedirs(daily_path)
+    return daily_path
 
 
-def get_position_csv_path(prefs):
+def get_position_csv_path(prefs, barcode=None):
     """Function to get the file path for the csv files where
     all the positions are stored after segmentation.
 
     Input:
      prefs: preferences
 
+     barcode: Use the plate barcode to make the folder
+
     Output:
-     return: filepaths for the files
+     paths: file paths for the files
     """
+    daily_folder_path = get_daily_folder(prefs, barcode)
     # 1. To store the list of positions in the format specific
     # to Zen Blue software for 100X imaging.
     filename_pos = Path(prefs.get_pref("PositionCsv"))
@@ -191,15 +194,18 @@ def get_log_file_path(prefs):
     return log_file_path
 
 
-def get_meta_data_path(prefs):
+def get_meta_data_path(prefs, barcode=None):
     """Return path for meta data.
 
     Input:
      prefs: Dictionary with preferences
 
+     barcode: Use the plate barcode to make the folder
+
     Output:
      meta_data_file: path to log file
     """
+    daily_folder_path = get_daily_folder(prefs, barcode)
     meta_data_file = os.path.normpath(
         os.path.join(daily_folder_path, prefs.get_pref("MetaDataPath"))
     )
@@ -248,7 +254,6 @@ def get_prefs_path():
     Output:
      prefsFile: path to preferences file
     """
-
     return pref_path
 
 
@@ -273,25 +278,29 @@ def get_recovery_settings_path(prefs):
     return file_path
 
 
-def get_colony_dir_path(prefs):
+def get_colony_dir_path(prefs, barcode=None):
     """Return path to directory with .csv file with colony positions and features.
 
     Input:
      prefs: Dictionary with preferences
 
+     barcode: Use the plate barcode to make the folder
+
     Output:
      colonyDir: path to log file
     """
+    daily_folder_path = get_daily_folder(prefs, barcode)
+
     colony_dir_path = prefs.get_pref("colony_dir_path")
     if colony_dir_path is None:
         colony_dir_path = ""
 
-    folderPath = os.path.normpath(os.path.join(daily_folder_path, colony_dir_path))
+    folder_path = os.path.normpath(os.path.join(daily_folder_path, colony_dir_path))
     # test if folder exists, if not, create folder
-    if not os.path.isdir(folderPath):
-        os.makedirs(folderPath)
+    if not os.path.isdir(folder_path):
+        os.makedirs(folder_path)
 
-    return folderPath
+    return folder_path
 
 
 def get_colony_remote_dir_path(prefs):
@@ -319,6 +328,7 @@ def get_colony_file_path(prefs, colony_file):
 
     Input:
      prefs: Dictionary with preferences
+
      colony_file: path to .csv file with colony data
 
     Output:
@@ -344,15 +354,18 @@ def get_hardware_settings_path(prefs):
     )
 
 
-def get_references_path(prefs):
+def get_references_path(prefs, barcode=None):
     """Return path to directory for reference images. Create directory if not available
 
     Input:
      prefs: Dictionary with preferences
 
+     barcode: Use the plate barcode to make the folder
+
     Output:
      references_path: path to directory for reference images for specific well
     """
+    daily_folder_path = get_daily_folder(prefs, barcode)
     references_path = os.path.normpath(
         os.path.join(daily_folder_path, prefs.get_pref("ReferenceDirPath"))
     )
@@ -362,15 +375,18 @@ def get_references_path(prefs):
     return references_path
 
 
-def get_images_path(prefs, sub_dir=None):
+def get_images_path(prefs, sub_dir=None, barcode=None):
     """Return path to directory for images. Create directory if not available
 
     Input:
      sub_dir: Sub-directory for images. Will create folder with this name
 
+     barcode: Use the plate barcode to make the folder
+
     Output:
      references_path: path to directory for reference images for specific well
     """
+    daily_folder_path = get_daily_folder(prefs, barcode)
     if sub_dir:
         references_path = os.path.join(daily_folder_path, sub_dir)
     else:

@@ -629,7 +629,7 @@ def setup_slide(prefs, microscope_object=None):
         name="Reference", plate_holder_object=slide_object, center=[0, 0, 0]
     )
     slide_object.set_reference_object(reference_object)
-    plate_holder_object.add_slide(slide_object)
+    plate_holder_object.add_slides({slide_name: slide_object})
     return plate_holder_object
 
 

@@ -50,6 +50,9 @@ coverage.xml
 .hypothesis/
 .pytest_cache/
 
+# Test Outputs
+2020_10_26/
+
 # Translations
 *.mo
 *.pot

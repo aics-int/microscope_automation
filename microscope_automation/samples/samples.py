@@ -240,7 +240,6 @@ class ImagingSystem(object):
          None
         """
         self.samples = {}
-        self.images = []
         self.set_name(name)
 
         # object self is part of, is contained in
@@ -1460,18 +1459,21 @@ class ImagingSystem(object):
             focus_reference_obj, trials=trials, verbose=verbose
         )
 
-    def recall_focus(self, camera_id, experiment):
-        """Find stored focus position as offset from coverslip.
+    def recall_focus(self, auto_focus_id, pre_set_focus=True):
+        """Find difference between stored focus position and actual autofocus position.
+        Recall focus will move the focus drive to it's stored position.
 
         Input:
-         camera_id: sting with camera ID for experiment
+         auto_focus_id: string of ID for autofocus to use
 
-         experiment: string with experiment name as defined in microscope software.
+         pre_set_focus: Move focus to previous auto-focus position.
+         This makes definite focus more robust
 
         Output:
-         z: position of focus drive after recall focus
+         delta_z: difference between stored z position of focus drive
+         and position after recall focus
         """
-        return self.container.recall_focus(camera_id, experiment)
+        return self.container.recall_focus(auto_focus_id, pre_set_focus)
 
     def live_mode_start(self, camera_id, experiment):
         """Start live mode in microscope software.
@@ -1876,10 +1878,11 @@ class ImagingSystem(object):
          images: list of images.
         """
         if load:
-            for image_name, image_object in self.images:
+            for (image_name, image_object) in self.image_dict.items():
                 if image_object.data is None:
-                    self.load_image(image_object, get_meta=get_meta)
-        return self.images
+                    self.image_dict[image_name] = self.load_image(image_object,
+                                                                  get_meta=get_meta)
+        return self.image_dict
 
     def background_correction(self, uncorrected_image, settings):
         """Correct background using background images attached to object
@@ -2196,11 +2199,7 @@ class ImagingSystem(object):
         Output:
          meta_dict: dictionary with meta data
         """
-        try:
-            meta_dict = self.meta_dict
-        except AttributeError:
-            meta_dict = None
-        return meta_dict
+        return self.meta_dict
 
     def add_meta_data_file(self, meta_data_file_object):
         """Add object that handles saving of meta data to disk.
@@ -2317,7 +2316,7 @@ class PlateHolder(ImagingSystem):
         objective_changer_id=None,
         safety_id=None,
         immersion_delivery=None,
-        camera_id_list=[],
+        camera_ids=[],
         center=[0, 0, 0],
         x_flip=1,
         y_flip=1,
@@ -2366,6 +2365,7 @@ class PlateHolder(ImagingSystem):
          none
         """
         self.immersion_delivery_system = immersion_delivery
+        self.slides = {}
         self.plates = {}  # will hold plate objects
         super(PlateHolder, self).__init__(
             container=None,
@@ -2390,6 +2390,7 @@ class PlateHolder(ImagingSystem):
             auto_focus_id=auto_focus_id,
             objective_changer_id=objective_changer_id,
             safety_id=safety_id,
+            camera_ids=camera_ids,
         )
 
     def get_microscope(self):
@@ -2401,11 +2402,18 @@ class PlateHolder(ImagingSystem):
         Output:
          microscope_object: object of class Microscope from module hardware
         """
-        try:
-            microscope_object = self.microscope
-        except AttributeError:
-            microscope_object = None
-        return microscope_object
+        return self.microscope
+
+    def get_camera_ids(self):
+        """Return a list of camera objects associated with this sample
+
+        Input:
+         none
+
+        Output:
+         camera_ids: list of objects of class Camera
+        """
+        return self.camera_ids
 
     def get_immersion_delivery_system(self):
         """Return object that describes immersion water delivery system for
@@ -2423,7 +2431,7 @@ class PlateHolder(ImagingSystem):
         """Adds Plate to Stage.
 
         Input:
-         name: string with unique name of plate
+         plate_object_dict: dictionary of the form {"name": plate_object}
 
         Output:
          none
@@ -2431,45 +2439,45 @@ class PlateHolder(ImagingSystem):
         self.plates.update(plate_object_dict)
 
     def get_plates(self):
-        """Return list will all plate_objects associated with plateholder.
+        """Return dictionary of all plate_objects associated with plateholder.
 
         Input:
          none
 
         Output:
-         plate_objects: list with plate objects
+         plate_objects: dictionary with plate objects
         """
         try:
             plate_objects = self.plates
         except AttributeError:
-            plate_objects = []
+            plate_objects = {}
         return plate_objects
 
-    def add_slide(self, slide_object):
+    def add_slides(self, slide_object_dict):
         """Adds Slide to PlateHolder.
 
         Input:
-         slide_object: object of class slide
+         slide_object_dict:dictionary of the form {"name": slide_object}
 
         Output:
          none
         """
-        self.slide = slide_object
+        self.slides.update(slide_object_dict)
 
-    def get_slide(self):
+    def get_slides(self):
         """Return Slide object attached to PlateHolder
 
         Input:
          none
 
         Output:
-         slide_object: Slide object
+         slide_object: dictionary with slide objects
         """
         try:
-            slide_object = self.slide
+            slide_objects = self.slides
         except AttributeError:
-            slide_object = []
-        return slide_object
+            slide_objects = {}
+        return slide_objects
 
     def set_plate_holder_pos_to_zero(self, x=None, y=None, z=None):
         """Set current stage position as zero position for Stage in stage coordinates.
@@ -2806,6 +2814,24 @@ class PlateHolder(ImagingSystem):
             image = self.save_image(file_path, camera_id, image)
         return image
 
+    def recall_focus(self, auto_focus_id, pre_set_focus=True):
+        """Find difference between stored focus position and actual autofocus position.
+        Recall focus will move the focus drive to it's stored position.
+
+        Input:
+         auto_focus_id: string of ID for autofocus to use
+
+         pre_set_focus: Move focus to previous auto-focus position.
+         This makes definite focus more robust
+
+        Output:
+          delta_z: difference between stored z position of focus drive
+          and position after recall focus
+        """
+        return self.microscope.recall_focus(auto_focus_id,
+                                            reference_object_id=self.get_name(),
+                                            pre_set_focus=pre_set_focus)
+
     def live_mode_start(self, camera_id, experiment=None):
         """Start live mode in microscope software.
 
@@ -2816,7 +2842,7 @@ class PlateHolder(ImagingSystem):
          If None use actual experiment.
 
         Output:
-          None
+          none
         """
         # Use an instance of a Camera from module hardware.
         # The method starts live mode for adjustments in the software.
@@ -4067,7 +4093,7 @@ class Sample(ImagingSystem):
             z_correction_x_slope=z_correction_x_slope,
             z_correction_y_slope=z_correction_y_slope,
         )
-        self.microscope_object = self.well_object.microscope_object
+        self.microscope = self.well_object.microscope
         self.well = self.well_object.name
         self.plate_layout = self.well_object.plate_layout
         self.stageID = self.well_object.stageID

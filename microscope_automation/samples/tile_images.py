@@ -92,12 +92,18 @@ def _tile_hard_any_shape(images, tile_metadata):
     )
 
     # calibrate pixel size, assuming that individual tiles are flush to each other
-    scaling_x = (max(positions_x) - min(positions_x)) / (
-        number_pixels_x * (number_tiles_x - 1)
-    )
-    scaling_y = (max(positions_y) - min(positions_y)) / (
-        number_pixels_y * (number_tiles_y - 1)
-    )
+    if number_tiles_x == 1:
+        scaling_x = 1
+    else:
+        scaling_x = (max(positions_x) - min(positions_x)) / (
+            number_pixels_x * (number_tiles_x - 1)
+        )
+    if number_tiles_y == 1:
+        scaling_y = 1
+    else:
+        scaling_y = (max(positions_y) - min(positions_y)) / (
+            number_pixels_y * (number_tiles_y - 1)
+        )
     offset_x = min(positions_x) / scaling_x
     offset_y = min(positions_y) / scaling_y
 
@@ -126,7 +132,7 @@ def _tile_hard_any_shape(images, tile_metadata):
         y_high = max(
             container_pixels_y - yPos, container_pixels_y - yPos - image_pixels_y
         )
-        tiles_container[xPos : xPos + image_pixels_x, y_low:y_high, :] = data
+        tiles_container[xPos:xPos + image_pixels_x, y_low:y_high, :] = data
 
     return_image = ImageAICS(data=tiles_container, meta=tile_metadata)
     # Returns tiled image plus borders for segmentation if necessary

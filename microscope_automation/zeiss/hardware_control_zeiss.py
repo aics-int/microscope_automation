@@ -1503,6 +1503,28 @@ class SpinningDiskZeiss(BaseMicroscope):
         except AutomationError as error:
             self.recover_hardware(error)
 
+    def recall_focus(self, auto_focus_id, reference_object_id=None,
+                     pre_set_focus=True):
+        """Find difference between stored focus position and actual autofocus position.
+        Recall focus will move the focus drive to it's stored position.
+
+        Input:
+         auto_focus_id: string id for camera
+
+         reference_object_id: name of ZEN experiment (default = None)
+
+         pre_set_focus: Move focus to previous auto-focus position.
+         This makes definite focus more robust
+
+        Output:
+         delta_z: difference between stored z position of focus drive
+         and position after recall focus
+        """
+        communication_object = self._get_control_software().connection
+        autofocus = self._get_microscope_object(auto_focus_id)
+        return autofocus.recall_focus(communication_object, reference_object_id,
+                                      pre_set_focus=pre_set_focus)
+
     def save_image(self, file_path, image, interactive=False):
         """Save last Microscope ImageAICS taken from within Microscope software.
         Methods adds file_path to meta data.
