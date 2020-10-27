@@ -1269,6 +1269,8 @@ class ObjectiveChanger(MicroscopeComponent):
         """Change to objective with given magnification.
 
         Input:
+         communication_object: object that connects to microscope specific software
+
          magnification: magnification of selected objective as float.
          Not well defined if multiple objectives with identical magnification exist.
 

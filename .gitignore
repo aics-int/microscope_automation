@@ -51,7 +51,8 @@ coverage.xml
 .pytest_cache/
 
 # Test Outputs
-2020_10_26/
+microscope_automation/tests/2020_*
+microscope_automation/tests/2021_*
 
 # Translations
 *.mo

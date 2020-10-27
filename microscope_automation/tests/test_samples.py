@@ -326,7 +326,7 @@ def test_get_set_name(name_get, name_set, repr, helpers):
 @pytest.mark.parametrize(
     ("location_list, expected"), [(None, "TypeError"), ([], []), ([(1, 2)], [(1, 0)])]
 )
-def test_set_interactive_positions_img_system(
+def test_set_interactive_positions(
     mock0, mock1, location_list, expected, helpers
 ):
     img_sys = helpers.setup_local_imaging_system(helpers)
@@ -385,7 +385,7 @@ def test_get_set_ref_position(
         ("test_sys", "test_sample"),
     ],
 )
-def test_add_samples_img_sys(img_sys_name, sample_obj_name, helpers):
+def test_add_samples(img_sys_name, sample_obj_name, helpers):
     sample_obj = helpers.setup_local_imaging_system(helpers, name=sample_obj_name)
     img_sys = helpers.setup_local_imaging_system(helpers, name=img_sys_name)
 
@@ -402,7 +402,7 @@ def test_add_samples_img_sys(img_sys_name, sample_obj_name, helpers):
         ("test_sys", "test_well", "test_well"),
     ],
 )
-def test_get_well_object_img_sys(img_sys_name, well_obj_name, expected, helpers):
+def test_get_well_object(img_sys_name, well_obj_name, expected, helpers):
     if well_obj_name:
         well_obj = helpers.setup_local_well(helpers, name=well_obj_name)
     else:
@@ -481,21 +481,22 @@ def test_add_to_get_from_image_dir(list_name, sample_object_types, position,
 @pytest.mark.parametrize(
     ("plate_obj_name, barcode, expected"),
     [
-        (None, None, "AttributeError"),
+        (None, "1234", "AttributeError"),
         ("test_plate", None, None),
         ("test_plate", "1234", "1234"),
     ],
 )
-def test_get_set_barcode_img_sys(plate_obj_name, barcode, expected, helpers):
+def test_get_set_barcode(plate_obj_name, barcode, expected, helpers):
     if plate_obj_name:
-        well_obj = helpers.setup_local_plate(helpers, name=plate_obj_name)
+        plate_obj = helpers.setup_local_plate(helpers, name=plate_obj_name)
     else:
-        well_obj = None
+        plate_obj = None
 
     try:
-        img_sys = helpers.setup_local_imaging_system(helpers, container=well_obj)
+        img_sys = helpers.setup_local_imaging_system(helpers, container=plate_obj)
 
-        img_sys.set_barcode(barcode)
+        if barcode is not None:
+            img_sys.set_barcode(barcode)
         result = img_sys.get_barcode()
     except Exception as err:
         result = type(err).__name__
@@ -2176,3 +2177,248 @@ def test_get_abs_stage_position(stage_id_for_func, focus_drive_id_for_func,
         result = type(err).__name__
 
     assert result == expected
+
+###############################################################################
+#
+# Tests for the ImmersionDelivery class
+#
+###############################################################################
+
+
+@pytest.mark.skipif(skip_all_tests, reason="Exclude all tests")
+@pytest.mark.parametrize(
+    ("prefs_path, set_pump_id, func_pump_id, expected"),
+    [
+        (None, None, None, "AttributeError"),
+        ("data/preferences_ZSD_test.yml", "BraintreeScientific", None, None),
+        ("data/preferences_ZSD_test.yml", "BraintreeScientific",
+         "BraintreeScientific", None)
+    ]
+)
+def test_trigger_pump(prefs_path, set_pump_id, func_pump_id, expected, helpers):
+    immersion_deliv = helpers.setup_local_immersion_delivery(helpers,
+                                                             pump_id=set_pump_id,
+                                                             prefs_path=prefs_path)
+    if prefs_path:
+        immersion_deliv.get_microscope().add_microscope_object(
+            helpers.setup_local_pump(set_pump_id)
+        )
+
+    try:
+        result = immersion_deliv.trigger_pump(func_pump_id)
+    except Exception as err:
+        result = type(err).__name__
+
+    assert result == expected
+
+
+@patch("microscope_automation.automation_messages_form_layout.operate_message")
+@patch("microscope_automation.automation_messages_form_layout.error_message")
+@patch(
+    "microscope_automation.zeiss.hardware_control_zeiss.SpinningDiskZeiss.recover_hardware"  # noqa
+)
+@patch("microscope_automation.hardware.hardware_components.Safety.show_safe_areas")
+@pytest.mark.skipif(skip_all_tests, reason="Exclude all tests")
+@pytest.mark.parametrize(
+    ("container_type, prefs_path, set_pump_id, magnification, func_pump_id, "
+     "automatic, expected"),
+    [
+        (None, None, None, None, None, False, "AttributeError"),
+        ("plate_holder", "data/preferences_ZSD_test.yml", "BraintreeScientific",
+         "", None, True, None),
+        ("plate_holder", "data/preferences_ZSD_test.yml", "BraintreeScientific",
+         "test", "BraintreeScientific", True, None),
+        ("plate_holder", "data/preferences_ZSD_test.yml", "BraintreeScientific",
+         "test", "BraintreeScientific", False, None),
+    ]
+)
+def test_get_water(mock_show, mock_recover, mock_error, mock_operate,
+                   container_type, prefs_path, set_pump_id, magnification,
+                   func_pump_id, automatic, expected, helpers):
+    if prefs_path:
+        microscope, stage_id, focus_id, autofocus_id, obj_changer_id, safety_id = helpers.microscope_for_samples_testing(helpers, prefs_path)  # noqa
+    else:
+        microscope = None
+        safety_id = None
+        autofocus_id = None
+        obj_changer_id = None
+        stage_id = None
+        focus_id = None
+
+    if container_type:
+        container = helpers.create_sample_object(container_type,
+                                                 microscope_obj=microscope,
+                                                 autofocus_id=autofocus_id,
+                                                 safety_id=safety_id,
+                                                 stage_id=stage_id,
+                                                 obj_changer_id=obj_changer_id,
+                                                 focus_id=focus_id)
+    else:
+        container = None
+
+    immersion_deliv = helpers.create_sample_object(
+        "immersion_deliv",
+        container=container,
+        microscope_obj=microscope,
+        pump_id=set_pump_id,
+        safety_id=safety_id
+    )
+
+    if prefs_path:
+        immersion_deliv.get_microscope().add_microscope_object(
+            helpers.setup_local_pump(set_pump_id)
+        )
+
+    try:
+        result = immersion_deliv.get_water(
+            objective_magnification=magnification,
+            pump_id=func_pump_id,
+            automatic=automatic)
+    except Exception as err:
+        result = type(err).__name__
+
+    assert result == expected
+
+
+@pytest.mark.skipif(skip_all_tests, reason="Exclude all tests")
+@pytest.mark.parametrize(
+    ("expected0, increment1, expected1, increment2, expected2, reset, expected3"),
+    [
+        (0, 0, 0, -1, -1, True, 0),
+        (0, None, 1, 2, 3, False, 3),
+        (0, 1, 1, 1, 2, True, 0),
+    ]
+)
+def test_get_add_reset_counter(expected0, increment1, expected1, increment2,
+                               expected2, reset, expected3, helpers):
+    immersion_deliv = helpers.setup_local_immersion_delivery(helpers)
+
+    assert immersion_deliv.get_counter() == expected0
+
+    if increment1 is not None:
+        immersion_deliv.add_counter(increment1)
+    else:
+        immersion_deliv.add_counter()
+    assert immersion_deliv.get_counter() == expected1
+
+    if increment2 is not None:
+        immersion_deliv.add_counter(increment2)
+    else:
+        immersion_deliv.add_counter()
+    assert immersion_deliv.get_counter() == expected2
+
+    if reset:
+        immersion_deliv.reset_counter()
+
+    assert immersion_deliv.get_counter() == expected3
+
+
+@pytest.mark.skipif(skip_all_tests, reason="Exclude all tests")
+@pytest.mark.parametrize(
+    ("get_val0, set_val1, get_val1"),
+    [
+        (None, None, None),
+        (None, 3, 3),
+    ]
+)
+def test_get_set_counter_stop_value(get_val0, set_val1, get_val1, helpers):
+    immersion_deliv = helpers.setup_local_immersion_delivery(helpers)
+
+    assert immersion_deliv.get_counter_stop_value() == get_val0
+
+    immersion_deliv.set_counter_stop_value(set_val1)
+    assert immersion_deliv.get_counter_stop_value() == get_val1
+
+
+@pytest.mark.skipif(skip_all_tests, reason="Exclude all tests")
+@pytest.mark.parametrize(
+    ("set_counter_val, container_type, prefs_path, set_pump_id, magnification,"
+     " func_pump_id, increment, automatic, expected"),
+    [
+        (None, "plate_holder", "data/preferences_ZSD_test.yml", "BraintreeScientific",
+         "", None, 2, True, "TypeError"),
+        (1, "plate_holder", "data/preferences_ZSD_test.yml", "BraintreeScientific",
+         "", None, 1, True, 1),
+        (3, "plate_holder", "data/preferences_ZSD_test.yml", "BraintreeScientific",
+         "", None, 2, True, 4),
+    ]
+)
+def test_count_and_get_water(set_counter_val, container_type, prefs_path,
+                             set_pump_id, magnification, func_pump_id, increment,
+                             automatic, expected, helpers):
+    if prefs_path:
+        microscope, stage_id, focus_id, autofocus_id, obj_changer_id, safety_id = helpers.microscope_for_samples_testing(helpers, prefs_path)  # noqa
+    else:
+        microscope = None
+        safety_id = None
+        autofocus_id = None
+        obj_changer_id = None
+        stage_id = None
+        focus_id = None
+
+    if container_type:
+        container = helpers.create_sample_object(container_type,
+                                                 microscope_obj=microscope,
+                                                 autofocus_id=autofocus_id,
+                                                 safety_id=safety_id,
+                                                 stage_id=stage_id,
+                                                 obj_changer_id=obj_changer_id,
+                                                 focus_id=focus_id)
+    else:
+        container = None
+
+    immersion_deliv = helpers.create_sample_object(
+        "immersion_deliv",
+        container=container,
+        microscope_obj=microscope,
+        pump_id=set_pump_id,
+        safety_id=safety_id
+    )
+    immersion_deliv.set_counter_stop_value(set_counter_val)
+
+    if prefs_path:
+        immersion_deliv.get_microscope().add_microscope_object(
+            helpers.setup_local_pump(set_pump_id)
+        )
+
+    try:
+        result = immersion_deliv.count_and_get_water(
+            objective_magnification=magnification,
+            pump_id=func_pump_id,
+            increment=increment,
+            verbose=False,
+            automatic=automatic)
+    except Exception as err:
+        result = type(err).__name__
+
+    assert result == expected
+
+###############################################################################
+#
+# Tests for the Plate class
+#
+###############################################################################
+
+
+@pytest.mark.skipif(skip_all_tests, reason="Exclude all tests")
+@pytest.mark.parametrize(
+    ("well_name0, well_name1, expected_keys"),
+    [
+        ("test_well_0", "test_well_0", ["test_well_0"]),
+        ("test_well_0", "test_well_1", ["test_well_0", "test_well_1"]),
+    ]
+)
+def test_get_add_wells(well_name0, well_name1, expected_keys, helpers):
+    well0 = helpers.setup_local_well(helpers, name=well_name0)
+    well1 = helpers.setup_local_well(helpers, name=well_name1)
+
+    plate = helpers.setup_local_plate(helpers)
+    plate.add_wells({well_name0: well0})
+    plate.add_wells({well_name1: well1})
+
+    result = plate.get_wells()
+
+    for well in result.values():
+        assert well.__class__ == samples.Well
+
+    assert list(result.keys()) == expected_keys

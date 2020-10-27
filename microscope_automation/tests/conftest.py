@@ -379,6 +379,7 @@ class Helpers:
         plate_holder_name=None,
         prefs_path=None,
         safety_id=None,
+        pump_id=None,
         center=[0, 0, 0],
         x_flip=1,
         y_flip=1,
@@ -401,6 +402,7 @@ class Helpers:
             center=center,
             microscope_object=microscope_object,
             safety_id=safety_id,
+            pump_id=pump_id,
             x_flip=x_flip,
             y_flip=y_flip,
             z_flip=z_flip,
@@ -410,8 +412,8 @@ class Helpers:
     def create_sample_object(sample_type, container=None,
                              microscope_obj=None, stage_id=None, focus_id=None,
                              autofocus_id=None, obj_changer_id=None,
-                             camera_ids=[], safety_id=None, ref_obj=None,
-                             immersion_delivery=None):
+                             camera_ids=[], safety_id=None, pump_id=None,
+                             ref_obj=None, immersion_delivery=None):
         """Create an object of the type passed in, e.g. PlateHolder or Well.
 
         This method is usually used for simple objects, whereas the other
@@ -444,6 +446,13 @@ class Helpers:
                                         reference_object=ref_obj,)
         elif sample_type == "colony":
             obj = samples.Colony(well_object=container)
+        elif sample_type == "immersion_deliv":
+            obj = samples.ImmersionDelivery(
+                plate_holder_object=container,
+                microscope_object=microscope_obj,
+                safety_id=safety_id,
+                pump_id=pump_id
+            )
         elif sample_type is None:
             obj = None
 
@@ -486,6 +495,7 @@ class Helpers:
                                        objective_changer=obj_changer_id,
                                        prefs_path=prefs_path,)
         obj_changer = self.setup_local_obj_changer(self, obj_changer_id,
+                                                   n_positions=6,
                                                    objectives=objectives,
                                                    prefs_path=prefs_path)
         autofocus = self.setup_local_autofocus(self, autofocus_id,

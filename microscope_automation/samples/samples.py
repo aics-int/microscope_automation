@@ -2621,7 +2621,6 @@ class PlateHolder(ImagingSystem):
         use_autofocus = microscope_object.get_information([self.get_auto_focus_id()])[
             self.get_auto_focus_id()
         ]["use"]
-        # use_autofocus = self.recover_hardware(self.focusDrive.get_use_autofocus)
         return use_autofocus
 
     def find_surface(self, reference_object=None, trials=3, verbose=True):
@@ -2937,9 +2936,10 @@ class ImmersionDelivery(ImagingSystem):
 
     def __init__(
         self,
-        name=None,
+        name="ImmersionDelivery",
         plate_holder_object=None,
         safety_id=None,
+        pump_id=None,
         center=[0, 0, 0],
         x_flip=1,
         y_flip=1,
@@ -2985,28 +2985,59 @@ class ImmersionDelivery(ImagingSystem):
             z_correction_y_slope=z_correction_y_slope,
             microscope_object=microscope_object,
         )
+        self.set_pump_id(pump_id)
         self.id = name
         self.safety_id = safety_id
         # counter will be incremented by self.add_counter
         self.count = 0
 
-    def trigger_pump(self):
-        """Trigger pump to deliver immersion water.
+    def set_pump_id(self, pump_id=None):
+        """Store id of pump associated with this ImmersionDelivery object.
 
         Input:
-         pumpID: string with name for pump to be used
+         stage_id: id string for pump
 
         Output:
          none
         """
-        self.get_microscope().trigger_pump()
+        self.pump_id = pump_id
 
-    def get_water(self, objective_magnification=None, verbose=True, automatic=False):
+    def get_pump_id(self):
+        """Return id for pump used with this ImmersionDelivery object.
+
+        Input:
+         none
+
+        Output:
+         pump_id: id for objective changer used with this sample
+        """
+        return self.pump_id
+
+    def trigger_pump(self, pump_id=None):
+        """Trigger pump to deliver immersion water.
+
+        Input:
+         pump_id: id of pump to trigger. None by default, which selects the pump_id
+         already associated with this ImmersionDelivery object
+
+        Output:
+         none
+        """
+        if pump_id:
+            self.get_microscope().trigger_pump(pump_id)
+        else:
+            self.get_microscope().trigger_pump(self.get_pump_id())
+
+    def get_water(self, objective_magnification=None, pump_id=None,
+                  verbose=True, automatic=False):
         """Move objective to water outlet and add drop of water to objective.
 
         Input:
          objective_magnification: add water to specific objective with given
          magnification as float number. Keep current objective if set to None.
+
+         pump_id: id of pump to trigger. None by default, which selects the pump_id
+         already associated with this ImmersionDelivery object
 
          verbose: if True print debug information (Default = True)
 
@@ -3022,19 +3053,19 @@ class ImmersionDelivery(ImagingSystem):
         # Get original position of stage and focus
         x_pos, y_pos, z_pos = self.get_abs_position()
         # Move objective in load positionss
-        self.microscope.goto_load(self.focus_id)
+        self.microscope.goto_load(self.get_focus_id())
 
         # Change objective
         if objective_magnification is not None:
             # objective_changer_object = self.get_objective_changer_id()
             try:
-                self.get_microscope().change_magnification()
-                # objective_changer_object.change_magnification(
-                #     objective_magnification,
-                #     self,
-                #     use_safe_position=True,
-                #     verbose=verbose,
-                # )
+                self.get_microscope().change_magnification(
+                    self.get_objective_changer_id(),
+                    objective_magnification,
+                    self,
+                    use_safe_position=True,
+                    verbose=verbose
+                )
             except ObjectiveNotDefinedError as error:
                 message.error_message(
                     'Please switch objective manually.\nError:\n"{}"'.format(
@@ -3132,13 +3163,17 @@ class ImmersionDelivery(ImagingSystem):
         return counter_stop_value
 
     def count_and_get_water(
-        self, objective_magnification=None, increment=1, verbose=True, automatic=False
+        self, objective_magnification=None, pump_id=None,
+        increment=1, verbose=True, automatic=False
     ):
         """Move objective to water outlet and add drop of water to objective.
 
         Input:
          objective_magnification: add water to specific objective with given
          magnification as float number. Keep current objective if set to None.
+
+         pump_id: id of pump to trigger. None by default, which selects the pump_id
+         already associated with this ImmersionDelivery object
 
          increment: integer to increment counter value. Default = 1
 
@@ -3149,14 +3184,14 @@ class ImmersionDelivery(ImagingSystem):
         Output:
          counter: counter value after increment
         """
-        # increase counter and compare to stop value
-        counter = self.add_counter(increment=increment)
-
-        if counter >= self.get_counter_stop_value():
-            self.recover_hardware(
-                self.get_water,
+        counter = 0
+        while counter < self.get_counter_stop_value():
+            counter = self.add_counter(increment=increment)
+            self.get_water(
                 objective_magnification=objective_magnification,
+                pump_id=pump_id,
                 verbose=verbose,
+                automatic=automatic,
             )
 
         return counter
@@ -3317,20 +3352,20 @@ class Plate(ImagingSystem):
             well_object = None
         return well_object
 
-    #     def get_well_center(self, well):
-    #         '''retrieves center of well in stage coordinates
-    #
-    #         Input:
-    #          well: name of well in format 'A1'
-    #
-    #         Output:
-    #          x, y: stage coordinates for center of well in mum
-    #         '''
-    #         wellX, wellY, wellZ = self.layout[well]
-    #         x=wellX+Plate.x_zero
-    #         y=wellY+Plate.y_zero
-    #         z=wellZ+Plate.z_zero
-    #         return x, y, z
+#     def get_well_center(self, well):
+#         '''retrieves center of well in stage coordinates
+#
+#         Input:
+#          well: name of well in format 'A1'
+#
+#         Output:
+#          x, y: stage coordinates for center of well in mum
+#         '''
+#         wellX, wellY, wellZ = self.layout[well]
+#         x=wellX+Plate.x_zero
+#         y=wellY+Plate.y_zero
+#         z=wellZ+Plate.z_zero
+#         return x, y, z
 
     def move_to_well(self, well):
         """moves stage to center of well

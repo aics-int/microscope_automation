@@ -321,3 +321,77 @@ class BaseMicroscope(object):
          None
         """
         self.not_implemented("live_mode")
+
+    def recall_focus(self, auto_focus_id, reference_object_id=None,
+                     pre_set_focus=True):
+        """Find difference between stored focus position and actual autofocus position.
+        Recall focus will move the focus drive to it's stored position.
+
+        Input:
+         auto_focus_id: string id for camera
+
+         reference_object_id: name of ZEN experiment (default = None)
+
+         pre_set_focus: Move focus to previous auto-focus position.
+         This makes definite focus more robust
+
+        Output:
+         delta_z: difference between stored z position of focus drive
+         and position after recall focus
+        """
+        communication_object = self._get_control_software().connection
+        autofocus = self._get_microscope_object(auto_focus_id)
+        return autofocus.recall_focus(communication_object, reference_object_id,
+                                      pre_set_focus=pre_set_focus)
+
+    def trigger_pump(self, pump_id):
+        """Triggers pump of pump_id.
+
+        Raises HardwareDoesNotExistError if pump is not attached to microscope
+
+        Input:
+         pump_id: pump to trigger
+
+        Output:
+         none
+        """
+        communication_object = self._get_control_software().connection
+        pump = self._get_microscope_object(pump_id)
+        pump.trigger_pump(communication_object)
+
+    def change_magnification(self, objective_changer_id, magnification,
+                             sample_object, use_safe_position=True,
+                             verbose=True, load=True):
+        """Change to objective with given magnification.
+
+        Input:
+         magnification: magnification of selected objective as float.
+         Not well defined if multiple objectives with identical magnification exist.
+
+         sample_object: object that has safe coordinates attached.
+         If use_safe_position == True than stage and focus drive will move to
+         this position before magnification is changed to avoid collision
+         between objective and stage.
+
+         use_safe_position: move stage and focus drive to safe position before switching
+         magnification to minimize risk of collision (Default: True)
+
+         verbose: if True print debug information (Default = True)
+
+         load: if True, move objective to load position before switching (Default: True)
+
+        Output:
+         objective_name: name of new objective
+        """
+        communication_object = self._get_control_software().connection
+        obj_changer = self._get_microscope_object(objective_changer_id)
+        objective_name = obj_changer.change_magnification(
+            communication_object,
+            magnification,
+            sample_object,
+            use_safe_position,
+            verbose,
+            load,
+        )
+
+        return objective_name
