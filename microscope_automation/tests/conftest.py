@@ -453,6 +453,8 @@ class Helpers:
                 safety_id=safety_id,
                 pump_id=pump_id
             )
+        elif sample_type == "sample":
+            obj = samples.Sample(well_object=container)
         elif sample_type is None:
             obj = None
 

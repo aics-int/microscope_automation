@@ -54,31 +54,31 @@ def get_colony_data(prefs, colony_file):
     # we should define the colomn type here
     # tried to use usecols to read data read in -> does not work
     print("Read file {}".format(colony_file))
-    coloniesAll = pandas.read_csv(colony_file)
+    colonies_all = pandas.read_csv(colony_file)
 
     # select plate to process
     # Use plateID list to be able to expand to multiple plates
-    plateIdList = list(coloniesAll.loc[:, "PlateID"].unique())
+    plate_id_list = list(colonies_all.loc[:, "PlateID"].unique())
 
     selectedPlateIDList = [
         message.pull_down_select_dialog(
-            plateIdList,
+            plate_id_list,
             (
                 "Please select barcode of " "plate on microscope.\n",
                 "947 is a good example.",
             ),
         )
     ]
-    plateSelector = coloniesAll.loc[:, "PlateID"].isin(selectedPlateIDList)
+    plateSelector = colonies_all.loc[:, "PlateID"].isin(selectedPlateIDList)
 
     # select columns as defined in preferences.yml file
     # and rename to software internal names
     colonyColumns = prefs.get_pref("ColonyColumns")
-    colonies = coloniesAll.loc[plateSelector, colonyColumns.keys()]
+    colonies = colonies_all.loc[plateSelector, colonyColumns.keys()]
     colonies.rename(columns=colonyColumns, inplace=True)
 
     # get information about colonies to image
-    print("summary statistics about all colonies on plate ", plateIdList)
+    print("summary statistics about all colonies on plate ", plate_id_list)
     print(colonies.describe())
 
     # calculate additional columns
@@ -112,20 +112,22 @@ def get_colony_data(prefs, colony_file):
 ###########################################################################
 
 
-def filter_colonies(prefs, colonies, wellDict):
+def filter_colonies(prefs, colonies, well_dict):
     """Select colonies to image based on settings in preferences file.
 
     Input:
      prefs: preferences with selection criteria
+
      colonies: table with colony data
-     wellList: list with wells that should be considered. Well names in format 'A1'.
+
+     well_dict: list with wells that should be considered. Well names in format 'A1'.
 
     Output:
      selectedColonies: subset of colonies to be imaged
     """
     # get names of wells to scan
-    wellList = wellDict.keys()
-    wellsSelect = colonies["Well"].isin(wellList)
+    well_list = well_dict.keys()
+    wells_select = colonies["Well"].isin(well_list)
 
     # scan only wells with a minimum number of colonies in a give well before filtering
     minCountPerWell = prefs.get_pref("MinCountPerWell")
@@ -157,13 +159,13 @@ def filter_colonies(prefs, colonies, wellDict):
         & minAreaSelect
         & maxAreaSelect
         & maxDistanceSelect
-        & wellsSelect
+        & wells_select
     ]
 
     # we want to scan a maximum number of colonies per well
     # if there are more valid colonies in a given well than select random colonies
     selected_colonies = pandas.DataFrame()
-    for well, numberImages in wellDict.iteritems():
+    for well, numberImages in well_dict.items():
         # find all colonies within well
         wellSelect = filteredColonies.Well == well
         coloniesInWell = filteredColonies.loc[wellSelect]
@@ -493,7 +495,7 @@ def setup_plate(prefs, colony_file=None, microscope_object=None, barcode=None):
     if mean_diameter is not None:
         [
             well_obj.set_set_diameter(mean_diameter)
-            for well_name, well_obj in plate_object.get_wells().iteritems()
+            for well_name, well_obj in plate_object.get_wells().items()
         ]
 
     # add reference well
@@ -505,7 +507,7 @@ def setup_plate(prefs, colony_file=None, microscope_object=None, barcode=None):
     if colony_file is not None:
         wellsColoniesList = [
             add_colonies(well_obj, colonies, specifications, add_colonies_preferences)
-            for well_name, well_obj in plate_object.get_wells().iteritems()
+            for well_name, well_obj in plate_object.get_wells().items()
         ]
 
         colony_list = []

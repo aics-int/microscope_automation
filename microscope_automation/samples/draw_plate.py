@@ -162,8 +162,8 @@ def draw_plate(n_col=12, n_row=8, pitch=9, diameter=6.94, prefs=None):
     ax1 = plt.subplot(121)
 
     # draw row and column labels
-    draw_column_labels()(n_row, n_col, pitch)
-    draw_row_labels()(n_row, pitch)
+    draw_column_labels(n_row, n_col, pitch)
+    draw_row_labels(n_row, pitch)
 
     # draw wells
     draw_wells(ax1, n_col, n_row, pitch, diameter, prefs)

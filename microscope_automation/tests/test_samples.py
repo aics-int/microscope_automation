@@ -2422,3 +2422,93 @@ def test_get_add_wells(well_name0, well_name1, expected_keys, helpers):
         assert well.__class__ == samples.Well
 
     assert list(result.keys()) == expected_keys
+
+
+@pytest.mark.skipif(skip_all_tests, reason="Exclude all tests")
+@pytest.mark.parametrize(
+    ("well_name_0, sample_type_0, well_name_1, sample_type_1, "
+     " sample_type_search, expected"),
+    [
+        ("test_well_0", "sample", None, None, None, []),
+        ("test_well_0", "sample", None, None, "Sample", ["test_well_0"]),
+        ("test_well_0", "sample", "test_well_1", "colony", {"Barcode", "Colony"},
+         ["test_well_1"]),
+        ("test_well_0", "sample", "test_well_1", "colony", {"Sample", "Colony"},
+         ["test_well_0", "test_well_1"])
+    ]
+)
+def test_get_wells_by_type(well_name_0, sample_type_0, well_name_1, sample_type_1,
+                           sample_type_search, expected, helpers):
+    well_list = []
+    if well_name_0:
+        well = helpers.setup_local_well(helpers, name=well_name_0)
+        if sample_type_0:
+            sample = helpers.create_sample_object(sample_type_0)
+            well.add_samples({sample.get_name(): sample})
+        well_list.append(well)
+
+    if well_name_1:
+        well = helpers.setup_local_well(helpers, name=well_name_1)
+        if sample_type_1:
+            sample = helpers.create_sample_object(sample_type_1)
+            well.add_samples({sample.get_name(): sample})
+        well_list.append(well)
+
+    plate = helpers.setup_local_plate(helpers)
+    for well in well_list:
+        plate.add_wells({well.get_name(): well})
+
+    result = plate.get_wells_by_type(sample_type_search)
+    assert list(result.keys()) == expected
+
+
+@pytest.mark.skipif(skip_all_tests, reason="Exclude all tests")
+@pytest.mark.parametrize(
+    ("well_name_list, name_to_get, expected"),
+    [
+        (["test_well_0", "test_well_1"], "test_well_1", "test_well_1"),
+        (["test_well_0"], "test_well_1", None),
+    ]
+)
+def test_get_well(well_name_list, name_to_get, expected, helpers):
+    plate = helpers.setup_local_plate(helpers)
+    for name in well_name_list:
+        well = helpers.setup_local_well(helpers, name=name)
+        plate.add_wells({name: well})
+
+    result = plate.get_well(name_to_get)
+
+    # if we expect None don't check the name and class
+    if expected:
+        assert result.__class__ == samples.Well
+        assert result.get_name() == expected
+    else:
+        assert result == expected
+
+
+# ask Winfried: what is self.layout supposed to be?
+# def test_move_to_well()
+
+
+@patch("matplotlib.pyplot.show")
+@pytest.mark.skipif(skip_all_tests, reason="Exclude all tests")
+@pytest.mark.parametrize(
+    ("n_col, n_row, pitch, diameter, expected"),
+    [
+        (None, None, None, None, "TypeError"),
+        (4, 3, 26, 22.05, None),
+    ]
+)
+def test_show(mock_pyplot_show, n_col, n_row, pitch, diameter, expected, helpers):
+    plate = helpers.setup_local_plate(helpers)
+    try:
+        result = plate.show(n_col, n_row, pitch, diameter)
+    except Exception as err:
+        result = type(err).__name__
+    assert result == expected
+
+###############################################################################
+#
+# Tests for the Well class
+#
+###############################################################################

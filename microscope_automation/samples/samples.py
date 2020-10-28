@@ -3302,16 +3302,12 @@ class Plate(ImagingSystem):
          none
 
         Output:
-         well_objects: dict with well objects
+         wells: dict with well objects
         """
-        try:
-            well_objects = self.wells
-        except Exception:
-            well_objects = None
-        return well_objects
+        return self.wells
 
     def get_wells_by_type(self, sample_type):
-        """Return list with all Well Objects associated with plate that
+        """Return dictionary with all Well Objects associated with plate that
         contain samples of given type.
 
         Input:
@@ -3327,9 +3323,10 @@ class Plate(ImagingSystem):
                 sample_type = {sample_type}
             # retrieve list of all well objects for plate
             well_objects = self.get_wells()
+            print(well_objects)
             well_objects_of_type = {
                 well_name: well_object
-                for well_name, well_object in well_objects.iteritems()
+                for well_name, well_object in well_objects.items()
                 if len(well_object.get_samples(sample_type=sample_type)) > 0
             }
         except Exception:
@@ -3352,33 +3349,18 @@ class Plate(ImagingSystem):
             well_object = None
         return well_object
 
-#     def get_well_center(self, well):
-#         '''retrieves center of well in stage coordinates
-#
-#         Input:
-#          well: name of well in format 'A1'
-#
-#         Output:
-#          x, y: stage coordinates for center of well in mum
-#         '''
-#         wellX, wellY, wellZ = self.layout[well]
-#         x=wellX+Plate.x_zero
-#         y=wellY+Plate.y_zero
-#         z=wellZ+Plate.z_zero
-#         return x, y, z
-
     def move_to_well(self, well):
-        """moves stage to center of well
+        """Moves stage to center of well
 
         Input:
          well: name of well in format 'A1'
 
         Output:
-         xStage, yStage: x, y position on Stage in mum
+         x_stage, y_stage, z_stage: x, y, z position on Stage in mum
         """
-        wellX, wellY, wellZ = self.layout[well]
-        xStage, yStage, zStage = self.set_plate_position(wellX, wellY, wellZ)
-        return xStage, yStage, zStage
+        well_x, well_y, well_z = self.layout[well]
+        x_stage, y_stage, z_stage = self.set_plate_position(well_x, well_y, well_z)
+        return x_stage, y_stage, z_stage
 
     def show(self, n_col=4, n_row=3, pitch=26, diameter=22.05):
         """show ImageAICS of plate layout
@@ -3788,7 +3770,7 @@ class Well(ImagingSystem):
         """
         samples = {}
         try:
-            for name, sample_obj in self.samples.iteritems():
+            for name, sample_obj in self.samples.items():
                 if type(sample_obj).__name__ in sample_type:
                     samples.update({name: sample_obj})
         except Exception:
@@ -4057,10 +4039,11 @@ class Sample(ImagingSystem):
             z_correction_x_slope=z_correction_x_slope,
             z_correction_y_slope=z_correction_y_slope,
         )
-        self.microscope = self.well_object.microscope
-        self.well = self.well_object.name
-        self.plate_layout = self.well_object.plate_layout
-        self.stageID = self.well_object.stageID
+        if well_object:
+            self.microscope = well_object.microscope
+            self.well = well_object.name
+            self.plate_layout = well_object.plate_layout
+            self.stageID = well_object.stageID
 
         self.center = center
         self.experiment = experiment
