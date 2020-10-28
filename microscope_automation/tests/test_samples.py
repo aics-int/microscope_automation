@@ -324,16 +324,30 @@ def test_get_set_name(name_get, name_set, repr, helpers):
 )
 @pytest.mark.skipif(skip_all_tests, reason="Exclude all tests")
 @pytest.mark.parametrize(
-    ("location_list, expected"), [(None, "TypeError"), ([], []), ([(1, 2)], [(1, 0)])]
+    ("sample_type, location_list, expected"),
+    [
+        ("img_sys", None, "TypeError"),
+        ("img_sys", [], []),
+        ("img_sys", [(1, 2)], [(1, 0)]),
+        ("well", None, []),
+        ("well", [], []),
+        ("well", [(1, 2)], [(1, 0)]),
+        ("colony", None, []),
+        ("colony", [], []),
+        ("colony", [(1, 2)], [(1, 0)]),
+        ("cell", None, "TypeError"),
+        ("cell", [], []),
+        ("cell", [(1, 2)], [(1, 0)]),
+    ]
 )
 def test_set_interactive_positions(
-    mock0, mock1, location_list, expected, helpers
+    mock0, mock1, sample_type, location_list, expected, helpers
 ):
-    img_sys = helpers.setup_local_imaging_system(helpers)
+    sample = helpers.create_sample_object(sample_type)
     image_data = [[0, 0]]
 
     try:
-        result = img_sys.set_interactive_positions(image_data, location_list)
+        result = sample.set_interactive_positions(image_data, location_list)
     except Exception as err:
         result = type(err).__name__
 
@@ -2486,8 +2500,28 @@ def test_get_well(well_name_list, name_to_get, expected, helpers):
         assert result == expected
 
 
-# ask Winfried: what is self.layout supposed to be?
-# def test_move_to_well()
+@pytest.mark.skipif(skip_all_tests, reason="Exclude all tests")
+@pytest.mark.parametrize(
+    ("well_name, center, expected"),
+    [
+        ("test_well_0", None, "TypeError"),
+        ("test_well_0", [0, 0, 0], (0, 0, 0)),
+        ("test_well_0", [3, -1, 7], (3, -1, 7)),
+    ]
+)
+def test_move_to_well(well_name, center, expected, helpers):
+    try:
+        plate = helpers.setup_local_plate(helpers)
+        plate.add_wells({well_name: helpers.setup_local_well(
+            helpers,
+            name=well_name,
+            center=center,
+        )})
+        result = plate.move_to_well(well_name)
+    except Exception as err:
+        result = type(err).__name__
+
+    assert result == expected
 
 
 @patch("matplotlib.pyplot.show")
@@ -2512,3 +2546,26 @@ def test_show(mock_pyplot_show, n_col, n_row, pitch, diameter, expected, helpers
 # Tests for the Well class
 #
 ###############################################################################
+
+
+@pytest.mark.skipif(skip_all_tests, reason="Exclude all tests")
+@pytest.mark.parametrize(
+    ("location_list, expected_names, expected_classes"),
+    [
+        (None, "TypeError", None),
+        ([(0, 0)], ["Well_001"], [samples.Colony]),
+        ([(0, 0), (1, 1)], ["Well_001", "Well_002"],
+         [samples.Colony, samples.Colony]),
+    ]
+)
+def test_find_colonies(location_list, expected_names, expected_classes, helpers):
+    well = helpers.setup_local_well(helpers)
+    try:
+        result = well.find_colonies(location_list)
+        names = [result[i].get_name() for i in range(len(result))]
+        classes = [result[i].__class__ for i in range(len(result))]
+
+        assert names == expected_names
+        assert classes == expected_classes
+    except Exception as err:
+        assert expected_names == type(err).__name__

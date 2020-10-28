@@ -3343,11 +3343,7 @@ class Plate(ImagingSystem):
          well_object: object for one well with name wellName.
          None if no Well object with well_name exists
         """
-        try:
-            well_object = self.wells.get(well_name)
-        except Exception:
-            well_object = None
-        return well_object
+        return self.wells.get(well_name)
 
     def move_to_well(self, well):
         """Moves stage to center of well
@@ -3358,8 +3354,8 @@ class Plate(ImagingSystem):
         Output:
          x_stage, y_stage, z_stage: x, y, z position on Stage in mum
         """
-        well_x, well_y, well_z = self.layout[well]
-        x_stage, y_stage, z_stage = self.set_plate_position(well_x, well_y, well_z)
+        well_x, well_y, well_z = self.get_well(well).get_zero()
+        x_stage, y_stage, z_stage = self.set_zero(well_x, well_y, well_z)
         return x_stage, y_stage, z_stage
 
     def show(self, n_col=4, n_row=3, pitch=26, diameter=22.05):
@@ -3367,8 +3363,11 @@ class Plate(ImagingSystem):
 
         Input:
          n_col: number of columns, labeled from 1 to n_col
+
          n_row: number of rows, labeled alphabetically
+
          pitch: distance between individual wells in mm
+
          diameter: diameter of Well in mm
 
         Output:
@@ -3501,7 +3500,7 @@ class Well(ImagingSystem):
     def get_name(self):
         return self.name
 
-    def failed_image(self):
+    def get_failed_image(self):
         return self._failed_image
 
     def set_interactive_positions(self, tile_image_data, location_list=None, app=None):
@@ -3525,7 +3524,7 @@ class Well(ImagingSystem):
         title = "Well Overview Image - Well " + self.name
         interactive_plot.plot_points(title)
         self._failed_image = interactive_plot.failed_image()
-        if self._failed_image:
+        if self.get_failed_image():
             # A failed image has no locations
             return []
         return interactive_plot.location_list
@@ -3534,10 +3533,10 @@ class Well(ImagingSystem):
         """Find locations of colonies to be imaged in well and add them to well.
 
         Input:
-        location_list: list of the colony locations relative to the center of the well
+         location_list: list of the colony locations relative to the center of the well
 
         Output:
-        colony_list: List of Colony Objects
+         colony_list: List of Colony Objects
         """
         number = 1
         colony_dict = {}
@@ -3574,7 +3573,6 @@ class Well(ImagingSystem):
         Output:
          none
         """
-
         self.well_position_numeric = position
 
     def get_plate_position_numeric(self):

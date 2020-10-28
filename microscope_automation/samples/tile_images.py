@@ -94,18 +94,20 @@ def _tile_hard_any_shape(images, tile_metadata):
     # calibrate pixel size, assuming that individual tiles are flush to each other
     if number_tiles_x == 1:
         scaling_x = 1
+        offset_x = 0
     else:
         scaling_x = (max(positions_x) - min(positions_x)) / (
             number_pixels_x * (number_tiles_x - 1)
         )
+        offset_x = min(positions_x) / scaling_x
     if number_tiles_y == 1:
         scaling_y = 1
+        offset_y = 0
     else:
         scaling_y = (max(positions_y) - min(positions_y)) / (
             number_pixels_y * (number_tiles_y - 1)
         )
-    offset_x = min(positions_x) / scaling_x
-    offset_y = min(positions_y) / scaling_y
+        offset_y = min(positions_y) / scaling_y
 
     # add tiles to empty image
     image_num = 1
