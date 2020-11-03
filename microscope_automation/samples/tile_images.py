@@ -134,7 +134,7 @@ def _tile_hard_any_shape(images, tile_metadata):
         y_high = max(
             container_pixels_y - yPos, container_pixels_y - yPos - image_pixels_y
         )
-        tiles_container[xPos:xPos + image_pixels_x, y_low:y_high, :] = data
+        tiles_container[xPos : xPos + image_pixels_x, y_low:y_high, :] = data
 
     return_image = ImageAICS(data=tiles_container, meta=tile_metadata)
     # Returns tiled image plus borders for segmentation if necessary

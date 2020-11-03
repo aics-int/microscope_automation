@@ -18,6 +18,7 @@ from collections import OrderedDict
 from ..get_path import (
     get_images_path,
     add_suffix,
+    get_well_edge_path,
 )
 from .draw_plate import draw_plate
 from .. import automation_messages_form_layout as message
@@ -290,7 +291,7 @@ class ImagingSystem(object):
             auto_focus_id=auto_focus_id,
             objective_changer_id=objective_changer_id,
             safety_id=safety_id,
-            camera_ids=camera_ids
+            camera_ids=camera_ids,
         )
 
         # reference positions for auto-focus
@@ -862,10 +863,10 @@ class ImagingSystem(object):
         x_correction=1,
         y_correction=1,
         z_correction=1,
-        z_correction_x_slope=0,
-        z_correction_y_slope=0,
-        z_correction_z_slope=0,
-        z_correction_offset=0,
+        z_correction_x_slope=1,
+        z_correction_y_slope=1,
+        z_correction_z_slope=1,
+        z_correction_offset=1,
     ):
         """Multiply existing correction terms if scaling for object coordinate
         system is slightly off relative to container coordinate system
@@ -1435,9 +1436,7 @@ class ImagingSystem(object):
          z: position of focus drive after find surface
         """
         return self.container.find_surface(
-            reference_object=self.get_reference_object(),
-            trials=trials,
-            verbose=verbose
+            reference_object=self.get_reference_object(), trials=trials, verbose=verbose
         )
 
     def store_focus(self, focus_reference_obj=None, trials=3, verbose=True):
@@ -1747,7 +1746,7 @@ class ImagingSystem(object):
         """Retrieve settings to define tiles from preferences.
 
         Input:
-         prefs: dictionary with preferences for tiling
+         prefs: Preferences object with preferences for tiling
 
          verbose: print logging comments
 
@@ -1827,7 +1826,7 @@ class ImagingSystem(object):
         Subclasses have additional tile_objects (e.g. ColonySize, Well).
 
         Input:
-         prefs: dictionary with preferences for tiling
+         prefs: Preferences object with preferences for tiling
 
          tile_type: tile object passed in by preferences. Possible options:
           'NoTiling': do not tile
@@ -1880,8 +1879,9 @@ class ImagingSystem(object):
         if load:
             for (image_name, image_object) in self.image_dict.items():
                 if image_object.data is None:
-                    self.image_dict[image_name] = self.load_image(image_object,
-                                                                  get_meta=get_meta)
+                    self.image_dict[image_name] = self.load_image(
+                        image_object, get_meta=get_meta
+                    )
         return self.image_dict
 
     def background_correction(self, uncorrected_image, settings):
@@ -2527,7 +2527,7 @@ class PlateHolder(ImagingSystem):
          focus_id: id string with name for focus drive
 
         Output:
-         Real focus position not corrected for drift.
+         x, y, z: real focus position not corrected for drift.
         """
         if stage_id is None:
             stage_id = self.stage_id
@@ -2815,9 +2815,11 @@ class PlateHolder(ImagingSystem):
           delta_z: difference between stored z position of focus drive
           and position after recall focus
         """
-        return self.microscope.recall_focus(auto_focus_id,
-                                            reference_object_id=self.get_name(),
-                                            pre_set_focus=pre_set_focus)
+        return self.microscope.recall_focus(
+            auto_focus_id,
+            reference_object_id=self.get_name(),
+            pre_set_focus=pre_set_focus,
+        )
 
     def live_mode_start(self, camera_id, experiment=None):
         """Start live mode in microscope software.
@@ -3028,8 +3030,9 @@ class ImmersionDelivery(ImagingSystem):
         else:
             self.get_microscope().trigger_pump(self.get_pump_id())
 
-    def get_water(self, objective_magnification=None, pump_id=None,
-                  verbose=True, automatic=False):
+    def get_water(
+        self, objective_magnification=None, pump_id=None, verbose=True, automatic=False
+    ):
         """Move objective to water outlet and add drop of water to objective.
 
         Input:
@@ -3064,7 +3067,7 @@ class ImmersionDelivery(ImagingSystem):
                     objective_magnification,
                     self,
                     use_safe_position=True,
-                    verbose=verbose
+                    verbose=verbose,
                 )
             except ObjectiveNotDefinedError as error:
                 message.error_message(
@@ -3163,8 +3166,12 @@ class ImmersionDelivery(ImagingSystem):
         return counter_stop_value
 
     def count_and_get_water(
-        self, objective_magnification=None, pump_id=None,
-        increment=1, verbose=True, automatic=False
+        self,
+        objective_magnification=None,
+        pump_id=None,
+        increment=1,
+        verbose=True,
+        automatic=False,
     ):
         """Move objective to water outlet and add drop of water to objective.
 
@@ -3221,8 +3228,6 @@ class Plate(ImagingSystem):
          microscope_object: object of class Microscope from module hardware
 
          name: name of plate, typically barcode
-
-         stageID: id string for stage. Stage can only be on one stage
 
          x_flip, y_flip, z_flip: -1 if coordinate system of plate holder
          is flipped in respect to stage
@@ -3437,7 +3442,7 @@ class Well(ImagingSystem):
         center=[0, 0, 0],
         diameter=1,
         plate_object=None,
-        well_position_numeric=(1, 1),
+        well_position_numeric=(0, 0),
         well_position_string=("A", "1"),
         x_flip=1,
         y_flip=1,
@@ -3493,8 +3498,9 @@ class Well(ImagingSystem):
         # use this value for all calculation.
         # Replace this value with a measured value as soon as possible
         self.set_diameter(diameter)
-        self.set_set_diameter(set_diameter=diameter)
-        self.set_plate_position_numeric(position=well_position_numeric)
+        self.set_assigned_diameter(diameter)
+        self.set_well_position_numeric(well_position_numeric)
+        self.set_well_position_string(well_position_string)
         self._failed_image = False
 
     def get_name(self):
@@ -3564,7 +3570,7 @@ class Well(ImagingSystem):
         well_object = self
         return well_object
 
-    def set_plate_position_numeric(self, position):
+    def set_well_position_numeric(self, position):
         """Set row and column number.
 
         Input:
@@ -3575,7 +3581,7 @@ class Well(ImagingSystem):
         """
         self.well_position_numeric = position
 
-    def get_plate_position_numeric(self):
+    def get_well_position_numeric(self):
         """Get row and column number.
 
         Input:
@@ -3584,13 +3590,9 @@ class Well(ImagingSystem):
         Output:
          well_position_numeric: (column, row) as integer tuple (e.g. (0,0) for well A1
         """
-        try:
-            well_position_numeric = self.well_position_numeric
-        except Exception:
-            well_position_numeric = None
-        return well_position_numeric
+        return self.well_position_numeric
 
-    def set_plate_position_string(self, position):
+    def set_well_position_string(self, position):
         """Set row and column as strings.
 
         Input:
@@ -3601,7 +3603,7 @@ class Well(ImagingSystem):
         """
         self.well_position_string = position
 
-    def get_plate_position_string(self):
+    def get_well_position_string(self):
         """Get row and column as string.
 
         Input:
@@ -3611,39 +3613,31 @@ class Well(ImagingSystem):
          well_position_string: (row, column) as string tuple
          (e.g. ('A','1') for well A1)
         """
-        try:
-            well_position_string = self.well_position_string
-        except AttributeError:
-            well_position_string = None
-        return well_position_string
+        return self.well_position_string
 
-    def set_set_diameter(self, set_diameter):
+    def set_assigned_diameter(self, assigned_diameter):
         """Set diameter from specifications or measured externally for well.
 
         Input:
-         set_diameter: predefined diameter in mum
+         assigned_diameter: predefined diameter in mum
          (e.g from plate specifications or other instrument)
 
         Output:
          none
         """
-        self.set_diameter = set_diameter
+        self.assigned_diameter = assigned_diameter
 
-    def get_set_diameter(self):
+    def get_assigned_diameter(self):
         """Get well diameter for well as measured by external means.
 
         Input:
          none
 
         Output
-         set_diameter: predefined diameter in mum
+         assigned_diameter: predefined diameter in mum
          (e.g from plate specifications or other instrument)
         """
-        try:
-            set_diameter = self.set_diameter
-        except AttributeError:
-            set_diameter = None
-        return set_diameter
+        return self.assigned_diameter
 
     def set_measured_diameter(self, measured_diameter):
         """Set diameter measured during experiment for well.
@@ -3695,11 +3689,7 @@ class Well(ImagingSystem):
         Output
          diameter: diameter in mum
         """
-        try:
-            diameter = self.diameter
-        except AttributeError:
-            diameter = None
-        return diameter
+        return self.diameter
 
     def calculate_well_correction(self, update=True):
         """Calculate correction factor for well coordinate system.
@@ -3718,14 +3708,14 @@ class Well(ImagingSystem):
          none
         """
         measured_diameter = self.get_measured_diameter()
-        set_diameter = self.get_set_diameter()
+        assigned_diameter = self.get_assigned_diameter()
 
         # if any of the diameters in not defined (None)
         # set correction factor to 1 and print warning
-        if measured_diameter is None or set_diameter is None:
+        if measured_diameter is None or assigned_diameter is None:
             correction = 1
         else:
-            correction = measured_diameter / set_diameter
+            correction = measured_diameter / assigned_diameter
 
         # if update==True update correction factor
         # and do not replace to keep earlier corrections in place
@@ -3790,19 +3780,19 @@ class Well(ImagingSystem):
             colonies = None
         return colonies
 
-    def add_barcode(self, barcodeObjectsDict):
+    def add_barcode(self, barcode_objects_dict):
         """Adds barcode to well.
 
         Input:
-         barcodeObjectsDict: dictionary of form {'name': barcodeObject}
+         barcode_objects_dict: dictionary of form {'name': barcodeObject}
 
         Output:
          none
         """
-        self.samples.update(barcodeObjectsDict)
+        self.samples.update(barcode_objects_dict)
 
     def find_well_center_fine(
-        self, experiment, well_diameter, camera_id, dictPath, verbose=True
+        self, experiment, well_diameter, camera_id, settings, verbose=True, test=False
     ):
         """Find center of well with higher precision.
 
@@ -3816,27 +3806,22 @@ class Well(ImagingSystem):
 
          camera_id: string with name of camera
 
-         dictPath: dictionary to store images
-
-         angles: list with angles around well center to take images
-         for alignment in degree
-
-         diameterFraction: offset from well center to take alignment images
-         as diameter devided by diameterFraction
-
-         focus: use autofocus (default = True)
+         settings: object of class Preferences which holds image settings
 
          verbose: if True print debug information (Default = True)
 
-        Output:
-         xCenter, yCenter, zCenter: Center of well in absolute stage coordinates in mum.
-         z after drift correction (as if no drift had occured)
+         test: if True will call find_well_center.find_well_center_fine
+         in test mode. (Default = False)
 
+        Output:
+         x_center, y_center, z_center: Center of well in absolute stage coordinates
+         in mum. z after drift correction (as if no drift had occured)
         """
         # user positioned right well edge in center of 10x FOW
         # acquire image and find edge coordinates
         name = self.get_name()
-        file_path = dictPath + "/WellEdge_" + name + ".czi"
+        print(get_well_edge_path(settings))
+        file_path = path.join(get_well_edge_path(settings), name + ".czi")
         meta_dict = {
             "aics_well": self.get_name(),
             "aics_barcode": self.get_barcode(),
@@ -3846,20 +3831,20 @@ class Well(ImagingSystem):
         image = self.execute_experiment(
             experiment,
             camera_id,
-            add_suffix(file_path, "-1_0"),
+            file_path=add_suffix(file_path, "-1_0"),
             meta_dict=meta_dict,
             verbose=verbose,
         )
 
         image = self.load_image(image, get_meta=True)
 
-        pixelSize = image.get_meta("PhysicalSizeX")
-        edgePosPixels = find_well_center.find_well_center_fine(
-            image=image.data, direction="-x"
+        pixel_size = image.get_meta("PhysicalSizeX")
+        edge_pos_pixels = find_well_center.find_well_center_fine(
+            image=image.data, direction="-x", test=test
         )
 
-        xPos_0 = edgePosPixels * pixelSize
-        xEdge_0 = xPos_0 + image.get_meta("aics_imageAbsPosX")
+        x_pos_0 = edge_pos_pixels * pixel_size
+        x_edge_0 = x_pos_0 + image.get_meta("aics_imageAbsPosX")
 
         # move to right edge, take image, and find edge coordinates
         self.move_delta_xyz(well_diameter, 0, 0, load=False, verbose=verbose)
@@ -3872,21 +3857,21 @@ class Well(ImagingSystem):
         image = self.execute_experiment(
             experiment,
             camera_id,
-            add_suffix(file_path, "1_0"),
+            file_path=add_suffix(file_path, "1_0"),
             meta_dict=meta_dict,
             verbose=verbose,
         )
 
         image = self.load_image(image, get_meta=True)
-        edgePosPixels = find_well_center.find_well_center_fine(
-            image=image.data, direction="x"
+        edge_pos_pixels = find_well_center.find_well_center_fine(
+            image=image.data, direction="x", test=test
         )
 
-        xPos_1 = edgePosPixels * pixelSize
-        xEdge_1 = xPos_1 + image.get_meta("aics_imageAbsPosX")
+        x_pos_1 = edge_pos_pixels * pixel_size
+        x_edge_1 = x_pos_1 + image.get_meta("aics_imageAbsPosX")
 
-        xRadius = (xEdge_1 - xEdge_0) / 2
-        xCenter = xEdge_0 + xRadius
+        x_radius = (x_edge_1 - x_edge_0) / 2
+        x_center = x_edge_0 + x_radius
 
         # move to top edge, take image, and find edge coordinates
         self.move_delta_xyz(
@@ -3901,17 +3886,17 @@ class Well(ImagingSystem):
         image = self.execute_experiment(
             experiment,
             camera_id,
-            add_suffix(file_path, "0_1"),
+            file_path=add_suffix(file_path, "0_1"),
             meta_dict=meta_dict,
             verbose=verbose,
         )
 
         image = self.load_image(image, get_meta=True)
-        edgePosPixels = find_well_center.find_well_center_fine(
-            image=image.data, direction="-y"
+        edge_pos_pixels = find_well_center.find_well_center_fine(
+            image=image.data, direction="-y", test=test
         )
-        yPos_0 = edgePosPixels * pixelSize
-        yEdge_0 = yPos_0 + image.get_meta("aics_imageAbsPosY")
+        y_pos_0 = edge_pos_pixels * pixel_size
+        y_edge_0 = y_pos_0 + image.get_meta("aics_imageAbsPosY")
 
         # move to bottom edge, take image, and find edge coordinates
         self.move_delta_xyz(0, well_diameter, 0, load=False, verbose=verbose)
@@ -3924,28 +3909,28 @@ class Well(ImagingSystem):
         image = self.execute_experiment(
             experiment,
             camera_id,
-            add_suffix(file_path, "0_-1"),
+            file_path=add_suffix(file_path, "0_-1"),
             meta_dict=meta_dict,
             verbose=verbose,
         )
 
         image = self.load_image(image, get_meta=True)
-        edgePosPixels = find_well_center.find_well_center_fine(
-            image=image.data, direction="y"
+        edge_pos_pixels = find_well_center.find_well_center_fine(
+            image=image.data, direction="y", test=test
         )
 
-        yPos_1 = edgePosPixels * pixelSize
-        yEdge_1 = yPos_1 + image.get_meta("aics_imageAbsPosY")
+        y_pos_1 = edge_pos_pixels * pixel_size
+        y_edge_1 = y_pos_1 + image.get_meta("aics_imageAbsPosY")
 
-        yRadius = (yEdge_1 - yEdge_0) / 2
-        yCenter = yEdge_0 + yRadius
+        y_radius = (y_edge_1 - y_edge_0) / 2
+        y_center = y_edge_0 + y_radius
 
-        zCenter = image.get_meta("aics_imageAbsPosZ(driftCorrected)")
-        self.set_measured_diameter(measured_diameter=2 * numpy.mean([xRadius, yRadius]))
-        print("Radius in x (length, x position): ", xRadius, xCenter)
-        print("Radius in y (length, y position): ", yRadius, yCenter)
-        print("Focus position: ", zCenter)
-        return xCenter, yCenter, zCenter
+        z_center = image.get_meta("aics_imageAbsPosZ(driftCorrected)")
+        self.set_measured_diameter(2 * numpy.mean([x_radius, y_radius]))
+        print("Radius in x (length, x position): ", x_radius, x_center)
+        print("Radius in y (length, y position): ", y_radius, y_center)
+        print("Focus position: ", z_center)
+        return x_center, y_center, z_center
 
     def get_tile_positions_list(self, prefs, tile_type="Well", verbose=True):
         """Get positions for tiles in absolute coordinates.
@@ -4041,7 +4026,7 @@ class Sample(ImagingSystem):
             self.microscope = well_object.microscope
             self.well = well_object.name
             self.plate_layout = well_object.plate_layout
-            self.stageID = well_object.stageID
+            self.stage_id = well_object.stage_id
 
         self.center = center
         self.experiment = experiment
@@ -4139,7 +4124,7 @@ class Barcode(ImagingSystem):
             experiment, camera_id, file_path, verbose=verbose
         )
         image = self.load_image(image, get_meta=False)
-        # code=read_barcode(image)
+        # code = read_barcode(image)
         code = "Not implemented"
         return code
 

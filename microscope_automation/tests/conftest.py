@@ -267,11 +267,16 @@ class Helpers:
         center=[0, 0, 0],
         diameter=1,
         plate_name=None,
-        well_position_numeric=(1, 1),
-        well_position_string=("A", "1"),
+        well_pos_num=(0, 0),
+        well_pos_str=("A", "1"),
         x_flip=1,
         y_flip=1,
         z_flip=1,
+        x_correction=1,
+        y_correction=1,
+        z_correction=1,
+        z_correction_x_slope=0,
+        z_correction_y_slope=0,
     ):
         """Create Well object"""
         if plate_name:
@@ -284,11 +289,16 @@ class Helpers:
             center=center,
             diameter=diameter,
             plate_object=plate_object,
-            well_position_numeric=well_position_numeric,
-            well_position_string=well_position_string,
+            well_position_numeric=well_pos_num,
+            well_position_string=well_pos_str,
             x_flip=x_flip,
             y_flip=y_flip,
             z_flip=z_flip,
+            x_correction=x_correction,
+            y_correction=y_correction,
+            z_correction=z_correction,
+            z_correction_x_slope=z_correction_x_slope,
+            z_correction_y_slope=z_correction_y_slope,
         )
 
     def setup_local_slide(
@@ -408,26 +418,61 @@ class Helpers:
             z_flip=z_flip,
         )
 
+    def setup_local_colony(
+        self,
+        name="Colony",
+        well_name=None,
+        center=[0, 0, 0],
+        x_flip=1,
+        y_flip=1,
+        z_flip=1,
+    ):
+        """Create Slide object"""
+        if well_name:
+            well_object = self.setup_local_well(self)
+        else:
+            well_object = None
+
+        return samples.Colony(
+            name=name,
+            center=center,
+            well_object=well_object,
+            x_flip=x_flip,
+            y_flip=y_flip,
+            z_flip=z_flip,
+        )
+
     @staticmethod
-    def create_sample_object(sample_type, container=None,
-                             microscope_obj=None, stage_id=None, focus_id=None,
-                             autofocus_id=None, obj_changer_id=None,
-                             camera_ids=[], safety_id=None, pump_id=None,
-                             ref_obj=None, immersion_delivery=None):
+    def create_sample_object(
+        sample_type,
+        container=None,
+        microscope_obj=None,
+        stage_id=None,
+        focus_id=None,
+        autofocus_id=None,
+        obj_changer_id=None,
+        camera_ids=[],
+        safety_id=None,
+        pump_id=None,
+        ref_obj=None,
+        immersion_delivery=None,
+    ):
         """Create an object of the type passed in, e.g. PlateHolder or Well.
 
         This method is usually used for simple objects, whereas the other
         setup_local_<object> methods are used for full control over configuration.
         """
         if sample_type == "plate_holder":
-            obj = samples.PlateHolder(microscope_object=microscope_obj,
-                                      stage_id=stage_id,
-                                      auto_focus_id=autofocus_id,
-                                      focus_id=focus_id,
-                                      objective_changer_id=obj_changer_id,
-                                      safety_id=safety_id,
-                                      camera_ids=camera_ids,
-                                      immersion_delivery=immersion_delivery)
+            obj = samples.PlateHolder(
+                microscope_object=microscope_obj,
+                stage_id=stage_id,
+                auto_focus_id=autofocus_id,
+                focus_id=focus_id,
+                objective_changer_id=obj_changer_id,
+                safety_id=safety_id,
+                camera_ids=camera_ids,
+                immersion_delivery=immersion_delivery,
+            )
         elif sample_type == "plate":
             obj = samples.Plate(plate_holder_object=container)
         elif sample_type == "well":
@@ -435,15 +480,17 @@ class Helpers:
         elif sample_type == "background":
             obj = samples.Background(well_object=container)
         elif sample_type == "img_sys":
-            obj = samples.ImagingSystem(container=container,
-                                        microscope_object=microscope_obj,
-                                        stage_id=stage_id,
-                                        auto_focus_id=autofocus_id,
-                                        focus_id=focus_id,
-                                        objective_changer_id=obj_changer_id,
-                                        safety_id=safety_id,
-                                        camera_ids=camera_ids,
-                                        reference_object=ref_obj,)
+            obj = samples.ImagingSystem(
+                container=container,
+                microscope_object=microscope_obj,
+                stage_id=stage_id,
+                auto_focus_id=autofocus_id,
+                focus_id=focus_id,
+                objective_changer_id=obj_changer_id,
+                safety_id=safety_id,
+                camera_ids=camera_ids,
+                reference_object=ref_obj,
+            )
         elif sample_type == "colony":
             obj = samples.Colony(well_object=container)
         elif sample_type == "immersion_deliv":
@@ -451,7 +498,7 @@ class Helpers:
                 plate_holder_object=container,
                 microscope_object=microscope_obj,
                 safety_id=safety_id,
-                pump_id=pump_id
+                pump_id=pump_id,
             )
         elif sample_type == "cell":
             obj = samples.Cell(colony_object=container)
@@ -463,8 +510,7 @@ class Helpers:
         return obj
 
     def microscope_for_samples_testing(
-        self,
-        prefs_path="data/preferences_ZSD_test.yml"
+        self, prefs_path="data/preferences_ZSD_test.yml"
     ):
         """Create a microscope object with a number of components already attached.
 
@@ -482,7 +528,7 @@ class Helpers:
         safe_area_id = "StageArea"
         objectives = {
             "Plan-Apochromat 10x/0.45": {
-                "x_offset": -19,
+                "x_offset": 20,
                 "y_offset": 15,
                 "z_offset": 10,
                 "magnification": 10,
@@ -494,16 +540,23 @@ class Helpers:
         }
         safety_id = "ZSD_01_plate"
         control_software = self.setup_local_control_software("ZEN Blue Dummy")
-        stage = self.setup_local_stage(self, stage_id,
-                                       safe_area=safe_area_id,
-                                       objective_changer=obj_changer_id,
-                                       prefs_path=prefs_path,)
-        obj_changer = self.setup_local_obj_changer(self, obj_changer_id,
-                                                   n_positions=6,
-                                                   objectives=objectives,
-                                                   prefs_path=prefs_path)
-        autofocus = self.setup_local_autofocus(self, autofocus_id,
-                                               obj_changer=obj_changer)
+        stage = self.setup_local_stage(
+            self,
+            stage_id,
+            safe_area=safe_area_id,
+            objective_changer=obj_changer_id,
+            prefs_path=prefs_path,
+        )
+        obj_changer = self.setup_local_obj_changer(
+            self,
+            obj_changer_id,
+            n_positions=6,
+            objectives=objectives,
+            prefs_path=prefs_path,
+        )
+        autofocus = self.setup_local_autofocus(
+            self, autofocus_id, obj_changer=obj_changer
+        )
         focus_drive = self.setup_local_focus_drive(
             self,
             focus_id,
@@ -524,8 +577,9 @@ class Helpers:
 
         microscope = self.setup_local_microscope(prefs_path)
         microscope.add_control_software(control_software)
-        microscope.add_microscope_object([stage, autofocus, focus_drive,
-                                          obj_changer, safety])
+        microscope.add_microscope_object(
+            [stage, autofocus, focus_drive, obj_changer, safety]
+        )
 
         autofocus.microscope_object = microscope
 

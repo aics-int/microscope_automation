@@ -53,6 +53,7 @@ PathCalibration: ['data\Production\GeneralSettings\Calibration\', 'data/Producti
 # All paths are relative to daily folder
 ColonyDirPath: &ColonyDirPathRef CeligoColonyData
 ReferenceDirPath: References
+WellEdgeDirPath: WellEdge
 
 # Information about meta data file and content
 MetaDataPath: MetaData.csv

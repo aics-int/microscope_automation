@@ -322,8 +322,7 @@ class BaseMicroscope(object):
         """
         self.not_implemented("live_mode")
 
-    def recall_focus(self, auto_focus_id, reference_object_id=None,
-                     pre_set_focus=True):
+    def recall_focus(self, auto_focus_id, reference_object_id=None, pre_set_focus=True):
         """Find difference between stored focus position and actual autofocus position.
         Recall focus will move the focus drive to it's stored position.
 
@@ -341,8 +340,9 @@ class BaseMicroscope(object):
         """
         communication_object = self._get_control_software().connection
         autofocus = self._get_microscope_object(auto_focus_id)
-        return autofocus.recall_focus(communication_object, reference_object_id,
-                                      pre_set_focus=pre_set_focus)
+        return autofocus.recall_focus(
+            communication_object, reference_object_id, pre_set_focus=pre_set_focus
+        )
 
     def trigger_pump(self, pump_id):
         """Triggers pump of pump_id.
@@ -359,9 +359,15 @@ class BaseMicroscope(object):
         pump = self._get_microscope_object(pump_id)
         pump.trigger_pump(communication_object)
 
-    def change_magnification(self, objective_changer_id, magnification,
-                             sample_object, use_safe_position=True,
-                             verbose=True, load=True):
+    def change_magnification(
+        self,
+        objective_changer_id,
+        magnification,
+        sample_object,
+        use_safe_position=True,
+        verbose=True,
+        load=True,
+    ):
         """Change to objective with given magnification.
 
         Input:

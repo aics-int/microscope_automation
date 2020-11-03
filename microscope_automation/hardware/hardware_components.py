@@ -758,7 +758,7 @@ class Camera(MicroscopeComponent, ImageAICS):
         }
 
     def get_information(self, communication_object):
-        """get camera status
+        """Get camera status
 
         Input:
          communication_object: Object that connects to microscope specific software.

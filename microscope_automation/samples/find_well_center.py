@@ -52,23 +52,19 @@ def show_debug_image(image):
         plt.show()
 
 
-def show_debug_summary(
-    image, wellImage, correlation, tImage, corrX, corrY, offsetX, offsetY
-):
+def show_debug_summary(image, well_image, correlation, t_image, corr_x, corr_y):
     """Show all images to calculate new center.
 
     Input:
      image: microscope image of well center
 
-     wellImage: synthetic image of well used for alignment
+     well_image: synthetic image of well used for alignment
 
      correlation: image of crosscorrelation
 
-     tImage: image after thresholding used for crosscorrelation
+     t_image: image after thresholding used for crosscorrelation
 
-     corrX, corrY: correlation peak
-
-     centerX, centerY: expected center of well
+     corr_x, corr_y: correlation peak
 
     Output:
      none
@@ -77,10 +73,10 @@ def show_debug_summary(
         fig, axes = plt.subplots(nRows=2, nCols=3)
 
         axes[0, 0].imshow(image)
-        axes[0, 1].imshow(wellImage)
+        axes[0, 1].imshow(well_image)
         # mark position of correlation maximum. x and y are reversed
         # because we display on a numpy array
-        axes[0, 1].plot(corrY, corrX, "wx", markersize=20)
+        axes[0, 1].plot(corr_y, corr_x, "wx", markersize=20)
         #         centerX=offsetX+correlation.shape[0]/2
         #         centerY=offsetY+correlation.shape[1]/2
 
@@ -88,26 +84,26 @@ def show_debug_summary(
         axes[1, 0].imshow(correlation)
         # mark position of correlation maximum. x and y are reversed
         # because we display on a numpy array
-        axes[1, 0].plot(corrY, corrX, "wx", markersize=20)
+        axes[1, 0].plot(corr_y, corr_x, "wx", markersize=20)
 
         # overlay original image over template for well
-        #         overlay=np.zeros((wellImage.shape[0],wellImage.shape[1]))
-        overlay = numpy.copy(wellImage)
+        #         overlay=np.zeros((well_image.shape[0],well_image.shape[1]))
+        overlay = numpy.copy(well_image)
         insert = 1 + numpy.copy(
             overlay[
-                corrX - image.shape[0] / 2 : corrX + image.shape[0] / 2,
-                corrY - image.shape[0] / 2 : corrY + image.shape[0] / 2,
+                corr_x - image.shape[0] / 2 : corr_x + image.shape[0] / 2,
+                corr_y - image.shape[0] / 2 : corr_y + image.shape[0] / 2,
             ]
         )
         image_scaled = image / image.max()
         insert = insert + image_scaled
         overlay[
-            corrX - image.shape[0] / 2 : corrX + image.shape[0] / 2,
-            corrY - image.shape[0] / 2 : corrY + image.shape[0] / 2,
+            corr_x - image.shape[0] / 2 : corr_x + image.shape[0] / 2,
+            corr_y - image.shape[0] / 2 : corr_y + image.shape[0] / 2,
         ] = insert
         axes[1, 1].imshow(overlay)
 
-        axes[0, 2].imshow(tImage)
+        axes[0, 2].imshow(t_image)
 
         plt.show()
 
@@ -136,10 +132,17 @@ def create_edge_image(diameter, length, r, phi, add_noise=False):
 
     Input:
      diameter: Well diameter in pixels
+
      length: size of image in pixels
+
      r: distance of image from circle center in pixels.
+
      phi: direction of image
+
      addNoise: add noise for test purposes. Default is False.
+
+    Output:
+     im: well edge image to be used for alignment
     """
 
     im = numpy.zeros((int(length), int(length)))
@@ -182,9 +185,9 @@ def find_well_center(image, well_diameter, percentage, phi):
      phi: direction of image from center
 
     Return:
-     offset_x, offset_y: offset betwee
+     x_center, y_center: expected center of well
     """
-    # create image of well section, wellimage has to be larger than image
+    # create image of well section, well_image has to be larger than image
     well_image_size = max(
         well_diameter + 2 * max(image.shape) * percentage / 100,
         image.shape[0],
@@ -243,7 +246,7 @@ def find_well_center(image, well_diameter, percentage, phi):
     return x_center, y_center
 
 
-def find_well_center_fine(image, direction):
+def find_well_center_fine(image, direction, test=False):
     """Find edge of well in image in selected direction.
 
     Input:
@@ -251,10 +254,14 @@ def find_well_center_fine(image, direction):
 
      direction: direction to search for edge. String of form '-x', 'x', '-y', or 'y'
 
+     test: returns 1 if True since test images may not have data (Default: False)
+
     Return:
      edge_pos: coordinate of well edge in selected direction in pixels
      with origin in center of image
     """
+    if test:
+        return 1
 
     # scikit-image assumes floating point images to be in the range [-1,1] or [0, 1]
     img = img_as_float(image)

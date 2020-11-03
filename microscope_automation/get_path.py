@@ -138,8 +138,9 @@ def get_daily_folder(prefs, barcode=None):
     # find path to daily folder. Should reside in settings file.
     # read list with possible paths for daily folder from preferences.yml
     daily_folder = get_valid_path_from_prefs(prefs, "PathDailyFolder")
-    daily_path = os.path.normpath(os.path.join(daily_folder, folder_name,
-                                               microscope_name))
+    daily_path = os.path.normpath(
+        os.path.join(daily_folder, folder_name, microscope_name)
+    )
 
     # test if folder exists, if not, create folder
     if not os.path.isdir(daily_path):
@@ -411,6 +412,22 @@ def get_calibration_path(prefs):
         prefs, key="PathCalibration", search_dir=True
     )
     return calibration_path
+
+
+def get_well_edge_path(prefs, barcode=None):
+    """Return path to folder where well edge images are saved.
+    Used to determine the well's center.
+
+    Input:
+     prefs: dictionary with preferences
+
+    Output:
+     well_edge_path: path to calibration directory
+    """
+    daily_folder_path = get_daily_folder(prefs, barcode)
+    relative_path = prefs.get_pref("WellEdgeDirPath")
+    well_edge_path = os.path.join(daily_folder_path, relative_path)
+    return well_edge_path
 
 
 if __name__ == "__main__":
