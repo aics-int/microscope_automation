@@ -15,7 +15,6 @@ from ..image_AICS import ImageAICS
 from ..automation_exceptions import (
     AutomationError,
     HardwareError,
-    HardwareDoesNotExistError,
     AutofocusNoReferenceObjectError,
     FileExistsError,
 )

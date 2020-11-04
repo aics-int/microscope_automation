@@ -42,9 +42,9 @@ def get_colony_data(prefs, colony_file):
      colonies: pandas frame with content of .csv file
     """
     # setup logging
-    logger = logging.getLogger(
+    logger = logging.getLogger(  # noqa
         "microscopeAutomation.setupAutomation.get_colony_data"
-    )  # noqa
+    )
 
     ##############################
     # this portion will be replaces by calls to LIMS system

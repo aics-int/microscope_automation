@@ -1607,8 +1607,8 @@ def test_get_set_autofocus(container_type, prefs_path, flag, expected, helpers):
 
 
 @patch(
-    "microscope_automation.zeiss.hardware_control_zeiss.SpinningDiskZeiss.setup_microscope_for_initialization"
-)  # noqa
+    "microscope_automation.zeiss.hardware_control_zeiss.SpinningDiskZeiss.setup_microscope_for_initialization"  # noqa
+)
 @pytest.mark.skipif(skip_all_tests, reason="Exclude all tests")
 @pytest.mark.parametrize(
     ("container_type, ref_object_type, prefs_path, expected"),

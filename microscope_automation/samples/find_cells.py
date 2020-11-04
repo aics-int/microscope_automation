@@ -327,8 +327,8 @@ class CellFinder:
             filtered = thresh_mask[label_objects].astype(bool)
         elif filter_type == "Center":
             # get the object in the center of the FOV and use that as imaging colony
-            # this requires that a labeled object be in the center of the image, and should
-            # only be used if pre-scanning and selecting colonies individually
+            # this requires that a labeled object be in the center of the image
+            # should only be used if pre-scanning and selecting colonies individually
             center_label = label_objects[(self.seg.shape[0] / 2, self.seg.shape[1] / 2)]
             center_mask = numpy.zeros_like(self.seg)
             center_mask[label_objects == center_label] = 1
@@ -393,7 +393,7 @@ class CellFinder:
                 "Chosen point", "Is this chosen point acceptable?", [], default=True
             ):
                 self.viewer.close()
-                # form.stop_script("Point after calibration was found to be unacceptable")
+                # form.stop_script("Point after calibration was found to be unacceptable")  # noqa
                 # restart calibration
                 self.calibrate = True
                 self.find_cells()
@@ -521,7 +521,7 @@ class CalibrationViewer:
 def display_and_save(
     image,
     name,
-    location="/home/mattb/git/microscopeautomation/data/test_data_matthew/segmentationtest/",
+    location="/home/mattb/git/microscopeautomation/data/test_data_matthew/segmentationtest/",  # noqa
     display=False,
 ):
     if display:
@@ -540,7 +540,7 @@ def segment_dir(directory, multi=True):
             [os.path.join(directory, loc) for loc in os.listdir(directory)],
         )
     ]
-    location = "/home/mattb/git/microscopeautomation/data/test_data_matthew/segmentationtest/size_filter/"
+    location = "/home/mattb/git/microscopeautomation/data/test_data_matthew/segmentationtest/size_filter/"  # noqa
 
     thread_list = ["T1", "T2", "T3", "T4"]
     queue_lock = threading.Lock()
@@ -657,7 +657,7 @@ def segment(image, img_dir):
     thresh_mask[sizes.argmax()] = sizes.max()
     # It seems like all sizes below 450,000 are garbage/too small to image
 
-    # with open('/home/mattb/git/microscopeautomation/data/test_data_matthew/segmentationtest/sizes.txt', 'a') as f:
+    # with open('/home/mattb/git/microscopeautomation/data/test_data_matthew/segmentationtest/sizes.txt', 'a') as f:  # noqa
     #     f.write("{} == {} \n".format(os.path.basename(image), sizes.max()))
     cleaned = thresh_mask[label_objects]  # this line is magic that I don't understand
     cleaned = cleaned.astype(numpy.float) / cleaned.max()
@@ -766,7 +766,7 @@ def segment(image, img_dir):
     # mean = filters.rank.mean(mean_mask, morphology.square(3))
     # display_and_save(mean, "29MeanImage", img_dir, False)
 
-    # display_and_save(overlay, "ChosenPointOverlay-" + str(time.time()), '/home/mattb/git/microscopeautomation/data/test_data_matthew/segmentationtest/roughness_comparison/', False)
+    # display_and_save(overlay, "ChosenPointOverlay-" + str(time.time()), '/home/mattb/git/microscopeautomation/data/test_data_matthew/segmentationtest/roughness_comparison/', False)  # noqa
 
     # return overlay
     img.close()

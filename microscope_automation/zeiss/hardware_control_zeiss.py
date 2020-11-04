@@ -23,7 +23,6 @@ from ..automation_exceptions import (
     CrashDangerError,
     LoadNotDefinedError,
     AutomationError,
-    HardwareDoesNotExistError,
     AutofocusNoReferenceObjectError,
     FileExistsError,
     HardwareNotReadyError,
