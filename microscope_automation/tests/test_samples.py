@@ -17,7 +17,7 @@ import os
 os.chdir(os.path.dirname(__file__))
 
 # set skip_all_tests = True to focus on single test
-skip_all_tests = False
+skip_all_tests = True
 
 ###############################################################################
 #
@@ -1993,6 +1993,8 @@ def test_execute_experiment(
     else:
         microscope = None
         focus_id = None
+        stage_id = None
+        autofocus_id = None
 
     if ref_object_type:
         ref_object = helpers.create_sample_object(ref_object_type)
@@ -3727,3 +3729,302 @@ def test_find_well_center_fine(mock_save, mock_load, mock_close, mock_show,
         result = type(err).__name__
 
     assert result == expected
+
+
+###############################################################################
+#
+# Tests for the Barcode class
+#
+###############################################################################
+
+
+@patch("microscope_automation.zeiss.connect_zen_blue.ConnectMicroscope.save_image")
+@patch(
+    "microscope_automation.zeiss.connect_zen_blue.ConnectMicroscope.close_experiment"
+)
+@pytest.mark.skipif(skip_all_tests, reason="Exclude all tests")
+@pytest.mark.parametrize(
+    (
+        "container_type, experiment, camera_id, file_path, prefs_path, expected"
+    ),
+    [
+        (
+            None,
+            "WellTile_10x_true.czexp",
+            "Camera1 (back)",
+            None,
+            "data/preferences_ZSD_test.yml",
+            "AttributeError",
+        ),
+        (
+            "plate_holder",
+            "WellTile_10x_true.czexp",
+            "Camera1 (back)",
+            None,
+            "data/preferences_ZSD_test.yml",
+            ImageAICS,
+        )
+    ],
+)
+def test_read_barcode_data_acquisition(mock_close, mock_save, container_type,
+                                       experiment, camera_id, file_path,
+                                       prefs_path, expected, helpers):
+    if prefs_path:
+        (
+            microscope,
+            stage_id,
+            focus_id,
+            autofocus_id,
+            obj_changer_id,
+            safety_id,
+        ) = helpers.microscope_for_samples_testing(
+            helpers, prefs_path
+        )
+        microscope.add_microscope_object(helpers.setup_local_camera(camera_id))
+    else:
+        microscope = None
+        focus_id = None
+        stage_id = None
+        autofocus_id = None
+
+    if container_type:
+        container = helpers.create_sample_object(
+            container_type,
+            microscope_obj=microscope,
+            focus_id=focus_id,
+            stage_id=stage_id,
+            autofocus_id=autofocus_id,
+        )
+    else:
+        container = None
+
+    well = helpers.create_sample_object("well", container=container)
+    barcode = samples.Barcode(well_object=well)
+
+    try:
+        result = barcode.read_barcode_data_acquisition(
+            experiment,
+            camera_id,
+            file_path=file_path,
+        )
+        result = result.__class__
+    except Exception as err:
+        result = type(err).__name__
+
+    assert result == expected
+
+
+@patch("microscope_automation.zeiss.connect_zen_blue.ConnectMicroscope.load_image")
+@patch("microscope_automation.zeiss.connect_zen_blue.ConnectMicroscope.save_image")
+@patch(
+    "microscope_automation.zeiss.connect_zen_blue.ConnectMicroscope.close_experiment"
+)
+@pytest.mark.skipif(skip_all_tests, reason="Exclude all tests")
+@pytest.mark.parametrize(
+    (
+        "container_type, experiment, camera_id, file_path, prefs_path, expected"
+    ),
+    [
+        (
+            None,
+            "WellTile_10x_true.czexp",
+            "Camera1 (back)",
+            None,
+            "data/preferences_ZSD_test.yml",
+            "AttributeError",
+        ),
+        (
+            "plate_holder",
+            "WellTile_10x_true.czexp",
+            "Camera1 (back)",
+            None,
+            "data/preferences_ZSD_test.yml",
+            "Not implemented",
+        )
+    ],
+)
+def test_read_barcode(mock_close, mock_save, mock_load, container_type, experiment,
+                      camera_id, file_path, prefs_path, expected, helpers):
+    if prefs_path:
+        (
+            microscope,
+            stage_id,
+            focus_id,
+            autofocus_id,
+            obj_changer_id,
+            safety_id,
+        ) = helpers.microscope_for_samples_testing(
+            helpers, prefs_path
+        )
+        microscope.add_microscope_object(helpers.setup_local_camera(camera_id))
+    else:
+        microscope = None
+        focus_id = None
+        stage_id = None
+        autofocus_id = None
+
+    if container_type:
+        container = helpers.create_sample_object(
+            container_type,
+            microscope_obj=microscope,
+            focus_id=focus_id,
+            stage_id=stage_id,
+            autofocus_id=autofocus_id,
+        )
+    else:
+        container = None
+
+    well = helpers.create_sample_object("well", container=container)
+    barcode = samples.Barcode(well_object=well)
+
+    try:
+        result = barcode.read_barcode(
+            experiment,
+            camera_id,
+            file_path=file_path,
+        )
+    except Exception as err:
+        result = type(err).__name__
+
+    assert result == expected
+
+
+###############################################################################
+#
+# Tests for the Colony class
+#
+###############################################################################
+
+
+@pytest.mark.skipif(skip_all_tests, reason="Exclude all tests")
+@pytest.mark.parametrize(
+    ("sample_type, cell_line_get, cell_line_set"),
+    [
+        ("colony", None, ""),
+        ("colony", None, "test_name"),
+        ("cell", None, ""),
+        ("cell", None, "test_name"),
+    ],
+)
+def test_get_set_cell_line(sample_type, cell_line_get, cell_line_set, helpers):
+    sample = helpers.create_sample_object(sample_type)
+    assert sample.get_cell_line() == cell_line_get
+
+    sample.set_cell_line(cell_line_set)
+    assert sample.get_cell_line() == cell_line_set
+
+
+@pytest.mark.skipif(skip_all_tests, reason="Exclude all tests")
+@pytest.mark.parametrize(
+    ("sample_type, clone_get, clone_set"),
+    [
+        ("colony", None, ""),
+        ("colony", None, "test_name"),
+        ("cell", None, ""),
+        ("cell", None, "test_name"),
+    ],
+)
+def test_get_set_clone(sample_type, clone_get, clone_set, helpers):
+    sample = helpers.create_sample_object(sample_type)
+    assert sample.get_cell_line() == clone_get
+
+    sample.set_cell_line(clone_set)
+    assert sample.get_cell_line() == clone_set
+
+
+@pytest.mark.skipif(skip_all_tests, reason="Exclude all tests")
+@pytest.mark.parametrize(
+    ("cell_name0, cell_name1, expected_keys, expected_num"),
+    [
+        ("test_cell_0", "test_cell_0", ["test_cell_0"], 1),
+        ("test_cell_0", "test_cell_1", ["test_cell_0", "test_cell_1"], 2),
+    ],
+)
+def test_get_add_cells(cell_name0, cell_name1, expected_keys, expected_num, helpers):
+    cell0 = helpers.setup_local_cell(helpers)
+    cell1 = helpers.setup_local_cell(helpers)
+
+    colony = helpers.setup_local_colony(helpers)
+    colony.add_cells({cell_name0: cell0})
+    colony.add_cells({cell_name1: cell1})
+
+    result = colony.get_cells()
+
+    for slide in result.values():
+        assert slide.__class__ == samples.Cell
+
+    assert list(result.keys()) == expected_keys
+    assert colony.number_cells() == expected_num
+
+
+# @pytest.mark.skipif(skip_all_tests, reason="Exclude all tests")
+@pytest.mark.parametrize(
+    ("prefs_path, container_type, image_list, expected"),
+    [
+        (None, None, [], "AttributeError"),
+        ("data/preferences_ZSD_test.yml", "well", [], "NaN"),
+        ("data/preferences_ZSD_test.yml", "plate_holder", ["test_image_all_black"],
+         (0.0, 1.0, 0.0)),
+        ("data/preferences_ZSD_test.yml", "plate_holder",
+         ["test_image_all_black", "test_image_all_white"], (0.5, 0.5, 0.0)),
+    ],
+)
+def test_update_zero_colony(prefs_path, container_type, image_list, expected,
+                            helpers, test_image_all_black, test_image_all_white):
+    images = []
+    for image in image_list:
+        if image == "test_image_all_black":
+            images.append(test_image_all_black)
+        elif image == "test_image_all_white":
+            images.append(test_image_all_white)
+        else:
+            images.append(ImageAICS())
+
+    if prefs_path:
+        (
+            microscope,
+            stage_id,
+            focus_id,
+            autofocus_id,
+            obj_changer_id,
+            safety_id,
+        ) = helpers.microscope_for_samples_testing(
+            helpers, prefs_path
+        )
+    else:
+        microscope = None
+        stage_id = None
+        focus_id = None
+
+    if container_type:
+        container = helpers.create_sample_object(
+            container_type,
+            microscope_obj=microscope,
+            stage_id=stage_id,
+            focus_id=focus_id,
+        )
+    else:
+        container = None
+
+    colony = helpers.create_sample_object(
+        "colony",
+        container=container,
+        microscope_obj=microscope,
+        stage_id=stage_id,
+        focus_id=focus_id,
+    )
+
+    try:
+        result = colony.update_zero(images)
+        if expected == "NaN":
+            assert all(np.isnan(result))
+        else:
+            assert result == expected
+    except Exception as err:
+        result = type(err).__name__
+
+# def test_find_cells_cell_profiler():
+
+# def test_find_cells_distance_map():
+
+# def test_find_cell_interactive_distance_map():

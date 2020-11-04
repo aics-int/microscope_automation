@@ -33,6 +33,7 @@ from ..automation_exceptions import (
     FileExistsError,
     MetaDataNotSavedError,
 )
+from . import find_cells
 
 # we need module hardware only for testing
 from ..hardware import hardware_components
@@ -1267,8 +1268,8 @@ class ImagingSystem(object):
          verbose: if True print debug information (Default = True)
 
         Output:
-         xPos, yPos, zPos: current or position passed in stage coordinate returned
-         in object coordinates
+         x_pos, y_pos, z_pos: current or position passed in stage coordinate
+         returned in object coordinates
         """
         if self.get_container() is None:
             if (x is None) or (y is None) or (z is None):
@@ -1546,13 +1547,13 @@ class ImagingSystem(object):
          Get pixel data with load_image.
         """
         # add name and type of object to meta data
-        className = self.__class__.__name__
+        class_name = self.__class__.__name__
         if meta_dict is None:
             meta_dict = {}
         meta_dict.update(
             {
                 "aics_objectContainerName": self.get_container().get_name(),
-                "aics_type": className,
+                "aics_type": class_name,
                 "aics_containerType": self.get_container().__class__.__name__,
                 "aics_barcode": self.get_barcode(),
             }
@@ -4093,7 +4094,8 @@ class Barcode(ImagingSystem):
 
          camera_id: unique ID for camera used to acquire image
 
-         file_path: path to directory for alignment images
+         file_path: filename with path to store images.
+         If None, image is not saved
 
          verbose: if True print debug information (Default = True)
 
@@ -4113,7 +4115,8 @@ class Barcode(ImagingSystem):
 
          camera_id: string with name of camera
 
-         file_path: filename with path to store images
+         file_path: filename with path to store images.
+         If None, image is not saved
 
          verbose: if True print debug information (Default = True)
 
@@ -4283,24 +4286,25 @@ class Colony(ImagingSystem):
         Output:
          x, y, z: new zero position
          z after drift correction (as if no drift had happended)
-
         """
         # calculate median of all x, y, z-Positions
-        xStagePositions = []
-        yStagePositions = []
-        zStagePositions = []
+        x_stage_positions = []
+        y_stage_positions = []
+        z_stage_positions = []
         for image in images:
-            xStagePositions.append(image.get_meta("aics_imageAbsPosX"))
-            yStagePositions.append(image.get_meta("aics_imageAbsPosY"))
-            zStagePositions.append(image.get_meta("aics_imageAbsPosZ(driftCorrected"))
-        xStageMedian = numpy.median(numpy.array(xStagePositions))
-        yStageMedian = numpy.median(numpy.array(yStagePositions))
-        zStageMedian = numpy.median(numpy.array(zStagePositions))
+            x_stage_positions.append(image.get_meta("aics_imageAbsPosX"))
+            y_stage_positions.append(image.get_meta("aics_imageAbsPosY"))
+            z_stage_positions.append(image.get_meta("aics_imageAbsPosZ(driftCorrected)"))
+
+        print(x_stage_positions)
+        x_stage_median = numpy.median(numpy.array(x_stage_positions))
+        y_stage_median = numpy.median(numpy.array(y_stage_positions))
+        z_stage_median = numpy.median(numpy.array(z_stage_positions))
 
         x, y, z = self.get_container().get_pos_from_abs_pos(
-            xStageMedian, yStageMedian, zStageMedian, verbose=verbose
+            x_stage_median, y_stage_median, z_stage_median, verbose=verbose
         )
-        self.set_zero(x, y, z)
+        return self.set_zero(x, y, z)
 
     def add_cells(self, cell_objects_dict):
         """Adds cells to colony.
@@ -4327,13 +4331,9 @@ class Colony(ImagingSystem):
          none
 
         Output:
-         cells: list with cell objects
+         cells: dictionary of form {'name': cellObject}
         """
-        try:
-            cells = self.cells
-        except AttributeError:
-            cells = None
-        return cells
+        return self.cells
 
     def number_cells(self):
         return len(self.cells)
@@ -4360,15 +4360,13 @@ class Colony(ImagingSystem):
         """Find locations of cells to be imaged in colony and add them to colony.
 
         Input:
-        prefs: preferences read with module preferences with criteria for cells
+         prefs: preferences read with module preferences with criteria for cells
 
-        image: ImageAICS object with colony
+         image: ImageAICS object with colony
 
         Output:
-        none
+         none
         """
-        from . import find_cells
-
         if image.get_data() is None:
             # TODO: Works only with Zeiss, not with 3i
             li = LoadImageCzi()
@@ -4445,12 +4443,7 @@ position_number = 1
 
 
 class Cell(ImagingSystem):
-    """Class to describe and manipulate cells within a colony.
-    Input:
-
-    Output:
-     None
-    """
+    """Class to describe and manipulate cells within a colony."""
 
     def __init__(
         self,

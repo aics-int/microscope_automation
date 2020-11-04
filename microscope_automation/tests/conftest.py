@@ -34,6 +34,9 @@ def test_image_all_black():
         "aics_imageObjectPosX": 0,
         "aics_imageObjectPosY": 1,
         "aics_imageObjectPosZ": 0.0,
+        "aics_imageAbsPosX": 0,
+        "aics_imageAbsPosY": 1,
+        "aics_imageAbsPosZ(driftCorrected)": 0.0,
         "Type": int,
     }
 
@@ -49,6 +52,9 @@ def test_image_all_white():
         "aics_imageObjectPosX": 1,
         "aics_imageObjectPosY": 0,
         "aics_imageObjectPosZ": 0.0,
+        "aics_imageAbsPosX": 1,
+        "aics_imageAbsPosY": 0,
+        "aics_imageAbsPosZ(driftCorrected)": 0.0,
         "Type": int,
     }
 
@@ -427,7 +433,7 @@ class Helpers:
         y_flip=1,
         z_flip=1,
     ):
-        """Create Slide object"""
+        """Create Colony object"""
         if well_name:
             well_object = self.setup_local_well(self)
         else:
@@ -437,6 +443,30 @@ class Helpers:
             name=name,
             center=center,
             well_object=well_object,
+            x_flip=x_flip,
+            y_flip=y_flip,
+            z_flip=z_flip,
+        )
+
+    def setup_local_cell(
+        self,
+        name="Cell",
+        colony_name=None,
+        center=[0, 0, 0],
+        x_flip=1,
+        y_flip=1,
+        z_flip=1,
+    ):
+        """Create Cell object"""
+        if colony_name:
+            colony_object = self.setup_local_colony(self)
+        else:
+            colony_object = None
+
+        return samples.Cell(
+            name=name,
+            center=center,
+            colony_object=colony_object,
             x_flip=x_flip,
             y_flip=y_flip,
             z_flip=z_flip,
