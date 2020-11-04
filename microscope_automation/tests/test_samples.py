@@ -866,9 +866,7 @@ def test_move_to_abs_position(
             autofocus_id,
             obj_changer_id,
             safety_id,
-        ) = helpers.microscope_for_samples_testing(
-            helpers, prefs_path
-        )
+        ) = helpers.microscope_for_samples_testing(helpers, prefs_path)
     else:
         microscope = None
         stage_id = None
@@ -938,9 +936,7 @@ def test_move_to_zero(
             autofocus_id,
             obj_changer_id,
             safety_id,
-        ) = helpers.microscope_for_samples_testing(
-            helpers, prefs_path
-        )
+        ) = helpers.microscope_for_samples_testing(helpers, prefs_path)
     else:
         microscope = None
         stage_id = None
@@ -1022,9 +1018,7 @@ def test_move_to_safe(
             autofocus_id,
             obj_changer_id,
             safety_id,
-        ) = helpers.microscope_for_samples_testing(
-            helpers, prefs_path
-        )
+        ) = helpers.microscope_for_samples_testing(helpers, prefs_path)
     else:
         microscope = None
         stage_id = None
@@ -1078,9 +1072,7 @@ def test_move_to_xyz(
             autofocus_id,
             obj_changer_id,
             safety_id,
-        ) = helpers.microscope_for_samples_testing(
-            helpers, prefs_path
-        )
+        ) = helpers.microscope_for_samples_testing(helpers, prefs_path)
     else:
         microscope = None
         stage_id = None
@@ -1138,9 +1130,7 @@ def test_move_to_r_phi(
             autofocus_id,
             obj_changer_id,
             safety_id,
-        ) = helpers.microscope_for_samples_testing(
-            helpers, prefs_path
-        )
+        ) = helpers.microscope_for_samples_testing(helpers, prefs_path)
     else:
         microscope = None
         stage_id = None
@@ -1191,9 +1181,7 @@ def test_move_delta_xyz(
             autofocus_id,
             obj_changer_id,
             safety_id,
-        ) = helpers.microscope_for_samples_testing(
-            helpers, prefs_path
-        )
+        ) = helpers.microscope_for_samples_testing(helpers, prefs_path)
     else:
         microscope = None
         stage_id = None
@@ -1222,8 +1210,10 @@ def test_move_delta_xyz(
 
 @pytest.mark.skipif(skip_all_tests, reason="Exclude all tests")
 @pytest.mark.parametrize(
-    ("sample_type, container_type, prefs_path, stage_id_for_func, "
-     "focus_id_for_func, expected"),
+    (
+        "sample_type, container_type, prefs_path, stage_id_for_func, "
+        "focus_id_for_func, expected"
+    ),
     [
         ("img_sys", None, None, None, None, "AttributeError"),
         (
@@ -1253,8 +1243,13 @@ def test_move_delta_xyz(
     ],
 )
 def test_get_abs_position(
-    sample_type, container_type, prefs_path, stage_id_for_func, focus_id_for_func,
-    expected, helpers
+    sample_type,
+    container_type,
+    prefs_path,
+    stage_id_for_func,
+    focus_id_for_func,
+    expected,
+    helpers,
 ):
     if prefs_path:
         (
@@ -1264,9 +1259,7 @@ def test_get_abs_position(
             autofocus_id,
             obj_changer_id,
             safety_id,
-        ) = helpers.microscope_for_samples_testing(
-            helpers, prefs_path
-        )
+        ) = helpers.microscope_for_samples_testing(helpers, prefs_path)
     else:
         microscope = None
         stage_id = None
@@ -1388,9 +1381,7 @@ def test_get_pos_from_abs_pos(
             autofocus_id,
             obj_changer_id,
             safety_id,
-        ) = helpers.microscope_for_samples_testing(
-            helpers, prefs_path
-        )
+        ) = helpers.microscope_for_samples_testing(helpers, prefs_path)
     else:
         microscope = None
         stage_id = None
@@ -1461,9 +1452,7 @@ def test_get_abs_pos_from_obj_pos(
             autofocus_id,
             obj_changer_id,
             safety_id,
-        ) = helpers.microscope_for_samples_testing(
-            helpers, prefs_path
-        )
+        ) = helpers.microscope_for_samples_testing(helpers, prefs_path)
     else:
         microscope = None
         stage_id = None
@@ -1534,9 +1523,7 @@ def test_get_container_pos_from_obj_pos(
             autofocus_id,
             obj_changer_id,
             safety_id,
-        ) = helpers.microscope_for_samples_testing(
-            helpers, prefs_path
-        )
+        ) = helpers.microscope_for_samples_testing(helpers, prefs_path)
     else:
         microscope = None
         stage_id = None
@@ -1586,9 +1573,7 @@ def test_get_set_autofocus(container_type, prefs_path, flag, expected, helpers):
             autofocus_id,
             obj_changer_id,
             safety_id,
-        ) = helpers.microscope_for_samples_testing(
-            helpers, prefs_path
-        )
+        ) = helpers.microscope_for_samples_testing(helpers, prefs_path)
     else:
         microscope = None
         autofocus_id = None
@@ -1664,9 +1649,7 @@ def test_find_surface(
             autofocus_id,
             obj_changer_id,
             safety_id,
-        ) = helpers.microscope_for_samples_testing(
-            helpers, prefs_path
-        )
+        ) = helpers.microscope_for_samples_testing(helpers, prefs_path)
     else:
         microscope = None
         autofocus_id = None
@@ -1747,9 +1730,7 @@ def test_store_focus(container_type, ref_object_type, prefs_path, expected, help
             autofocus_id,
             obj_changer_id,
             safety_id,
-        ) = helpers.microscope_for_samples_testing(
-            helpers, prefs_path
-        )
+        ) = helpers.microscope_for_samples_testing(helpers, prefs_path)
     else:
         microscope = None
         autofocus_id = None
@@ -1841,9 +1822,7 @@ def test_recall_focus(
             autofocus_id,
             obj_changer_id,
             safety_id,
-        ) = helpers.microscope_for_samples_testing(
-            helpers, prefs_path
-        )
+        ) = helpers.microscope_for_samples_testing(helpers, prefs_path)
     else:
         microscope = None
         autofocus_id = None
@@ -2026,9 +2005,7 @@ def test_execute_experiment(
             autofocus_id,
             obj_changer_id,
             safety_id,
-        ) = helpers.microscope_for_samples_testing(
-            helpers, prefs_path
-        )
+        ) = helpers.microscope_for_samples_testing(helpers, prefs_path)
         microscope.add_microscope_object(helpers.setup_local_camera(camera_id))
     else:
         microscope = None
@@ -2961,9 +2938,7 @@ def test_get_abs_stage_position(
             autofocus_id,
             obj_changer_id,
             safety_id,
-        ) = helpers.microscope_for_samples_testing(
-            helpers, prefs_path
-        )
+        ) = helpers.microscope_for_samples_testing(helpers, prefs_path)
     else:
         microscope = None
         stage_id = None
@@ -3650,7 +3625,7 @@ def test_calculate_well_correction(
     [
         ("test_colony_0", "test_colony_0", ["test_colony_0"]),
         ("test_colony_0", "test_colony_1", ["test_colony_0", "test_colony_1"]),
-    ]
+    ],
 )
 def test_get_add_colonies(colony_name0, colony_name1, expected_keys, helpers):
     colony0 = helpers.setup_local_colony(helpers)
@@ -3674,7 +3649,7 @@ def test_get_add_colonies(colony_name0, colony_name1, expected_keys, helpers):
     [
         ("test_barcode_0", "test_barcode_0", ["test_barcode_0"]),
         ("test_barcode_0", "test_barcode_1", ["test_barcode_0", "test_barcode_1"]),
-    ]
+    ],
 )
 def test_add_barcode(barcode_name0, barcode_name1, expected_keys, helpers):
     barcode0 = samples.Barcode()
@@ -3706,19 +3681,50 @@ def test_add_barcode(barcode_name0, barcode_name1, expected_keys, helpers):
     ("container_type, prefs_path, experiment, well_diameter, camera_id, expected"),
     [
         (None, None, "WellTile_10x_true.czexp", 1, None, "AttributeError"),
-        (None, "data/preferences_ZSD_test.yml", "WellTile_10x_true.czexp",
-         2, "Camera1 (back)", "AttributeError"),
-        ("plate_holder", "data/preferences_ZSD_test.yml", "WellTile_10x_true.czexp",
-         2, "Camera1 (back)",
-         ("<class 'mock.mock.MagicMock'>", "<class 'mock.mock.MagicMock'>",
-          "<class 'mock.mock.MagicMock'>")),
-        ("plate_holder", "data/preferences_ZSD_test.yml", "WellTile_10x_true.czexp",
-         5000, "Camera1 (back)", "CrashDangerError"),
-    ]
+        (
+            None,
+            "data/preferences_ZSD_test.yml",
+            "WellTile_10x_true.czexp",
+            2,
+            "Camera1 (back)",
+            "AttributeError",
+        ),
+        (
+            "plate_holder",
+            "data/preferences_ZSD_test.yml",
+            "WellTile_10x_true.czexp",
+            2,
+            "Camera1 (back)",
+            (
+                "<class 'mock.mock.MagicMock'>",
+                "<class 'mock.mock.MagicMock'>",
+                "<class 'mock.mock.MagicMock'>",
+            ),
+        ),
+        (
+            "plate_holder",
+            "data/preferences_ZSD_test.yml",
+            "WellTile_10x_true.czexp",
+            5000,
+            "Camera1 (back)",
+            "CrashDangerError",
+        ),
+    ],
 )
-def test_find_well_center_fine(mock_save, mock_load, mock_close, mock_show,
-                               mock_recover, container_type, prefs_path, experiment,
-                               well_diameter, camera_id, expected, helpers):
+def test_find_well_center_fine(
+    mock_save,
+    mock_load,
+    mock_close,
+    mock_show,
+    mock_recover,
+    container_type,
+    prefs_path,
+    experiment,
+    well_diameter,
+    camera_id,
+    expected,
+    helpers,
+):
     if prefs_path:
         settings = Preferences(prefs_path)
         (
@@ -3748,23 +3754,30 @@ def test_find_well_center_fine(mock_save, mock_load, mock_close, mock_show,
         stage_id=stage_id,
         obj_changer_id=obj_changer_id,
         autofocus_id=autofocus_id,
-        safety_id=safety_id
+        safety_id=safety_id,
     )
 
-    well = helpers.create_sample_object("well", container=container,
-                                        microscope_obj=microscope,
-                                        camera_ids=[camera_id],
-                                        focus_id=focus_id,
-                                        stage_id=stage_id,
-                                        obj_changer_id=obj_changer_id,
-                                        autofocus_id=autofocus_id,
-                                        safety_id=safety_id)
+    well = helpers.create_sample_object(
+        "well",
+        container=container,
+        microscope_obj=microscope,
+        camera_ids=[camera_id],
+        focus_id=focus_id,
+        stage_id=stage_id,
+        obj_changer_id=obj_changer_id,
+        autofocus_id=autofocus_id,
+        safety_id=safety_id,
+    )
 
     try:
-        result = well.find_well_center_fine(experiment, well_diameter, camera_id,
-                                            settings, test=True)
-        result = (str(result[0].__class__),
-                  str(result[1].__class__), str(result[2].__class__))
+        result = well.find_well_center_fine(
+            experiment, well_diameter, camera_id, settings, test=True
+        )
+        result = (
+            str(result[0].__class__),
+            str(result[1].__class__),
+            str(result[2].__class__),
+        )
     except Exception as err:
         result = type(err).__name__
 
@@ -3784,9 +3797,7 @@ def test_find_well_center_fine(mock_save, mock_load, mock_close, mock_show,
 )
 @pytest.mark.skipif(skip_all_tests, reason="Exclude all tests")
 @pytest.mark.parametrize(
-    (
-        "container_type, experiment, camera_id, file_path, prefs_path, expected"
-    ),
+    ("container_type, experiment, camera_id, file_path, prefs_path, expected"),
     [
         (
             None,
@@ -3803,12 +3814,20 @@ def test_find_well_center_fine(mock_save, mock_load, mock_close, mock_show,
             None,
             "data/preferences_ZSD_test.yml",
             ImageAICS,
-        )
+        ),
     ],
 )
-def test_read_barcode_data_acquisition(mock_close, mock_save, container_type,
-                                       experiment, camera_id, file_path,
-                                       prefs_path, expected, helpers):
+def test_read_barcode_data_acquisition(
+    mock_close,
+    mock_save,
+    container_type,
+    experiment,
+    camera_id,
+    file_path,
+    prefs_path,
+    expected,
+    helpers,
+):
     if prefs_path:
         (
             microscope,
@@ -3817,9 +3836,7 @@ def test_read_barcode_data_acquisition(mock_close, mock_save, container_type,
             autofocus_id,
             obj_changer_id,
             safety_id,
-        ) = helpers.microscope_for_samples_testing(
-            helpers, prefs_path
-        )
+        ) = helpers.microscope_for_samples_testing(helpers, prefs_path)
         microscope.add_microscope_object(helpers.setup_local_camera(camera_id))
     else:
         microscope = None
@@ -3861,9 +3878,7 @@ def test_read_barcode_data_acquisition(mock_close, mock_save, container_type,
 )
 @pytest.mark.skipif(skip_all_tests, reason="Exclude all tests")
 @pytest.mark.parametrize(
-    (
-        "container_type, experiment, camera_id, file_path, prefs_path, expected"
-    ),
+    ("container_type, experiment, camera_id, file_path, prefs_path, expected"),
     [
         (
             None,
@@ -3880,11 +3895,21 @@ def test_read_barcode_data_acquisition(mock_close, mock_save, container_type,
             None,
             "data/preferences_ZSD_test.yml",
             "Not implemented",
-        )
+        ),
     ],
 )
-def test_read_barcode(mock_close, mock_save, mock_load, container_type, experiment,
-                      camera_id, file_path, prefs_path, expected, helpers):
+def test_read_barcode(
+    mock_close,
+    mock_save,
+    mock_load,
+    container_type,
+    experiment,
+    camera_id,
+    file_path,
+    prefs_path,
+    expected,
+    helpers,
+):
     if prefs_path:
         (
             microscope,
@@ -3893,9 +3918,7 @@ def test_read_barcode(mock_close, mock_save, mock_load, container_type, experime
             autofocus_id,
             obj_changer_id,
             safety_id,
-        ) = helpers.microscope_for_samples_testing(
-            helpers, prefs_path
-        )
+        ) = helpers.microscope_for_samples_testing(helpers, prefs_path)
         microscope.add_microscope_object(helpers.setup_local_camera(camera_id))
     else:
         microscope = None
@@ -4003,14 +4026,29 @@ def test_get_add_cells(cell_name0, cell_name1, expected_keys, expected_num, help
     [
         (None, None, [], "AttributeError"),
         ("data/preferences_ZSD_test.yml", "well", [], "NaN"),
-        ("data/preferences_ZSD_test.yml", "plate_holder", ["test_image_all_black"],
-         (0.0, 1.0, 0.0)),
-        ("data/preferences_ZSD_test.yml", "plate_holder",
-         ["test_image_all_black", "test_image_all_white"], (0.5, 0.5, 0.0)),
+        (
+            "data/preferences_ZSD_test.yml",
+            "plate_holder",
+            ["test_image_all_black"],
+            (0.0, 1.0, 0.0),
+        ),
+        (
+            "data/preferences_ZSD_test.yml",
+            "plate_holder",
+            ["test_image_all_black", "test_image_all_white"],
+            (0.5, 0.5, 0.0),
+        ),
     ],
 )
-def test_update_zero_colony(prefs_path, container_type, image_list, expected,
-                            helpers, test_image_all_black, test_image_all_white):
+def test_update_zero_colony(
+    prefs_path,
+    container_type,
+    image_list,
+    expected,
+    helpers,
+    test_image_all_black,
+    test_image_all_white,
+):
     images = []
     for image in image_list:
         if image == "test_image_all_black":
@@ -4028,9 +4066,7 @@ def test_update_zero_colony(prefs_path, container_type, image_list, expected,
             autofocus_id,
             obj_changer_id,
             safety_id,
-        ) = helpers.microscope_for_samples_testing(
-            helpers, prefs_path
-        )
+        ) = helpers.microscope_for_samples_testing(helpers, prefs_path)
     else:
         microscope = None
         stage_id = None
@@ -4096,12 +4132,24 @@ def test_find_cells_cell_profiler(name, expected, helpers):
         (None, None, "test_image_all_black", "AttributeError"),
         ("data/preferences_ZSD_test.yml", None, None, "TypeError"),
         ("data/preferences_ZSD_test.yml", None, "test_image_all_black", "IndexError"),
-        ("data/preferences_ZSD_test.yml", "ScanCells", "test_image_all_black",
-         "ValueError"),
+        (
+            "data/preferences_ZSD_test.yml",
+            "ScanCells",
+            "test_image_all_black",
+            "ValueError",
+        ),
     ],
 )
-def test_find_cells_distance_map(mock_pull_down, mock_validate, prefs_path, pref_name,
-                                 image_name, expected, helpers, test_image_all_black):
+def test_find_cells_distance_map(
+    mock_pull_down,
+    mock_validate,
+    prefs_path,
+    pref_name,
+    image_name,
+    expected,
+    helpers,
+    test_image_all_black,
+):
     mock_validate.return_value = False
     mock_pull_down.return_value = "Fixed"
     colony = helpers.setup_local_colony(helpers)

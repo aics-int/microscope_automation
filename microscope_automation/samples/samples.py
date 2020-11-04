@@ -4293,7 +4293,9 @@ class Colony(ImagingSystem):
         for image in images:
             x_stage_positions.append(image.get_meta("aics_imageAbsPosX"))
             y_stage_positions.append(image.get_meta("aics_imageAbsPosY"))
-            z_stage_positions.append(image.get_meta("aics_imageAbsPosZ(driftCorrected)"))
+            z_stage_positions.append(
+                image.get_meta("aics_imageAbsPosZ(driftCorrected)")
+            )
 
         print(x_stage_positions)
         x_stage_median = numpy.median(numpy.array(x_stage_positions))
