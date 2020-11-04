@@ -75,11 +75,11 @@
             </AllowedScanArea>
             <TileRegions>
               <TileRegion Name="TR1" Id="636628657166266573">
-                <CenterPosition>60000,40000</CenterPosition>
+                <CenterPosition>5000,7800</CenterPosition>
                 <ContourSize>4000,4000</ContourSize>
                 <Columns>4</Columns>
                 <Rows>6</Rows>
-                <Z>500</Z>
+                <Z>4</Z>
                 <TemplateShapeId/>
                 <IsUsedForAcquisition>true</IsUsedForAcquisition>
                 <IsProtected>false</IsProtected>

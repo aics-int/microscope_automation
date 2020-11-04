@@ -33,7 +33,6 @@ from ..automation_exceptions import (
     FileExistsError,
     MetaDataNotSavedError,
 )
-from . import find_cells
 
 # we need module hardware only for testing
 from ..hardware import hardware_components
@@ -4367,6 +4366,8 @@ class Colony(ImagingSystem):
         Output:
          none
         """
+        from . import find_cells
+
         if image.get_data() is None:
             # TODO: Works only with Zeiss, not with 3i
             li = LoadImageCzi()

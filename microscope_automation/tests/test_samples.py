@@ -17,7 +17,7 @@ import os
 os.chdir(os.path.dirname(__file__))
 
 # set skip_all_tests = True to focus on single test
-skip_all_tests = True
+skip_all_tests = False
 
 ###############################################################################
 #
@@ -3957,7 +3957,7 @@ def test_get_add_cells(cell_name0, cell_name1, expected_keys, expected_num, help
     assert colony.number_cells() == expected_num
 
 
-# @pytest.mark.skipif(skip_all_tests, reason="Exclude all tests")
+@pytest.mark.skipif(skip_all_tests, reason="Exclude all tests")
 @pytest.mark.parametrize(
     ("prefs_path, container_type, image_list, expected"),
     [

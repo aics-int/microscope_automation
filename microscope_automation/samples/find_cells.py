@@ -5,8 +5,10 @@ import matplotlib.pyplot as plt
 import numpy
 from skimage import exposure, feature, morphology, measure, segmentation
 from scipy import ndimage
-from scipy.misc import imshow
-import Queue, threading, time
+from matplotlib.pyplot import imshow
+import queue
+import threading
+import time
 import multiprocessing
 import psutil
 import gc
@@ -485,7 +487,7 @@ def segment_dir(directory, multi=True):
 
     thread_list = ["T1", "T2", "T3", "T4"]
     queue_lock = threading.Lock()
-    img_queue = Queue.Queue(100)
+    img_queue = queue.Queue(100)
     threads = []
     threadID = 1
     exit_flag = False
