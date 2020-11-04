@@ -4337,14 +4337,12 @@ class Colony(ImagingSystem):
     def number_cells(self):
         return len(self.cells)
 
-    def find_cells_cell_profiler(self, prefs, image):
+    def find_cells_cell_profiler(self):
         # TODO Add comments plus clean up
         """Find locations of cells to be imaged in colony and add them to colony.
 
         Input:
-         prefs: preferences read with module preferences with criteria for cells
-
-         image: ImageAICS object with colony
+         none
 
         Output:
          none
@@ -4374,6 +4372,7 @@ class Colony(ImagingSystem):
             li.load_image(image, True)
         if prefs.get_pref("Tile", valid_values=VALID_TILE) != "Fixed":
             image.data = numpy.transpose(image.data, (1, 0, 2))
+        print(prefs.get_pref_as_meta("CellFinder"))
         cell_finder = find_cells.CellFinder(
             image, prefs.get_pref_as_meta("CellFinder"), self
         )
@@ -4381,6 +4380,14 @@ class Colony(ImagingSystem):
         self.add_cells(cell_dict)
 
     def find_cell_interactive_distance_map(self, location):
+        """Find locations of cells to be imaged in colony and add them to colony.
+
+        Input:
+         location: center of the cell in the form (x, y)
+
+        Output:
+         cell_to_add: object of class Cell
+        """
         cell_dict = {}
         cell_name = self.name + "_{:04}".format(1)
         cell_to_add = Cell(

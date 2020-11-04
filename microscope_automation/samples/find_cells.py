@@ -14,17 +14,20 @@ import psutil
 import gc
 from .samples import Cell
 # from . import samples
-from . import automation_messages_form_layout as form
+from .. import automation_messages_form_layout as form
 
 
 class CellFinder:
     def __init__(self, image, prefs, parent_colony_object):
         """Find cells in an ImageAICS image
-        :param image: ImageAICS image to find cells in
-        :param prefs: preferences for image analysis
-        :var self.original: reference to original image
+
+        Input:
+         image: ImageAICS image to find cells in
+
+         prefs: preferences for image analysis
+
+         parent_colony_object: colony object which is using this CellFinder
         """
-        # TODO: continue here
         self.original = image
         self.original_data = None
         self.seg = None
@@ -33,10 +36,10 @@ class CellFinder:
         self.image_locations = []
         self.cell_dict = {}
         self.colony_object = parent_colony_object
-        self.calibrate = self.prefs.getPref('Calibrate')
+        self.calibrate = self.prefs.get_pref('Calibrate')
         self.viewer = CalibrationViewer()
         if os.environ.get('SCIPY_PIL_IMAGE_VIEWER') is None:
-            os.environ['SCIPY_PIL_IMAGE_VIEWER'] = self.prefs.getPref('ImageViewer')
+            os.environ['SCIPY_PIL_IMAGE_VIEWER'] = self.prefs.get_pref('ImageViewer')
 
     def set_calibration(self, value):
         assert value is bool
@@ -101,10 +104,10 @@ class CellFinder:
         Output:
          none
         """
-        if self.prefs.getPref('FindSmoothAreas'):
+        if self.prefs.get_pref('FindSmoothAreas'):
             self.twofold_distance_map()
         # if calibration succeeded and continuous calibration not desired
-        if self.calibrate and not self.prefs.getPref('DevCalibration'):
+        if self.calibrate and not self.prefs.get_pref('DevCalibration'):
             self.calibrate = False
             self.prefs.setPref('Calibrate', self.calibrate)
 
@@ -144,10 +147,10 @@ class CellFinder:
                 self.original_data = img_data.astype(numpy.float)
             else:
                 # TODO: fix this transpose
-                # self.original_data = self.original.get_data()[:, :, self.prefs.getPref('ImageIndex')].astype(np.float)  # noqa
+                # self.original_data = self.original.get_data()[:, :, self.prefs.get_pref('ImageIndex')].astype(np.float)  # noqa
                 # self.original_data = np.transpose(self.original_data, (0, 1))
                 self.original_data = self.original.get_data(
-                    )[:, :, self.prefs.getPref('ImageIndex')].astype(numpy.float)
+                    )[:, :, self.prefs.get_pref('ImageIndex')].astype(numpy.float)
             # self.original_data = np.transpose(self.original_data, (1, 0))
             # self.original_data /= self.original_data.max()
             self.original_data = exposure.rescale_intensity(self.original_data,
@@ -167,7 +170,7 @@ class CellFinder:
         """
         fields = ['Sigmoid Threshold', 'Sigmoid Gain', 'Gamma']
         names = ['SigmoidThreshold', 'SigmoidGain', 'Gamma']
-        values = [float(self.prefs.getPref(name)) for name in names]
+        values = [float(self.prefs.get_pref(name)) for name in names]
         adjusted = exposure.adjust_sigmoid(self.seg, values[0], values[1])
         adjusted = exposure.adjust_gamma(adjusted, values[2])
         if self.calibrate:
@@ -195,14 +198,14 @@ class CellFinder:
         """
         fields = ['Canny Standard Deviation Threshold']
         names = ['Canny1Sigma']
-        values = [float(self.prefs.getPref(name)) for name in names]
+        values = [float(self.prefs.get_pref(name)) for name in names]
         edge = feature.canny(self.seg, values[0])
         # Remove edge detection that occurs because of image edge artifacts
-        if self.prefs.getPref('ClearEdges') and self.prefs.getPref('Tile'):
+        if self.prefs.get_pref('ClearEdges') and self.prefs.get_pref('Tile'):
             height = 0
             width = 0
-            columns = self.prefs.getPref('nColTile')
-            rows = self.prefs.getPref('nRowTile')
+            columns = self.prefs.get_pref('nColTile')
+            rows = self.prefs.get_pref('nRowTile')
             # clear columns based on tiling
             for _ in range(1, columns):
                 height += edge.shape[1] / columns
@@ -237,7 +240,7 @@ class CellFinder:
         """
         fields = ['Dilation Size']
         names = ['DilationSize']
-        values = [int(self.prefs.getPref(name)) for name in names]
+        values = [int(self.prefs.get_pref(name)) for name in names]
         improve = morphology.dilation(self.seg, morphology.diamond(values[0]))
         improve = ndimage.binary_fill_holes(improve)
         if self.calibrate:
@@ -263,25 +266,25 @@ class CellFinder:
         Output:
          seg: 2D numpy array of image data
         """
-        filter_type = self.prefs.getPref('FilterBy')
+        filter_type = self.prefs.get_pref('FilterBy')
         label_objects, nb_labels = ndimage.label(self.seg)
         if filter_type == 'Size':
             # find the object of the largest size and use that as imaging colony
             sizes = numpy.bincount(label_objects.ravel())
             sizes[0] = 0  # clear first item, which is the background
             name = 'SizeThreshold'
-            if sizes.max() < self.prefs.getPref(name):
+            if sizes.max() < self.prefs.get_pref(name):
                 if self.calibrate:
                     result = form.value_calibration_form("Calibrate Size Threshold",
                                                          "Minimum colony size: {}\n, adjust lower bound?".format(sizes.max()),
-                                                         False, ('Minimum Size', self.prefs.getPref(name)))
+                                                         False, ('Minimum Size', self.prefs.get_pref(name)))
                     if result is None:
                         form.stop_script()
                     elif not result[-1]:
                         self.prefs.setPref(name, result[0])
                     else:
-                        if self.prefs.getPref('UseOutlier'):
-                            thresh_mask = self.is_outlier(sizes, self.prefs.getPref('OutlierThreshold')) * sizes
+                        if self.prefs.get_pref('UseOutlier'):
+                            thresh_mask = self.is_outlier(sizes, self.prefs.get_pref('OutlierThreshold')) * sizes
                         else:
                             thresh_mask = numpy.zeros_like(sizes)
                             thresh_mask[sizes.argmax()] = 1
@@ -294,8 +297,8 @@ class CellFinder:
                         return self.seg
                 else:
                     assert "Colony too small to image"
-            if self.prefs.getPref('UseOutlier'):
-                thresh_mask = self.is_outlier(sizes, self.prefs.getPref('OutlierThreshold')) * sizes
+            if self.prefs.get_pref('UseOutlier'):
+                thresh_mask = self.is_outlier(sizes, self.prefs.get_pref('OutlierThreshold')) * sizes
             else:
                 thresh_mask = numpy.zeros_like(sizes)
                 thresh_mask[sizes.argmax()] = 1
@@ -327,7 +330,7 @@ class CellFinder:
         Output:
          seg: 2D numpy array of image data
         """
-        edge = feature.canny(self.seg, self.prefs.getPref('Canny2Sigma'))
+        edge = feature.canny(self.seg, self.prefs.get_pref('Canny2Sigma'))
         self.seg = edge
         # plt.imsave('/home/mattb/git/microscopeautomation/data/test_data_matthew/2017_3_7/canny2.png',
         #            self.seg, cmap=matplotlib.cm.gray)
@@ -338,7 +341,7 @@ class CellFinder:
         fields = ['Minimum Distance from Edge', 'Maximum Distance from Edge', 'Gaussian Filter Threshold',
                   'Canny Edge Detection Threshold']
         names = ['DistanceMin', 'DistanceMax', 'GaussianFilter', 'Canny3Sigma']
-        values = [float(self.prefs.getPref(name)) for name in names]
+        values = [float(self.prefs.get_pref(name)) for name in names]
         distance_map = ndimage.distance_transform_edt(self.seg)
         d_max = distance_map.max()
         distance_map *= ((distance_map > (d_max * values[0]))
@@ -374,7 +377,7 @@ class CellFinder:
             else:
                 self.viewer.close()
                 verify_smooth_point()
-        elif self.prefs.getPref('PreScanVerify'):
+        elif self.prefs.get_pref('PreScanVerify'):
             verify_smooth_point()
         else:
             smooth_point = numpy.where(inner_edges == inner_edges.max())

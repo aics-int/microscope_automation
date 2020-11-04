@@ -1963,6 +1963,46 @@ def test_live_mode_start_stop(
             "data/preferences_ZSD_test.yml",
             ImageAICS,
         ),
+        (
+            "colony",
+            None,
+            "Camera1 (back)",
+            "WellTile_10x_true.czexp",
+            None,
+            {},
+            "data/preferences_ZSD_test.yml",
+            ImageAICS,
+        ),
+        (
+            "colony",
+            "plate",
+            "Camera1 (back)",
+            "WellTile_10x_true.czexp",
+            "data/test_sample_image.czi",
+            None,
+            "data/preferences_ZSD_test.yml",
+            ImageAICS,
+        ),
+        (
+            "cell",
+            None,
+            "Camera1 (back)",
+            "WellTile_10x_true.czexp",
+            None,
+            {},
+            "data/preferences_ZSD_test.yml",
+            ImageAICS,
+        ),
+        (
+            "cell",
+            "plate",
+            "Camera1 (back)",
+            "WellTile_10x_true.czexp",
+            "data/test_sample_image.czi",
+            None,
+            "data/preferences_ZSD_test.yml",
+            ImageAICS,
+        ),
     ],
 )
 def test_execute_experiment(
@@ -3646,8 +3686,8 @@ def test_add_barcode(barcode_name0, barcode_name1, expected_keys, helpers):
 
     result = well.get_samples(sample_type="Barcode")
 
-    for slide in result.values():
-        assert slide.__class__ == samples.Barcode
+    for barcode in result.values():
+        assert barcode.__class__ == samples.Barcode
 
     assert list(result.keys()) == expected_keys
 
@@ -3926,10 +3966,10 @@ def test_get_set_cell_line(sample_type, cell_line_get, cell_line_set, helpers):
 )
 def test_get_set_clone(sample_type, clone_get, clone_set, helpers):
     sample = helpers.create_sample_object(sample_type)
-    assert sample.get_cell_line() == clone_get
+    assert sample.get_clone() == clone_get
 
-    sample.set_cell_line(clone_set)
-    assert sample.get_cell_line() == clone_set
+    sample.set_clone(clone_set)
+    assert sample.get_clone() == clone_set
 
 
 @pytest.mark.skipif(skip_all_tests, reason="Exclude all tests")
@@ -3950,8 +3990,8 @@ def test_get_add_cells(cell_name0, cell_name1, expected_keys, expected_num, help
 
     result = colony.get_cells()
 
-    for slide in result.values():
-        assert slide.__class__ == samples.Cell
+    for cell in result.values():
+        assert cell.__class__ == samples.Cell
 
     assert list(result.keys()) == expected_keys
     assert colony.number_cells() == expected_num
@@ -4021,10 +4061,93 @@ def test_update_zero_colony(prefs_path, container_type, image_list, expected,
         else:
             assert result == expected
     except Exception as err:
-        result = type(err).__name__
+        assert type(err).__name__ == expected
 
-# def test_find_cells_cell_profiler():
 
-# def test_find_cells_distance_map():
+@pytest.mark.skipif(skip_all_tests, reason="Exclude all tests")
+@pytest.mark.parametrize(
+    ("name, expected"),
+    [
+        (None, "TypeError"),
+        ("test_colony", ["test_colony_0001"]),
+    ],
+)
+def test_find_cells_cell_profiler(name, expected, helpers):
+    colony = helpers.setup_local_colony(helpers, name=name)
 
-# def test_find_cell_interactive_distance_map():
+    try:
+        colony.find_cells_cell_profiler()
+        result = colony.get_cells()
+
+        for cell in result.values():
+            assert cell.__class__ == samples.Cell
+
+        assert list(result.keys()) == expected
+    except Exception as err:
+        assert type(err).__name__ == expected
+
+
+@patch("microscope_automation.samples.find_cells.CellFinder.validate")
+@patch("microscope_automation.automation_messages_form_layout.pull_down_select_dialog")
+@pytest.mark.skipif(skip_all_tests, reason="Exclude all tests")
+@pytest.mark.parametrize(
+    ("prefs_path, pref_name, image_name, expected"),
+    [
+        (None, None, "test_image_all_black", "AttributeError"),
+        ("data/preferences_ZSD_test.yml", None, None, "TypeError"),
+        ("data/preferences_ZSD_test.yml", None, "test_image_all_black", "IndexError"),
+        ("data/preferences_ZSD_test.yml", "ScanCells", "test_image_all_black",
+         "ValueError"),
+    ],
+)
+def test_find_cells_distance_map(mock_pull_down, mock_validate, prefs_path, pref_name,
+                                 image_name, expected, helpers, test_image_all_black):
+    mock_validate.return_value = False
+    mock_pull_down.return_value = "Fixed"
+    colony = helpers.setup_local_colony(helpers)
+
+    if prefs_path:
+        prefs = Preferences(prefs_path)
+        if pref_name:
+            prefs = prefs.get_pref_as_meta(pref_name)
+    else:
+        prefs = None
+
+    if image_name == "test_image_all_black":
+        image = test_image_all_black
+    else:
+        image = ImageAICS()
+
+    try:
+        colony.find_cells_distance_map(prefs, image)
+        result = colony.get_cells()
+
+        for cell in result.values():
+            assert cell.__class__ == samples.Cell
+
+        assert list(result.keys()) == expected
+    except Exception as err:
+        assert type(err).__name__ == expected
+
+
+@pytest.mark.skipif(skip_all_tests, reason="Exclude all tests")
+@pytest.mark.parametrize(
+    ("name, location, expected"),
+    [
+        (None, None, "TypeError"),
+        ("test_colony", (0, 0), ["test_colony_0001"]),
+    ],
+)
+def test_find_cell_interactive_distance_map(name, location, expected, helpers):
+    colony = helpers.setup_local_colony(helpers, name=name)
+
+    try:
+        colony.find_cell_interactive_distance_map(location)
+        result = colony.get_cells()
+
+        for cell in result.values():
+            assert cell.__class__ == samples.Cell
+
+        assert list(result.keys()) == expected
+    except Exception as err:
+        assert type(err).__name__ == expected

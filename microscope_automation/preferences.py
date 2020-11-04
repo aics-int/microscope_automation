@@ -112,7 +112,7 @@ class Preferences:
                         "Please select valid value for preference key {},\ninstead of {}\nor exit program by pressing 'Cancel'.".format(  # noqa
                             name, pref
                         ),
-                    )  # noqa
+                    )
         return pref
 
     def get_pref_as_meta(self, name):
