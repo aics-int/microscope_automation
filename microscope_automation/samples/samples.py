@@ -522,7 +522,7 @@ class ImagingSystem(object):
     #################################################################
 
     def add_samples(self, sample_objects_dict):
-        """Adds colonies to well.
+        """Adds samples to imaging system.
 
         Input:
          sample_objects_dict: dictionary of form {'name': sample_object}
@@ -3726,6 +3726,7 @@ class Well(ImagingSystem):
 
     def add_colonies(self, colony_objects_dict):
         """Adds colonies to well.
+        Raises TypeError if non-colony object is added.
 
         Input:
          colony_objects_dict: dictionary of form {'name': colony_object}
@@ -3733,6 +3734,9 @@ class Well(ImagingSystem):
         Output:
          none
         """
+        if not all(isinstance(v, Colony) for v in colony_objects_dict.values()):
+            raise TypeError("All objects must be of type Colony")
+
         self.samples.update(colony_objects_dict)
 
     def add_samples(self, sample_objects_dict):
@@ -3782,6 +3786,7 @@ class Well(ImagingSystem):
 
     def add_barcode(self, barcode_objects_dict):
         """Adds barcode to well.
+        Raises TypeError if non-barcode object is added.
 
         Input:
          barcode_objects_dict: dictionary of form {'name': barcodeObject}
@@ -3789,6 +3794,9 @@ class Well(ImagingSystem):
         Output:
          none
         """
+        if not all(isinstance(v, Barcode) for v in barcode_objects_dict.values()):
+            raise TypeError("All objects must be of type Barcode")
+
         self.samples.update(barcode_objects_dict)
 
     def find_well_center_fine(

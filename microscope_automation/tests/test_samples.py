@@ -3623,6 +3623,7 @@ def test_calculate_well_correction(
 @pytest.mark.parametrize(
     ("colony_name0, colony_name1, expected_keys"),
     [
+        ("test_barcode", None, "TypeError"),
         ("test_colony_0", "test_colony_0", ["test_colony_0"]),
         ("test_colony_0", "test_colony_1", ["test_colony_0", "test_colony_1"]),
     ],
@@ -3631,22 +3632,30 @@ def test_get_add_colonies(colony_name0, colony_name1, expected_keys, helpers):
     colony0 = helpers.setup_local_colony(helpers)
     colony1 = helpers.setup_local_colony(helpers)
 
-    well = helpers.setup_local_well(helpers)
-    well.add_colonies({colony_name0: colony0})
-    well.add_colonies({colony_name1: colony1})
+    try:
+        well = helpers.setup_local_well(helpers)
+        if colony_name1 is None:
+            barcode = samples.Barcode()
+            well.add_colonies({barcode.get_name(): barcode})
 
-    result = well.get_colonies()
+        well.add_colonies({colony_name0: colony0})
+        well.add_colonies({colony_name1: colony1})
 
-    for slide in result.values():
-        assert slide.__class__ == samples.Colony
+        result = well.get_colonies()
 
-    assert list(result.keys()) == expected_keys
+        for slide in result.values():
+            assert slide.__class__ == samples.Colony
+
+        assert list(result.keys()) == expected_keys
+    except Exception as err:
+        assert expected_keys == type(err).__name__
 
 
 @pytest.mark.skipif(skip_all_tests, reason="Exclude all tests")
 @pytest.mark.parametrize(
     ("barcode_name0, barcode_name1, expected_keys"),
     [
+        ("test_colony", None, "TypeError"),
         ("test_barcode_0", "test_barcode_0", ["test_barcode_0"]),
         ("test_barcode_0", "test_barcode_1", ["test_barcode_0", "test_barcode_1"]),
     ],
@@ -3655,16 +3664,23 @@ def test_add_barcode(barcode_name0, barcode_name1, expected_keys, helpers):
     barcode0 = samples.Barcode()
     barcode1 = samples.Barcode()
 
-    well = helpers.setup_local_well(helpers)
-    well.add_barcode({barcode_name0: barcode0})
-    well.add_barcode({barcode_name1: barcode1})
+    try:
+        well = helpers.setup_local_well(helpers)
+        if barcode_name1 is None:
+            colony = helpers.setup_local_colony(helpers, name=barcode_name0)
+            well.add_barcode({colony.get_name(): colony})
 
-    result = well.get_samples(sample_type="Barcode")
+        well.add_barcode({barcode_name0: barcode0})
+        well.add_barcode({barcode_name1: barcode1})
 
-    for barcode in result.values():
-        assert barcode.__class__ == samples.Barcode
+        result = well.get_samples(sample_type="Barcode")
 
-    assert list(result.keys()) == expected_keys
+        for barcode in result.values():
+            assert barcode.__class__ == samples.Barcode
+
+        assert list(result.keys()) == expected_keys
+    except Exception as err:
+        assert expected_keys == type(err).__name__
 
 
 @patch(
