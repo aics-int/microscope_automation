@@ -21,6 +21,12 @@ Welcome to Microscope Automation's documentation!
 
 .. toctree::
    :maxdepth: 1
+   :caption: Samples
+
+   samples
+
+.. toctree::
+   :maxdepth: 1
    :caption: Zeiss Microscopes
 
    connect_zen_blue

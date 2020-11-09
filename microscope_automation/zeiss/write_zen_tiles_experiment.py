@@ -12,20 +12,11 @@ import os
 
 
 class PositionWriter(object):
-<<<<<<< HEAD
     """Converts positions to stage coordinates, saves positions to .czsh file
 
     Requirements:
      1) Ensure the dummy_tile_positions.czsh path is specified
      in preferences under key "PathDummy"
-=======
-    """
-    Converts positions to stage coordinates, saves positions to .czsh file
-    Requirements:
-     1) Ensure the dummy_tile_positions.czsh path is specified
-     in preferences under key "PathDummy"
-
->>>>>>> 297adf7... Formatted code using Black
     """
 
     def __init__(self, zsd, plate, production_path, testing_mode=False):

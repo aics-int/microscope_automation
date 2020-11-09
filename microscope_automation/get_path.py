@@ -33,10 +33,10 @@ def add_suffix(file_path, suffix):
     return new_file_path
 
 
+# TODO: This should be an object
 def set_pref_file(prefs):
-    """
-    Set the preferences file location for the application during runtime
-    TODO: This should be an object
+    """Set the preferences file location for the application during runtime
+
     Input:
      prefs: file location
 

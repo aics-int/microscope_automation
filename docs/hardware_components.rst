@@ -9,7 +9,7 @@ The hardware_components module contains abstract classes that define common micr
 These components are system independent, so not all microscopes implement all classes.
 They are the bridge between automation software and hardware specific implementations.
 These classes should only be called by the :ref:`hardware_control` modules like
-:ref:`hardware_control_3i` and :ref:`hardware_control_zeiss`
+:ref:`hardware_control_3i` and :ref:`hardware_control_zeiss`.
 
 class Experiment(object)
 ========================
