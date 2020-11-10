@@ -80,6 +80,8 @@ autofocus configurations.
 .. autoclass:: microscope_automation.hardware.hardware_components.AutoFocus
     :members:
 
+.. _hardware_components_Pump:
+
 class Pump(MicroscopeComponent)
 ===============================
 This class describes, sets up, and triggers pump operation.

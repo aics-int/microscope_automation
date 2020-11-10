@@ -2868,13 +2868,14 @@ class PlateHolder(ImagingSystem):
 
         Input:
          file_path: string with filename with path for saved image in original format
-                    or tuple with path to directory and template for file name
+         or tuple with path to directory and template for file name
+
          camera_id: name of camera used for data acquisition
+
          image: image of class ImageAICS
 
         Output:
          image: image of class ImageAICS
-
         """
         # if file_path is a string use this string
         # if file_path is a list create file name including meta data defined in list
@@ -4643,8 +4644,7 @@ class Cell(ImagingSystem):
 
 
 def create_plate_holder_manually(m, prefs):
-    """Create plate holder manually instead of using setupAutomaiton.
-    Not tested"""
+    """Create plate holder manually instead of using setup_samples."""
     # create plate holder and fill with plate, wells, colonies, cells, & water delivery
     # create plate holder and connect it to microscope
     ph = PlateHolder(
