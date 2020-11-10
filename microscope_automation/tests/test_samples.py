@@ -17,7 +17,7 @@ import os
 os.chdir(os.path.dirname(__file__))
 
 # set skip_all_tests = True to focus on single test
-skip_all_tests = False
+skip_all_tests = True
 
 ###############################################################################
 #
@@ -1908,11 +1908,12 @@ def test_live_mode_start_stop(
 @pytest.mark.skipif(skip_all_tests, reason="Exclude all tests")
 @pytest.mark.parametrize(
     (
-        "container_type, ref_object_type, camera_id, experiment, file_path, "
-        "meta_dict, prefs_path, expected"
+        "container_has_plateholder, container_type, ref_object_type, camera_id, "
+        "experiment,  file_path, meta_dict, prefs_path, expected"
     ),
     [
         (
+            False,
             None,
             None,
             "Camera1 (back)",
@@ -1923,6 +1924,7 @@ def test_live_mode_start_stop(
             "AttributeError",
         ),
         (
+            False,
             "plate_holder",
             None,
             "Camera1 (back)",
@@ -1933,6 +1935,7 @@ def test_live_mode_start_stop(
             ImageAICS,
         ),
         (
+            False,
             "plate_holder",
             "plate",
             "Camera1 (back)",
@@ -1943,6 +1946,18 @@ def test_live_mode_start_stop(
             ImageAICS,
         ),
         (
+            False,
+            "colony",
+            None,
+            "Camera1 (back)",
+            "WellTile_10x_true.czexp",
+            None,
+            {},
+            "data/preferences_ZSD_test.yml",
+            "AttributeError",
+        ),
+        (
+            True,
             "colony",
             None,
             "Camera1 (back)",
@@ -1953,6 +1968,7 @@ def test_live_mode_start_stop(
             ImageAICS,
         ),
         (
+            True,
             "colony",
             "plate",
             "Camera1 (back)",
@@ -1963,6 +1979,18 @@ def test_live_mode_start_stop(
             ImageAICS,
         ),
         (
+            False,
+            "cell",
+            None,
+            "Camera1 (back)",
+            "WellTile_10x_true.czexp",
+            None,
+            {},
+            "data/preferences_ZSD_test.yml",
+            "AttributeError",
+        ),
+        (
+            True,
             "cell",
             None,
             "Camera1 (back)",
@@ -1973,6 +2001,7 @@ def test_live_mode_start_stop(
             ImageAICS,
         ),
         (
+            True,
             "cell",
             "plate",
             "Camera1 (back)",
@@ -1987,6 +2016,7 @@ def test_live_mode_start_stop(
 def test_execute_experiment(
     mock_close,
     mock_save,
+    container_has_plateholder,
     container_type,
     ref_object_type,
     camera_id,
@@ -2019,8 +2049,20 @@ def test_execute_experiment(
         ref_object = None
 
     if container_type:
+        if container_has_plateholder:
+            plate_holder = helpers.create_sample_object(
+                "plate_holder",
+                microscope_obj=microscope,
+                focus_id=focus_id,
+                stage_id=stage_id,
+                autofocus_id=autofocus_id,
+            )
+        else:
+            plate_holder = None
+
         container = helpers.create_sample_object(
             container_type,
+            container=plate_holder,
             microscope_obj=microscope,
             focus_id=focus_id,
             stage_id=stage_id,
