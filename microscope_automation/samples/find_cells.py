@@ -46,7 +46,7 @@ class CellFinder:
 
     def find_cells(self):
         """Find cells in a given image. General outline:
-        
+
         - segment colony
         - choose location to image
         - return cell information
@@ -55,7 +55,7 @@ class CellFinder:
          none
 
         Output:
-         cell_dict: dictionary of the form
+         cell_dict: dictionary of the form {'name': cell_object}
         """
         try:
             self.segment_image()
