@@ -13,9 +13,7 @@ VALID_TILE_TYPE = ["none", "rectangle", "ellipse"]
 
 
 class CreateTilePositions(object):
-    """
-    Create position lists for tiling and multi-position imaging.
-    """
+    """Create position lists for tiling and multi-position imaging."""
 
     def __init__(
         self, tile_type="none", tile_number=(2, 2), tile_size=(1, 1), degrees=0

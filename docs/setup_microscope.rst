@@ -5,7 +5,7 @@
 ****************
 setup_microscope
 ****************
-This module consists of a single method which configures microscope hardware based on reference files.
+This module consists of methods which configure microscope hardware based on reference files.
 
 .. autofunction:: microscope_automation.hardware.setup_microscope.setup_cameras
 .. autofunction:: microscope_automation.hardware.setup_microscope.setup_pump

@@ -1811,14 +1811,13 @@ class ImagingSystem(object):
         Output:
          tile_position_list: list with absolute positions for tiling
         """
-
-        tileObject = CreateTilePositions(
+        tile_object = CreateTilePositions(
             tile_type=tile_params["tile_type"],
             tile_number=tile_params["tile_number"],
             tile_size=tile_params["tile_size"],
             degrees=tile_params["degrees"],
         )
-        tile_positions_list = tileObject.get_pos_list(tile_params["center"])
+        tile_positions_list = tile_object.get_pos_list(tile_params["center"])
         return tile_positions_list
 
     def get_tile_positions_list(self, prefs, tile_object="NoTiling", verbose=True):

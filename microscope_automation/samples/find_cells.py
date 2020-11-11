@@ -45,11 +45,11 @@ class CellFinder:
         self.calibrate = value
 
     def find_cells(self):
-        """Find cells in a given image
-        General outline:
-            - segment colony
-            - choose location to image
-            - return cell information
+        """Find cells in a given image. General outline:
+        
+        - segment colony
+        - choose location to image
+        - return cell information
 
         Input:
          none
@@ -66,14 +66,14 @@ class CellFinder:
         return self.cell_dict
 
     def segment_image(self):
-        """Segment a given image
-        General outline:
-            - get original data
-            - adjust image for edge detection
-            - initial edge detection
-            - dilation and hole filling
-            - filtering
-            - final edge detection
+        """Segment a given image. General outline:
+
+        - get original data
+        - adjust image for edge detection
+        - initial edge detection
+        - dilation and hole filling
+        - filtering
+        - final edge detection
 
         Input:
          none
@@ -91,11 +91,11 @@ class CellFinder:
         return self.seg
 
     def choose_imaging_location(self):
-        """Choose a location (or locations) to image
-        General outline:
-            - if looking for smooth locations, use twofold distance map algorithm
-            - if looking for rough locations (TBD)
-            - convert image locations to stage coordinates
+        """Choose a location (or locations) to image. General outline:
+
+        - if looking for smooth locations, use twofold distance map algorithm
+        - if looking for rough locations (TBD)
+        - convert image locations to stage coordinates
 
         Input:
          none
@@ -131,8 +131,7 @@ class CellFinder:
         self.original.add_meta(metadata)
 
     def get_original_data(self):
-        """
-        Retrieve data from original image. Currently ImageAICS type
+        """Retrieve data from original image. Currently ImageAICS type.
         Will need to be converted to float and normalized between 0 and 1
 
         Input:
@@ -193,7 +192,7 @@ class CellFinder:
         return self.seg
 
     def initial_edge_detection(self):
-        """Initial edge detection
+        """Initial edge detection.
 
         Input:
          none
@@ -267,7 +266,7 @@ class CellFinder:
         return self.seg
 
     def filter_objects(self):
-        """Filter objects in image to identify best colonies
+        """Filter objects in image to identify best colonies.
 
         Input:
          none
@@ -343,7 +342,7 @@ class CellFinder:
         return self.seg
 
     def final_edge_detection(self):
-        """Find improved edges
+        """Find improved edges.
 
         Input:
          none
