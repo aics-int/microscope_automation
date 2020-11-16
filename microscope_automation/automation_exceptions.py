@@ -195,6 +195,7 @@ class AutofocusError(HardwareError):
 
     def __init__(self, message=None, error_component=None, focus_reference_obj_id=None):
         """Raise autofocus exception.
+
         Input:
          message: error message
 

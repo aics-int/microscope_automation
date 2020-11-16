@@ -7,8 +7,6 @@ import time
 import os.path
 import logging
 from serial.serialutil import SerialException
-
-# import modules from project MicroscopeAutomation
 from ..load_image_czi import LoadImageCzi
 from ..automation_exceptions import (
     HardwareError,
@@ -151,14 +149,14 @@ class ConnectMicroscope:
             log.exception(err)
             raise HardwareError("Error in save_image to {}.".format(fileName))
 
-    def load_image(self, image, getMeta=False):
+    def load_image(self, image, get_meta=False):
         """Load image using aicsimage and return it a class ImageAICS
 
         Input:
          image: image object of class ImageAICS. Holds meta data at this moment,
          no image data.
 
-         getMeta: if true, retrieve meta data from file. Default is False
+         get_meta: if true, retrieve meta data from file. Default is False
 
         Output:
          image: image with data and meta data as ImageAICS class
@@ -901,11 +899,11 @@ class ConnectMicroscope:
             )
 
         # move to load position if defined
-        zFocus = self.move_focus_to(self.zLoad)
+        z_focus = self.move_focus_to(self.zLoad)
 
-        log.info("moved focus to load position: %s", str(zFocus))
+        log.info("moved focus to load position: %s", str(z_focus))
 
-        return zFocus
+        return z_focus
 
     def move_focus_to_work(self):
         """Move focus to work position if defined.
@@ -1518,16 +1516,16 @@ def test_connect_zen_blue(
         print("Start test save_image")
         #     save ImageAICS from within Zeiss software to disk (in czi format)
         #     filePath="F:\\Winfried\\Testdata\\testImage.czi"
-        filePath = "../data/testImages/testImage.czi"
-        m.save_image(filePath)
+        file_path = "../data/testImages/testImage.czi"
+        m.save_image(file_path)
 
         # create image object
-        meta = {"aics_filePath": filePath}
-        imageTest = ImageAICS(meta=meta)
+        meta = {"aics_filePath": file_path}
+        image_test = ImageAICS(meta=meta)
 
         # load ImageAICS from file using bioFormats
-        image = m.load_image(imageTest, getMeta=True)
-        image.show(filePath)
+        image = m.load_image(image_test, get_meta=True)
+        image.show(file_path)
 
         print("save_image passed test")
 

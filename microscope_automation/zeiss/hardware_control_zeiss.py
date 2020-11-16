@@ -23,7 +23,6 @@ from ..automation_exceptions import (
     CrashDangerError,
     LoadNotDefinedError,
     AutomationError,
-    HardwareDoesNotExistError,
     AutofocusNoReferenceObjectError,
     FileExistsError,
     HardwareNotReadyError,
@@ -724,70 +723,6 @@ class SpinningDiskZeiss(BaseMicroscope):
 
         logger.info("Microscope stopped")
 
-    def add_control_software(self, controlSoftwareObject):
-        """Add object that connects this code to the  vendor specific microscope
-        control code to Microscope.
-
-        Input:
-         controlSoftwareObject: single object connecting to vendor software
-
-        Output:
-         none
-        """
-        hardware_components.log_method(self, "add_control_software")
-        self.__control_software = controlSoftwareObject
-
-    def _get_control_software(self):
-        """Returns object that connects this code to the vendor specific
-         microscope control code to Microscope.
-
-        Input:
-         none
-
-        Output:
-         controlSoftwareObject: single object connecting to vendor software
-
-        """
-        hardware_components.log_method(self, "add_control_software")
-        return self.__control_software
-
-    def add_microscope_object(self, component_objects):
-        """Add component to microscope.
-
-        Input:
-         component_objects: object of a component class (e.g. Stage, Camera)
-         or list of component classes
-
-        Output:
-         none
-        """
-        if not isinstance(component_objects, list):
-            component_objects = [component_objects]
-
-        for component_object in component_objects:
-            if isinstance(component_object, hardware_components.MicroscopeComponent):
-                self.microscope_components_ordered_dict[
-                    component_object.get_id()
-                ] = component_object
-                # attach microscope to let component know to what microscope it belongs
-                component_object.microscope = self
-
-    def _get_microscope_object(self, component_id):
-        """Get component of microscope.
-
-        Input:
-         component_id: Unique string id for microscope component
-
-        Output:
-         component_object: object of a component class (e.g. Stage, Camera)
-         or list of component classes
-        """
-        # Test if component exists.
-        # If component does note exist raise exeption
-        if component_id not in list(self.microscope_components_ordered_dict.keys()):
-            raise HardwareDoesNotExistError(error_component=component_id)
-        return self.microscope_components_ordered_dict[component_id]
-
     def setup_microscope_for_initialization(
         self, component_object, experiment=None, before_initialization=True
     ):
@@ -989,42 +924,6 @@ class SpinningDiskZeiss(BaseMicroscope):
         z_positions = focus_drive_instance.get_information(communications_object)
         return z_positions
 
-    def _get_focus_id(self, reference_object_id):
-        """Set reference position in object coordinates.
-
-        Input:
-         reference_object_id: ID of plate, plate holder or other sample object
-         the hardware is initialized for. Used for setting up of autofocus
-
-        Output:
-         focus_id: ID of focus drive attached to the reference object
-        """
-        self.not_implemented("_get_focus_id")
-
-    def _get_safety_id(self, reference_object_id):
-        """Set reference position in object coordinates.
-
-        Input:
-         reference_object_id: ID of plate, plate holder or other sample object
-         the hardware is initialized for. Used for setting up of autofocus
-
-        Output:
-         safety: ID of safety attached to the reference object
-        """
-        self.not_implemented("_get_safety_id")
-
-    def _get_objective_changer_id(self, reference_object_id):
-        """Set reference position in object coordinates.
-
-        Input:
-         reference_object_id: ID of plate, plate holder or other sample object
-         the hardware is initialized for. Used for setting up of autofocus
-
-        Output:
-         obj_changer_id: ID of objective changer attached to the reference object
-        """
-        self.not_implemented("_get_objective_changer_id")
-
     def _get_reference_position(self, reference_object_id):
         """Set reference position in object coordinates.
 
@@ -1035,7 +934,7 @@ class SpinningDiskZeiss(BaseMicroscope):
         Output:
          x, y, z: position of reference structure in object coordinates
         """
-        self.not_implemented("_get_objective_changer_id")
+        self.not_implemented("_get_reference_position")
 
     def _set_reference_position(
         self, reference_object_id, find_surface=False, verbose=True

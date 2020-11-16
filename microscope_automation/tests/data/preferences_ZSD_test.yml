@@ -53,6 +53,7 @@ PathCalibration: ['data\Production\GeneralSettings\Calibration\', 'data/Producti
 # All paths are relative to daily folder
 ColonyDirPath: &ColonyDirPathRef CeligoColonyData
 ReferenceDirPath: References
+WellEdgeDirPath: WellEdge
 
 # Information about meta data file and content
 MetaDataPath: MetaData.csv
@@ -333,3 +334,26 @@ ScanCells:
                                                   # - CenterMassCellProfiler: use center of mass as defined in cell profiler (on colony objects for now)
                                                   # - TwofoldDistanceMap: use the twofold distance map to locate smooth areas (on colony objects for now)
                                                   # - InteractiveDistanceMap: use distance map and ask user for confirmation
+
+CellFinder:
+  Calibrate: True                                             # Calibrate cellfinder values on first imaging run
+  DevCalibration: False                                       # Continuous calibration
+  ImageViewer: "C:\\Programs\\Picasa3\\PicasaPhotoViewer.exe" # Photo viewer program
+  ImageIndex: 0                                               # Brightfield channel in image
+  SigmoidThreshold: 0.5                                       # Threshold for sigmoid contrast correction
+  SigmoidGain: 10                                             # Gain for sigmoid contrast correction
+  Gamma: 0.8                                                  # Gain for gamma brightness correction
+  Canny1Sigma: 0.3                                            # Threshold for first canny edge detection
+  ClearEdges: True                                            # Remove edges of tiled image during edge detection step
+  DilationSize: 3                                             # Initial edge dilation size
+  UseOutlier: False                                           # Use outlier function for filtering
+  FilterBy: Center                                            # Filtering criteria: Size = largest object, Center = object in center (only for colony pre-scan)
+  OutlierThreshold: 50                                        # Threshold for outlier function
+  SizeThreshold: 100000                                       # Minimum size of colony to image
+  Canny2Sigma: 0                                              # Threshold for second canny edge detection
+  FindSmoothAreas: True                                       # Smooth the image for twofold distance mapping
+  DistanceMin: 0.5                                            # Minimum distance from colony edge
+  DistanceMax: 1.0                                            # Maximum distance from colony edge
+  GaussianFilter: 0.8                                         # Gaussian filter sigma value
+  Canny3Sigma: 0.8                                            # Final edge detection threshold (debugging only)
+  PreScanVerify: True                                         # View imaging point to verify each position

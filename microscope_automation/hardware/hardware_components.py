@@ -758,7 +758,7 @@ class Camera(MicroscopeComponent, ImageAICS):
         }
 
     def get_information(self, communication_object):
-        """get camera status
+        """Get camera status
 
         Input:
          communication_object: Object that connects to microscope specific software.
@@ -1269,6 +1269,8 @@ class ObjectiveChanger(MicroscopeComponent):
         """Change to objective with given magnification.
 
         Input:
+         communication_object: object that connects to microscope specific software
+
          magnification: magnification of selected objective as float.
          Not well defined if multiple objectives with identical magnification exist.
 
@@ -1939,7 +1941,7 @@ class AutoFocus(MicroscopeComponent):
     def recall_focus(
         self,
         communication_object,
-        reference_object_id,
+        reference_object_id=None,
         verbose=False,
         pre_set_focus=True,
     ):

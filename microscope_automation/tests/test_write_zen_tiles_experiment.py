@@ -4,6 +4,9 @@ import microscope_automation.zeiss.write_zen_tiles_experiment as write_zen
 os.chdir(os.path.dirname(__file__))
 
 
+os.chdir(os.path.dirname(__file__))
+
+
 testclass = write_zen.PositionWriter(zsd="testZsd", plate=1234, production_path="data")
 
 

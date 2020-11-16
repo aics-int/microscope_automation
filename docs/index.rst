@@ -21,6 +21,20 @@ Welcome to Microscope Automation's documentation!
 
 .. toctree::
    :maxdepth: 1
+   :caption: Samples
+
+   correct_background
+   draw_plate
+   find_well_center
+   find_cells
+   interactive_location_picker_pyqtgraph
+   positions_list
+   samples
+   setup_samples
+   tile_images
+
+.. toctree::
+   :maxdepth: 1
    :caption: Zeiss Microscopes
 
    connect_zen_blue
@@ -47,6 +61,7 @@ Welcome to Microscope Automation's documentation!
    get_path
    image_AICS
    load_image_czi
+   meta_data_file
    preferences
 
 .. toctree::

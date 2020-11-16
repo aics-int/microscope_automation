@@ -201,7 +201,7 @@ class ImageAICS:
             logger.error("ImageAICS.show does not support these image dimensions")
         axes[0].imshow(imageSlice, aspect="equal", animated=True, cmap="gray")
         i = len(self.meta) - 1
-        for key, val in self.meta.iteritems():
+        for key, val in self.meta.items():
             axes[1].text(0, i, key + str(val))
             i -= 1
         plt.show()

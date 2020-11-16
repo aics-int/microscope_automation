@@ -57,10 +57,10 @@ class Preferences:
         self.logger.info("add parent preferences set")
         self.parent_prefs = parent_prefs
 
-    def printPrefs(self):
+    def print_prefs(self):
         print(self.prefs)
 
-    def getparent_prefs(self):
+    def get_parent_prefs(self):
         """preferences objects that are created from a subset of preferences,
         keep a reference to the original preferences set.
 
@@ -112,7 +112,7 @@ class Preferences:
                         "Please select valid value for preference key {},\ninstead of {}\nor exit program by pressing 'Cancel'.".format(  # noqa
                             name, pref
                         ),
-                    )  # noqa
+                    )
         return pref
 
     def get_pref_as_meta(self, name):
@@ -143,10 +143,10 @@ if __name__ == "__main__":
     print(meta.get_pref("PathMicroscopeSpecs"))
     print(meta.get_pref("ExperimentsScanBackground"))
 
-    metaObject = meta.get_pref_as_meta("ScanColonies")
-    print(metaObject.get_pref("Execute"))
-    print(metaObject.getparent_prefs())
-    print(metaObject.get_pref("PathDailyFolder"))
-    print(metaObject.get_pref("Tile", valid_values=["None", "Fixed", "Size"]))
-    print(metaObject.get_pref("Tile", valid_values=["ThrowError"]))
+    meta_object = meta.get_pref_as_meta("ScanColonies")
+    print(meta_object.get_pref("Execute"))
+    print(meta_object.get_parent_prefs())
+    print(meta_object.get_pref("PathDailyFolder"))
+    print(meta_object.get_pref("Tile", valid_values=["None", "Fixed", "Size"]))
+    print(meta_object.get_pref("Tile", valid_values=["ThrowError"]))
     print("Done")

@@ -1,4 +1,5 @@
-# Microscope Automation
+Microscope Automation
+=====================
 
 .. image::
    https://github.com/aics-int/microscope_automation/workflows/Build%20Master/badge.svg
