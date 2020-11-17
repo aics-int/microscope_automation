@@ -265,38 +265,3 @@ def setup_microscope(prefs):
     setup_pump(specs, microscope_object)
 
     return microscope_object
-
-
-###########################################################################
-#
-# Test functions
-#
-############################################################################
-
-if __name__ == "__main__":
-    # get all information about experiment
-
-    try:
-        # location of preferences file on Mac
-        prefsFile = "../GeneralSettings/preferences.yml"
-        dirPath = "/Users/winfriedw/Documents/Programming/ResultTestImages/"
-        barcode = "3500000077"
-        colonyFile = "PipelineData_Celigo.csv"
-
-        colonyPath = "../PlateSpecifications/PipelineData_Celigo.csv"
-        # test function setup_microscope
-        prefs = preferences.Preferences(prefsFile)
-    except Exception:
-        # location of preferences file on Zeiss SD 1
-        prefsFile = "D:\\Winfried\\Production\\GeneralSettings\\preferences_ZSD3_drugScreen_Winfried.yml"  # noqa
-        dirPath = "D:\\Winfried\\Production\\"
-        barcode = "3500000093"
-        colonyFile = "3500000860_ColonyDATA.csv"
-        colonyPath = "D:\\Winfried\\Production\\Daily\\2017_5_10\\PlateSpecifications\\3500000860_ColonyDATA.csv"  # noqa
-
-        # test function setup_microscope
-        prefs = preferences.Preferences(prefsFile)
-
-    microscope_object = setup_microscope(prefs)
-    print("Microscope Object created")
-    print(microscope_object)

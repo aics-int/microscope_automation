@@ -428,19 +428,3 @@ def get_well_edge_path(prefs, barcode=None):
     relative_path = prefs.get_pref("WellEdgeDirPath")
     well_edge_path = os.path.join(daily_folder_path, relative_path)
     return well_edge_path
-
-
-if __name__ == "__main__":
-    prefs_path = get_prefs_path()
-    print(prefs_path)
-    prefs = Preferences(prefs_path)
-
-    print(get_daily_folder(prefs))
-    print(get_log_file_path(prefs))
-    print(get_colony_dir_path(prefs))
-    #     print get_plate_layout_path(prefs)
-    print(get_hardware_settings_path(prefs))
-    print(get_references_path(prefs))
-    images_path = get_images_path(prefs)
-    print(images_path)
-    print(add_suffix(images_path + "image.czi", suffix="top"))

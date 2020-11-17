@@ -47,7 +47,3 @@ def setup_logger(prefs, logLevel=logLevel):
     # add the handlers to the logger
     logger.addHandler(fh)
     logger.addHandler(ch)
-
-
-if __name__ == "__main__":
-    pass

@@ -427,7 +427,3 @@ class GetActiveObject(object):
         self.Devices = Devices(microscope_status)
         self.Acquisition = Acquisition(microscope_status)
         self.Application = Application(microscope_status)
-
-
-if __name__ == "__main__":
-    print(GetActiveObject("connect_zen_blue"))

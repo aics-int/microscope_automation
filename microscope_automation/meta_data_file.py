@@ -79,30 +79,3 @@ class MetaDataFile:
             print("Format {} not implemented".format(self.format))
 
         return self.meta_data
-
-
-if __name__ == "__main__":
-    filePath = "/Users/winfriedw/Documents/Programming/Production/TestMeta.csv"
-    # test with wrong format (only csc is implemented
-    meta = MetaDataFile(filePath, format="abc")
-
-    # initialize method correctly
-    meta = MetaDataFile(filePath, format="csv")
-
-    # create dict with meta data and write to disk
-    meta_data = {"Path": "C:/data", "SizeY": 512}
-    print(meta.write_meta(meta_data))
-
-    # add more data
-    meta_data = {"Path": "C:/data", "SizeX": 100, "SizeY": 200}
-    print(meta.write_meta(meta_data))
-
-    # add more data
-    meta_data = {"Path": "C:/data", "SizeX": 300, "SizeY": 400}
-    print(meta.write_meta(meta_data))
-
-    # add more data
-    meta_data = {"SizeY": 500}
-    print(meta.write_meta(meta_data))
-
-    print("Done testing")

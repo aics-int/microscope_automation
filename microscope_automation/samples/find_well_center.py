@@ -293,36 +293,3 @@ def find_well_center_fine(image, direction, test=False):
         edge_pos = pos_xy[sobel_axis].min() - img.shape[sobel_axis] / 2
     print(pos_xy[sobel_axis].min(), edge_pos)
     return edge_pos
-
-
-if __name__ == "__main__":
-    debug = False  # if True, debug images will be shown
-    summaryDebug = True  # if True, summary debug images will be shown
-    # create test ImageAICS
-    #     wellDiameter=800
-    #     length=wellDiameter
-    #     r=0
-    #     phi=0
-    #     image=create_edge_image(wellDiameter, length, r, phi, True)
-
-    # find center with different percentage of reference ImageAICS
-    #     for perc in [200, 100, 80]:
-    #         x, y= find_well_center(image, wellDiameter, perc,0)
-    #         xe=r*math.cos(math.radians(phi))
-    #         ye=r*math.sin(math.radians(phi))
-    #         print 'Well center expected:', xe, ye
-    #         print 'Well center (0,0): ', x,y
-
-    # create new test images
-    well_diameter = 400
-    length = well_diameter / 2.0
-    r = well_diameter / 2.5
-    for phi in [0, 45, 90, 180, 360]:
-        image = create_edge_image(well_diameter, length, r, phi, True)
-        x, y = find_well_center(image, well_diameter, 100, phi)
-        xe = -r * math.sin(math.radians(phi))
-        ye = -r * math.cos(math.radians(phi))
-        print("Well center expected:", xe, ye)
-        print("Well center measured: ", x, y)
-
-    print("Test findWellCenter finished")

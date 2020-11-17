@@ -769,13 +769,3 @@ def segment(image, img_dir):
 
     # return overlay
     img.close()
-
-
-if __name__ == "__main__":
-    start = time.time()
-    segment_dir(
-        "/home/mattb/git/microscopeautomation/data/test_data_matthew/colony_seg_test/",
-        False,
-    )
-    print("Finished in {} seconds".format(time.time() - start))
-    print("end")

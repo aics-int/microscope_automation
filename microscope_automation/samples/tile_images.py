@@ -191,39 +191,3 @@ def _tile_hard_rectangle(images, tile_metadata):
         hstack_list.append(np.hstack(img_y))
     vstack = np.vstack(hstack_list)
     return [ImageAICS(data=vstack, meta=tile_metadata), x_border_list, y_border_list]
-
-
-if __name__ == "__main__":
-    meta = {
-        "aics_SizeX": 5,
-        "aics_SizeY": 5,
-        "aics_imageObjectPosX": -1,
-        "aics_imageObjectPosY": -1,
-        "aics_imageObjectPosZ": 0.0,
-    }
-    # fill image list with numpy arrays of different values
-    img_data_list = [np.full((5, 5), i, dtype=int) for i in range(9)]
-    meta_list = [meta.copy() for i in range(9)]
-    # for j in range(9):
-    # set positions
-    meta_list[1]["aics_imageObjectPosX"] = 0
-    meta_list[2]["aics_imageObjectPosX"] = 1
-    meta_list[3]["aics_imageObjectPosY"] = 0
-    meta_list[4]["aics_imageObjectPosX"] = 0
-    meta_list[4]["aics_imageObjectPosY"] = 0
-    meta_list[5]["aics_imageObjectPosX"] = 1
-    meta_list[5]["aics_imageObjectPosY"] = 0
-    meta_list[6]["aics_imageObjectPosY"] = 1
-    meta_list[7]["aics_imageObjectPosX"] = 0
-    meta_list[7]["aics_imageObjectPosY"] = 1
-    meta_list[8]["aics_imageObjectPosX"] = 1
-    meta_list[8]["aics_imageObjectPosY"] = 1
-    # meta_list = list(reversed(meta_list))
-    img_list = [ImageAICS(data=img_data_list[i], meta=meta_list[i]) for i in range(9)]
-    # img_list = [ImageAICS(data=img_data_list[i], meta=meta_list[i]) for i in [0, 1, 3, 4]]  # noqa
-    for item in meta_list:
-        print(item)
-    print(_tile_hard_rectangle(img_list, {}).get_data())
-    # print(tile_images(img_list).get_data())
-
-    exit()

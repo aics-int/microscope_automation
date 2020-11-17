@@ -385,9 +385,3 @@ def test_online():
     # Properly close pyqtgraph to avoid exit crash
     pyqtgraph.exit()
     print("After exit pyqtgraph")
-
-
-if __name__ == "__main__":
-    test_offline()
-    #    test_online()
-    print("Done with testing")

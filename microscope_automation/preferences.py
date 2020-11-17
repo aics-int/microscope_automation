@@ -135,18 +135,3 @@ class Preferences:
         self.prefs[name] = value
 
     # TODO: Add capacity to save preferences
-
-
-if __name__ == "__main__":
-    pref_path = "../GeneralSettings/preferences.yml"
-    meta = Preferences(pref_path)
-    print(meta.get_pref("PathMicroscopeSpecs"))
-    print(meta.get_pref("ExperimentsScanBackground"))
-
-    meta_object = meta.get_pref_as_meta("ScanColonies")
-    print(meta_object.get_pref("Execute"))
-    print(meta_object.get_parent_prefs())
-    print(meta_object.get_pref("PathDailyFolder"))
-    print(meta_object.get_pref("Tile", valid_values=["None", "Fixed", "Size"]))
-    print(meta_object.get_pref("Tile", valid_values=["ThrowError"]))
-    print("Done")

@@ -54,14 +54,3 @@ class LoadImageCzi:
             meta["Type"] = dtype
             image.add_meta(meta)
         return image
-
-
-if __name__ == "__main__":
-    meta_data = {
-        "aics_filePath": r"D:\Winfried\Eclipse_workspace_012419\microscopeautomation\data\B10_0002_00.czi"  # noqa
-    }
-    image = ImageAICS(meta=meta_data)
-    rz = LoadImageCzi()
-    image = rz.load_image(image, True)
-    plt.imshow(image.get_data())
-    plt.show()

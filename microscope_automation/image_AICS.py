@@ -205,21 +205,3 @@ class ImageAICS:
             axes[1].text(0, i, key + str(val))
             i -= 1
         plt.show()
-
-
-if __name__ == "__main__":
-    # test class ImageAICS
-
-    # create test data
-    data = data.hubble_deep_field()
-    meta = {"ImageAICS source": "skimage", "Size": data.shape, "aics_barcode": 1234}
-
-    # create image object and test
-    im = ImageAICS(data, meta)
-    print(im.meta)
-    template = ["#aics_barcode", "_", ".czi"]
-    print(im.create_file_name(template))
-    template = ("d:/", ["#aics_barcode", "_", ".czi"])
-    print(im.create_file_name(template))
-
-#     im.show(title='Test')

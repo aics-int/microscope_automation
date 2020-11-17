@@ -64,22 +64,3 @@ class Braintree:
         """
         self.stop_pump()
         self.ser.close()
-
-
-if __name__ == "__main__":
-    import time
-
-    # connect to pump through RS232
-    pump = Braintree(port="COM1", baudrate=19200)
-
-    # activate pump
-    pump.start_pump()
-
-    # continue pumping for 5s
-    time.sleep(5)
-
-    # stop pump
-    pump.stop_pump()
-
-    # close connection
-    pump.close_connection()
