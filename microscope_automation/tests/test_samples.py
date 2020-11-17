@@ -4181,6 +4181,7 @@ def test_find_cells_cell_profiler(name, expected, helpers):
         assert type(err).__name__ == expected
 
 
+@patch("psutil.Process.kill")
 @patch("microscope_automation.samples.find_cells.CellFinder.validate")
 @patch("microscope_automation.automation_messages_form_layout.pull_down_select_dialog")
 @pytest.mark.skipif(skip_all_tests, reason="Exclude all tests")
@@ -4201,6 +4202,7 @@ def test_find_cells_cell_profiler(name, expected, helpers):
 def test_find_cells_distance_map(
     mock_pull_down,
     mock_validate,
+    mock_kill,
     prefs_path,
     pref_name,
     image_name,
