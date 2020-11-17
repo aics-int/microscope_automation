@@ -64,7 +64,7 @@ extra_requirements = {
 }
 
 setup(
-    author="Fletcher Chapin",
+    author="Allen Institute for Cell Science",
     author_email="fletcher.chapin@alleninstitute.org",
     classifiers=[
         "Development Status :: 2 - Pre-Alpha",
@@ -75,11 +75,7 @@ setup(
         "Programming Language :: Python :: 3.8",
     ],
     description="Automation software for the AICS Microscopes.",
-    entry_points={
-        "console_scripts": [
-            "my_example=microscope_automation.bin.my_example:main"
-        ],
-    },
+    entry_points={},
     install_requires=requirements,
     license="Allen Institute Software License",
     long_description=readme,

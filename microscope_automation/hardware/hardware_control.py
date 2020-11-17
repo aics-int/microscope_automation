@@ -89,17 +89,13 @@ class BaseMicroscope(object):
         raise HardwareCommandNotDefinedError(method_name + " is not implemented")
 
     def recover_hardware(self, error):
-        """Execute hardwareFunction and try to recover from failure.
+        """Try to recover from failure of a hardware function
 
         Input:
-         autofocusFunction: function that that interacts with microscope autofocus
-
-         args: arguments for autofocusFunction
+         error: exception to recover from
 
         Output:
-         returnValue: return value from autofocusFunction
-
-        autofocusFunction has to throw exception AutofocusError in error case
+         return_dialog: value of the error dialog
         """
 
         if isinstance(error, AutofocusError):

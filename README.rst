@@ -1,11 +1,24 @@
+*********************
 Microscope Automation
-=====================
+*********************
 
 .. image::
    https://github.com/aics-int/microscope_automation/workflows/Build%20Master/badge.svg
    :width: 300
    :target: https://github.com/aics-int/microscope_automation/actions
    :alt: Build Status
+
+.. image::
+   https://github.com/aics-int/microscope_automation/workflows/Documentation/badge.svg
+   :width: 300
+   :target: https://aics-int.github.io/microscope_automation
+   :alt: Documentation
+
+.. image::
+   https://codecov.io/gh/aics-int/microscope_automation/branch/master/graph/badge.svg
+   :width: 300
+   :target: https://codecov.io/gh/aics-int/microscope_automation
+   :alt: Code Coverage
 
 Automation software for a variety of popular microscopes, such as Zeiss and 3i.
 
@@ -17,7 +30,8 @@ Installation
 
 Development
 ===========
-See :ref:`CONTRIBUTING` for information related to developing the code.
+See `CONTRIBUTING <https://github.com/aics-int/microscope_automation/blob/master/CONTRIBUTING.rst/>`_
+for information related to developing the code.
 
 The Four Commands You Need To Know
 ==================================
@@ -45,5 +59,5 @@ The Four Commands You Need To Know
 Legal Documents
 ===============
 
-- :ref:`LICENSE`
-- :ref:`CONTRIBUTING`
+- `LICENSE <https://github.com/aics-int/microscope_automation/blob/master/LICENSE.txt/>`_
+- `CONTRIBUTING <https://github.com/aics-int/microscope_automation/blob/master/CONTRIBUTING.rst/>`_
