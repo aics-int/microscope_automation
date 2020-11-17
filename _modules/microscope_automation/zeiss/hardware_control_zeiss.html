@@ -1,0 +1,1662 @@
+
+<!DOCTYPE html>
+
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>microscope_automation.zeiss.hardware_control_zeiss &#8212; Microscope Automation 0.0 documentation</title>
+    <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+    <link rel="stylesheet" href="../../../_static/alabaster.css" type="text/css" />
+    <script id="documentation_options" data-url_root="../../../" src="../../../_static/documentation_options.js"></script>
+    <script src="../../../_static/jquery.js"></script>
+    <script src="../../../_static/underscore.js"></script>
+    <script src="../../../_static/doctools.js"></script>
+    <script src="../../../_static/language_data.js"></script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" />
+   
+  <link rel="stylesheet" href="../../../_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head><body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          
+
+          <div class="body" role="main">
+            
+  <h1>Source code for microscope_automation.zeiss.hardware_control_zeiss</h1><div class="highlight"><pre>
+<span></span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">Classes to describe and control 3i spinning disk hardware.</span>
+<span class="sd">Bridge between automation software and hardware specific implementations.</span>
+<span class="sd">Created on Jul 7, 2016</span>
+<span class="sd">Split into hardware_control and hardware_components on May 25, 2020</span>
+<span class="sd">Split into hardware_control and hardware_control_zeiss on Sept. 22 2020</span>
+
+<span class="sd">@author: fletcher.chapin</span>
+<span class="sd">&quot;&quot;&quot;</span>
+
+<span class="kn">import</span> <span class="nn">datetime</span>
+<span class="kn">import</span> <span class="nn">time</span>
+<span class="kn">import</span> <span class="nn">os</span>
+<span class="kn">import</span> <span class="nn">collections</span>
+<span class="kn">from</span> <span class="nn">..</span> <span class="kn">import</span> <span class="n">automation_messages_form_layout</span> <span class="k">as</span> <span class="n">message</span>
+<span class="kn">from</span> <span class="nn">..hardware.hardware_control</span> <span class="kn">import</span> <span class="n">BaseMicroscope</span>
+<span class="kn">from</span> <span class="nn">..hardware</span> <span class="kn">import</span> <span class="n">hardware_components</span>
+<span class="kn">from</span> <span class="nn">.</span> <span class="kn">import</span> <span class="n">test_zen_experiment</span>
+<span class="kn">from</span> <span class="nn">.</span> <span class="kn">import</span> <span class="n">zen_experiment_info</span>
+<span class="kn">from</span> <span class="nn">..automation_exceptions</span> <span class="kn">import</span> <span class="p">(</span>
+    <span class="n">HardwareError</span><span class="p">,</span>
+    <span class="n">AutofocusError</span><span class="p">,</span>
+    <span class="n">CrashDangerError</span><span class="p">,</span>
+    <span class="n">LoadNotDefinedError</span><span class="p">,</span>
+    <span class="n">AutomationError</span><span class="p">,</span>
+    <span class="n">AutofocusNoReferenceObjectError</span><span class="p">,</span>
+    <span class="ne">FileExistsError</span><span class="p">,</span>
+    <span class="n">HardwareNotReadyError</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="kn">from</span> <span class="nn">..image_AICS</span> <span class="kn">import</span> <span class="n">ImageAICS</span>
+
+<span class="c1"># setup logging</span>
+<span class="kn">import</span> <span class="nn">logging</span>
+
+<span class="n">logger</span> <span class="o">=</span> <span class="n">logging</span>
+
+
+<span class="n">logging</span><span class="o">.</span><span class="n">basicConfig</span><span class="p">(</span><span class="n">level</span><span class="o">=</span><span class="n">logging</span><span class="o">.</span><span class="n">WARNING</span><span class="p">)</span>
+<span class="n">logging</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s1">&#39;Switched on debug level logging in module &quot;</span><span class="si">{}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="vm">__name__</span><span class="p">))</span>
+
+
+<span class="c1"># keep track of xPos, yPos, and zPos of stage and focus for debugging purposes</span>
+<span class="n">xPos</span> <span class="o">=</span> <span class="n">hardware_components</span><span class="o">.</span><span class="n">xPos</span>
+<span class="n">yPos</span> <span class="o">=</span> <span class="n">hardware_components</span><span class="o">.</span><span class="n">yPos</span>
+<span class="n">zPos</span> <span class="o">=</span> <span class="n">hardware_components</span><span class="o">.</span><span class="n">zPos</span>
+
+
+<div class="viewcode-block" id="SpinningDiskZeiss"><a class="viewcode-back" href="../../../microscope_automation.zeiss.html#microscope_automation.zeiss.hardware_control_zeiss.SpinningDiskZeiss">[docs]</a><span class="k">class</span> <span class="nc">SpinningDiskZeiss</span><span class="p">(</span><span class="n">BaseMicroscope</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Collection class to describe and operate Zeiss spinning disk microscope&quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">name</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">control_software_object</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">experiments_folder</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">safeties</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">microscope_components</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+    <span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Describe and operate Microscope</span>
+
+<span class="sd">        Input:</span>
+<span class="sd">         name: optional string with microscope name</span>
+
+<span class="sd">         control_software_object: object for software connection to microscope,</span>
+<span class="sd">         typically created with class ControlSoftware</span>
+
+<span class="sd">         experiments_folder: path to folder of microscope software defined experiments.</span>
+<span class="sd">         Path does not include experiment.</span>
+
+<span class="sd">         safeties: optional list with safety objects</span>
+
+<span class="sd">         microscope_components: optional list with component objects</span>
+
+<span class="sd">        Output:</span>
+<span class="sd">         none</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">hardware_components</span><span class="o">.</span><span class="n">log_method</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;__init__&quot;</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">name</span> <span class="o">=</span> <span class="n">name</span>
+
+        <span class="c1"># add control software object (only one is allowed) to Microscope</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">add_control_software</span><span class="p">(</span><span class="n">control_software_object</span><span class="p">)</span>
+
+        <span class="c1"># add components to microscope</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">microscope_components_ordered_dict</span> <span class="o">=</span> <span class="n">collections</span><span class="o">.</span><span class="n">OrderedDict</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">add_microscope_object</span><span class="p">(</span><span class="n">safeties</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">add_microscope_object</span><span class="p">(</span><span class="n">microscope_components</span><span class="p">)</span>
+
+        <span class="c1"># track last used experiment for test if microscope is ready</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">experiment_folder</span> <span class="o">=</span> <span class="n">experiments_folder</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">last_experiment</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="c1"># Use objective position because objectives are named differently</span>
+        <span class="c1"># inside ZEN software and experiment files.</span>
+        <span class="c1"># A call like objRevolver.ActualPositionName returns the objective name.</span>
+        <span class="c1"># In the experiment files objectives are identified by their order number.</span>
+        <span class="c1"># Position would allow identical objectives at different positions</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">last_objective_position</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">objective_ready_dict</span> <span class="o">=</span> <span class="p">{}</span>
+
+<div class="viewcode-block" id="SpinningDiskZeiss.recover_hardware"><a class="viewcode-back" href="../../../microscope_automation.zeiss.html#microscope_automation.zeiss.hardware_control_zeiss.SpinningDiskZeiss.recover_hardware">[docs]</a>    <span class="k">def</span> <span class="nf">recover_hardware</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">error</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Try to recover from failure of a hardware function</span>
+
+<span class="sd">        Input:</span>
+<span class="sd">         error: exception to recover from</span>
+
+<span class="sd">        Output:</span>
+<span class="sd">         return_dialog: value of the error dialog</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">error</span><span class="p">,</span> <span class="n">AutofocusError</span><span class="p">):</span>
+            <span class="n">return_dialog</span> <span class="o">=</span> <span class="n">error</span><span class="o">.</span><span class="n">error_dialog</span><span class="p">()</span>
+            <span class="k">if</span> <span class="n">return_dialog</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+                <span class="c1"># use [&#39;no_find_surface&#39;] for action_list</span>
+                <span class="c1"># to disable &#39;find_surface&#39; during auto-focus initialization</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">initialize_hardware</span><span class="p">(</span>
+                    <span class="n">initialize_components_ordered_dict</span><span class="o">=</span><span class="p">{</span>
+                        <span class="n">error</span><span class="o">.</span><span class="n">error_component</span><span class="o">.</span><span class="n">get_id</span><span class="p">():</span> <span class="p">[</span><span class="s2">&quot;no_find_surface&quot;</span><span class="p">]</span>
+                    <span class="p">},</span>
+                    <span class="n">reference_object_id</span><span class="o">=</span><span class="n">error</span><span class="o">.</span><span class="n">focus_reference_obj_id</span><span class="p">,</span>
+                    <span class="n">verbose</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+                <span class="p">)</span>
+            <span class="k">return</span> <span class="n">return_dialog</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">error</span><span class="p">,</span> <span class="n">LoadNotDefinedError</span><span class="p">):</span>
+            <span class="n">return_dialog</span> <span class="o">=</span> <span class="n">error</span><span class="o">.</span><span class="n">error_dialog</span><span class="p">()</span>
+            <span class="k">if</span> <span class="n">return_dialog</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">initialize_hardware</span><span class="p">(</span>
+                    <span class="n">initialize_components_ordered_dict</span><span class="o">=</span><span class="p">{</span>
+                        <span class="n">error</span><span class="o">.</span><span class="n">error_component</span><span class="o">.</span><span class="n">get_id</span><span class="p">():</span> <span class="p">[</span><span class="s2">&quot;set_load&quot;</span><span class="p">]</span>
+                    <span class="p">},</span>
+                    <span class="n">reference_object_id</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                    <span class="n">verbose</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+                <span class="p">)</span>
+            <span class="k">return</span> <span class="n">return_dialog</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">error</span><span class="p">,</span> <span class="n">CrashDangerError</span><span class="p">):</span>
+            <span class="k">return</span> <span class="n">error</span><span class="o">.</span><span class="n">error_dialog</span><span class="p">(</span><span class="s2">&quot;Move stage to safe area.&quot;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">error</span><span class="p">,</span> <span class="n">HardwareError</span><span class="p">):</span>
+            <span class="k">return</span> <span class="n">error</span><span class="o">.</span><span class="n">error_dialog</span><span class="p">()</span></div>
+
+<div class="viewcode-block" id="SpinningDiskZeiss.create_experiment_path"><a class="viewcode-back" href="../../../microscope_automation.zeiss.html#microscope_automation.zeiss.hardware_control_zeiss.SpinningDiskZeiss.create_experiment_path">[docs]</a>    <span class="k">def</span> <span class="nf">create_experiment_path</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">experiment</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Creates complete path to experiment (Zen) or capture settings (Slidebook).</span>
+<span class="sd">        Raises exception if experiment does not exist.</span>
+
+<span class="sd">        Input:</span>
+<span class="sd">         experiment: string with name of experiment or capture settings</span>
+<span class="sd">         (with or w/o extension .czexp or .exp.prefs)</span>
+
+<span class="sd">        Output:</span>
+<span class="sd">         experiment_path: path to experiment or capture settings</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># get communications object as link to microscope hardware</span>
+        <span class="n">communicatons_object</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_control_software</span><span class="p">()</span><span class="o">.</span><span class="n">connection</span>
+        <span class="n">experiment_path</span> <span class="o">=</span> <span class="n">communicatons_object</span><span class="o">.</span><span class="n">create_experiment_path</span><span class="p">(</span>
+            <span class="n">experiment</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">experiment_folder</span>
+        <span class="p">)</span>
+        <span class="c1"># For Zen Black implementation, there is no experiment path, hence left as &quot;NA&quot;</span>
+        <span class="c1"># self._get_control_software()</span>
+        <span class="c1"># if self.experiment_path == &#39;NA&#39;:</span>
+        <span class="c1">#     return self.experiment_path</span>
+        <span class="c1"># # check if experiment has proper extension</span>
+        <span class="c1"># extension = os.path.splitext(experiment)[1]</span>
+        <span class="c1"># if extension != &#39;.czexp&#39;:</span>
+        <span class="c1">#     experiment = experiment + &#39;.czexp&#39;</span>
+        <span class="c1"># experiment_path = os.path.normpath(os.path.join(self.experiment_path,</span>
+        <span class="c1">#                                                 experiment))</span>
+        <span class="c1"># if not os.path.exists(experiment_path):</span>
+        <span class="c1">#     raise ExperimentNotExistError(</span>
+        <span class="c1">#         &#39;Could not create experiment path {}.&#39;.format(</span>
+        <span class="c1">#             experiment_path), experiment)</span>
+        <span class="k">return</span> <span class="n">experiment_path</span></div>
+
+<div class="viewcode-block" id="SpinningDiskZeiss.set_objective_is_ready"><a class="viewcode-back" href="../../../microscope_automation.zeiss.html#microscope_automation.zeiss.hardware_control_zeiss.SpinningDiskZeiss.set_objective_is_ready">[docs]</a>    <span class="k">def</span> <span class="nf">set_objective_is_ready</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">objective_info</span><span class="p">,</span> <span class="n">reference_object_id</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Create list with all objective positions initialized for reference_object.</span>
+
+<span class="sd">        Input:</span>
+<span class="sd">         objective_info: information for objective that was initialized</span>
+
+<span class="sd">         reference_object_id: ID of reference object (e.g. well)</span>
+<span class="sd">         which objective was initialized for</span>
+
+<span class="sd">        Output:</span>
+<span class="sd">         none</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># Each dictionary entry is a set of objective positions</span>
+        <span class="c1"># create set if dictionary is empty, otherwise add new position,</span>
+        <span class="c1"># if position is already set, nothing will change</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">objective_ready_dict</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">objective_ready_dict</span><span class="p">[</span><span class="n">reference_object_id</span><span class="p">]</span><span class="o">.</span><span class="n">add</span><span class="p">(</span>
+                <span class="n">objective_info</span><span class="p">[</span><span class="s2">&quot;position&quot;</span><span class="p">]</span>
+            <span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">objective_positions</span> <span class="o">=</span> <span class="nb">set</span><span class="p">()</span>
+            <span class="n">objective_positions</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">objective_info</span><span class="p">[</span><span class="s2">&quot;position&quot;</span><span class="p">])</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">objective_ready_dict</span><span class="p">[</span><span class="n">reference_object_id</span><span class="p">]</span> <span class="o">=</span> <span class="n">objective_positions</span></div>
+
+<div class="viewcode-block" id="SpinningDiskZeiss.get_objective_is_ready"><a class="viewcode-back" href="../../../microscope_automation.zeiss.html#microscope_automation.zeiss.hardware_control_zeiss.SpinningDiskZeiss.get_objective_is_ready">[docs]</a>    <span class="k">def</span> <span class="nf">get_objective_is_ready</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">objective_position</span><span class="p">,</span> <span class="n">reference_object_id</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Test if objective was initialized.</span>
+
+<span class="sd">        Input:</span>
+<span class="sd">         objective_position: position of objective in objective changer</span>
+
+<span class="sd">         reference_object_id: ID of reference object (e.g. well)</span>
+<span class="sd">         which objective was initialized for</span>
+
+<span class="sd">        Output:</span>
+<span class="sd">         objective_is_ready: True, if offset for objective was set</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">objective_is_ready</span> <span class="o">=</span> <span class="p">(</span>
+                <span class="n">objective_position</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">objective_ready_dict</span><span class="p">[</span><span class="n">reference_object_id</span><span class="p">]</span>
+            <span class="p">)</span>
+            <span class="k">return</span> <span class="n">objective_is_ready</span>
+        <span class="k">except</span> <span class="ne">KeyError</span><span class="p">:</span>
+            <span class="k">return</span> <span class="kc">False</span></div>
+
+<div class="viewcode-block" id="SpinningDiskZeiss.change_objective"><a class="viewcode-back" href="../../../microscope_automation.zeiss.html#microscope_automation.zeiss.hardware_control_zeiss.SpinningDiskZeiss.change_objective">[docs]</a>    <span class="k">def</span> <span class="nf">change_objective</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">experiment</span><span class="p">,</span> <span class="n">objective_changer_object</span><span class="p">,</span> <span class="n">trials</span><span class="o">=</span><span class="mi">3</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Switch to objective used in experiment.</span>
+
+<span class="sd">        Input:</span>
+<span class="sd">         experiment: string with name of experiment as defined in microscope software</span>
+
+<span class="sd">         objective_changer_object: object for objective changer objective is mounted to</span>
+
+<span class="sd">         trials: number of times system tries to recover</span>
+
+<span class="sd">        Output:</span>
+<span class="sd">         objective_name: name of objective in new position</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">experiment_path</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">create_experiment_path</span><span class="p">(</span><span class="n">experiment</span><span class="p">)</span>
+        <span class="n">experiment_object</span> <span class="o">=</span> <span class="n">hardware_components</span><span class="o">.</span><span class="n">Experiment</span><span class="p">(</span>
+            <span class="n">experiment_path</span><span class="p">,</span> <span class="n">experiment</span><span class="p">,</span> <span class="n">microscope_object</span><span class="o">=</span><span class="bp">self</span>
+        <span class="p">)</span>
+        <span class="n">communication_object</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_control_software</span><span class="p">()</span><span class="o">.</span><span class="n">connection</span>
+
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">experiment_objective_pos</span> <span class="o">=</span> <span class="n">experiment_object</span><span class="o">.</span><span class="n">get_objective_position</span><span class="p">()</span>
+        <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">((</span><span class="s2">&quot;Could not find objective for experiment </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">experiment</span><span class="p">)))</span>
+            <span class="k">raise</span> <span class="n">e</span>
+
+        <span class="n">trials_count</span> <span class="o">=</span> <span class="n">trials</span>
+        <span class="n">success</span> <span class="o">=</span> <span class="kc">False</span>
+        <span class="n">load</span> <span class="o">=</span> <span class="kc">True</span>
+        <span class="k">while</span> <span class="ow">not</span> <span class="n">success</span> <span class="ow">and</span> <span class="n">trials_count</span> <span class="o">&gt;=</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="n">objective_name</span> <span class="o">=</span> <span class="n">objective_changer_object</span><span class="o">.</span><span class="n">change_position</span><span class="p">(</span>
+                    <span class="n">experiment_objective_pos</span><span class="p">,</span> <span class="n">communication_object</span><span class="p">,</span> <span class="n">load</span><span class="o">=</span><span class="n">load</span>
+                <span class="p">)</span>
+                <span class="n">success</span> <span class="o">=</span> <span class="kc">True</span>
+            <span class="k">except</span> <span class="n">LoadNotDefinedError</span> <span class="k">as</span> <span class="n">error</span><span class="p">:</span>
+                <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">recover_hardware</span><span class="p">(</span><span class="n">error</span><span class="p">)</span> <span class="o">==</span> <span class="o">-</span><span class="mi">1</span><span class="p">:</span>
+                    <span class="n">load</span> <span class="o">=</span> <span class="kc">False</span>
+                <span class="k">if</span> <span class="n">trials_count</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+                    <span class="k">raise</span> <span class="p">(</span><span class="n">error</span><span class="p">)</span>
+            <span class="k">except</span> <span class="n">AutomationError</span> <span class="k">as</span> <span class="n">error</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">recover_hardware</span><span class="p">(</span><span class="n">error</span><span class="p">)</span>
+                <span class="k">if</span> <span class="n">trials_count</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+                    <span class="k">raise</span> <span class="p">(</span><span class="n">error</span><span class="p">)</span>
+            <span class="n">trials_count</span> <span class="o">=</span> <span class="n">trials_count</span> <span class="o">-</span> <span class="mi">1</span>
+        <span class="k">return</span> <span class="n">objective_name</span></div>
+
+    <span class="k">def</span> <span class="nf">_make_ready</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">is_ready</span><span class="p">,</span>
+        <span class="n">make_ready</span><span class="p">,</span>
+        <span class="n">component_id</span><span class="p">,</span>
+        <span class="n">action_list</span><span class="o">=</span><span class="p">[],</span>
+        <span class="n">reference_object_id</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">trials</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span>
+        <span class="n">verbose</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+    <span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Check if component is ready and initialize if requested.</span>
+
+<span class="sd">        Input:</span>
+<span class="sd">         is_ready: Flag if component is initialized</span>
+
+<span class="sd">         make_ready: if True, initialize component if not ready</span>
+
+<span class="sd">         component_id: string id for component to initialize</span>
+
+<span class="sd">         action_list: list with component specific instructions for initialization</span>
+
+<span class="sd">         reference_object_id: object used to set parfocality and parcentricity</span>
+
+<span class="sd">         trials: maximum number of attempts to initialize hardware.</span>
+<span class="sd">         Gives user the option to interact with microscope hardware.</span>
+
+<span class="sd">         verbose: if True print debug information (Default = True)</span>
+
+<span class="sd">        Output:</span>
+<span class="sd">         is_ready: True if initialization was sucessful</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">is_ready</span> <span class="ow">and</span> <span class="n">make_ready</span><span class="p">:</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="n">initialize_components_ordered_dict</span> <span class="o">=</span> <span class="p">{</span><span class="n">component_id</span><span class="p">:</span> <span class="n">action_list</span><span class="p">}</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">initialize_hardware</span><span class="p">(</span>
+                    <span class="n">initialize_components_ordered_dict</span><span class="p">,</span>
+                    <span class="n">reference_object_id</span><span class="p">,</span>
+                    <span class="n">trials</span><span class="p">,</span>
+                    <span class="n">verbose</span><span class="p">,</span>
+                <span class="p">)</span>
+                <span class="k">return</span> <span class="kc">True</span>
+            <span class="k">except</span> <span class="ne">Exception</span><span class="p">:</span>
+                <span class="k">return</span> <span class="kc">False</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">return</span> <span class="kc">True</span>
+
+    <span class="k">def</span> <span class="nf">_focus_drive_is_ready</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">focus_drive_object</span><span class="p">,</span>
+        <span class="n">action_list</span><span class="p">,</span>
+        <span class="n">reference_object_id</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">trials</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span>
+        <span class="n">make_ready</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+        <span class="n">verbose</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+    <span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Test if focus drive is ready and optionally initialize it</span>
+
+<span class="sd">        Input:</span>
+<span class="sd">         focus_drive_object: object of class AutoFocus</span>
+
+<span class="sd">         action_list: list with component specific instructions for initialization</span>
+
+<span class="sd">         reference_object_id: ID of object used to set parfocality and parcentricity</span>
+
+<span class="sd">         trials: maximum number of attempts to initialize hardware.</span>
+<span class="sd">         Gives user the option to interact with microscope hardware.</span>
+
+<span class="sd">         make_ready: if True, make attempt to initialize auto-focus if necessary</span>
+<span class="sd">         (Default: True)</span>
+
+<span class="sd">         verbose: if True print debug information (Default = True)</span>
+
+<span class="sd">        Output:</span>
+<span class="sd">         is_ready: True if ready</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># test if object is of class FocusDrive</span>
+        <span class="k">if</span> <span class="nb">type</span><span class="p">(</span><span class="n">focus_drive_object</span><span class="p">)</span> <span class="ow">is</span> <span class="ow">not</span> <span class="n">hardware_components</span><span class="o">.</span><span class="n">FocusDrive</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="s2">&quot;Object not of type FocusDrive in _focus_is_ready&quot;</span><span class="p">)</span>
+
+        <span class="n">focus_drive_id</span> <span class="o">=</span> <span class="n">focus_drive_object</span><span class="o">.</span><span class="n">get_id</span><span class="p">()</span>
+        <span class="n">focus_drive_info</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_information</span><span class="p">([</span><span class="n">focus_drive_id</span><span class="p">])[</span><span class="n">focus_drive_id</span><span class="p">]</span>
+
+        <span class="n">is_ready</span> <span class="o">=</span> <span class="kc">True</span>
+
+        <span class="k">if</span> <span class="s2">&quot;set_load&quot;</span> <span class="ow">in</span> <span class="n">action_list</span><span class="p">:</span>
+            <span class="n">is_ready</span> <span class="o">=</span> <span class="n">focus_drive_info</span><span class="p">[</span><span class="s2">&quot;load_position&quot;</span><span class="p">]</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span>
+
+        <span class="k">if</span> <span class="s2">&quot;set_work&quot;</span> <span class="ow">in</span> <span class="n">action_list</span><span class="p">:</span>
+            <span class="n">is_ready</span> <span class="o">=</span> <span class="n">focus_drive_info</span><span class="p">[</span><span class="s2">&quot;work_position&quot;</span><span class="p">]</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">is_ready</span>
+
+        <span class="c1"># Initialize objective changer</span>
+        <span class="n">is_ready</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_make_ready</span><span class="p">(</span>
+            <span class="n">is_ready</span><span class="p">,</span>
+            <span class="n">make_ready</span><span class="p">,</span>
+            <span class="n">focus_drive_id</span><span class="p">,</span>
+            <span class="n">action_list</span><span class="o">=</span><span class="n">action_list</span><span class="p">,</span>
+            <span class="n">reference_object_id</span><span class="o">=</span><span class="n">reference_object_id</span><span class="p">,</span>
+            <span class="n">trials</span><span class="o">=</span><span class="n">trials</span><span class="p">,</span>
+            <span class="n">verbose</span><span class="o">=</span><span class="n">verbose</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="k">return</span> <span class="n">is_ready</span>
+
+    <span class="k">def</span> <span class="nf">_objective_changer_is_ready</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">objective_changer_object</span><span class="p">,</span>
+        <span class="n">objective_position</span><span class="p">,</span>
+        <span class="n">action_list</span><span class="o">=</span><span class="p">[],</span>
+        <span class="n">reference_object_id</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">trials</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span>
+        <span class="n">make_ready</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+        <span class="n">verbose</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+    <span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Test if objective changer is ready and optionally initialize it</span>
+
+<span class="sd">        Input:</span>
+<span class="sd">         objective_changer_object: object of class ObjectiveChanger</span>
+
+<span class="sd">         objective_position: position of objective that will be used for experiment</span>
+
+<span class="sd">         action_list: list with item &#39;set_reference&#39;. If empty no action.</span>
+
+<span class="sd">         reference_object_id: ID of object used to set parfocality and parcentricity</span>
+
+<span class="sd">         trials: maximum number of attempts to initialize hardware.</span>
+<span class="sd">         Gives user the option to interact with microscope hardware.</span>
+
+<span class="sd">         make_ready: if True, make attempt to initialize auto-focus if necessary</span>
+<span class="sd">         (Default: True)</span>
+
+<span class="sd">         verbose: if True print debug information (Default = True)</span>
+
+<span class="sd">        Output:</span>
+<span class="sd">         is_ready: True if ready</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># test if object is of class ObjectiveChanger</span>
+        <span class="k">if</span> <span class="nb">type</span><span class="p">(</span><span class="n">objective_changer_object</span><span class="p">)</span> <span class="ow">is</span> <span class="ow">not</span> <span class="n">hardware_components</span><span class="o">.</span><span class="n">ObjectiveChanger</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span>
+                <span class="s2">&quot;Object not of type ObjectiveChanger in _objective_changer_is_ready&quot;</span>
+            <span class="p">)</span>
+
+        <span class="c1"># test if stage position is in safe area</span>
+        <span class="n">objective_changer_object_id</span> <span class="o">=</span> <span class="n">objective_changer_object</span><span class="o">.</span><span class="n">get_id</span><span class="p">()</span>
+
+        <span class="n">is_ready</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_objective_is_ready</span><span class="p">(</span>
+            <span class="n">objective_position</span><span class="p">,</span> <span class="n">reference_object_id</span><span class="o">=</span><span class="n">reference_object_id</span>
+        <span class="p">)</span>
+
+        <span class="c1"># Initialize objective changer</span>
+        <span class="n">is_ready</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_make_ready</span><span class="p">(</span>
+            <span class="n">is_ready</span><span class="p">,</span>
+            <span class="n">make_ready</span><span class="p">,</span>
+            <span class="n">objective_changer_object_id</span><span class="p">,</span>
+            <span class="n">action_list</span><span class="o">=</span><span class="n">action_list</span><span class="p">,</span>
+            <span class="n">reference_object_id</span><span class="o">=</span><span class="n">reference_object_id</span><span class="p">,</span>
+            <span class="n">trials</span><span class="o">=</span><span class="n">trials</span><span class="p">,</span>
+            <span class="n">verbose</span><span class="o">=</span><span class="n">verbose</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="k">return</span> <span class="n">is_ready</span>
+
+    <span class="k">def</span> <span class="nf">_stage_is_ready</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">stage_object</span><span class="p">,</span>
+        <span class="n">focus_object</span><span class="p">,</span>
+        <span class="n">safety_object</span><span class="p">,</span>
+        <span class="n">reference_object_id</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">trials</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span>
+        <span class="n">make_ready</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+        <span class="n">verbose</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+    <span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Test if stage is ready and optionally initialize it</span>
+
+<span class="sd">        Input:</span>
+<span class="sd">         stage_object: object of class Stage</span>
+
+<span class="sd">         focus_object: object of class FocusDrive</span>
+
+<span class="sd">         safety_object: object of class Safety</span>
+
+<span class="sd">         reference_object_id: ID of object used to set parfocality and parcentricity</span>
+
+<span class="sd">         trials: maximum number of attempts to initialize hardware.</span>
+<span class="sd">         Gives user the option to interact with microscope hardware.</span>
+
+<span class="sd">         make_ready: if True, make attempt to initialize auto-focus if necessary</span>
+<span class="sd">         (Default: True)</span>
+
+<span class="sd">         verbose: if True print debug information (Default = True)</span>
+
+<span class="sd">        Output:</span>
+<span class="sd">         is_ready: True if ready</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># test if object is of class Stage</span>
+        <span class="k">if</span> <span class="nb">type</span><span class="p">(</span><span class="n">stage_object</span><span class="p">)</span> <span class="ow">is</span> <span class="ow">not</span> <span class="n">hardware_components</span><span class="o">.</span><span class="n">Stage</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="s2">&quot;Object not of type Stage in _stage_is_ready&quot;</span><span class="p">)</span>
+
+        <span class="c1"># test if stage position is in safe area</span>
+        <span class="n">stage_id</span> <span class="o">=</span> <span class="n">stage_object</span><span class="o">.</span><span class="n">get_id</span><span class="p">()</span>
+        <span class="n">focus_id</span> <span class="o">=</span> <span class="n">focus_object</span><span class="o">.</span><span class="n">get_id</span><span class="p">()</span>
+
+        <span class="n">x</span><span class="p">,</span> <span class="n">y</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_information</span><span class="p">([</span><span class="n">stage_id</span><span class="p">])[</span><span class="n">stage_id</span><span class="p">][</span><span class="s2">&quot;absolute&quot;</span><span class="p">]</span>
+        <span class="n">z</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_information</span><span class="p">([</span><span class="n">focus_id</span><span class="p">])[</span><span class="n">focus_id</span><span class="p">][</span><span class="s2">&quot;absolute&quot;</span><span class="p">]</span>
+        <span class="n">is_ready</span> <span class="o">=</span> <span class="n">safety_object</span><span class="o">.</span><span class="n">is_safe_position</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">z</span><span class="p">,</span> <span class="n">safe_area_id</span><span class="o">=</span><span class="s2">&quot;Compound&quot;</span><span class="p">)</span>
+
+        <span class="c1"># Initialize auto-focus</span>
+        <span class="n">is_ready</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_make_ready</span><span class="p">(</span>
+            <span class="n">is_ready</span><span class="p">,</span>
+            <span class="n">make_ready</span><span class="p">,</span>
+            <span class="n">stage_id</span><span class="p">,</span>
+            <span class="n">action_list</span><span class="o">=</span><span class="p">[],</span>
+            <span class="n">reference_object_id</span><span class="o">=</span><span class="n">reference_object_id</span><span class="p">,</span>
+            <span class="n">trials</span><span class="o">=</span><span class="n">trials</span><span class="p">,</span>
+            <span class="n">verbose</span><span class="o">=</span><span class="n">verbose</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="k">return</span> <span class="n">is_ready</span>
+
+    <span class="k">def</span> <span class="nf">_auto_focus_is_ready</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">auto_focus_object</span><span class="p">,</span>
+        <span class="n">experiment_object</span><span class="p">,</span>
+        <span class="n">action_list</span><span class="p">,</span>
+        <span class="n">objective_changer_object</span><span class="p">,</span>
+        <span class="n">reference_object_id</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">load</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+        <span class="n">trials</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span>
+        <span class="n">make_ready</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+        <span class="n">verbose</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+    <span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Test if auto-focus is ready and optionally initialize it</span>
+
+<span class="sd">        Input:</span>
+<span class="sd">         auto_focus_object: object of class AutoFocus</span>
+
+<span class="sd">         experiment_object: object of type experiment to test</span>
+
+<span class="sd">         action_list: list with component specific instructions for initialization</span>
+
+<span class="sd">         objective_changer_object: object of class ObjectiveChanger</span>
+
+<span class="sd">         reference_object_id: ID of object used to set parfocality and parcentricity</span>
+
+<span class="sd">         load: if True, move objective to load position before any stage movement</span>
+
+<span class="sd">         trials: maximum number of attempts to initialize hardware.</span>
+<span class="sd">         Gives user the option to interact with microscope hardware.</span>
+
+<span class="sd">         make_ready: if True, make attempt to initialize auto-focus if necessary</span>
+<span class="sd">         (Default: True)</span>
+
+<span class="sd">         verbose: if True print debug information (Default = True)</span>
+
+<span class="sd">        Output:</span>
+<span class="sd">         is_ready: True if ready</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">is_ready</span> <span class="o">=</span> <span class="kc">True</span>
+        <span class="k">if</span> <span class="n">action_list</span><span class="p">:</span>
+            <span class="c1"># test if object is of class AutoFocus</span>
+            <span class="k">if</span> <span class="nb">type</span><span class="p">(</span><span class="n">auto_focus_object</span><span class="p">)</span> <span class="ow">is</span> <span class="ow">not</span> <span class="n">hardware_components</span><span class="o">.</span><span class="n">AutoFocus</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="s2">&quot;Object not of type AutoFocus in _auto_focus_is_ready&quot;</span><span class="p">)</span>
+
+            <span class="c1"># find objective position that will be used for experiment</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="n">objective_position</span> <span class="o">=</span> <span class="n">experiment_object</span><span class="o">.</span><span class="n">get_objective_position</span><span class="p">()</span>
+            <span class="k">except</span> <span class="ne">Exception</span><span class="p">:</span>
+                <span class="nb">print</span><span class="p">(</span>
+                    <span class="p">(</span>
+                        <span class="s2">&quot;Could not find objective for experiment </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
+                            <span class="n">experiment_object</span><span class="o">.</span><span class="n">experiment_name</span>
+                        <span class="p">)</span>
+                    <span class="p">)</span>
+                <span class="p">)</span>
+                <span class="k">raise</span>
+
+            <span class="c1"># if objective will be changed auto-focus has to be set new</span>
+            <span class="k">if</span> <span class="n">objective_position</span> <span class="o">!=</span> <span class="bp">self</span><span class="o">.</span><span class="n">last_objective_position</span><span class="p">:</span>
+                <span class="n">is_ready</span> <span class="o">=</span> <span class="kc">False</span>
+
+            <span class="c1"># check if auto-focus hardware is ready, e.g. autofocus was set</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">auto_focus_object</span><span class="o">.</span><span class="n">get_autofocus_ready</span><span class="p">(</span>
+                <span class="n">communication_object</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_get_control_software</span><span class="p">()</span><span class="o">.</span><span class="n">connection</span>
+            <span class="p">):</span>
+                <span class="n">is_ready</span> <span class="o">=</span> <span class="kc">False</span>
+
+            <span class="c1"># Initialize auto-focus</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">is_ready</span> <span class="ow">and</span> <span class="n">make_ready</span><span class="p">:</span>
+                <span class="n">communication_object</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_control_software</span><span class="p">()</span><span class="o">.</span><span class="n">connection</span>
+                <span class="k">if</span> <span class="n">objective_position</span> <span class="o">!=</span> <span class="bp">self</span><span class="o">.</span><span class="n">last_objective_position</span><span class="p">:</span>
+                    <span class="k">try</span><span class="p">:</span>
+                        <span class="n">objective_changer_object</span><span class="o">.</span><span class="n">change_position</span><span class="p">(</span>
+                            <span class="n">position</span><span class="o">=</span><span class="n">objective_position</span><span class="p">,</span>
+                            <span class="n">communication_object</span><span class="o">=</span><span class="n">communication_object</span><span class="p">,</span>
+                            <span class="n">load</span><span class="o">=</span><span class="n">load</span><span class="p">,</span>
+                        <span class="p">)</span>
+                    <span class="k">except</span> <span class="ne">Exception</span><span class="p">:</span>
+                        <span class="k">return</span> <span class="kc">False</span>
+                <span class="k">try</span><span class="p">:</span>
+                    <span class="n">initialize_components_ordered_dict</span> <span class="o">=</span> <span class="p">{</span>
+                        <span class="n">auto_focus_object</span><span class="o">.</span><span class="n">get_id</span><span class="p">():</span> <span class="n">action_list</span>
+                    <span class="p">}</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">initialize_hardware</span><span class="p">(</span>
+                        <span class="n">initialize_components_ordered_dict</span><span class="p">,</span>
+                        <span class="n">reference_object_id</span><span class="p">,</span>
+                        <span class="n">trials</span><span class="p">,</span>
+                        <span class="n">verbose</span><span class="p">,</span>
+                    <span class="p">)</span>
+                    <span class="n">is_ready</span> <span class="o">=</span> <span class="kc">True</span>
+                <span class="k">except</span> <span class="ne">Exception</span><span class="p">:</span>
+                    <span class="k">return</span> <span class="kc">False</span>
+        <span class="k">return</span> <span class="n">is_ready</span>
+
+<div class="viewcode-block" id="SpinningDiskZeiss.microscope_is_ready"><a class="viewcode-back" href="../../../microscope_automation.zeiss.html#microscope_automation.zeiss.hardware_control_zeiss.SpinningDiskZeiss.microscope_is_ready">[docs]</a>    <span class="k">def</span> <span class="nf">microscope_is_ready</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">experiment</span><span class="p">,</span>
+        <span class="n">component_dict</span><span class="p">,</span>
+        <span class="n">focus_drive_id</span><span class="p">,</span>
+        <span class="n">objective_changer_id</span><span class="p">,</span>
+        <span class="n">safety_object_id</span><span class="p">,</span>
+        <span class="n">reference_object_id</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">load</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+        <span class="n">make_ready</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+        <span class="n">trials</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span>
+        <span class="n">verbose</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+    <span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Check if microscope is ready and setup up for data acquisition.</span>
+
+<span class="sd">        Input:</span>
+<span class="sd">         experiment: string with name of experiment as defined in microscope software</span>
+
+<span class="sd">         compenent_dict: dictionary with component_id as key and list actions</span>
+
+<span class="sd">         focus_drive_id: string id for focus drive</span>
+
+<span class="sd">         objective_changer_id: string id for objective changer parfocality</span>
+<span class="sd">         and parcentricity has to be calibrated</span>
+
+<span class="sd">         safety_object_id: string id for safety area</span>
+
+<span class="sd">         reference_object_id: ID object used to set parfocality and parcentricity</span>
+
+<span class="sd">         load: move objective into load position before moving stage</span>
+
+<span class="sd">         make_ready: if True, make attempt to ready microscope, e.g. setup autofocus</span>
+<span class="sd">         (Default: True)</span>
+
+<span class="sd">         trials: maximum number of attempt to initialize microscope.</span>
+<span class="sd">         Will allow user to make adjustments on microscope. (Default: 3)</span>
+
+<span class="sd">         verbose: print debug messages (Default: True)</span>
+
+<span class="sd">        Output:</span>
+<span class="sd">         is_ready: dictionary of all components that are ready</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># find objective position that will be used for experiment</span>
+        <span class="n">experiment_path</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">create_experiment_path</span><span class="p">(</span><span class="n">experiment</span><span class="p">)</span>
+        <span class="n">experiment_object</span> <span class="o">=</span> <span class="n">hardware_components</span><span class="o">.</span><span class="n">Experiment</span><span class="p">(</span>
+            <span class="n">experiment_path</span><span class="p">,</span> <span class="n">experiment</span><span class="p">,</span> <span class="bp">self</span>
+        <span class="p">)</span>
+
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">objective_position</span> <span class="o">=</span> <span class="n">experiment_object</span><span class="o">.</span><span class="n">get_objective_position</span><span class="p">()</span>
+        <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">((</span><span class="s2">&quot;Could not find objective for experiment </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">experiment</span><span class="p">)))</span>
+            <span class="k">raise</span> <span class="n">e</span>
+
+        <span class="c1"># get objects for components that are used for initializations</span>
+        <span class="n">focus_object</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_microscope_object</span><span class="p">(</span><span class="n">focus_drive_id</span><span class="p">)</span>
+        <span class="n">objective_changer_object</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_microscope_object</span><span class="p">(</span><span class="n">objective_changer_id</span><span class="p">)</span>
+        <span class="n">safety_object</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_microscope_object</span><span class="p">(</span><span class="n">safety_object_id</span><span class="p">)</span>
+        <span class="n">current_init_experiment_dict</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="n">communication_object</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_control_software</span><span class="p">()</span><span class="o">.</span><span class="n">connection</span>
+
+        <span class="c1"># Set the initialize experiments to the experiment being executed.</span>
+        <span class="c1"># Reason for doing them in a separate loop -</span>
+        <span class="c1"># To make sure that all the init _experiments are set  before the components</span>
+        <span class="c1"># are initialized individually. In some cases the components are intialized</span>
+        <span class="c1"># indirectly through other components(eg. DF can be initialized in</span>
+        <span class="c1"># objectiveChanger if it fails and goes to recovery).</span>
+        <span class="c1"># In that case the component should have the correct init_experiment.</span>
+        <span class="k">for</span> <span class="n">component_id</span><span class="p">,</span> <span class="n">action</span> <span class="ow">in</span> <span class="n">component_dict</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+            <span class="n">component</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_microscope_object</span><span class="p">(</span><span class="n">component_id</span><span class="p">)</span>
+            <span class="c1"># Save the original init_experiments</span>
+            <span class="c1"># restore them after the specific initialization is done</span>
+            <span class="n">current_init_experiment_dict</span><span class="p">[</span><span class="n">component_id</span><span class="p">]</span> <span class="o">=</span> <span class="n">component</span><span class="o">.</span><span class="n">get_init_experiment</span><span class="p">(</span>
+                <span class="n">communication_object</span>
+            <span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_get_microscope_object</span><span class="p">(</span><span class="n">component_id</span><span class="p">)</span><span class="o">.</span><span class="n">set_init_experiment</span><span class="p">(</span><span class="n">experiment</span><span class="p">)</span>
+
+        <span class="n">is_ready</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="k">for</span> <span class="n">component_id</span><span class="p">,</span> <span class="n">action</span> <span class="ow">in</span> <span class="n">component_dict</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+            <span class="n">component</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_microscope_object</span><span class="p">(</span><span class="n">component_id</span><span class="p">)</span>
+
+            <span class="c1"># use type and not isinstance because we want to exclude subclasses</span>
+            <span class="k">if</span> <span class="nb">type</span><span class="p">(</span><span class="n">component</span><span class="p">)</span> <span class="ow">is</span> <span class="n">hardware_components</span><span class="o">.</span><span class="n">Stage</span><span class="p">:</span>
+                <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_stage_is_ready</span><span class="p">(</span>
+                    <span class="n">stage_object</span><span class="o">=</span><span class="n">component</span><span class="p">,</span>
+                    <span class="n">focus_object</span><span class="o">=</span><span class="n">focus_object</span><span class="p">,</span>
+                    <span class="n">safety_object</span><span class="o">=</span><span class="n">safety_object</span><span class="p">,</span>
+                    <span class="n">reference_object_id</span><span class="o">=</span><span class="n">reference_object_id</span><span class="p">,</span>
+                    <span class="n">trials</span><span class="o">=</span><span class="n">trials</span><span class="p">,</span>
+                    <span class="n">make_ready</span><span class="o">=</span><span class="n">make_ready</span><span class="p">,</span>
+                    <span class="n">verbose</span><span class="o">=</span><span class="n">verbose</span><span class="p">,</span>
+                <span class="p">):</span>
+                    <span class="n">is_ready</span><span class="p">[</span><span class="n">component_id</span><span class="p">]</span> <span class="o">=</span> <span class="kc">True</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">is_ready</span><span class="p">[</span><span class="n">component_id</span><span class="p">]</span> <span class="o">=</span> <span class="kc">False</span>
+
+            <span class="k">if</span> <span class="nb">type</span><span class="p">(</span><span class="n">component</span><span class="p">)</span> <span class="ow">is</span> <span class="n">hardware_components</span><span class="o">.</span><span class="n">ObjectiveChanger</span><span class="p">:</span>
+                <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_objective_changer_is_ready</span><span class="p">(</span>
+                    <span class="n">objective_changer_object</span><span class="o">=</span><span class="n">component</span><span class="p">,</span>
+                    <span class="n">objective_position</span><span class="o">=</span><span class="n">objective_position</span><span class="p">,</span>
+                    <span class="n">action_list</span><span class="o">=</span><span class="n">action</span><span class="p">,</span>
+                    <span class="n">reference_object_id</span><span class="o">=</span><span class="n">reference_object_id</span><span class="p">,</span>
+                    <span class="n">trials</span><span class="o">=</span><span class="n">trials</span><span class="p">,</span>
+                    <span class="n">make_ready</span><span class="o">=</span><span class="n">make_ready</span><span class="p">,</span>
+                    <span class="n">verbose</span><span class="o">=</span><span class="n">verbose</span><span class="p">,</span>
+                <span class="p">):</span>
+                    <span class="n">is_ready</span><span class="p">[</span><span class="n">component_id</span><span class="p">]</span> <span class="o">=</span> <span class="kc">True</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">is_ready</span><span class="p">[</span><span class="n">component_id</span><span class="p">]</span> <span class="o">=</span> <span class="kc">False</span>
+
+            <span class="k">if</span> <span class="nb">type</span><span class="p">(</span><span class="n">component</span><span class="p">)</span> <span class="ow">is</span> <span class="n">hardware_components</span><span class="o">.</span><span class="n">FocusDrive</span><span class="p">:</span>
+                <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_focus_drive_is_ready</span><span class="p">(</span>
+                    <span class="n">focus_drive_object</span><span class="o">=</span><span class="n">component</span><span class="p">,</span>
+                    <span class="n">action_list</span><span class="o">=</span><span class="n">action</span><span class="p">,</span>
+                    <span class="n">reference_object_id</span><span class="o">=</span><span class="n">reference_object_id</span><span class="p">,</span>
+                    <span class="n">trials</span><span class="o">=</span><span class="n">trials</span><span class="p">,</span>
+                    <span class="n">make_ready</span><span class="o">=</span><span class="n">make_ready</span><span class="p">,</span>
+                    <span class="n">verbose</span><span class="o">=</span><span class="n">verbose</span><span class="p">,</span>
+                <span class="p">):</span>
+                    <span class="n">is_ready</span><span class="p">[</span><span class="n">component_id</span><span class="p">]</span> <span class="o">=</span> <span class="kc">True</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">is_ready</span><span class="p">[</span><span class="n">component_id</span><span class="p">]</span> <span class="o">=</span> <span class="kc">False</span>
+
+            <span class="k">if</span> <span class="nb">type</span><span class="p">(</span><span class="n">component</span><span class="p">)</span> <span class="ow">is</span> <span class="n">hardware_components</span><span class="o">.</span><span class="n">AutoFocus</span><span class="p">:</span>
+                <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_auto_focus_is_ready</span><span class="p">(</span>
+                    <span class="n">auto_focus_object</span><span class="o">=</span><span class="n">component</span><span class="p">,</span>
+                    <span class="n">experiment_object</span><span class="o">=</span><span class="n">experiment_object</span><span class="p">,</span>
+                    <span class="n">action_list</span><span class="o">=</span><span class="n">action</span><span class="p">,</span>
+                    <span class="n">objective_changer_object</span><span class="o">=</span><span class="n">objective_changer_object</span><span class="p">,</span>
+                    <span class="n">reference_object_id</span><span class="o">=</span><span class="n">reference_object_id</span><span class="p">,</span>
+                    <span class="n">load</span><span class="o">=</span><span class="n">load</span><span class="p">,</span>
+                    <span class="n">trials</span><span class="o">=</span><span class="n">trials</span><span class="p">,</span>
+                    <span class="n">make_ready</span><span class="o">=</span><span class="n">make_ready</span><span class="p">,</span>
+                    <span class="n">verbose</span><span class="o">=</span><span class="n">verbose</span><span class="p">,</span>
+                <span class="p">):</span>
+                    <span class="n">is_ready</span><span class="p">[</span><span class="n">component_id</span><span class="p">]</span> <span class="o">=</span> <span class="kc">True</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">is_ready</span><span class="p">[</span><span class="n">component_id</span><span class="p">]</span> <span class="o">=</span> <span class="kc">False</span>
+
+            <span class="c1"># set experiment for initializations back to initial experiment</span>
+            <span class="n">component</span><span class="o">.</span><span class="n">set_init_experiment</span><span class="p">(</span><span class="n">current_init_experiment_dict</span><span class="p">[</span><span class="n">component_id</span><span class="p">])</span>
+        <span class="n">is_ready</span><span class="p">[</span><span class="s2">&quot;Microscope&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="nb">all</span><span class="p">(</span><span class="n">is_ready</span><span class="o">.</span><span class="n">values</span><span class="p">())</span>
+        <span class="k">return</span> <span class="n">is_ready</span></div>
+
+<div class="viewcode-block" id="SpinningDiskZeiss.stop_microscope"><a class="viewcode-back" href="../../../microscope_automation.zeiss.html#microscope_automation.zeiss.hardware_control_zeiss.SpinningDiskZeiss.stop_microscope">[docs]</a>    <span class="k">def</span> <span class="nf">stop_microscope</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Stop Microscope immediately in emergency situation&quot;&quot;&quot;</span>
+        <span class="n">hardware_components</span><span class="o">.</span><span class="n">log_method</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;stop_microscope&quot;</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_get_control_software</span><span class="p">()</span><span class="o">.</span><span class="n">connection</span><span class="o">.</span><span class="n">stop</span><span class="p">()</span>
+
+        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Microscope stopped&quot;</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="SpinningDiskZeiss.setup_microscope_for_initialization"><a class="viewcode-back" href="../../../microscope_automation.zeiss.html#microscope_automation.zeiss.hardware_control_zeiss.SpinningDiskZeiss.setup_microscope_for_initialization">[docs]</a>    <span class="k">def</span> <span class="nf">setup_microscope_for_initialization</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span> <span class="n">component_object</span><span class="p">,</span> <span class="n">experiment</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">before_initialization</span><span class="o">=</span><span class="kc">True</span>
+    <span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Setup microscope before initialization of individual components.</span>
+<span class="sd">        Method starts and stops live image mode.</span>
+
+<span class="sd">        Input:</span>
+<span class="sd">         component_object: instance of component class</span>
+
+<span class="sd">         experiment: Name of experiment setting in ZEN blue used</span>
+<span class="sd">         for microscope initialization (e.g. used for live mode)</span>
+
+<span class="sd">         before_initialization: if True setup microscope, if False reset</span>
+
+<span class="sd">        Output:</span>
+<span class="sd">         None</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">component_object</span><span class="o">.</span><span class="n">use_live_mode</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">experiment</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="n">experiment</span> <span class="o">=</span> <span class="n">component_object</span><span class="o">.</span><span class="n">get_init_experiment</span><span class="p">()</span>
+            <span class="c1"># save live mode status to keep camera on post-initialization if it was on</span>
+            <span class="k">if</span> <span class="n">before_initialization</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">live_mode_status</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_information</span><span class="p">(</span>
+                    <span class="n">components_list</span><span class="o">=</span><span class="p">[</span><span class="n">component_object</span><span class="o">.</span><span class="n">default_camera</span><span class="p">]</span>
+                <span class="p">)[</span><span class="n">component_object</span><span class="o">.</span><span class="n">default_camera</span><span class="p">][</span><span class="s2">&quot;live&quot;</span><span class="p">]</span>
+
+            <span class="bp">self</span><span class="o">.</span><span class="n">live_mode</span><span class="p">(</span>
+                <span class="n">camera_id</span><span class="o">=</span><span class="n">component_object</span><span class="o">.</span><span class="n">default_camera</span><span class="p">,</span>
+                <span class="n">experiment</span><span class="o">=</span><span class="n">experiment</span><span class="p">,</span>
+                <span class="n">live</span><span class="o">=</span><span class="n">before_initialization</span> <span class="ow">or</span> <span class="bp">self</span><span class="o">.</span><span class="n">live_mode_status</span><span class="p">,</span>
+            <span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">last_experiment</span> <span class="o">=</span> <span class="n">experiment</span></div>
+
+<div class="viewcode-block" id="SpinningDiskZeiss.initialize_hardware"><a class="viewcode-back" href="../../../microscope_automation.zeiss.html#microscope_automation.zeiss.hardware_control_zeiss.SpinningDiskZeiss.initialize_hardware">[docs]</a>    <span class="k">def</span> <span class="nf">initialize_hardware</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">initialize_components_ordered_dict</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">reference_object_id</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">trials</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span>
+        <span class="n">verbose</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+    <span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Initialize all hardware components.</span>
+
+<span class="sd">        Input:</span>
+<span class="sd">         initialize_components_ordered_dict: directory with names of components</span>
+<span class="sd">         to initialize and list of initialization steps.</span>
+<span class="sd">         Default: None = initialize all components in order as assigned</span>
+<span class="sd">         to microscope object</span>
+
+<span class="sd">         reference_object_id: Used for setting up of autofocus</span>
+
+<span class="sd">         trials: number of trials before initialization is aborted</span>
+
+<span class="sd">         verbose: if True print debug information (Default = True)</span>
+
+<span class="sd">        Output:</span>
+<span class="sd">         none</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># create directory for default initialization for all components</span>
+        <span class="c1"># if component_dir is None. empty dictionary indicates default initializations</span>
+        <span class="k">if</span> <span class="n">initialize_components_ordered_dict</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">component_names</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">microscope_components_ordered_dict</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span>
+            <span class="n">initialize_components_ordered_dict</span> <span class="o">=</span> <span class="n">collections</span><span class="o">.</span><span class="n">OrderedDict</span><span class="p">(</span>
+                <span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="p">[])</span> <span class="k">for</span> <span class="n">name</span> <span class="ow">in</span> <span class="n">component_names</span>
+            <span class="p">)</span>
+
+        <span class="c1"># get communications object as link to microscope hardware</span>
+        <span class="n">communicatons_object</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_control_software</span><span class="p">()</span><span class="o">.</span><span class="n">connection</span>
+        <span class="c1"># initialize all components</span>
+        <span class="c1"># if a component has no initialize method,</span>
+        <span class="c1"># it is handed to default method of super class MicroscopeComponent</span>
+        <span class="k">for</span> <span class="n">component_id</span><span class="p">,</span> <span class="n">action_list</span> <span class="ow">in</span> <span class="n">initialize_components_ordered_dict</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+            <span class="n">component_object</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_microscope_object</span><span class="p">(</span><span class="n">component_id</span><span class="p">)</span>
+            <span class="n">trials_count</span> <span class="o">=</span> <span class="n">trials</span>
+            <span class="k">while</span> <span class="n">trials_count</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+                <span class="k">try</span><span class="p">:</span>
+                    <span class="n">trials_count</span> <span class="o">=</span> <span class="n">trials_count</span> <span class="o">-</span> <span class="mi">1</span>
+                    <span class="n">component_object</span><span class="o">.</span><span class="n">initialize</span><span class="p">(</span>
+                        <span class="n">communicatons_object</span><span class="p">,</span>
+                        <span class="n">action_list</span><span class="p">,</span>
+                        <span class="n">reference_object_id</span><span class="o">=</span><span class="n">reference_object_id</span><span class="p">,</span>
+                        <span class="n">verbose</span><span class="o">=</span><span class="n">verbose</span><span class="p">,</span>
+                    <span class="p">)</span>
+                <span class="k">except</span> <span class="n">AutofocusNoReferenceObjectError</span><span class="p">:</span>
+                    <span class="k">raise</span>
+                <span class="k">except</span> <span class="n">HardwareError</span> <span class="k">as</span> <span class="n">error</span><span class="p">:</span>
+                    <span class="k">if</span> <span class="n">trials_count</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+                        <span class="n">result</span> <span class="o">=</span> <span class="n">error</span><span class="o">.</span><span class="n">error_dialog</span><span class="p">()</span>
+                        <span class="k">if</span> <span class="n">result</span> <span class="o">==</span> <span class="o">-</span><span class="mi">1</span><span class="p">:</span>
+                            <span class="n">trials_count</span> <span class="o">=</span> <span class="mi">0</span>
+                    <span class="k">else</span><span class="p">:</span>
+                        <span class="k">raise</span> <span class="n">HardwareError</span><span class="p">(</span>
+                            <span class="s2">&quot;Component </span><span class="si">{}</span><span class="s2"> not initialized.&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">component_id</span><span class="p">)</span>
+                        <span class="p">)</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">trials_count</span> <span class="o">=</span> <span class="mi">0</span></div>
+
+<div class="viewcode-block" id="SpinningDiskZeiss.set_microscope"><a class="viewcode-back" href="../../../microscope_automation.zeiss.html#microscope_automation.zeiss.hardware_control_zeiss.SpinningDiskZeiss.set_microscope">[docs]</a>    <span class="k">def</span> <span class="nf">set_microscope</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">settings_dict</span><span class="o">=</span><span class="p">{}):</span>
+        <span class="sd">&quot;&quot;&quot;Set status flags for microscope.</span>
+
+<span class="sd">        Input:</span>
+<span class="sd">         settings_dict: dictionary {component_id: {settings}}</span>
+<span class="sd">                         supported flags:</span>
+<span class="sd">                          autofocus_id: {use_auto_focus: True/False}</span>
+
+<span class="sd">        Output:</span>
+<span class="sd">         new_settings_dict: return all current settings</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">new_settings_dict</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="k">for</span> <span class="n">component_id</span><span class="p">,</span> <span class="n">settings</span> <span class="ow">in</span> <span class="n">settings_dict</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+            <span class="n">component_object</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_microscope_object</span><span class="p">(</span><span class="n">component_id</span><span class="p">)</span>
+            <span class="n">settings</span> <span class="o">=</span> <span class="n">component_object</span><span class="o">.</span><span class="n">set_component</span><span class="p">(</span><span class="n">settings</span><span class="p">)</span>
+            <span class="n">new_settings_dict</span><span class="p">[</span><span class="n">component_id</span><span class="p">]</span> <span class="o">=</span> <span class="n">settings</span>
+        <span class="k">return</span> <span class="n">new_settings_dict</span></div>
+
+<div class="viewcode-block" id="SpinningDiskZeiss.get_information"><a class="viewcode-back" href="../../../microscope_automation.zeiss.html#microscope_automation.zeiss.hardware_control_zeiss.SpinningDiskZeiss.get_information">[docs]</a>    <span class="k">def</span> <span class="nf">get_information</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">components_list</span><span class="o">=</span><span class="p">[]):</span>
+        <span class="sd">&quot;&quot;&quot;Get positions for hardware components.</span>
+
+<span class="sd">        Input:</span>
+<span class="sd">         components_list: list with names of components to retrieve positions</span>
+<span class="sd">         Default: None = get positions for all components</span>
+
+<span class="sd">        Output:</span>
+<span class="sd">         positions_dict: dictionary {component_id: positions}.</span>
+<span class="sd">         Positions are dictionaries if multiple positions can be retrieved</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># create directory for default initialization for all components</span>
+        <span class="c1"># if component_dir is None. empty list indicates default initializations</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">len</span><span class="p">(</span><span class="n">components_list</span><span class="p">):</span>
+            <span class="n">components_list</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">microscope_components_ordered_dict</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span>
+
+        <span class="c1"># create list if components_list is only a single string</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">components_list</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
+            <span class="n">components_list</span> <span class="o">=</span> <span class="p">[</span><span class="n">components_list</span><span class="p">]</span>
+        <span class="c1"># get communications object as link to microscope hardware</span>
+        <span class="n">communicatons_object</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_control_software</span><span class="p">()</span><span class="o">.</span><span class="n">connection</span>
+
+        <span class="c1"># create dictionary with positions for all components in components_list</span>
+        <span class="n">positions_dict</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="k">for</span> <span class="n">component_id</span> <span class="ow">in</span> <span class="n">components_list</span><span class="p">:</span>
+            <span class="n">component_instance</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_microscope_object</span><span class="p">(</span><span class="n">component_id</span><span class="p">)</span>
+            <span class="n">positions_dict</span><span class="p">[</span><span class="n">component_id</span><span class="p">]</span> <span class="o">=</span> <span class="n">component_instance</span><span class="o">.</span><span class="n">get_information</span><span class="p">(</span>
+                <span class="n">communicatons_object</span>
+            <span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">positions_dict</span></div>
+
+<div class="viewcode-block" id="SpinningDiskZeiss.get_z_position"><a class="viewcode-back" href="../../../microscope_automation.zeiss.html#microscope_automation.zeiss.hardware_control_zeiss.SpinningDiskZeiss.get_z_position">[docs]</a>    <span class="k">def</span> <span class="nf">get_z_position</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">focus_drive_id</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">auto_focus_id</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">force_recall_focus</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+        <span class="n">trials</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span>
+        <span class="n">reference_object_id</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">verbose</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+    <span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Get current position of focus drive.</span>
+
+<span class="sd">        Input:</span>
+<span class="sd">         focus_drive_id: string id for focus drive to get the position for</span>
+
+<span class="sd">         auto_focus_id: string id for auto focus to use (None: do not use auto-focus)</span>
+
+<span class="sd">         force_recall_focus: if True, recall focus, otherwise use old values.</span>
+<span class="sd">         Default: False</span>
+
+<span class="sd">         trials: number of trials to retrieve z position before procedure is aborted</span>
+
+<span class="sd">         reference_object_id: ID of object of Sample class used to correct for xyz</span>
+<span class="sd">         offset between different objectives</span>
+
+<span class="sd">         verbose: if True, print debug messages (Default: False)</span>
+
+<span class="sd">        Output:</span>
+<span class="sd">         positions_dict: dictionary {component_id: positions}.</span>
+<span class="sd">                          positions are dictionaries with</span>
+
+<span class="sd">                           &#39;absolute&#39;: absolute position of focus drive as shown</span>
+<span class="sd">                           in software</span>
+
+<span class="sd">                           &#39;z_focus_offset&#39;: parfocality offset</span>
+
+<span class="sd">                           &#39;focality_corrected&#39;: absolute focus position -</span>
+<span class="sd">                           z_focus_offset</span>
+
+<span class="sd">                           &#39;auto_focus_offset&#39;: change in autofocus position</span>
+
+<span class="sd">                           &#39;focality_drift_corrected&#39;: focality_corrected position -</span>
+<span class="sd">                           auto_focus_offset</span>
+
+<span class="sd">                           &#39;load_position&#39;: load position of focus drive</span>
+
+<span class="sd">                           &#39;work_position&#39;: work position of focus drive</span>
+
+<span class="sd">                          with focus positions in um</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># get communications object as link to microscope hardware</span>
+        <span class="n">communications_object</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_control_software</span><span class="p">()</span><span class="o">.</span><span class="n">connection</span>
+        <span class="n">focus_drive_instance</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_microscope_object</span><span class="p">(</span><span class="n">focus_drive_id</span><span class="p">)</span>
+        <span class="n">z_positions</span> <span class="o">=</span> <span class="n">focus_drive_instance</span><span class="o">.</span><span class="n">get_information</span><span class="p">(</span><span class="n">communications_object</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">z_positions</span></div>
+
+    <span class="k">def</span> <span class="nf">_get_reference_position</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">reference_object_id</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Set reference position in object coordinates.</span>
+
+<span class="sd">        Input:</span>
+<span class="sd">         reference_object_id: ID of plate, plate holder or other sample object</span>
+<span class="sd">         the hardware is initialized for. Used for setting up of autofocus</span>
+
+<span class="sd">        Output:</span>
+<span class="sd">         x, y, z: position of reference structure in object coordinates</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">not_implemented</span><span class="p">(</span><span class="s2">&quot;_get_reference_position&quot;</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">_set_reference_position</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span> <span class="n">reference_object_id</span><span class="p">,</span> <span class="n">find_surface</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="kc">True</span>
+    <span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Set reference position in object coordinates.</span>
+
+<span class="sd">        Input:</span>
+<span class="sd">         reference_object_id: ID of plate, plate holder or other sample object</span>
+<span class="sd">         the hardware is initialized for. Used for setting up of autofocus</span>
+
+<span class="sd">         find_surface: if True use find surface of definite focus</span>
+
+<span class="sd">         verbose: if True print debug information (Default = True)</span>
+
+<span class="sd">        Output:</span>
+<span class="sd">         objective_info: information for objective that was used to update offset</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">not_implemented</span><span class="p">(</span><span class="s2">&quot;_set_reference_position&quot;</span><span class="p">)</span>
+        <span class="c1"># TODO: recreate following logic once Samples API is written</span>
+
+        <span class="c1"># auto_focus_object = self._get_microscope_object(</span>
+        <span class="c1">#     reference_object.get_auto_focus_id())</span>
+        <span class="c1"># communication_object = self._get_control_software().connection</span>
+        <span class="c1">#</span>
+        <span class="c1"># reference_object.move_to_zero(load=False, verbose=verbose)</span>
+        <span class="c1">#</span>
+        <span class="c1"># if find_surface:</span>
+        <span class="c1">#     auto_focus_object.find_surface(communication_object)</span>
+        <span class="c1">#</span>
+        <span class="c1"># message.operate_message(</span>
+        <span class="c1">#     message=&#39;Please move to and focus on reference position.&#39;,</span>
+        <span class="c1">#     returnCode=False)</span>
+        <span class="c1"># #    _z_abs = auto_focus_object.store_focus(</span>
+        <span class="c1"># #        communication_object, focus_reference_obj=reference_object)</span>
+        <span class="c1">#</span>
+        <span class="c1"># x_reference, y_reference, z_reference = reference_object.get_pos_from_abs_pos(</span>
+        <span class="c1">#     verbose=verbose)</span>
+        <span class="c1"># # retrieve information for actual objective</span>
+        <span class="c1"># objective_changer_object = self._get_microscope_object(</span>
+        <span class="c1">#     reference_object.get_objective_changer_id())</span>
+        <span class="c1"># objective_info = objective_changer_object.get_information(</span>
+        <span class="c1">#     communication_object)</span>
+        <span class="c1">#</span>
+        <span class="c1"># reference_object.set_reference_position(x_reference, y_reference, z_reference)</span>
+        <span class="c1"># print(&#39;Store new reference position in reference object coordinates: {}, {}, {}&#39;.format(x_reference,  # noqa</span>
+        <span class="c1">#                                                                                         y_reference,  # noqa</span>
+        <span class="c1">#                                                                                         z_reference))  # noqa</span>
+        <span class="c1"># return objective_info</span>
+
+    <span class="k">def</span> <span class="nf">_update_objective_offset</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span> <span class="n">reference_object_id</span><span class="p">,</span> <span class="n">find_surface</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="kc">True</span>
+    <span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Find reference position and update offset for objective.</span>
+
+<span class="sd">        Input:</span>
+<span class="sd">         communication_object: Object that connects to microscope specific software</span>
+
+<span class="sd">         reference_object_id: plate, plate holder or other sample object</span>
+<span class="sd">         the hardware is initialized for. Used for setting up of autofocus</span>
+
+<span class="sd">         find_surface: if True use find surface of definite focus</span>
+
+<span class="sd">         verbose: if True print debug information (Default = True)</span>
+
+<span class="sd">        Output:</span>
+<span class="sd">         objective_info: information for objective that was used to update offset</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">not_implemented</span><span class="p">(</span><span class="s2">&quot;_update_objective_offset&quot;</span><span class="p">)</span>
+        <span class="c1"># TODO: recreate following logic once Samples API is written</span>
+
+        <span class="c1"># move to position that was used to define reference positions</span>
+        <span class="c1"># to calculate par-focality and par-centricity</span>
+        <span class="c1"># if auto-focus was on, switch off autofocus</span>
+        <span class="c1"># auto_focus_object = self._get_microscope_object(</span>
+        <span class="c1">#     reference_object.get_auto_focus_id())</span>
+        <span class="c1"># objective_changer_object = self._get_microscope_object(</span>
+        <span class="c1">#     reference_object.get_objective_changer_id())</span>
+        <span class="c1"># communication_object = self._get_control_software().connection</span>
+        <span class="c1">#</span>
+        <span class="c1"># auto_focus_status = auto_focus_object.use_autofocus</span>
+        <span class="c1"># auto_focus_object.set_use_autofocus(False)</span>
+        <span class="c1">#</span>
+        <span class="c1"># x_reference, y_reference, z_reference = reference_object.get_reference_position()  # noqa</span>
+        <span class="c1"># print(&#39;Reference position in reference object coordinates before adjustments: {}, {}, {}&#39;.format(x_reference,  # noqa</span>
+        <span class="c1">#                                                                                                  y_reference,  # noqa</span>
+        <span class="c1">#                                                                                                  z_reference))  # noqa</span>
+        <span class="c1">#</span>
+        <span class="c1"># # when moving to reference position with new objective,</span>
+        <span class="c1"># # Microscope.move_to_abs_pos() takes objective into account</span>
+        <span class="c1"># reference_object.move_to_xyz(x=x_reference,</span>
+        <span class="c1">#                              y=y_reference,</span>
+        <span class="c1">#                              z=z_reference,</span>
+        <span class="c1">#                              load=False, verbose=verbose)</span>
+        <span class="c1">#</span>
+        <span class="c1"># if find_surface:</span>
+        <span class="c1">#     self.find_surface(communication_object)</span>
+        <span class="c1">#</span>
+        <span class="c1"># message.operate_message(</span>
+        <span class="c1">#     message=&#39;Please move to and focus on reference position.&#39;,</span>
+        <span class="c1">#     returnCode=False)</span>
+
+        <span class="c1"># get new position for reference in object coordinates and check if it changed.</span>
+        <span class="c1"># This new position is already corrected with current objective offset</span>
+        <span class="c1"># new_x_reference, new_y_reference, new_z_reference = \</span>
+        <span class="c1">#     reference_object.get_pos_from_abs_pos(verbose=verbose)</span>
+        <span class="c1"># print(&#39;New reference position in reference coordinates: {}, {}, {}&#39;.format(</span>
+        <span class="c1">#     new_x_reference, new_y_reference, new_z_reference))</span>
+        <span class="c1">#</span>
+        <span class="c1"># # retrieve information for actual objective</span>
+        <span class="c1"># objective_info = objective_changer_object.get_information(</span>
+        <span class="c1">#     communication_object)</span>
+        <span class="c1">#</span>
+        <span class="c1"># x_delta = new_x_reference - x_reference</span>
+        <span class="c1"># y_delta = new_y_reference - y_reference</span>
+        <span class="c1"># z_delta = new_z_reference - z_reference</span>
+        <span class="c1">#</span>
+        <span class="c1"># if abs(x_delta) + abs(y_delta) + abs(z_delta) &gt; 0:</span>
+        <span class="c1">#     # update offset for objective</span>
+        <span class="c1">#     offset = objective_changer_object.get_objective_information(</span>
+        <span class="c1">#         communication_object)</span>
+        <span class="c1">#     x_offset = x_delta + offset[&#39;x_offset&#39;]</span>
+        <span class="c1">#     y_offset = y_delta + offset[&#39;y_offset&#39;]</span>
+        <span class="c1">#     z_offset = z_delta + offset[&#39;z_offset&#39;]</span>
+        <span class="c1">#</span>
+        <span class="c1">#     # update objective offset for current objective with new offset</span>
+        <span class="c1">#     objective_changer_object.update_objective_offset(communication_object,</span>
+        <span class="c1">#                                                      x_offset, y_offset,</span>
+        <span class="c1">#                                                      z_offset,</span>
+        <span class="c1">#                                                      objective_name=None)</span>
+        <span class="c1">#     print(&#39;New offset: {}, {}, {}&#39;.format(x_offset, y_offset, z_offset))</span>
+        <span class="c1"># auto_focus_object.set_use_autofocus(auto_focus_status)</span>
+        <span class="c1">#</span>
+        <span class="c1"># return objective_info</span>
+
+<div class="viewcode-block" id="SpinningDiskZeiss.reference_position"><a class="viewcode-back" href="../../../microscope_automation.zeiss.html#microscope_automation.zeiss.hardware_control_zeiss.SpinningDiskZeiss.reference_position">[docs]</a>    <span class="k">def</span> <span class="nf">reference_position</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span> <span class="n">find_surface</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">reference_object_id</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="kc">True</span>
+    <span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Initialize and update reference position to correct for xyz offset</span>
+<span class="sd">        between different objectives.</span>
+
+<span class="sd">        Input:</span>
+<span class="sd">         find_surface: if True auto-focus will try to find cover slip</span>
+<span class="sd">         before operator refocuses. Default: False</span>
+
+<span class="sd">         reference_object_id: ID of plate, plate holder, or other sample object</span>
+<span class="sd">          the hardware is initialized for. Used for setting up of autofocus</span>
+
+<span class="sd">         verbose: if True print debug information (Default = True)</span>
+
+<span class="sd">        Output:</span>
+<span class="sd">         none</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">reference_object_id</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="n">AutofocusNoReferenceObjectError</span><span class="p">(</span>
+                <span class="s2">&quot;Reference object needed to set reference_position&quot;</span>
+            <span class="p">)</span>
+
+        <span class="c1"># make sure that proper objective is in place</span>
+        <span class="c1"># and all relevant components are initialized</span>
+        <span class="n">communication_object</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_control_software</span><span class="p">()</span><span class="o">.</span><span class="n">connection</span>
+        <span class="n">objective_changer_id</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_objective_changer_id</span><span class="p">(</span><span class="n">reference_object_id</span><span class="p">)</span>
+        <span class="n">objective_changer_object</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_microscope_object</span><span class="p">(</span><span class="n">objective_changer_id</span><span class="p">)</span>
+
+        <span class="c1"># Make sure that objective is in place and not still moving</span>
+        <span class="n">experiment</span> <span class="o">=</span> <span class="n">objective_changer_object</span><span class="o">.</span><span class="n">get_init_experiment</span><span class="p">()</span>
+        <span class="n">experiment_path</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">create_experiment_path</span><span class="p">(</span><span class="n">experiment</span><span class="p">)</span>
+        <span class="n">experiment_object</span> <span class="o">=</span> <span class="n">zen_experiment_info</span><span class="o">.</span><span class="n">ZenExperiment</span><span class="p">(</span>
+            <span class="n">experiment_path</span><span class="p">,</span> <span class="n">experiment</span>
+        <span class="p">)</span>
+        <span class="n">objective_changer_object</span><span class="o">.</span><span class="n">get_objective_information</span><span class="p">(</span><span class="n">communication_object</span><span class="p">)</span>
+
+        <span class="n">counter</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="k">while</span> <span class="p">(</span>
+            <span class="n">experiment_object</span><span class="o">.</span><span class="n">get_objective_position</span><span class="p">()</span>
+            <span class="o">!=</span> <span class="n">objective_changer_object</span><span class="o">.</span><span class="n">get_information</span><span class="p">(</span><span class="n">communication_object</span><span class="p">)[</span>
+                <span class="s2">&quot;position&quot;</span>
+            <span class="p">]</span>
+        <span class="p">):</span>
+            <span class="c1"># wait one second</span>
+            <span class="n">time</span><span class="o">.</span><span class="n">sleep</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+
+            <span class="n">counter</span> <span class="o">=</span> <span class="n">counter</span> <span class="o">+</span> <span class="mi">1</span>
+            <span class="k">if</span> <span class="n">counter</span> <span class="o">==</span> <span class="mi">5</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="n">HardwareNotReadyError</span><span class="p">(</span>
+                    <span class="n">message</span><span class="o">=</span><span class="s2">&quot;Objective not ready for experiment </span><span class="si">{}</span><span class="s2">.&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
+                        <span class="n">objective_changer_object</span><span class="o">.</span><span class="n">get_init_experiment</span><span class="p">()</span>
+                    <span class="p">),</span>
+                    <span class="n">error_component</span><span class="o">=</span><span class="n">objective_changer_object</span><span class="p">,</span>
+                <span class="p">)</span>
+
+        <span class="c1"># if reference position is not set, set it,</span>
+        <span class="c1"># otherwise use stored reference position and correct for offset.</span>
+        <span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">z</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_reference_position</span><span class="p">(</span><span class="n">reference_object_id</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">x</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">or</span> <span class="n">y</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">or</span> <span class="n">z</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="c1"># reference position was never defined</span>
+            <span class="n">objective_info</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_set_reference_position</span><span class="p">(</span>
+                <span class="n">reference_object_id</span><span class="p">,</span> <span class="n">find_surface</span><span class="o">=</span><span class="n">find_surface</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="n">verbose</span>
+            <span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">objective_info</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_update_objective_offset</span><span class="p">(</span>
+                <span class="n">reference_object_id</span><span class="p">,</span> <span class="n">find_surface</span><span class="o">=</span><span class="n">find_surface</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="n">verbose</span>
+            <span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">set_objective_is_ready</span><span class="p">(</span><span class="n">objective_info</span><span class="p">,</span> <span class="n">reference_object_id</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="SpinningDiskZeiss.move_to_abs_pos"><a class="viewcode-back" href="../../../microscope_automation.zeiss.html#microscope_automation.zeiss.hardware_control_zeiss.SpinningDiskZeiss.move_to_abs_pos">[docs]</a>    <span class="k">def</span> <span class="nf">move_to_abs_pos</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">stage_id</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">focus_drive_id</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">objective_changer_id</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">auto_focus_id</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">safety_id</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">safe_area</span><span class="o">=</span><span class="s2">&quot;Compound&quot;</span><span class="p">,</span>
+        <span class="n">x_target</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">y_target</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">z_target</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">z_focus_preset</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">reference_object_id</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">load</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+        <span class="n">trials</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span>
+        <span class="n">verbose</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+    <span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Move stage and focus drive to position (x, y, z)</span>
+<span class="sd">        in absolute system coordinates.</span>
+
+<span class="sd">        Input:</span>
+<span class="sd">         stage_id, focus_drive_id: strings to identify stage and focus drive</span>
+
+<span class="sd">         objective_changer_id: string to identify objective changer</span>
+
+<span class="sd">         safety_id: string to identify safety object</span>
+
+<span class="sd">         safe_area: name of safe area withing safety object</span>
+<span class="sd">         (default: &#39;compound&#39; = combine all areas)</span>
+
+<span class="sd">         x_target, y_target: coordinates of stage after movement</span>
+<span class="sd">         (none = do not move stage)</span>
+
+<span class="sd">         z_target: coordinate for focus position after movement</span>
+<span class="sd">         (none = do not move focus, but engage auto-focus)</span>
+
+<span class="sd">         z_focus_preset: z position for focus before focus recall to make</span>
+<span class="sd">         autofocus more reliable (Default: None, do not use feature)</span>
+
+<span class="sd">         reference_object_id: ID of object of type sample (ImagingSystem).</span>
+<span class="sd">         Used to correct for xyz offset between different objectives</span>
+
+<span class="sd">         load: Move focus in load position before move. Default: True</span>
+
+<span class="sd">         trials: number of trials to retrieve z position before procedure is aborted</span>
+
+<span class="sd">        Ouput:</span>
+<span class="sd">         x_final, y_final, z_final: coordinates after move</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">hardware_components</span><span class="o">.</span><span class="n">log_method</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;move_to_abs_pos&quot;</span><span class="p">)</span>
+
+        <span class="c1"># retrieve stage, focus, objective changer, and safety objects</span>
+        <span class="n">focus_drive_object</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_microscope_object</span><span class="p">(</span><span class="n">focus_drive_id</span><span class="p">)</span>
+        <span class="n">objective_changer_object</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_microscope_object</span><span class="p">(</span><span class="n">objective_changer_id</span><span class="p">)</span>
+        <span class="n">auto_focus_object</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_microscope_object</span><span class="p">(</span><span class="n">auto_focus_id</span><span class="p">)</span>
+        <span class="n">stage_object</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_microscope_object</span><span class="p">(</span><span class="n">stage_id</span><span class="p">)</span>
+        <span class="n">safety_object</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_microscope_object</span><span class="p">(</span><span class="n">safety_id</span><span class="p">)</span>
+        <span class="n">communication_object</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_control_software</span><span class="p">()</span><span class="o">.</span><span class="n">connection</span>
+
+        <span class="c1"># retrieve current positions for travel path calculation</span>
+        <span class="c1"># in case they will stay the same</span>
+        <span class="n">stage_info</span> <span class="o">=</span> <span class="n">stage_object</span><span class="o">.</span><span class="n">get_information</span><span class="p">(</span><span class="n">communication_object</span><span class="p">)</span>
+        <span class="n">x_current</span><span class="p">,</span> <span class="n">y_current</span> <span class="o">=</span> <span class="n">stage_info</span><span class="p">[</span><span class="s2">&quot;centricity_corrected&quot;</span><span class="p">]</span>
+        <span class="n">focus_drive_info</span> <span class="o">=</span> <span class="n">focus_drive_object</span><span class="o">.</span><span class="n">get_information</span><span class="p">(</span><span class="n">communication_object</span><span class="p">)</span>
+        <span class="n">z_current</span> <span class="o">=</span> <span class="n">focus_drive_info</span><span class="p">[</span><span class="s2">&quot;focality_corrected&quot;</span><span class="p">]</span>
+
+        <span class="k">if</span> <span class="n">x_target</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">x_target</span> <span class="o">=</span> <span class="n">x_current</span>
+        <span class="k">if</span> <span class="n">y_target</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">y_target</span> <span class="o">=</span> <span class="n">y_current</span>
+        <span class="k">if</span> <span class="n">z_target</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">z_target</span> <span class="o">=</span> <span class="n">z_current</span>
+
+        <span class="c1"># set final positions that will be returned to current positions</span>
+        <span class="c1"># in case stage or focus do not move</span>
+        <span class="n">x_final</span><span class="p">,</span> <span class="n">y_final</span><span class="p">,</span> <span class="n">z_final</span> <span class="o">=</span> <span class="n">x_current</span><span class="p">,</span> <span class="n">y_current</span><span class="p">,</span> <span class="n">z_current</span>
+
+        <span class="n">trials_count</span> <span class="o">=</span> <span class="n">trials</span>
+        <span class="n">success</span> <span class="o">=</span> <span class="kc">False</span>
+        <span class="k">while</span> <span class="ow">not</span> <span class="n">success</span><span class="p">:</span>
+            <span class="c1"># adjust target positions for mechanical offset between different objectives</span>
+            <span class="c1"># add offset within loop to use updated offset in case objective was swapped</span>
+            <span class="n">offset</span> <span class="o">=</span> <span class="n">objective_changer_object</span><span class="o">.</span><span class="n">get_objective_information</span><span class="p">(</span>
+                <span class="n">communication_object</span>
+            <span class="p">)</span>
+            <span class="n">x_target_offset</span> <span class="o">=</span> <span class="n">x_target</span> <span class="o">+</span> <span class="n">offset</span><span class="p">[</span><span class="s2">&quot;x_offset&quot;</span><span class="p">]</span>
+            <span class="n">y_target_offset</span> <span class="o">=</span> <span class="n">y_target</span> <span class="o">+</span> <span class="n">offset</span><span class="p">[</span><span class="s2">&quot;y_offset&quot;</span><span class="p">]</span>
+            <span class="n">z_target_offset</span> <span class="o">=</span> <span class="n">z_target</span> <span class="o">+</span> <span class="n">offset</span><span class="p">[</span><span class="s2">&quot;z_offset&quot;</span><span class="p">]</span>
+            <span class="n">z_target_delta</span> <span class="o">=</span> <span class="kc">None</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="c1"># check if stage and objective can safely move</span>
+                <span class="c1"># from current position to new target positions</span>
+                <span class="n">xy_path</span> <span class="o">=</span> <span class="n">stage_object</span><span class="o">.</span><span class="n">move_to_position</span><span class="p">(</span>
+                    <span class="n">communication_object</span><span class="p">,</span> <span class="n">x_target_offset</span><span class="p">,</span> <span class="n">y_target_offset</span><span class="p">,</span> <span class="n">test</span><span class="o">=</span><span class="kc">True</span>
+                <span class="p">)</span>
+                <span class="k">if</span> <span class="n">load</span><span class="p">:</span>
+                    <span class="n">z_max_pos</span> <span class="o">=</span> <span class="n">focus_drive_object</span><span class="o">.</span><span class="n">z_load</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">z_max_pos</span> <span class="o">=</span> <span class="nb">max</span><span class="p">([</span><span class="n">focus_drive_info</span><span class="p">[</span><span class="s2">&quot;absolute&quot;</span><span class="p">],</span> <span class="n">z_target_offset</span><span class="p">])</span>
+                <span class="k">if</span> <span class="n">safety_object</span><span class="o">.</span><span class="n">is_safe_move_from_to</span><span class="p">(</span>
+                    <span class="n">safe_area</span><span class="p">,</span>
+                    <span class="n">xy_path</span><span class="p">,</span>
+                    <span class="n">z_max_pos</span><span class="p">,</span>
+                    <span class="n">x_current</span><span class="o">=</span><span class="n">stage_info</span><span class="p">[</span><span class="s2">&quot;absolute&quot;</span><span class="p">][</span><span class="mi">0</span><span class="p">],</span>
+                    <span class="n">y_current</span><span class="o">=</span><span class="n">stage_info</span><span class="p">[</span><span class="s2">&quot;absolute&quot;</span><span class="p">][</span><span class="mi">1</span><span class="p">],</span>
+                    <span class="n">z_current</span><span class="o">=</span><span class="n">focus_drive_info</span><span class="p">[</span><span class="s2">&quot;absolute&quot;</span><span class="p">],</span>
+                    <span class="n">x_target</span><span class="o">=</span><span class="n">x_target_offset</span><span class="p">,</span>
+                    <span class="n">y_target</span><span class="o">=</span><span class="n">y_target_offset</span><span class="p">,</span>
+                    <span class="n">z_target</span><span class="o">=</span><span class="n">z_target_offset</span><span class="p">,</span>
+                    <span class="n">verbose</span><span class="o">=</span><span class="n">verbose</span><span class="p">,</span>
+                <span class="p">):</span>
+                    <span class="k">if</span> <span class="n">load</span><span class="p">:</span>
+                        <span class="n">z_final</span> <span class="o">=</span> <span class="n">focus_drive_object</span><span class="o">.</span><span class="n">goto_load</span><span class="p">(</span><span class="n">communication_object</span><span class="p">)</span>
+                    <span class="n">x_final</span><span class="p">,</span> <span class="n">y_final</span> <span class="o">=</span> <span class="n">stage_object</span><span class="o">.</span><span class="n">move_to_position</span><span class="p">(</span>
+                        <span class="n">communication_object</span><span class="p">,</span>
+                        <span class="n">x_target_offset</span><span class="p">,</span>
+                        <span class="n">y_target_offset</span><span class="p">,</span>
+                        <span class="n">test</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+                    <span class="p">)</span>
+
+                    <span class="c1"># check if autofocus position has changed</span>
+                    <span class="c1"># and update z_target if necessary</span>
+                    <span class="c1"># move focus close to correct position.</span>
+                    <span class="c1"># This will make autofocus more reliable.</span>
+                    <span class="k">if</span> <span class="n">z_focus_preset</span><span class="p">:</span>
+                        <span class="n">focus_drive_object</span><span class="o">.</span><span class="n">move_to_position</span><span class="p">(</span>
+                            <span class="n">communication_object</span><span class="p">,</span> <span class="n">z_focus_preset</span>
+                        <span class="p">)</span>
+                    <span class="k">else</span><span class="p">:</span>
+                        <span class="n">focus_drive_object</span><span class="o">.</span><span class="n">move_to_position</span><span class="p">(</span>
+                            <span class="n">communication_object</span><span class="p">,</span> <span class="n">z_target_offset</span>
+                        <span class="p">)</span>
+                    <span class="c1"># pre_set_focus = False prevents system from moving</span>
+                    <span class="c1"># to last focus position before recalling</span>
+                    <span class="n">deltaZ</span> <span class="o">=</span> <span class="n">auto_focus_object</span><span class="o">.</span><span class="n">recall_focus</span><span class="p">(</span>
+                        <span class="n">communication_object</span><span class="p">,</span>
+                        <span class="n">reference_object_id</span><span class="p">,</span>
+                        <span class="n">verbose</span><span class="o">=</span><span class="n">verbose</span><span class="p">,</span>
+                        <span class="n">pre_set_focus</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+                    <span class="p">)</span>
+                    <span class="k">if</span> <span class="n">deltaZ</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                        <span class="n">z_target_delta</span> <span class="o">=</span> <span class="n">z_target_offset</span> <span class="o">+</span> <span class="n">deltaZ</span>
+                    <span class="k">else</span><span class="p">:</span>
+                        <span class="n">z_target_delta</span> <span class="o">=</span> <span class="n">z_target_offset</span>
+                    <span class="n">z_final</span> <span class="o">=</span> <span class="n">focus_drive_object</span><span class="o">.</span><span class="n">move_to_position</span><span class="p">(</span>
+                        <span class="n">communication_object</span><span class="p">,</span> <span class="n">z_target_delta</span>
+                    <span class="p">)</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">safety_object</span><span class="o">.</span><span class="n">show_safe_areas</span><span class="p">(</span><span class="n">path</span><span class="o">=</span><span class="n">xy_path</span><span class="p">)</span>
+                    <span class="k">raise</span> <span class="n">CrashDangerError</span><span class="p">(</span>
+                        <span class="s2">&quot;Danger of hardware crash detected when attempting to move stage from (</span><span class="si">{}</span><span class="s2">, </span><span class="si">{}</span><span class="s2">, </span><span class="si">{}</span><span class="s2">) to (</span><span class="si">{}</span><span class="s2">, </span><span class="si">{}</span><span class="s2">, </span><span class="si">{}</span><span class="s2">)&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>  <span class="c1"># noqa</span>
+                            <span class="n">stage_info</span><span class="p">[</span><span class="s2">&quot;absolute&quot;</span><span class="p">][</span><span class="mi">0</span><span class="p">],</span>
+                            <span class="n">stage_info</span><span class="p">[</span><span class="s2">&quot;absolute&quot;</span><span class="p">][</span><span class="mi">1</span><span class="p">],</span>
+                            <span class="n">focus_drive_info</span><span class="p">[</span><span class="s2">&quot;absolute&quot;</span><span class="p">],</span>
+                            <span class="n">x_target_offset</span><span class="p">,</span>
+                            <span class="n">y_target_offset</span><span class="p">,</span>
+                            <span class="n">z_target_offset</span><span class="p">,</span>
+                        <span class="p">)</span>
+                    <span class="p">)</span>
+                <span class="n">success</span> <span class="o">=</span> <span class="kc">True</span>
+            <span class="k">except</span> <span class="n">AutomationError</span> <span class="k">as</span> <span class="n">error</span><span class="p">:</span>
+                <span class="n">trials_count</span> <span class="o">=</span> <span class="n">trials_count</span> <span class="o">-</span> <span class="mi">1</span>
+                <span class="k">if</span> <span class="n">trials_count</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+
+                    <span class="n">result</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">recover_hardware</span><span class="p">(</span><span class="n">error</span><span class="p">)</span>
+                    <span class="k">if</span> <span class="n">result</span> <span class="o">==</span> <span class="o">-</span><span class="mi">1</span><span class="p">:</span>
+                        <span class="n">success</span> <span class="o">=</span> <span class="kc">True</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="k">raise</span>
+        <span class="k">return</span> <span class="n">x_final</span><span class="p">,</span> <span class="n">y_final</span><span class="p">,</span> <span class="n">z_final</span></div>
+
+<div class="viewcode-block" id="SpinningDiskZeiss.run_macro"><a class="viewcode-back" href="../../../microscope_automation.zeiss.html#microscope_automation.zeiss.hardware_control_zeiss.SpinningDiskZeiss.run_macro">[docs]</a>    <span class="k">def</span> <span class="nf">run_macro</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">macro_name</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">macro_param</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Function to run a given Macro in the Zen Software</span>
+
+<span class="sd">        Input:</span>
+<span class="sd">         macro_name: Name of the Macro</span>
+
+<span class="sd">        Output:</span>
+<span class="sd">         none</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">communication_object</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_control_software</span><span class="p">()</span><span class="o">.</span><span class="n">connection</span>
+        <span class="n">communication_object</span><span class="o">.</span><span class="n">run_macro</span><span class="p">(</span><span class="n">macro_name</span><span class="p">,</span> <span class="n">macro_param</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="SpinningDiskZeiss.execute_experiment"><a class="viewcode-back" href="../../../microscope_automation.zeiss.html#microscope_automation.zeiss.hardware_control_zeiss.SpinningDiskZeiss.execute_experiment">[docs]</a>    <span class="k">def</span> <span class="nf">execute_experiment</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span> <span class="n">experiment</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">file_path</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">z_start</span><span class="o">=</span><span class="s2">&quot;C&quot;</span><span class="p">,</span> <span class="n">interactive</span><span class="o">=</span><span class="kc">False</span>
+    <span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Trigger microscope to execute experiment defined within vendor software.</span>
+<span class="sd">        Class ImageAICS is a container for meta and image data.</span>
+<span class="sd">        To add image data use method load_image.</span>
+<span class="sd">        Do not try to recover from exceptions on this level.</span>
+
+<span class="sd">        Input:</span>
+<span class="sd">         experiment: string with name of experiment defined within Microscope software.</span>
+<span class="sd">         If None use actual experiment.</span>
+
+<span class="sd">         file_path: string with path to save image do not save if None (default)</span>
+
+<span class="sd">         z_start: define where to start z-stack</span>
+<span class="sd">         (&#39;F&#39;= first slice, &#39;C&#39; = center, &#39;L&#39; = last slice). Default: &#39;F&#39;</span>
+
+<span class="sd">         interactive: if True, allow user to modify file name if file exists</span>
+
+<span class="sd">        Output:</span>
+<span class="sd">         image: image of class ImageAICS to hold metadata.</span>
+<span class="sd">         Does not contain image data at this moment.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">hardware_components</span><span class="o">.</span><span class="n">log_method</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;execute_experiment&quot;</span><span class="p">)</span>
+        <span class="c1"># call execute_experiment method in ConnectMicroscope instance.</span>
+        <span class="c1"># This instance will be based on a microscope specific connect module.</span>
+        <span class="n">timeStart</span> <span class="o">=</span> <span class="n">datetime</span><span class="o">.</span><span class="n">datetime</span><span class="o">.</span><span class="n">now</span><span class="p">()</span>
+
+        <span class="n">communication_object</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_control_software</span><span class="p">()</span><span class="o">.</span><span class="n">connection</span>
+
+        <span class="c1"># adjust position for z-stack and tile scan</span>
+        <span class="c1"># ZEN acquires z-stack with center of current positions</span>
+        <span class="n">experiment_object</span> <span class="o">=</span> <span class="n">hardware_components</span><span class="o">.</span><span class="n">Experiment</span><span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">create_experiment_path</span><span class="p">(</span><span class="n">experiment</span><span class="p">),</span> <span class="n">experiment</span><span class="p">,</span> <span class="bp">self</span>
+        <span class="p">)</span>
+        <span class="k">if</span> <span class="n">experiment_object</span><span class="o">.</span><span class="n">is_z_stack</span><span class="p">():</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">test_zen_experiment</span><span class="o">.</span><span class="n">test_FocusSetup</span><span class="p">(</span><span class="n">experiment_object</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
+                <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Focus setup not valid&quot;</span><span class="p">)</span>
+            <span class="n">z_stack_range</span> <span class="o">=</span> <span class="n">experiment_object</span><span class="o">.</span><span class="n">z_stack_range</span><span class="p">()</span> <span class="o">*</span> <span class="mf">1e6</span>
+            <span class="k">if</span> <span class="n">z_start</span> <span class="o">==</span> <span class="s2">&quot;F&quot;</span><span class="p">:</span>
+                <span class="n">communication_object</span><span class="o">.</span><span class="n">z_up_relative</span><span class="p">(</span><span class="n">z_stack_range</span> <span class="o">/</span> <span class="mi">2</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">z_start</span> <span class="o">==</span> <span class="s2">&quot;L&quot;</span><span class="p">:</span>
+                <span class="n">communication_object</span><span class="o">.</span><span class="n">z_down_relative</span><span class="p">(</span><span class="n">z_stack_range</span> <span class="o">/</span> <span class="mi">2</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">experiment_object</span><span class="o">.</span><span class="n">is_tile_scan</span><span class="p">():</span>
+            <span class="c1"># use current position and set as center of tile_scan</span>
+            <span class="n">x</span><span class="p">,</span> <span class="n">y</span> <span class="o">=</span> <span class="n">communication_object</span><span class="o">.</span><span class="n">get_stage_pos</span><span class="p">()</span>
+            <span class="n">z</span> <span class="o">=</span> <span class="n">communication_object</span><span class="o">.</span><span class="n">get_focus_pos</span><span class="p">()</span>
+            <span class="n">experiment_object</span><span class="o">.</span><span class="n">update_tile_positions</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">z</span><span class="p">)</span>
+            <span class="c1"># force reload experiment so that the changes are reflected in Zen Software</span>
+            <span class="n">communication_object</span><span class="o">.</span><span class="n">close_experiment</span><span class="p">(</span><span class="n">experiment</span><span class="p">)</span>
+
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">communication_object</span><span class="o">.</span><span class="n">execute_experiment</span><span class="p">(</span><span class="n">experiment</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">last_experiment</span> <span class="o">=</span> <span class="n">experiment</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">last_objective_position</span> <span class="o">=</span> <span class="n">communication_object</span><span class="o">.</span><span class="n">get_objective_position</span><span class="p">()</span>
+        <span class="k">except</span> <span class="n">AutomationError</span> <span class="k">as</span> <span class="n">error</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">recover_hardware</span><span class="p">(</span><span class="n">error</span><span class="p">)</span>
+
+        <span class="n">timeEnd</span> <span class="o">=</span> <span class="n">datetime</span><span class="o">.</span><span class="n">datetime</span><span class="o">.</span><span class="n">now</span><span class="p">()</span>
+
+        <span class="n">image</span> <span class="o">=</span> <span class="n">ImageAICS</span><span class="p">(</span><span class="n">meta</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;aics_Experiment&quot;</span><span class="p">:</span> <span class="n">experiment</span><span class="p">})</span>
+        <span class="c1">#         image.add_meta(self.settings)</span>
+
+        <span class="c1"># add meta data about acquisition time</span>
+        <span class="n">timeDuration</span> <span class="o">=</span> <span class="p">(</span><span class="n">timeEnd</span> <span class="o">-</span> <span class="n">timeStart</span><span class="p">)</span><span class="o">.</span><span class="n">total_seconds</span><span class="p">()</span>
+        <span class="n">image</span><span class="o">.</span><span class="n">add_meta</span><span class="p">(</span>
+            <span class="p">{</span>
+                <span class="s2">&quot;aics_dateStartShort&quot;</span><span class="p">:</span> <span class="n">timeStart</span><span class="o">.</span><span class="n">strftime</span><span class="p">(</span><span class="s2">&quot;%Y%m</span><span class="si">%d</span><span class="s2">&quot;</span><span class="p">),</span>
+                <span class="s2">&quot;aics_dateEndShort&quot;</span><span class="p">:</span> <span class="n">timeEnd</span><span class="o">.</span><span class="n">strftime</span><span class="p">(</span><span class="s2">&quot;%Y%m</span><span class="si">%d</span><span class="s2">&quot;</span><span class="p">),</span>
+                <span class="s2">&quot;aics_dateStart&quot;</span><span class="p">:</span> <span class="n">timeStart</span><span class="o">.</span><span class="n">strftime</span><span class="p">(</span><span class="s2">&quot;%m/</span><span class="si">%d</span><span class="s2">/%Y&quot;</span><span class="p">),</span>
+                <span class="s2">&quot;aics_dateEnd&quot;</span><span class="p">:</span> <span class="n">timeEnd</span><span class="o">.</span><span class="n">strftime</span><span class="p">(</span><span class="s2">&quot;%m/</span><span class="si">%d</span><span class="s2">/%Y&quot;</span><span class="p">),</span>
+                <span class="s2">&quot;aics_timeStart&quot;</span><span class="p">:</span> <span class="n">timeStart</span><span class="o">.</span><span class="n">strftime</span><span class="p">(</span><span class="s2">&quot;%H:%M:%S&quot;</span><span class="p">),</span>
+                <span class="s2">&quot;aics_timeEnd&quot;</span><span class="p">:</span> <span class="n">timeEnd</span><span class="o">.</span><span class="n">strftime</span><span class="p">(</span><span class="s2">&quot;%H:%M:%S&quot;</span><span class="p">),</span>
+                <span class="s2">&quot;aics_timeDuration&quot;</span><span class="p">:</span> <span class="n">timeDuration</span><span class="p">,</span>
+            <span class="p">}</span>
+        <span class="p">)</span>
+
+        <span class="c1"># save image</span>
+        <span class="k">if</span> <span class="n">file_path</span><span class="p">:</span>
+            <span class="n">image</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">save_image</span><span class="p">(</span><span class="n">file_path</span><span class="p">,</span> <span class="n">image</span><span class="p">,</span> <span class="n">interactive</span><span class="o">=</span><span class="n">interactive</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">image</span></div>
+
+<div class="viewcode-block" id="SpinningDiskZeiss.live_mode"><a class="viewcode-back" href="../../../microscope_automation.zeiss.html#microscope_automation.zeiss.hardware_control_zeiss.SpinningDiskZeiss.live_mode">[docs]</a>    <span class="k">def</span> <span class="nf">live_mode</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">camera_id</span><span class="p">,</span> <span class="n">experiment</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">live</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Start/stop live mode of ZEN software.</span>
+
+<span class="sd">        Input:</span>
+<span class="sd">         camera_id: string id for camera</span>
+
+<span class="sd">         experiment: name of ZEN experiment (default = None)</span>
+
+<span class="sd">         live: switch live mode on (True = default) or off (False)</span>
+
+<span class="sd">        Output:</span>
+<span class="sd">         none</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="n">communication_object</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_control_software</span><span class="p">()</span><span class="o">.</span><span class="n">connection</span>
+        <span class="n">camera_instance</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_microscope_object</span><span class="p">(</span><span class="n">camera_id</span><span class="p">)</span>
+
+        <span class="k">try</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">live</span><span class="p">:</span>
+                <span class="n">camera_instance</span><span class="o">.</span><span class="n">live_mode_start</span><span class="p">(</span><span class="n">communication_object</span><span class="p">,</span> <span class="n">experiment</span><span class="p">)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">last_experiment</span> <span class="o">=</span> <span class="n">experiment</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">last_objective_position</span> <span class="o">=</span> <span class="p">(</span>
+                    <span class="n">communication_object</span><span class="o">.</span><span class="n">get_objective_position</span><span class="p">()</span>
+                <span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">camera_instance</span><span class="o">.</span><span class="n">live_mode_stop</span><span class="p">(</span><span class="n">communication_object</span><span class="p">,</span> <span class="n">experiment</span><span class="p">)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">last_objective_position</span> <span class="o">=</span> <span class="p">(</span>
+                    <span class="n">communication_object</span><span class="o">.</span><span class="n">get_objective_position</span><span class="p">()</span>
+                <span class="p">)</span>
+        <span class="k">except</span> <span class="n">AutomationError</span> <span class="k">as</span> <span class="n">error</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">recover_hardware</span><span class="p">(</span><span class="n">error</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="SpinningDiskZeiss.save_image"><a class="viewcode-back" href="../../../microscope_automation.zeiss.html#microscope_automation.zeiss.hardware_control_zeiss.SpinningDiskZeiss.save_image">[docs]</a>    <span class="k">def</span> <span class="nf">save_image</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">file_path</span><span class="p">,</span> <span class="n">image</span><span class="p">,</span> <span class="n">interactive</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Save last Microscope ImageAICS taken from within Microscope software.</span>
+<span class="sd">        Methods adds file_path to meta data.</span>
+
+<span class="sd">        Input:</span>
+<span class="sd">         file_path: filename with path to save ImageAICS</span>
+
+<span class="sd">         image: image of class ImageAICS</span>
+
+<span class="sd">         interactive: if True, allow update of filename if it already exists</span>
+
+<span class="sd">        Output:</span>
+<span class="sd">         image: image of class ImageAICS</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">hardware_components</span><span class="o">.</span><span class="n">log_method</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;save_image&quot;</span><span class="p">)</span>
+        <span class="c1"># raise exception if image with name file_path already exists</span>
+
+        <span class="k">if</span> <span class="n">interactive</span><span class="p">:</span>
+            <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">3</span><span class="p">):</span>
+                <span class="k">if</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">isfile</span><span class="p">(</span><span class="n">file_path</span><span class="p">):</span>
+                    <span class="n">directory</span><span class="p">,</span> <span class="n">file_name</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="n">file_path</span><span class="p">)</span>
+                    <span class="n">new_file_name</span> <span class="o">=</span> <span class="n">message</span><span class="o">.</span><span class="n">read_string</span><span class="p">(</span>
+                        <span class="s2">&quot;File exists&quot;</span><span class="p">,</span>
+                        <span class="n">label</span><span class="o">=</span><span class="s2">&quot;Modify new filename&quot;</span><span class="p">,</span>
+                        <span class="n">default</span><span class="o">=</span><span class="n">file_name</span><span class="p">,</span>
+                        <span class="n">returnCode</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+                    <span class="p">)</span>
+                    <span class="n">file_path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">normcase</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">directory</span><span class="p">,</span> <span class="n">new_file_name</span><span class="p">))</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="k">break</span>
+
+        <span class="k">if</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">isfile</span><span class="p">(</span><span class="n">file_path</span><span class="p">):</span>
+            <span class="k">raise</span> <span class="ne">FileExistsError</span><span class="p">(</span><span class="s2">&quot;File with path </span><span class="si">{}</span><span class="s2"> already exists.&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">file_path</span><span class="p">))</span>
+
+        <span class="n">communication_object</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_control_software</span><span class="p">()</span><span class="o">.</span><span class="n">connection</span>
+        <span class="n">communication_object</span><span class="o">.</span><span class="n">save_image</span><span class="p">(</span><span class="n">file_path</span><span class="p">)</span>
+        <span class="n">image</span><span class="o">.</span><span class="n">add_meta</span><span class="p">({</span><span class="s2">&quot;aics_filePath&quot;</span><span class="p">:</span> <span class="n">file_path</span><span class="p">})</span>
+
+        <span class="k">return</span> <span class="n">image</span></div>
+
+<div class="viewcode-block" id="SpinningDiskZeiss.load_image"><a class="viewcode-back" href="../../../microscope_automation.zeiss.html#microscope_automation.zeiss.hardware_control_zeiss.SpinningDiskZeiss.load_image">[docs]</a>    <span class="k">def</span> <span class="nf">load_image</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">image</span><span class="p">,</span> <span class="n">get_meta</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Load image and return it as class ImageAICS.</span>
+<span class="sd">        Methods adds image and meta data to image.</span>
+<span class="sd">        Methods passes load image to microscope specific load method.</span>
+
+<span class="sd">        Input:</span>
+<span class="sd">         communication_object: Object that connects to microscope specific software</span>
+
+<span class="sd">         image: image object of class ImageAICS. Holds meta data at this moment,</span>
+<span class="sd">         no image data.</span>
+
+<span class="sd">         get_meta: if true, retrieve meta data from file. Default is False</span>
+
+<span class="sd">        Output:</span>
+<span class="sd">         image: image with data and meta data as ImageAICS class</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">hardware_components</span><span class="o">.</span><span class="n">log_method</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;load_image&quot;</span><span class="p">)</span>
+        <span class="n">communication_object</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_control_software</span><span class="p">()</span><span class="o">.</span><span class="n">connection</span>
+        <span class="n">image</span> <span class="o">=</span> <span class="n">communication_object</span><span class="o">.</span><span class="n">load_image</span><span class="p">(</span><span class="n">image</span><span class="p">,</span> <span class="n">get_meta</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">image</span></div>
+
+<div class="viewcode-block" id="SpinningDiskZeiss.remove_images"><a class="viewcode-back" href="../../../microscope_automation.zeiss.html#microscope_automation.zeiss.hardware_control_zeiss.SpinningDiskZeiss.remove_images">[docs]</a>    <span class="k">def</span> <span class="nf">remove_images</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Remove all images from display in microscope software</span>
+
+<span class="sd">        Input:</span>
+<span class="sd">         communication_object: Object that connects to microscope specific software</span>
+
+<span class="sd">        Output:</span>
+<span class="sd">         none</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">hardware_components</span><span class="o">.</span><span class="n">log_method</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;remove_images&quot;</span><span class="p">)</span>
+        <span class="n">communication_object</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_control_software</span><span class="p">()</span><span class="o">.</span><span class="n">connection</span>
+        <span class="n">communication_object</span><span class="o">.</span><span class="n">remove_all</span><span class="p">()</span></div></div>
+</pre></div>
+
+          </div>
+          
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<h1 class="logo"><a href="../../../index.html">Microscope Automation</a></h1>
+
+
+
+
+
+
+
+
+<h3>Navigation</h3>
+<p class="caption"><span class="caption-text">Overview</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../index.html">README</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../installation.html">Installation</a></li>
+</ul>
+<p class="caption"><span class="caption-text">Hardware</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../hardware_components.html">hardware_components</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../hardware_control.html">hardware_control</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../RS232.html">RS232</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../setup_microscope.html">setup_microscope</a></li>
+</ul>
+<p class="caption"><span class="caption-text">Samples</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../correct_background.html">correct_background</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../draw_plate.html">draw_plate</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../find_well_center.html">find_well_center</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../find_cells.html">find_cells</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../interactive_location_picker_pyqtgraph.html">interactive_location_picker_pyqtgraph</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../positions_list.html">positions_list</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../samples.html">samples</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../setup_samples.html">setup_samples</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../tile_images.html">tile_images</a></li>
+</ul>
+<p class="caption"><span class="caption-text">Zeiss Microscopes</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../connect_zen_blue.html">connect_zen_blue</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../connect_zen_black.html">connect_zen_black</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../hardware_control_zeiss.html">hardware_control_zeiss</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../write_zen_tiles_experiment.html">write_zen_tiles_experiment</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../zen_experiment_info.html">zen_experiment_info</a></li>
+</ul>
+<p class="caption"><span class="caption-text">3i Microscopes</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../hardware_control_3i.html">hardware_control_3i</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../connect_slidebook.html">connect_slidebook</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../slidebook_experiment_info.html">slidebook_experiment_info</a></li>
+</ul>
+<p class="caption"><span class="caption-text">General Methods</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../automation_exceptions.html">automation_exceptions</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../automation_messages_form_layout.html">automation_messages_form_layout</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../error_handling.html">error_handling</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../get_path.html">get_path</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../image_AICS.html">image_AICS</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../load_image_czi.html">load_image_czi</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../meta_data_file.html">meta_data_file</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../preferences.html">preferences</a></li>
+</ul>
+<p class="caption"><span class="caption-text">Reference Docs</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../CONTRIBUTING.html">Allen Institute Contribution Agreement</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../LICENSE.html">LICENSE</a></li>
+</ul>
+
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="../../../index.html">Documentation overview</a><ul>
+  <li><a href="../../index.html">Module code</a><ul>
+  <li><a href="../../microscope_automation.html">microscope_automation</a><ul>
+  </ul></li>
+  </ul></li>
+  </ul></li>
+</ul>
+</div>
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../../../search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" />
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script>$('#searchbox').show(0);</script>
+
+
+
+
+
+
+
+
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2020, Allen Institute.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 3.3.1</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.12</a>
+      
+    </div>
+
+    
+
+    
+  </body>
+</html>

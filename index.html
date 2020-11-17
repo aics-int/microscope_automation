@@ -1,0 +1,301 @@
+
+<!DOCTYPE html>
+
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Welcome to Microscope Automation’s documentation! &#8212; Microscope Automation 0.0 documentation</title>
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    <link rel="stylesheet" href="_static/alabaster.css" type="text/css" />
+    <script id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+    <script src="_static/jquery.js"></script>
+    <script src="_static/underscore.js"></script>
+    <script src="_static/doctools.js"></script>
+    <script src="_static/language_data.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="Installation" href="installation.html" />
+   
+  <link rel="stylesheet" href="_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head><body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          
+
+          <div class="body" role="main">
+            
+  <div class="contents topic" id="contents">
+<p class="topic-title">Contents</p>
+<ul class="simple">
+<li><p><a class="reference internal" href="#welcome-to-microscope-automation-s-documentation" id="id2">Welcome to Microscope Automation’s documentation!</a></p>
+<ul>
+<li><p><a class="reference internal" href="#microscope-automation" id="id3">Microscope Automation</a></p></li>
+</ul>
+</li>
+<li><p><a class="reference internal" href="#installation" id="id4">Installation</a></p></li>
+<li><p><a class="reference internal" href="#development" id="id5">Development</a></p></li>
+<li><p><a class="reference internal" href="#the-four-commands-you-need-to-know" id="id6">The Four Commands You Need To Know</a></p></li>
+<li><p><a class="reference internal" href="#legal-documents" id="id7">Legal Documents</a></p></li>
+<li><p><a class="reference internal" href="#indices-and-tables" id="id8">Indices and tables</a></p></li>
+</ul>
+</div>
+<div class="section" id="welcome-to-microscope-automation-s-documentation">
+<h1><a class="toc-backref" href="#id2">Welcome to Microscope Automation’s documentation!</a><a class="headerlink" href="#welcome-to-microscope-automation-s-documentation" title="Permalink to this headline">¶</a></h1>
+<div class="toctree-wrapper compound">
+<p class="caption"><span class="caption-text">Overview</span></p>
+<ul class="current">
+<li class="toctree-l1 current"><a class="current reference internal" href="#">README</a></li>
+<li class="toctree-l1"><a class="reference internal" href="installation.html">Installation</a></li>
+</ul>
+</div>
+<div class="toctree-wrapper compound">
+<p class="caption"><span class="caption-text">Hardware</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="hardware_components.html">hardware_components</a></li>
+<li class="toctree-l1"><a class="reference internal" href="hardware_control.html">hardware_control</a></li>
+<li class="toctree-l1"><a class="reference internal" href="RS232.html">RS232</a></li>
+<li class="toctree-l1"><a class="reference internal" href="setup_microscope.html">setup_microscope</a></li>
+</ul>
+</div>
+<div class="toctree-wrapper compound">
+<p class="caption"><span class="caption-text">Samples</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="correct_background.html">correct_background</a></li>
+<li class="toctree-l1"><a class="reference internal" href="draw_plate.html">draw_plate</a></li>
+<li class="toctree-l1"><a class="reference internal" href="find_well_center.html">find_well_center</a></li>
+<li class="toctree-l1"><a class="reference internal" href="find_cells.html">find_cells</a></li>
+<li class="toctree-l1"><a class="reference internal" href="interactive_location_picker_pyqtgraph.html">interactive_location_picker_pyqtgraph</a></li>
+<li class="toctree-l1"><a class="reference internal" href="positions_list.html">positions_list</a></li>
+<li class="toctree-l1"><a class="reference internal" href="samples.html">samples</a></li>
+<li class="toctree-l1"><a class="reference internal" href="setup_samples.html">setup_samples</a></li>
+<li class="toctree-l1"><a class="reference internal" href="tile_images.html">tile_images</a></li>
+</ul>
+</div>
+<div class="toctree-wrapper compound">
+<p class="caption"><span class="caption-text">Zeiss Microscopes</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="connect_zen_blue.html">connect_zen_blue</a></li>
+<li class="toctree-l1"><a class="reference internal" href="connect_zen_black.html">connect_zen_black</a></li>
+<li class="toctree-l1"><a class="reference internal" href="hardware_control_zeiss.html">hardware_control_zeiss</a></li>
+<li class="toctree-l1"><a class="reference internal" href="write_zen_tiles_experiment.html">write_zen_tiles_experiment</a></li>
+<li class="toctree-l1"><a class="reference internal" href="zen_experiment_info.html">zen_experiment_info</a></li>
+</ul>
+</div>
+<div class="toctree-wrapper compound">
+<p class="caption"><span class="caption-text">3i Microscopes</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="hardware_control_3i.html">hardware_control_3i</a></li>
+<li class="toctree-l1"><a class="reference internal" href="connect_slidebook.html">connect_slidebook</a></li>
+<li class="toctree-l1"><a class="reference internal" href="slidebook_experiment_info.html">slidebook_experiment_info</a></li>
+</ul>
+</div>
+<div class="toctree-wrapper compound">
+<p class="caption"><span class="caption-text">General Methods</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="automation_exceptions.html">automation_exceptions</a></li>
+<li class="toctree-l1"><a class="reference internal" href="automation_messages_form_layout.html">automation_messages_form_layout</a></li>
+<li class="toctree-l1"><a class="reference internal" href="error_handling.html">error_handling</a></li>
+<li class="toctree-l1"><a class="reference internal" href="get_path.html">get_path</a></li>
+<li class="toctree-l1"><a class="reference internal" href="image_AICS.html">image_AICS</a></li>
+<li class="toctree-l1"><a class="reference internal" href="load_image_czi.html">load_image_czi</a></li>
+<li class="toctree-l1"><a class="reference internal" href="meta_data_file.html">meta_data_file</a></li>
+<li class="toctree-l1"><a class="reference internal" href="preferences.html">preferences</a></li>
+</ul>
+</div>
+<div class="toctree-wrapper compound">
+<p class="caption"><span class="caption-text">Reference Docs</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="CONTRIBUTING.html">Allen Institute Contribution Agreement</a></li>
+<li class="toctree-l1"><a class="reference internal" href="LICENSE.html">LICENSE</a></li>
+</ul>
+</div>
+<div class="section" id="microscope-automation">
+<h2><a class="toc-backref" href="#id3">Microscope Automation</a><a class="headerlink" href="#microscope-automation" title="Permalink to this headline">¶</a></h2>
+<a class="reference external image-reference" href="https://github.com/aics-int/microscope_automation/actions"><img alt="Build Status" src="https://github.com/aics-int/microscope_automation/workflows/Build%20Master/badge.svg" width="300" /></a>
+<a class="reference external image-reference" href="https://aics-int.github.io/microscope_automation"><img alt="Documentation" src="https://github.com/aics-int/microscope_automation/workflows/Documentation/badge.svg" width="300" /></a>
+<a class="reference external image-reference" href="https://codecov.io/gh/aics-int/microscope_automation"><img alt="Code Coverage" src="https://codecov.io/gh/aics-int/microscope_automation/branch/master/graph/badge.svg" width="300" /></a>
+<p>Automation software for a variety of popular microscopes, such as Zeiss and 3i.</p>
+</div>
+</div>
+<div class="section" id="installation">
+<h1><a class="toc-backref" href="#id4">Installation</a><a class="headerlink" href="#installation" title="Permalink to this headline">¶</a></h1>
+<p><strong>Stable Release:</strong> <code class="docutils literal notranslate"><span class="pre">pip</span> <span class="pre">install</span> <span class="pre">microscope_automation</span></code></p>
+<p><strong>Development Head:</strong> <code class="docutils literal notranslate"><span class="pre">pip</span> <span class="pre">install</span> <span class="pre">git+https://github.com/aics-int/microscope_automation.git</span></code></p>
+</div>
+<div class="section" id="development">
+<h1><a class="toc-backref" href="#id5">Development</a><a class="headerlink" href="#development" title="Permalink to this headline">¶</a></h1>
+<p>See <a class="reference external" href="https://github.com/aics-int/microscope_automation/blob/master/CONTRIBUTING.rst/">CONTRIBUTING</a>
+for information related to developing the code.</p>
+</div>
+<div class="section" id="the-four-commands-you-need-to-know">
+<h1><a class="toc-backref" href="#id6">The Four Commands You Need To Know</a><a class="headerlink" href="#the-four-commands-you-need-to-know" title="Permalink to this headline">¶</a></h1>
+<ol class="arabic">
+<li><p><code class="docutils literal notranslate"><span class="pre">pip</span> <span class="pre">install</span> <span class="pre">-e</span> <span class="pre">.[dev]</span></code></p>
+<blockquote>
+<div><p>This will install your package in editable mode with all the required development
+dependencies (i.e. <code class="docutils literal notranslate"><span class="pre">tox</span></code>).</p>
+</div></blockquote>
+</li>
+<li><p><code class="docutils literal notranslate"><span class="pre">make</span> <span class="pre">build</span></code></p>
+<blockquote>
+<div><p>This will run <code class="docutils literal notranslate"><span class="pre">tox</span></code> which will run all your tests in both Python 3.7
+and Python 3.8 as well as linting your code.</p>
+</div></blockquote>
+</li>
+<li><p><code class="docutils literal notranslate"><span class="pre">make</span> <span class="pre">clean</span></code></p>
+<blockquote>
+<div><p>This will clean up various Python and build generated files so that you can ensure
+that you are working in a clean environment.</p>
+</div></blockquote>
+</li>
+<li><p><code class="docutils literal notranslate"><span class="pre">make</span> <span class="pre">docs</span></code></p>
+<blockquote>
+<div><p>This will generate and launch a web browser to view the most up-to-date
+documentation for your Python package.</p>
+</div></blockquote>
+</li>
+</ol>
+</div>
+<div class="section" id="legal-documents">
+<h1><a class="toc-backref" href="#id7">Legal Documents</a><a class="headerlink" href="#legal-documents" title="Permalink to this headline">¶</a></h1>
+<ul class="simple">
+<li><p><a class="reference external" href="https://github.com/aics-int/microscope_automation/blob/master/LICENSE.txt/">LICENSE</a></p></li>
+<li><p><a class="reference external" href="https://github.com/aics-int/microscope_automation/blob/master/CONTRIBUTING.rst/">CONTRIBUTING</a></p></li>
+</ul>
+</div>
+<div class="section" id="indices-and-tables">
+<h1><a class="toc-backref" href="#id8">Indices and tables</a><a class="headerlink" href="#indices-and-tables" title="Permalink to this headline">¶</a></h1>
+<ul class="simple">
+<li><p><a class="reference internal" href="genindex.html"><span class="std std-ref">Index</span></a></p></li>
+<li><p><a class="reference internal" href="py-modindex.html"><span class="std std-ref">Module Index</span></a></p></li>
+<li><p><a class="reference internal" href="search.html"><span class="std std-ref">Search Page</span></a></p></li>
+</ul>
+</div>
+
+
+          </div>
+          
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<h1 class="logo"><a href="#">Microscope Automation</a></h1>
+
+
+
+
+
+
+
+
+<h3>Navigation</h3>
+<p class="caption"><span class="caption-text">Overview</span></p>
+<ul class="current">
+<li class="toctree-l1 current"><a class="current reference internal" href="#">README</a></li>
+<li class="toctree-l1"><a class="reference internal" href="installation.html">Installation</a></li>
+</ul>
+<p class="caption"><span class="caption-text">Hardware</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="hardware_components.html">hardware_components</a></li>
+<li class="toctree-l1"><a class="reference internal" href="hardware_control.html">hardware_control</a></li>
+<li class="toctree-l1"><a class="reference internal" href="RS232.html">RS232</a></li>
+<li class="toctree-l1"><a class="reference internal" href="setup_microscope.html">setup_microscope</a></li>
+</ul>
+<p class="caption"><span class="caption-text">Samples</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="correct_background.html">correct_background</a></li>
+<li class="toctree-l1"><a class="reference internal" href="draw_plate.html">draw_plate</a></li>
+<li class="toctree-l1"><a class="reference internal" href="find_well_center.html">find_well_center</a></li>
+<li class="toctree-l1"><a class="reference internal" href="find_cells.html">find_cells</a></li>
+<li class="toctree-l1"><a class="reference internal" href="interactive_location_picker_pyqtgraph.html">interactive_location_picker_pyqtgraph</a></li>
+<li class="toctree-l1"><a class="reference internal" href="positions_list.html">positions_list</a></li>
+<li class="toctree-l1"><a class="reference internal" href="samples.html">samples</a></li>
+<li class="toctree-l1"><a class="reference internal" href="setup_samples.html">setup_samples</a></li>
+<li class="toctree-l1"><a class="reference internal" href="tile_images.html">tile_images</a></li>
+</ul>
+<p class="caption"><span class="caption-text">Zeiss Microscopes</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="connect_zen_blue.html">connect_zen_blue</a></li>
+<li class="toctree-l1"><a class="reference internal" href="connect_zen_black.html">connect_zen_black</a></li>
+<li class="toctree-l1"><a class="reference internal" href="hardware_control_zeiss.html">hardware_control_zeiss</a></li>
+<li class="toctree-l1"><a class="reference internal" href="write_zen_tiles_experiment.html">write_zen_tiles_experiment</a></li>
+<li class="toctree-l1"><a class="reference internal" href="zen_experiment_info.html">zen_experiment_info</a></li>
+</ul>
+<p class="caption"><span class="caption-text">3i Microscopes</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="hardware_control_3i.html">hardware_control_3i</a></li>
+<li class="toctree-l1"><a class="reference internal" href="connect_slidebook.html">connect_slidebook</a></li>
+<li class="toctree-l1"><a class="reference internal" href="slidebook_experiment_info.html">slidebook_experiment_info</a></li>
+</ul>
+<p class="caption"><span class="caption-text">General Methods</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="automation_exceptions.html">automation_exceptions</a></li>
+<li class="toctree-l1"><a class="reference internal" href="automation_messages_form_layout.html">automation_messages_form_layout</a></li>
+<li class="toctree-l1"><a class="reference internal" href="error_handling.html">error_handling</a></li>
+<li class="toctree-l1"><a class="reference internal" href="get_path.html">get_path</a></li>
+<li class="toctree-l1"><a class="reference internal" href="image_AICS.html">image_AICS</a></li>
+<li class="toctree-l1"><a class="reference internal" href="load_image_czi.html">load_image_czi</a></li>
+<li class="toctree-l1"><a class="reference internal" href="meta_data_file.html">meta_data_file</a></li>
+<li class="toctree-l1"><a class="reference internal" href="preferences.html">preferences</a></li>
+</ul>
+<p class="caption"><span class="caption-text">Reference Docs</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="CONTRIBUTING.html">Allen Institute Contribution Agreement</a></li>
+<li class="toctree-l1"><a class="reference internal" href="LICENSE.html">LICENSE</a></li>
+</ul>
+
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="#">Documentation overview</a><ul>
+      <li>Next: <a href="installation.html" title="next chapter">Installation</a></li>
+  </ul></li>
+</ul>
+</div>
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" />
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script>$('#searchbox').show(0);</script>
+
+
+
+
+
+
+
+
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2020, Allen Institute.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 3.3.1</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.12</a>
+      
+      |
+      <a href="_sources/index.rst.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+
+    
+  </body>
+</html>

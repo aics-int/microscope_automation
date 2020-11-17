@@ -1,0 +1,223 @@
+
+<!DOCTYPE html>
+
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>interactive_location_picker_pyqtgraph &#8212; Microscope Automation 0.0 documentation</title>
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    <link rel="stylesheet" href="_static/alabaster.css" type="text/css" />
+    <script id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+    <script src="_static/jquery.js"></script>
+    <script src="_static/underscore.js"></script>
+    <script src="_static/doctools.js"></script>
+    <script src="_static/language_data.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="positions_list" href="positions_list.html" />
+    <link rel="prev" title="find_cells" href="find_cells.html" />
+   
+  <link rel="stylesheet" href="_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head><body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          
+
+          <div class="body" role="main">
+            
+  <div class="contents topic" id="contents">
+<p class="topic-title">Contents</p>
+<ul class="simple">
+<li><p><a class="reference internal" href="#interactive-location-picker-pyqtgraph" id="id2">interactive_location_picker_pyqtgraph</a></p>
+<ul>
+<li><p><a class="reference internal" href="#class-keypresswindow-pyqtgraph-graphicswindow" id="id3">class KeyPressWindow(pyqtgraph.GraphicsWindow)</a></p></li>
+<li><p><a class="reference internal" href="#class-imagelocationpicker-object" id="id4">class ImageLocationPicker(object)</a></p></li>
+</ul>
+</li>
+</ul>
+</div>
+<div class="section" id="interactive-location-picker-pyqtgraph">
+<span id="id1"></span><h1><a class="toc-backref" href="#id2">interactive_location_picker_pyqtgraph</a><a class="headerlink" href="#interactive-location-picker-pyqtgraph" title="Permalink to this headline">¶</a></h1>
+<p>This module contains two classes which allow for interactive selection of images.
+<a class="reference external" href="http://www.pyqtgraph.org/">PyQtGraph</a> is used to create the GUI.</p>
+<div class="section" id="class-keypresswindow-pyqtgraph-graphicswindow">
+<h2><a class="toc-backref" href="#id3">class KeyPressWindow(pyqtgraph.GraphicsWindow)</a><a class="headerlink" href="#class-keypresswindow-pyqtgraph-graphicswindow" title="Permalink to this headline">¶</a></h2>
+<dl class="py class">
+<dt id="microscope_automation.samples.interactive_location_picker_pyqtgraph.KeyPressWindow">
+<em class="property">class </em><code class="sig-prename descclassname">microscope_automation.samples.interactive_location_picker_pyqtgraph.</code><code class="sig-name descname">KeyPressWindow</code><span class="sig-paren">(</span><em class="sig-param"><span class="o">*</span><span class="n">args</span></em>, <em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/microscope_automation/samples/interactive_location_picker_pyqtgraph.html#KeyPressWindow"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#microscope_automation.samples.interactive_location_picker_pyqtgraph.KeyPressWindow" title="Permalink to this definition">¶</a></dt>
+<dd><p>Creating a class to define a custom key press signal
+for selecting modes.</p>
+<dl class="py method">
+<dt id="microscope_automation.samples.interactive_location_picker_pyqtgraph.KeyPressWindow.keyPressEvent">
+<code class="sig-name descname">keyPressEvent</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">self</span></em>, <em class="sig-param"><span class="n">QKeyEvent</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/microscope_automation/samples/interactive_location_picker_pyqtgraph.html#KeyPressWindow.keyPressEvent"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#microscope_automation.samples.interactive_location_picker_pyqtgraph.KeyPressWindow.keyPressEvent" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="class-imagelocationpicker-object">
+<h2><a class="toc-backref" href="#id4">class ImageLocationPicker(object)</a><a class="headerlink" href="#class-imagelocationpicker-object" title="Permalink to this headline">¶</a></h2>
+<dl class="py class">
+<dt id="microscope_automation.samples.interactive_location_picker_pyqtgraph.ImageLocationPicker">
+<em class="property">class </em><code class="sig-prename descclassname">microscope_automation.samples.interactive_location_picker_pyqtgraph.</code><code class="sig-name descname">ImageLocationPicker</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">image</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">location_list</span><span class="o">=</span><span class="default_value">[]</span></em>, <em class="sig-param"><span class="n">app</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">spot_size</span><span class="o">=</span><span class="default_value">10</span></em>, <em class="sig-param"><span class="n">spot_brush</span><span class="o">=</span><span class="default_value">'r'</span></em>, <em class="sig-param"><span class="n">spot_symbol</span><span class="o">=</span><span class="default_value">'+'</span></em>, <em class="sig-param"><span class="n">spot_pen</span><span class="o">=</span><span class="default_value">'r'</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/microscope_automation/samples/interactive_location_picker_pyqtgraph.html#ImageLocationPicker"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#microscope_automation.samples.interactive_location_picker_pyqtgraph.ImageLocationPicker" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="py method">
+<dt id="microscope_automation.samples.interactive_location_picker_pyqtgraph.ImageLocationPicker.flip_coordinates">
+<code class="sig-name descname">flip_coordinates</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">location_list</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/microscope_automation/samples/interactive_location_picker_pyqtgraph.html#ImageLocationPicker.flip_coordinates"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#microscope_automation.samples.interactive_location_picker_pyqtgraph.ImageLocationPicker.flip_coordinates" title="Permalink to this definition">¶</a></dt>
+<dd><p>ZEN has the image origin in the upper left corner,
+QTgraph in the lower left corner.
+This methods transforms coordinates between the two systems.</p>
+<dl class="simple">
+<dt>Input:</dt><dd><p>location_list: List of tuples (or single tuple) in the form of (x,y)
+coordinates to be transformed</p>
+</dd>
+<dt>Output:</dt><dd><p>flipped_location_list: list with (x, y) tuples after transformation</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="microscope_automation.samples.interactive_location_picker_pyqtgraph.ImageLocationPicker.plot_points">
+<code class="sig-name descname">plot_points</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">window_title</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/microscope_automation/samples/interactive_location_picker_pyqtgraph.html#ImageLocationPicker.plot_points"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#microscope_automation.samples.interactive_location_picker_pyqtgraph.ImageLocationPicker.plot_points" title="Permalink to this definition">¶</a></dt>
+<dd><p>Plots a given list of location on the image, gives the user ability
+to edit them using add and delete modes</p>
+<dl class="simple">
+<dt>Input:</dt><dd><p>window_title: name to give the GUI window</p>
+</dd>
+<dt>Output:</dt><dd><p>none</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+</div>
+
+
+          </div>
+          
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<h1 class="logo"><a href="index.html">Microscope Automation</a></h1>
+
+
+
+
+
+
+
+
+<h3>Navigation</h3>
+<p class="caption"><span class="caption-text">Overview</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="index.html">README</a></li>
+<li class="toctree-l1"><a class="reference internal" href="installation.html">Installation</a></li>
+</ul>
+<p class="caption"><span class="caption-text">Hardware</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="hardware_components.html">hardware_components</a></li>
+<li class="toctree-l1"><a class="reference internal" href="hardware_control.html">hardware_control</a></li>
+<li class="toctree-l1"><a class="reference internal" href="RS232.html">RS232</a></li>
+<li class="toctree-l1"><a class="reference internal" href="setup_microscope.html">setup_microscope</a></li>
+</ul>
+<p class="caption"><span class="caption-text">Samples</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="correct_background.html">correct_background</a></li>
+<li class="toctree-l1"><a class="reference internal" href="draw_plate.html">draw_plate</a></li>
+<li class="toctree-l1"><a class="reference internal" href="find_well_center.html">find_well_center</a></li>
+<li class="toctree-l1"><a class="reference internal" href="find_cells.html">find_cells</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">interactive_location_picker_pyqtgraph</a></li>
+<li class="toctree-l1"><a class="reference internal" href="positions_list.html">positions_list</a></li>
+<li class="toctree-l1"><a class="reference internal" href="samples.html">samples</a></li>
+<li class="toctree-l1"><a class="reference internal" href="setup_samples.html">setup_samples</a></li>
+<li class="toctree-l1"><a class="reference internal" href="tile_images.html">tile_images</a></li>
+</ul>
+<p class="caption"><span class="caption-text">Zeiss Microscopes</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="connect_zen_blue.html">connect_zen_blue</a></li>
+<li class="toctree-l1"><a class="reference internal" href="connect_zen_black.html">connect_zen_black</a></li>
+<li class="toctree-l1"><a class="reference internal" href="hardware_control_zeiss.html">hardware_control_zeiss</a></li>
+<li class="toctree-l1"><a class="reference internal" href="write_zen_tiles_experiment.html">write_zen_tiles_experiment</a></li>
+<li class="toctree-l1"><a class="reference internal" href="zen_experiment_info.html">zen_experiment_info</a></li>
+</ul>
+<p class="caption"><span class="caption-text">3i Microscopes</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="hardware_control_3i.html">hardware_control_3i</a></li>
+<li class="toctree-l1"><a class="reference internal" href="connect_slidebook.html">connect_slidebook</a></li>
+<li class="toctree-l1"><a class="reference internal" href="slidebook_experiment_info.html">slidebook_experiment_info</a></li>
+</ul>
+<p class="caption"><span class="caption-text">General Methods</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="automation_exceptions.html">automation_exceptions</a></li>
+<li class="toctree-l1"><a class="reference internal" href="automation_messages_form_layout.html">automation_messages_form_layout</a></li>
+<li class="toctree-l1"><a class="reference internal" href="error_handling.html">error_handling</a></li>
+<li class="toctree-l1"><a class="reference internal" href="get_path.html">get_path</a></li>
+<li class="toctree-l1"><a class="reference internal" href="image_AICS.html">image_AICS</a></li>
+<li class="toctree-l1"><a class="reference internal" href="load_image_czi.html">load_image_czi</a></li>
+<li class="toctree-l1"><a class="reference internal" href="meta_data_file.html">meta_data_file</a></li>
+<li class="toctree-l1"><a class="reference internal" href="preferences.html">preferences</a></li>
+</ul>
+<p class="caption"><span class="caption-text">Reference Docs</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="CONTRIBUTING.html">Allen Institute Contribution Agreement</a></li>
+<li class="toctree-l1"><a class="reference internal" href="LICENSE.html">LICENSE</a></li>
+</ul>
+
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="index.html">Documentation overview</a><ul>
+      <li>Previous: <a href="find_cells.html" title="previous chapter">find_cells</a></li>
+      <li>Next: <a href="positions_list.html" title="next chapter">positions_list</a></li>
+  </ul></li>
+</ul>
+</div>
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" />
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script>$('#searchbox').show(0);</script>
+
+
+
+
+
+
+
+
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2020, Allen Institute.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 3.3.1</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.12</a>
+      
+      |
+      <a href="_sources/interactive_location_picker_pyqtgraph.rst.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+
+    
+  </body>
+</html>

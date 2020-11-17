@@ -1,0 +1,728 @@
+
+<!DOCTYPE html>
+
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>connect_slidebook &#8212; Microscope Automation 0.0 documentation</title>
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    <link rel="stylesheet" href="_static/alabaster.css" type="text/css" />
+    <script id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+    <script src="_static/jquery.js"></script>
+    <script src="_static/underscore.js"></script>
+    <script src="_static/doctools.js"></script>
+    <script src="_static/language_data.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="slidebook_experiment_info" href="slidebook_experiment_info.html" />
+    <link rel="prev" title="hardware_control_3i" href="hardware_control_3i.html" />
+   
+  <link rel="stylesheet" href="_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head><body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          
+
+          <div class="body" role="main">
+            
+  <div class="contents topic" id="contents">
+<p class="topic-title">Contents</p>
+<ul class="simple">
+<li><p><a class="reference internal" href="#connect-slidebook" id="id3">connect_slidebook</a></p>
+<ul>
+<li><p><a class="reference internal" href="#slidebook-and-matlab" id="id4">Slidebook and MatLab</a></p></li>
+<li><p><a class="reference internal" href="#commands-service" id="id5">commands_service</a></p></li>
+<li><p><a class="reference internal" href="#experiment" id="id6">Experiment</a></p></li>
+<li><p><a class="reference internal" href="#class-connectmicroscope" id="id7">class ConnectMicroscope()</a></p></li>
+</ul>
+</li>
+</ul>
+</div>
+<div class="section" id="connect-slidebook">
+<span id="id1"></span><h1><a class="toc-backref" href="#id3">connect_slidebook</a><a class="headerlink" href="#connect-slidebook" title="Permalink to this headline">¶</a></h1>
+<p>Rest API calls to control 3i spinning disk microscopes. The 3i Slidebook
+software control 3i microscopes. It uses Matlab as macro language. The
+macro language is mainly used for image processing. The options to control
+the hardware are very limited.</p>
+<p>To use this module additional microservices and MatLab code are required.
+MatLab receives information about the last image acquire through Slidebook.
+The MatLab code communicates by REST API with several microservices:</p>
+<ul class="simple" id="data-service">
+<li><p>commands_service: Automation software (via <a class="reference internal" href="#connect-slidebook"><span class="std std-ref">connect_slidebook</span></a>) post
+commands (experiments). MatLab pulls them and hands information back to
+Slidebook.</p></li>
+<li><p>data_service: MatLab posts image and limited meta data. Automation
+Software and other micro-services can get images and meta data.</p></li>
+<li><p>imageviewer: Pulls and displays image from <code class="docutils literal notranslate"><span class="pre">data-service</span></code>. User can
+select positions. Automation Software pulls the selected position for
+further processing.</p></li>
+</ul>
+<div class="section" id="slidebook-and-matlab">
+<h2><a class="toc-backref" href="#id4">Slidebook and MatLab</a><a class="headerlink" href="#slidebook-and-matlab" title="Permalink to this headline">¶</a></h2>
+<p>To control 3i Slidebook open Slidebook and configure advanced capture.
+Setup a script that calls MatLab code after an image (or a series of images)
+was captured.</p>
+<p>The MatLab function <code class="docutils literal notranslate"><span class="pre">find_location_of_interest</span></code> receives an image from
+MatLab and posts the stage position to <code class="docutils literal notranslate"><span class="pre">commands_service</span></code>. Than it gets
+the next experiment in the experiments queue from <code class="docutils literal notranslate"><span class="pre">commands_service</span></code>.
+The script can execute the following actions:</p>
+<ul class="simple">
+<li><p>snap: snap image at current location</p></li>
+<li><p>move: move stage and objective in x, y, z. Do not take image.</p></li>
+<li><p>move_snap: move stage and objective in x, y, z and take image.</p></li>
+<li><p>exit: stop execution. To continue script has to be started manually
+within Slidebook.</p></li>
+</ul>
+</div>
+<div class="section" id="commands-service">
+<span id="id2"></span><h2><a class="toc-backref" href="#id5">commands_service</a><a class="headerlink" href="#commands-service" title="Permalink to this headline">¶</a></h2>
+<p><code class="docutils literal notranslate"><span class="pre">commands_service</span></code> can be accessed on <a class="reference external" href="http://localhost:5000">http://localhost:5000</a>.
+The service implements a queue with experiments.
+It uses the following API:</p>
+<ul class="simple">
+<li><p>/about, /cmd/about: <strong>get</strong> information about server</p></li>
+<li><p>/cmd/experiments: <strong>post</strong> experiment as last entry on queue or
+<strong>get</strong> dictionary with all experiments on queue</p></li>
+<li><p>/cmd/experiments/clear: <strong>delete</strong> all experiments from queue</p></li>
+<li><p>/cmd/experiments/count: <strong>get</strong> number of experiments on queue</p></li>
+<li><p>/cmd/experiments/next: <strong>get</strong> next (oldest) experiment on queue</p></li>
+<li><p>/cmd/experiments/{experiment_id}: <strong>get</strong> or <strong>delete</strong> experiment with id</p></li>
+<li><p>/cmd/microscope/microscope: <strong>post</strong> information about microscope</p></li>
+<li><p>/cmd/recent_position: <strong>post</strong> and <strong>get</strong> most recent position returned
+by microscope</p></li>
+</ul>
+</div>
+<div class="section" id="experiment">
+<h2><a class="toc-backref" href="#id6">Experiment</a><a class="headerlink" href="#experiment" title="Permalink to this headline">¶</a></h2>
+<p>An experiment is send as payload when posting or getting data from
+/cmd/experiments/*. It is a dictionary that instructs Slidebook how to
+acquire images.</p>
+<blockquote>
+<div><dl>
+<dt>experiment = server.api.model (‘Experiment’, {</dt><dd><p>‘experiment_id’: fields.String (description = ‘Unique id returned from commands queue’),</p>
+<p>‘microscope’: fields.String (required = True, min_length = 1, max_length = 200, description=’Name of microscope’),</p>
+<p>‘number_positions’: fields.Integer(required = True, description = ‘Number N of positions to image’),</p>
+<p>‘stage_locations’: fields.List (fields.List(fields.Integer), required = True, description = ‘(x,y,z) tuples of N imaging positions’),</p>
+<p>‘stage_locations_filter’: fields.List(fields.Boolean, required = False, description = ‘(x,y,z) tuples of N True/False filter’),</p>
+<p>‘capture_settings’: fields.List (fields.String, required = True, description = ‘Slidebook experiment names for N positions’),</p>
+<p>‘centers_of_interest’: fields.List (fields.List(fields.Integer), description = ‘(x,y,z) tuples of N centers of interest (optional)’),</p>
+<p>‘objective’:  fields.String (required = True, min_length = 0, max_length = 200, description = ‘Name of objective used for imaging’),</p>
+<p>‘time_stamp’: fields.String(required = True, description = ‘Time stamp when request was send’),</p>
+<dl>
+<dt>‘microscope_action’: fields.String (required = True,</dt><dd><p>min_length = 1,</p>
+<p>max_length = 20,</p>
+<dl>
+<dt>description = ‘’’list of actions microscope should perform:</dt><dd><p>snap: take image without moving stage</p>
+<p>move: move without snapping image</p>
+<p>move_snap: move to new position and execute experiment</p>
+<p>exit: exit automation workflow’’’),</p>
+</dd>
+</dl>
+</dd>
+</dl>
+<p>‘id_counter’: fields.Integer(description = ‘Counter assigned by service’),</p>
+<p>‘status’: fields.String (min_length = 0, max_length = 20, description = ‘Processing status assigned by service’)</p>
+</dd>
+</dl>
+<p>})</p>
+</div></blockquote>
+</div>
+<div class="section" id="class-connectmicroscope">
+<span id="connect-slidebook-connectmicroscope"></span><h2><a class="toc-backref" href="#id7">class ConnectMicroscope()</a><a class="headerlink" href="#class-connectmicroscope" title="Permalink to this headline">¶</a></h2>
+<p>Class to control 3i hardware through SlideBook software.</p>
+<dl class="py class">
+<dt id="microscope_automation.slidebook.connect_slidebook.ConnectMicroscope">
+<em class="property">class </em><code class="sig-prename descclassname">microscope_automation.slidebook.connect_slidebook.</code><code class="sig-name descname">ConnectMicroscope</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">cmd_url</span><span class="o">=</span><span class="default_value">'http://127.0.0.1:5000'</span></em>, <em class="sig-param"><span class="n">data_url</span><span class="o">=</span><span class="default_value">'http://127.0.0.1:5100'</span></em>, <em class="sig-param"><span class="n">microscope</span><span class="o">=</span><span class="default_value">'3iW1-0'</span></em>, <em class="sig-param"><span class="n">dummy</span><span class="o">=</span><span class="default_value">False</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/microscope_automation/slidebook/connect_slidebook.html#ConnectMicroscope"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#microscope_automation.slidebook.connect_slidebook.ConnectMicroscope" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="py method">
+<dt id="microscope_automation.slidebook.connect_slidebook.ConnectMicroscope.clear_experiments">
+<code class="sig-name descname">clear_experiments</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/microscope_automation/slidebook/connect_slidebook.html#ConnectMicroscope.clear_experiments"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#microscope_automation.slidebook.connect_slidebook.ConnectMicroscope.clear_experiments" title="Permalink to this definition">¶</a></dt>
+<dd><p>Clear experiments queue</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="microscope_automation.slidebook.connect_slidebook.ConnectMicroscope.count_experiments">
+<code class="sig-name descname">count_experiments</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/microscope_automation/slidebook/connect_slidebook.html#ConnectMicroscope.count_experiments"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#microscope_automation.slidebook.connect_slidebook.ConnectMicroscope.count_experiments" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return number of experiments inqueue</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="microscope_automation.slidebook.connect_slidebook.ConnectMicroscope.create_experiment_path">
+<code class="sig-name descname">create_experiment_path</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">experiment</span></em>, <em class="sig-param"><span class="n">experiment_folder</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/microscope_automation/slidebook/connect_slidebook.html#ConnectMicroscope.create_experiment_path"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#microscope_automation.slidebook.connect_slidebook.ConnectMicroscope.create_experiment_path" title="Permalink to this definition">¶</a></dt>
+<dd><p>Creates complete path to capture settings.
+Raises exception if experiment does not exist.</p>
+<dl>
+<dt>Input:</dt><dd><p>experiment: string with name of capture settings
+(with or w/o extension .exp.prefs)</p>
+<p>experiment_folder: folder for capture settings</p>
+</dd>
+<dt>Output:</dt><dd><p>experiment_path: path to experiment</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="microscope_automation.slidebook.connect_slidebook.ConnectMicroscope.delete_experiment">
+<code class="sig-name descname">delete_experiment</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">experiment_id</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/microscope_automation/slidebook/connect_slidebook.html#ConnectMicroscope.delete_experiment"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#microscope_automation.slidebook.connect_slidebook.ConnectMicroscope.delete_experiment" title="Permalink to this definition">¶</a></dt>
+<dd><p>Delete experiment by id</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="microscope_automation.slidebook.connect_slidebook.ConnectMicroscope.execute_experiment">
+<code class="sig-name descname">execute_experiment</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">capture_settings</span></em>, <em class="sig-param"><span class="n">locations</span></em>, <em class="sig-param"><span class="n">objective</span><span class="o">=</span><span class="default_value">''</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/microscope_automation/slidebook/connect_slidebook.html#ConnectMicroscope.execute_experiment"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#microscope_automation.slidebook.connect_slidebook.ConnectMicroscope.execute_experiment" title="Permalink to this definition">¶</a></dt>
+<dd><p>Execute experiments with parameters defined in experiment
+on multiple positions.</p>
+<dl>
+<dt>Input:</dt><dd><p>capture_settings: string with name of experiment as defined within
+Microscope software</p>
+<p>objective: objective used to acquire image. If none keep objective.</p>
+<p>locations: list with (x,y,z) stage locations</p>
+</dd>
+<dt>Output:</dt><dd><p>success: True when experiment was successfully posted on command server</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="microscope_automation.slidebook.connect_slidebook.ConnectMicroscope.get_about_command_service">
+<code class="sig-name descname">get_about_command_service</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/microscope_automation/slidebook/connect_slidebook.html#ConnectMicroscope.get_about_command_service"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#microscope_automation.slidebook.connect_slidebook.ConnectMicroscope.get_about_command_service" title="Permalink to this definition">¶</a></dt>
+<dd><p>Retrieve information about command service</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="microscope_automation.slidebook.connect_slidebook.ConnectMicroscope.get_about_data_service">
+<code class="sig-name descname">get_about_data_service</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/microscope_automation/slidebook/connect_slidebook.html#ConnectMicroscope.get_about_data_service"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#microscope_automation.slidebook.connect_slidebook.ConnectMicroscope.get_about_data_service" title="Permalink to this definition">¶</a></dt>
+<dd><p>Retrieve information about data service</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="microscope_automation.slidebook.connect_slidebook.ConnectMicroscope.get_experiment">
+<code class="sig-name descname">get_experiment</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">experiment_id</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/microscope_automation/slidebook/connect_slidebook.html#ConnectMicroscope.get_experiment"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#microscope_automation.slidebook.connect_slidebook.ConnectMicroscope.get_experiment" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return experiment by id</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="microscope_automation.slidebook.connect_slidebook.ConnectMicroscope.get_experiment_dict">
+<code class="sig-name descname">get_experiment_dict</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/microscope_automation/slidebook/connect_slidebook.html#ConnectMicroscope.get_experiment_dict"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#microscope_automation.slidebook.connect_slidebook.ConnectMicroscope.get_experiment_dict" title="Permalink to this definition">¶</a></dt>
+<dd><p>Retrieve dictionary with all experiments on queue</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="microscope_automation.slidebook.connect_slidebook.ConnectMicroscope.get_focus_pos">
+<code class="sig-name descname">get_focus_pos</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/microscope_automation/slidebook/connect_slidebook.html#ConnectMicroscope.get_focus_pos"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#microscope_automation.slidebook.connect_slidebook.ConnectMicroscope.get_focus_pos" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return current position of focus drive.</p>
+<dl class="simple">
+<dt>Input:</dt><dd><p>none</p>
+</dd>
+<dt>Output:</dt><dd><p>zPos: position of focus drive in micrometer</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="microscope_automation.slidebook.connect_slidebook.ConnectMicroscope.get_focus_settings">
+<code class="sig-name descname">get_focus_settings</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">experiment_path</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">experiment_name</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/microscope_automation/slidebook/connect_slidebook.html#ConnectMicroscope.get_focus_settings"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#microscope_automation.slidebook.connect_slidebook.ConnectMicroscope.get_focus_settings" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get focus settings.
+Included for parity between Microscope connections.</p>
+<p>Raises HardwareCommandNotDefinedError.</p>
+<dl>
+<dt>Input:</dt><dd><p>experiment_path: path of the experiment file</p>
+<p>experiment_name: name of the experiment</p>
+</dd>
+<dt>Output:</dt><dd><p>none</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="microscope_automation.slidebook.connect_slidebook.ConnectMicroscope.get_microscope_name">
+<code class="sig-name descname">get_microscope_name</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/microscope_automation/slidebook/connect_slidebook.html#ConnectMicroscope.get_microscope_name"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#microscope_automation.slidebook.connect_slidebook.ConnectMicroscope.get_microscope_name" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns name of the microscope from hardware that is controlled by this class</p>
+<dl class="simple">
+<dt>Input:</dt><dd><p>none</p>
+</dd>
+<dt>Output:</dt><dd><p>Microscope: name of Microscope</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="microscope_automation.slidebook.connect_slidebook.ConnectMicroscope.get_next_experiment">
+<code class="sig-name descname">get_next_experiment</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/microscope_automation/slidebook/connect_slidebook.html#ConnectMicroscope.get_next_experiment"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#microscope_automation.slidebook.connect_slidebook.ConnectMicroscope.get_next_experiment" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return next (oldest) experiments in queue</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="microscope_automation.slidebook.connect_slidebook.ConnectMicroscope.get_objective_position_from_experiment_file">
+<code class="sig-name descname">get_objective_position_from_experiment_file</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">experiment_path</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">experiment_name</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/microscope_automation/slidebook/connect_slidebook.html#ConnectMicroscope.get_objective_position_from_experiment_file"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#microscope_automation.slidebook.connect_slidebook.ConnectMicroscope.get_objective_position_from_experiment_file" title="Permalink to this definition">¶</a></dt>
+<dd><p>Function to get the position of the objective used in the experiment
+Included for parity between Microscope connections.</p>
+<p>Raises HardwareCommandNotDefinedError.</p>
+<dl>
+<dt>Input:</dt><dd><p>experiment_path: path of the experiment file</p>
+<p>experiment_name: name of the experiment</p>
+</dd>
+<dt>Output:</dt><dd><p>none</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="microscope_automation.slidebook.connect_slidebook.ConnectMicroscope.get_stage_pos">
+<code class="sig-name descname">get_stage_pos</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">repetitions</span><span class="o">=</span><span class="default_value">5</span></em>, <em class="sig-param"><span class="n">wait</span><span class="o">=</span><span class="default_value">1</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/microscope_automation/slidebook/connect_slidebook.html#ConnectMicroscope.get_stage_pos"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#microscope_automation.slidebook.connect_slidebook.ConnectMicroscope.get_stage_pos" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return most recent position of Microscope stage.</p>
+<dl>
+<dt>Input:</dt><dd><p>repetitions: number of times to try to get a response</p>
+<p>wait: wait time per repetition in sec</p>
+</dd>
+<dt>Output:</dt><dd><p>xPos, yPos, zPos: x and y position of stage in micrometer</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="microscope_automation.slidebook.connect_slidebook.ConnectMicroscope.is_tile_scan">
+<code class="sig-name descname">is_tile_scan</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">experiment_path</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">experiment_name</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/microscope_automation/slidebook/connect_slidebook.html#ConnectMicroscope.is_tile_scan"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#microscope_automation.slidebook.connect_slidebook.ConnectMicroscope.is_tile_scan" title="Permalink to this definition">¶</a></dt>
+<dd><p>Function to check if the experiment is a tile scan.
+Included for parity between Microscope connections.</p>
+<p>Raises HardwareCommandNotDefinedError.</p>
+<dl>
+<dt>Input:</dt><dd><p>experiment_path: path of the experiment file</p>
+<p>experiment_name: name of the experiment</p>
+</dd>
+<dt>Output:</dt><dd><p>none</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="microscope_automation.slidebook.connect_slidebook.ConnectMicroscope.is_z_stack">
+<code class="sig-name descname">is_z_stack</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">experiment_path</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">experiment_name</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/microscope_automation/slidebook/connect_slidebook.html#ConnectMicroscope.is_z_stack"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#microscope_automation.slidebook.connect_slidebook.ConnectMicroscope.is_z_stack" title="Permalink to this definition">¶</a></dt>
+<dd><p>Function to check if the experiment contains z-stack acquisition.
+Included for parity between Microscope connections.</p>
+<p>Raises HardwareCommandNotDefinedError.</p>
+<dl>
+<dt>Input:</dt><dd><p>experiment_path: path of the experiment file</p>
+<p>experiment_name: name of the experiment</p>
+</dd>
+<dt>Output:</dt><dd><p>none</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="microscope_automation.slidebook.connect_slidebook.ConnectMicroscope.live_mode_start">
+<code class="sig-name descname">live_mode_start</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">experiment</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/microscope_automation/slidebook/connect_slidebook.html#ConnectMicroscope.live_mode_start"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#microscope_automation.slidebook.connect_slidebook.ConnectMicroscope.live_mode_start" title="Permalink to this definition">¶</a></dt>
+<dd><p>Start live mode.
+Included for parity between Microscope connections.</p>
+<p>Raises HardwareCommandNotDefinedError.</p>
+<dl class="simple">
+<dt>Input:</dt><dd><p>experiment: name of experiment</p>
+</dd>
+<dt>Output:</dt><dd><p>none</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="microscope_automation.slidebook.connect_slidebook.ConnectMicroscope.live_mode_stop">
+<code class="sig-name descname">live_mode_stop</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">experiment</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/microscope_automation/slidebook/connect_slidebook.html#ConnectMicroscope.live_mode_stop"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#microscope_automation.slidebook.connect_slidebook.ConnectMicroscope.live_mode_stop" title="Permalink to this definition">¶</a></dt>
+<dd><p>Stop live mode.
+Included for parity between Microscope connections.</p>
+<p>Raises HardwareCommandNotDefinedError.</p>
+<dl class="simple">
+<dt>Input:</dt><dd><p>experiment: name of experiment</p>
+</dd>
+<dt>Output:</dt><dd><p>none</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="microscope_automation.slidebook.connect_slidebook.ConnectMicroscope.load_image">
+<code class="sig-name descname">load_image</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">image</span></em>, <em class="sig-param"><span class="n">get_meta_data</span><span class="o">=</span><span class="default_value">False</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/microscope_automation/slidebook/connect_slidebook.html#ConnectMicroscope.load_image"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#microscope_automation.slidebook.connect_slidebook.ConnectMicroscope.load_image" title="Permalink to this definition">¶</a></dt>
+<dd><p>Load most recent image from data service and return it a class ImageAICS</p>
+<dl>
+<dt>Input:</dt><dd><p>image: image object of class ImageAICS.</p>
+<p>get_meta: if true, retrieve meta data from file. Default is False</p>
+</dd>
+<dt>Output:</dt><dd><p>image: image with data and meta data as ImageAICS class</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="microscope_automation.slidebook.connect_slidebook.ConnectMicroscope.move_focus_to">
+<code class="sig-name descname">move_focus_to</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">zPos</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/microscope_automation/slidebook/connect_slidebook.html#ConnectMicroscope.move_focus_to"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#microscope_automation.slidebook.connect_slidebook.ConnectMicroscope.move_focus_to" title="Permalink to this definition">¶</a></dt>
+<dd><p>Move focus to new position.
+Included for parity between Microscope connections.</p>
+<p>Raises HardwareCommandNotDefinedError.</p>
+<dl class="simple">
+<dt>Input:</dt><dd><p>zPos, yPos: new focus position in micrometers.</p>
+</dd>
+<dt>Output:</dt><dd><p>zFocus: new position of focus drive</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="microscope_automation.slidebook.connect_slidebook.ConnectMicroscope.move_focus_to_load">
+<code class="sig-name descname">move_focus_to_load</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/microscope_automation/slidebook/connect_slidebook.html#ConnectMicroscope.move_focus_to_load"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#microscope_automation.slidebook.connect_slidebook.ConnectMicroscope.move_focus_to_load" title="Permalink to this definition">¶</a></dt>
+<dd><p>Move focus to load position if defined.</p>
+<dl class="simple">
+<dt>Input:</dt><dd><p>zPos, yPos: new focus position in micrometers.</p>
+</dd>
+<dt>Output:</dt><dd><p>zFocus: new position of focus drive</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="microscope_automation.slidebook.connect_slidebook.ConnectMicroscope.move_focus_to_work">
+<code class="sig-name descname">move_focus_to_work</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/microscope_automation/slidebook/connect_slidebook.html#ConnectMicroscope.move_focus_to_work"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#microscope_automation.slidebook.connect_slidebook.ConnectMicroscope.move_focus_to_work" title="Permalink to this definition">¶</a></dt>
+<dd><p>Move focus to work position if defined.</p>
+<dl class="simple">
+<dt>Input:</dt><dd><p>zPos, yPos: new focus position in micrometers.</p>
+</dd>
+<dt>Output:</dt><dd><p>zFocus: new position of focus drive</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="microscope_automation.slidebook.connect_slidebook.ConnectMicroscope.move_stage_to">
+<code class="sig-name descname">move_stage_to</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">xPos</span></em>, <em class="sig-param"><span class="n">yPos</span></em>, <em class="sig-param"><span class="n">zPos</span></em>, <em class="sig-param"><span class="n">capture_settings</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">test</span><span class="o">=</span><span class="default_value">False</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/microscope_automation/slidebook/connect_slidebook.html#ConnectMicroscope.move_stage_to"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#microscope_automation.slidebook.connect_slidebook.ConnectMicroscope.move_stage_to" title="Permalink to this definition">¶</a></dt>
+<dd><p>Move stage to new position.</p>
+<dl>
+<dt>Input:</dt><dd><p>xPos, yPos, zPos: new stage and objective position in micrometers.</p>
+<p>capture_settings: capture settings in Slidebook Capture dialog to move stage</p>
+<p>test: not used but included for consistency with ZEN Blue API</p>
+</dd>
+<dt>Output:</dt><dd><p>xPos, yPos, zPos: new stage and objective position in micrometers</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="microscope_automation.slidebook.connect_slidebook.ConnectMicroscope.not_implemented">
+<code class="sig-name descname">not_implemented</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">method_name</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/microscope_automation/slidebook/connect_slidebook.html#ConnectMicroscope.not_implemented"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#microscope_automation.slidebook.connect_slidebook.ConnectMicroscope.not_implemented" title="Permalink to this definition">¶</a></dt>
+<dd><p>Raise exception if method is not implemented.</p>
+<dl class="simple">
+<dt>Input:</dt><dd><p>method_name: method that calls this method</p>
+</dd>
+<dt>Output:</dt><dd><p>none</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="microscope_automation.slidebook.connect_slidebook.ConnectMicroscope.post_experiment">
+<code class="sig-name descname">post_experiment</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">experiment</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/microscope_automation/slidebook/connect_slidebook.html#ConnectMicroscope.post_experiment"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#microscope_automation.slidebook.connect_slidebook.ConnectMicroscope.post_experiment" title="Permalink to this definition">¶</a></dt>
+<dd><p>Post experiment as last entry on queue and return updated experiment</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="microscope_automation.slidebook.connect_slidebook.ConnectMicroscope.remove_all">
+<code class="sig-name descname">remove_all</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/microscope_automation/slidebook/connect_slidebook.html#ConnectMicroscope.remove_all"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#microscope_automation.slidebook.connect_slidebook.ConnectMicroscope.remove_all" title="Permalink to this definition">¶</a></dt>
+<dd><p>Remove all images from queue at data service.</p>
+<dl class="simple">
+<dt>Input:</dt><dd><p>none</p>
+</dd>
+<dt>Output:</dt><dd><p>none</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="microscope_automation.slidebook.connect_slidebook.ConnectMicroscope.save_image">
+<code class="sig-name descname">save_image</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">fileName</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/microscope_automation/slidebook/connect_slidebook.html#ConnectMicroscope.save_image"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#microscope_automation.slidebook.connect_slidebook.ConnectMicroscope.save_image" title="Permalink to this definition">¶</a></dt>
+<dd><p>Save last acquired ImageAICS in original file format
+using microscope software</p>
+<p>Raises HardwareCommandNotDefinedError</p>
+<dl class="simple">
+<dt>Input:</dt><dd><p>file: file name and path for ImageAICS save</p>
+</dd>
+<dt>Output:</dt><dd><p>none</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="microscope_automation.slidebook.connect_slidebook.ConnectMicroscope.set_focus_load_position">
+<code class="sig-name descname">set_focus_load_position</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/microscope_automation/slidebook/connect_slidebook.html#ConnectMicroscope.set_focus_load_position"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#microscope_automation.slidebook.connect_slidebook.ConnectMicroscope.set_focus_load_position" title="Permalink to this definition">¶</a></dt>
+<dd><p>Retrieve current position and set as load position.</p>
+<dl class="simple">
+<dt>Input:</dt><dd><p>none</p>
+</dd>
+<dt>Output:</dt><dd><p>zLoad: current focus position in mum</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="microscope_automation.slidebook.connect_slidebook.ConnectMicroscope.set_focus_work_position">
+<code class="sig-name descname">set_focus_work_position</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/microscope_automation/slidebook/connect_slidebook.html#ConnectMicroscope.set_focus_work_position"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#microscope_automation.slidebook.connect_slidebook.ConnectMicroscope.set_focus_work_position" title="Permalink to this definition">¶</a></dt>
+<dd><p>Retrieve current position and set as work position.</p>
+<dl class="simple">
+<dt>Input:</dt><dd><p>none</p>
+</dd>
+<dt>Output:</dt><dd><p>z_work: current focus position in mum</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="microscope_automation.slidebook.connect_slidebook.ConnectMicroscope.snap_image">
+<code class="sig-name descname">snap_image</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">capture_settings</span></em>, <em class="sig-param"><span class="n">objective</span><span class="o">=</span><span class="default_value">''</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/microscope_automation/slidebook/connect_slidebook.html#ConnectMicroscope.snap_image"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#microscope_automation.slidebook.connect_slidebook.ConnectMicroscope.snap_image" title="Permalink to this definition">¶</a></dt>
+<dd><p>Snap image with parameters defined in experiment at current location.
+Raise exception if request was not successful</p>
+<dl>
+<dt>Input:</dt><dd><p>capture_settings: string with name of capture_settings as defined
+within Microscope software</p>
+<p>objective: objective used to acquire image. If none keep objective.</p>
+</dd>
+<dt>Return:</dt><dd><p>response: Return dictionary with response from commands microservice</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="microscope_automation.slidebook.connect_slidebook.ConnectMicroscope.stop">
+<code class="sig-name descname">stop</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/microscope_automation/slidebook/connect_slidebook.html#ConnectMicroscope.stop"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#microscope_automation.slidebook.connect_slidebook.ConnectMicroscope.stop" title="Permalink to this definition">¶</a></dt>
+<dd><p>Stop Microscope immediately</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="microscope_automation.slidebook.connect_slidebook.ConnectMicroscope.trigger_pump">
+<code class="sig-name descname">trigger_pump</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">seconds</span></em>, <em class="sig-param"><span class="n">port</span><span class="o">=</span><span class="default_value">'COM1'</span></em>, <em class="sig-param"><span class="n">baudrate</span><span class="o">=</span><span class="default_value">19200</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/microscope_automation/slidebook/connect_slidebook.html#ConnectMicroscope.trigger_pump"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#microscope_automation.slidebook.connect_slidebook.ConnectMicroscope.trigger_pump" title="Permalink to this definition">¶</a></dt>
+<dd><p>Trigger pump</p>
+<dl>
+<dt>Input:</dt><dd><p>seconds: the number of seconds pump is activated</p>
+<p>port: com port, default = ‘COM1’</p>
+<p>baudrate: baudrate for connection, can be set on pump, typically = 19200</p>
+</dd>
+<dt>Output:</dt><dd><p>none</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="microscope_automation.slidebook.connect_slidebook.ConnectMicroscope.update_tile_positions">
+<code class="sig-name descname">update_tile_positions</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">experiment_path</span></em>, <em class="sig-param"><span class="n">experiment_name</span></em>, <em class="sig-param"><span class="n">x_value</span></em>, <em class="sig-param"><span class="n">y_value</span></em>, <em class="sig-param"><span class="n">z_value</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/microscope_automation/slidebook/connect_slidebook.html#ConnectMicroscope.update_tile_positions"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#microscope_automation.slidebook.connect_slidebook.ConnectMicroscope.update_tile_positions" title="Permalink to this definition">¶</a></dt>
+<dd><p>Function to define the position of the tile.
+Included for parity between Microscope connections.</p>
+<p>Raises HardwareCommandNotDefinedError.</p>
+<dl>
+<dt>Input:</dt><dd><p>experiment_path: path of the experiment file</p>
+<p>experiment_name: name of the experiment</p>
+<p>x_value: float (x - coordinate)</p>
+<p>y_value: float (y - coordinate)</p>
+<p>z_value: float (z - coordinate)</p>
+</dd>
+<dt>Output:</dt><dd><p>none</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="microscope_automation.slidebook.connect_slidebook.ConnectMicroscope.validate_experiment">
+<code class="sig-name descname">validate_experiment</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">experiment_path</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">experiment_name</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/microscope_automation/slidebook/connect_slidebook.html#ConnectMicroscope.validate_experiment"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#microscope_automation.slidebook.connect_slidebook.ConnectMicroscope.validate_experiment" title="Permalink to this definition">¶</a></dt>
+<dd><p>Function to check if the experiment is defined in the Slidebook software</p>
+<dl>
+<dt>Input:</dt><dd><p>experiment_path: path of the experiment file - does not matter for Zen Black</p>
+<p>experiment_name: name of the experiment</p>
+</dd>
+<dt>Output:</dt><dd><p>valid_experiment: bool describing if the experiment is valid</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="microscope_automation.slidebook.connect_slidebook.ConnectMicroscope.z_down_relative">
+<code class="sig-name descname">z_down_relative</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">delta</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/microscope_automation/slidebook/connect_slidebook.html#ConnectMicroscope.z_down_relative"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#microscope_automation.slidebook.connect_slidebook.ConnectMicroscope.z_down_relative" title="Permalink to this definition">¶</a></dt>
+<dd><p>Move focus relative to current position away from sample.
+Included for parity between Microscope connections.</p>
+<p>Raises HardwareCommandNotDefinedError.</p>
+<dl class="simple">
+<dt>Input:</dt><dd><p>delta: absolute distance in mum</p>
+</dd>
+<dt>Output:</dt><dd><p>z: new position of focus drive</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="microscope_automation.slidebook.connect_slidebook.ConnectMicroscope.z_relative_move">
+<code class="sig-name descname">z_relative_move</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">delta</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/microscope_automation/slidebook/connect_slidebook.html#ConnectMicroscope.z_relative_move"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#microscope_automation.slidebook.connect_slidebook.ConnectMicroscope.z_relative_move" title="Permalink to this definition">¶</a></dt>
+<dd><p>Move focus relative to current position.
+Included for parity between Microscope connections.</p>
+<p>Raises HardwareCommandNotDefinedError.</p>
+<dl class="simple">
+<dt>Input:</dt><dd><p>delta: distance in mum</p>
+</dd>
+<dt>Output:</dt><dd><p>z: new position of focus drive</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="microscope_automation.slidebook.connect_slidebook.ConnectMicroscope.z_stack_range">
+<code class="sig-name descname">z_stack_range</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">experiment_path</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">experiment_name</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/microscope_automation/slidebook/connect_slidebook.html#ConnectMicroscope.z_stack_range"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#microscope_automation.slidebook.connect_slidebook.ConnectMicroscope.z_stack_range" title="Permalink to this definition">¶</a></dt>
+<dd><p>Function to  get the range of first z-stack in experiment.
+Included for parity between Microscope connections.</p>
+<p>Raises HardwareCommandNotDefinedError.</p>
+<dl>
+<dt>Input:</dt><dd><p>experiment_path: path of the experiment file</p>
+<p>experiment_name: name of the experiment</p>
+</dd>
+<dt>Output:</dt><dd><p>none</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="microscope_automation.slidebook.connect_slidebook.ConnectMicroscope.z_up_relative">
+<code class="sig-name descname">z_up_relative</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">delta</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/microscope_automation/slidebook/connect_slidebook.html#ConnectMicroscope.z_up_relative"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#microscope_automation.slidebook.connect_slidebook.ConnectMicroscope.z_up_relative" title="Permalink to this definition">¶</a></dt>
+<dd><p>Move focus relative to current position towards sample.
+Included for parity between Microscope connections.</p>
+<p>Raises HardwareCommandNotDefinedError.</p>
+<dl class="simple">
+<dt>Input:</dt><dd><p>delta: absolute distance in mum</p>
+</dd>
+<dt>Output:</dt><dd><p>z: new position of focus drive</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+</div>
+
+
+          </div>
+          
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<h1 class="logo"><a href="index.html">Microscope Automation</a></h1>
+
+
+
+
+
+
+
+
+<h3>Navigation</h3>
+<p class="caption"><span class="caption-text">Overview</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="index.html">README</a></li>
+<li class="toctree-l1"><a class="reference internal" href="installation.html">Installation</a></li>
+</ul>
+<p class="caption"><span class="caption-text">Hardware</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="hardware_components.html">hardware_components</a></li>
+<li class="toctree-l1"><a class="reference internal" href="hardware_control.html">hardware_control</a></li>
+<li class="toctree-l1"><a class="reference internal" href="RS232.html">RS232</a></li>
+<li class="toctree-l1"><a class="reference internal" href="setup_microscope.html">setup_microscope</a></li>
+</ul>
+<p class="caption"><span class="caption-text">Samples</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="correct_background.html">correct_background</a></li>
+<li class="toctree-l1"><a class="reference internal" href="draw_plate.html">draw_plate</a></li>
+<li class="toctree-l1"><a class="reference internal" href="find_well_center.html">find_well_center</a></li>
+<li class="toctree-l1"><a class="reference internal" href="find_cells.html">find_cells</a></li>
+<li class="toctree-l1"><a class="reference internal" href="interactive_location_picker_pyqtgraph.html">interactive_location_picker_pyqtgraph</a></li>
+<li class="toctree-l1"><a class="reference internal" href="positions_list.html">positions_list</a></li>
+<li class="toctree-l1"><a class="reference internal" href="samples.html">samples</a></li>
+<li class="toctree-l1"><a class="reference internal" href="setup_samples.html">setup_samples</a></li>
+<li class="toctree-l1"><a class="reference internal" href="tile_images.html">tile_images</a></li>
+</ul>
+<p class="caption"><span class="caption-text">Zeiss Microscopes</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="connect_zen_blue.html">connect_zen_blue</a></li>
+<li class="toctree-l1"><a class="reference internal" href="connect_zen_black.html">connect_zen_black</a></li>
+<li class="toctree-l1"><a class="reference internal" href="hardware_control_zeiss.html">hardware_control_zeiss</a></li>
+<li class="toctree-l1"><a class="reference internal" href="write_zen_tiles_experiment.html">write_zen_tiles_experiment</a></li>
+<li class="toctree-l1"><a class="reference internal" href="zen_experiment_info.html">zen_experiment_info</a></li>
+</ul>
+<p class="caption"><span class="caption-text">3i Microscopes</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="hardware_control_3i.html">hardware_control_3i</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">connect_slidebook</a></li>
+<li class="toctree-l1"><a class="reference internal" href="slidebook_experiment_info.html">slidebook_experiment_info</a></li>
+</ul>
+<p class="caption"><span class="caption-text">General Methods</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="automation_exceptions.html">automation_exceptions</a></li>
+<li class="toctree-l1"><a class="reference internal" href="automation_messages_form_layout.html">automation_messages_form_layout</a></li>
+<li class="toctree-l1"><a class="reference internal" href="error_handling.html">error_handling</a></li>
+<li class="toctree-l1"><a class="reference internal" href="get_path.html">get_path</a></li>
+<li class="toctree-l1"><a class="reference internal" href="image_AICS.html">image_AICS</a></li>
+<li class="toctree-l1"><a class="reference internal" href="load_image_czi.html">load_image_czi</a></li>
+<li class="toctree-l1"><a class="reference internal" href="meta_data_file.html">meta_data_file</a></li>
+<li class="toctree-l1"><a class="reference internal" href="preferences.html">preferences</a></li>
+</ul>
+<p class="caption"><span class="caption-text">Reference Docs</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="CONTRIBUTING.html">Allen Institute Contribution Agreement</a></li>
+<li class="toctree-l1"><a class="reference internal" href="LICENSE.html">LICENSE</a></li>
+</ul>
+
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="index.html">Documentation overview</a><ul>
+      <li>Previous: <a href="hardware_control_3i.html" title="previous chapter">hardware_control_3i</a></li>
+      <li>Next: <a href="slidebook_experiment_info.html" title="next chapter">slidebook_experiment_info</a></li>
+  </ul></li>
+</ul>
+</div>
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" />
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script>$('#searchbox').show(0);</script>
+
+
+
+
+
+
+
+
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2020, Allen Institute.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 3.3.1</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.12</a>
+      
+      |
+      <a href="_sources/connect_slidebook.rst.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+
+    
+  </body>
+</html>

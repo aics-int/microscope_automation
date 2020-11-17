@@ -1,0 +1,482 @@
+
+<!DOCTYPE html>
+
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>microscope_automation.samples.find_well_center &#8212; Microscope Automation 0.0 documentation</title>
+    <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+    <link rel="stylesheet" href="../../../_static/alabaster.css" type="text/css" />
+    <script id="documentation_options" data-url_root="../../../" src="../../../_static/documentation_options.js"></script>
+    <script src="../../../_static/jquery.js"></script>
+    <script src="../../../_static/underscore.js"></script>
+    <script src="../../../_static/doctools.js"></script>
+    <script src="../../../_static/language_data.js"></script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" />
+   
+  <link rel="stylesheet" href="../../../_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head><body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          
+
+          <div class="body" role="main">
+            
+  <h1>Source code for microscope_automation.samples.find_well_center</h1><div class="highlight"><pre>
+<span></span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">Find center of well based on ImageAICS of well segment.</span>
+<span class="sd">We will generate an ImageAICS of the whole well</span>
+<span class="sd">and convolve it with the ImageAICS of the segment.</span>
+<span class="sd">All dimensions in pixels</span>
+<span class="sd">Created on Jun 18, 2016</span>
+
+<span class="sd">@author: winfriedw</span>
+<span class="sd">&quot;&quot;&quot;</span>
+
+<span class="kn">from</span> <span class="nn">skimage</span> <span class="kn">import</span> <span class="n">draw</span><span class="p">,</span> <span class="n">feature</span><span class="p">,</span> <span class="n">exposure</span><span class="p">,</span> <span class="n">img_as_float</span>
+<span class="kn">from</span> <span class="nn">skimage.filters</span> <span class="kn">import</span> <span class="n">threshold_otsu</span>
+<span class="kn">import</span> <span class="nn">skimage.morphology</span> <span class="k">as</span> <span class="nn">skimorph</span>
+<span class="kn">import</span> <span class="nn">numpy</span>
+<span class="kn">import</span> <span class="nn">math</span>
+<span class="kn">import</span> <span class="nn">matplotlib.pyplot</span> <span class="k">as</span> <span class="nn">plt</span>
+<span class="kn">from</span> <span class="nn">scipy</span> <span class="kn">import</span> <span class="n">ndimage</span>
+
+
+<span class="n">debug</span> <span class="o">=</span> <span class="kc">False</span>  <span class="c1"># if True, debug images will be shown</span>
+<span class="n">summaryDebug</span> <span class="o">=</span> <span class="kc">True</span>  <span class="c1"># if True, summary debug images will be shown</span>
+
+
+<div class="viewcode-block" id="show_hist"><a class="viewcode-back" href="../../../microscope_automation.samples.html#microscope_automation.samples.find_well_center.show_hist">[docs]</a><span class="k">def</span> <span class="nf">show_hist</span><span class="p">(</span><span class="n">image</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Plot histogram.</span>
+
+<span class="sd">    Input:</span>
+<span class="sd">     image</span>
+
+<span class="sd">    Output:</span>
+<span class="sd">     none</span>
+
+<span class="sd">    We have problems with the pyplot.hist function.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">hist</span><span class="p">,</span> <span class="n">bins</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">histogram</span><span class="p">(</span><span class="n">image</span><span class="p">,</span> <span class="n">bins</span><span class="o">=</span><span class="mi">50</span><span class="p">)</span>
+    <span class="n">width</span> <span class="o">=</span> <span class="mf">0.7</span> <span class="o">*</span> <span class="p">(</span><span class="n">bins</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">-</span> <span class="n">bins</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+    <span class="n">center</span> <span class="o">=</span> <span class="p">(</span><span class="n">bins</span><span class="p">[:</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">+</span> <span class="n">bins</span><span class="p">[</span><span class="mi">1</span><span class="p">:])</span> <span class="o">/</span> <span class="mi">2</span>
+
+    <span class="n">fig</span><span class="p">,</span> <span class="n">axes</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">(</span><span class="n">nRows</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">nCols</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
+    <span class="n">axes</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">imshow</span><span class="p">(</span><span class="n">image</span><span class="p">)</span>
+    <span class="n">axes</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">bar</span><span class="p">(</span><span class="n">center</span><span class="p">,</span> <span class="n">hist</span><span class="p">,</span> <span class="n">align</span><span class="o">=</span><span class="s2">&quot;center&quot;</span><span class="p">,</span> <span class="n">width</span><span class="o">=</span><span class="n">width</span><span class="p">)</span>
+    <span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span></div>
+
+
+<div class="viewcode-block" id="show_debug_image"><a class="viewcode-back" href="../../../microscope_automation.samples.html#microscope_automation.samples.find_well_center.show_debug_image">[docs]</a><span class="k">def</span> <span class="nf">show_debug_image</span><span class="p">(</span><span class="n">image</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Show ImageAICS when in debug mode.</span>
+<span class="sd">    Input: ImageAICS</span>
+<span class="sd">    Return: none</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="n">debug</span><span class="p">:</span>
+        <span class="n">plt</span><span class="o">.</span><span class="n">imshow</span><span class="p">(</span><span class="n">image</span><span class="p">)</span>
+        <span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span></div>
+
+
+<div class="viewcode-block" id="show_debug_summary"><a class="viewcode-back" href="../../../microscope_automation.samples.html#microscope_automation.samples.find_well_center.show_debug_summary">[docs]</a><span class="k">def</span> <span class="nf">show_debug_summary</span><span class="p">(</span><span class="n">image</span><span class="p">,</span> <span class="n">well_image</span><span class="p">,</span> <span class="n">correlation</span><span class="p">,</span> <span class="n">t_image</span><span class="p">,</span> <span class="n">corr_x</span><span class="p">,</span> <span class="n">corr_y</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Show all images to calculate new center.</span>
+
+<span class="sd">    Input:</span>
+<span class="sd">     image: microscope image of well center</span>
+
+<span class="sd">     well_image: synthetic image of well used for alignment</span>
+
+<span class="sd">     correlation: image of crosscorrelation</span>
+
+<span class="sd">     t_image: image after thresholding used for crosscorrelation</span>
+
+<span class="sd">     corr_x, corr_y: correlation peak</span>
+
+<span class="sd">    Output:</span>
+<span class="sd">     none</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="n">summaryDebug</span><span class="p">:</span>
+        <span class="n">fig</span><span class="p">,</span> <span class="n">axes</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">(</span><span class="n">nRows</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">nCols</span><span class="o">=</span><span class="mi">3</span><span class="p">)</span>
+
+        <span class="n">axes</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">imshow</span><span class="p">(</span><span class="n">image</span><span class="p">)</span>
+        <span class="n">axes</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">imshow</span><span class="p">(</span><span class="n">well_image</span><span class="p">)</span>
+        <span class="c1"># mark position of correlation maximum. x and y are reversed</span>
+        <span class="c1"># because we display on a numpy array</span>
+        <span class="n">axes</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">corr_y</span><span class="p">,</span> <span class="n">corr_x</span><span class="p">,</span> <span class="s2">&quot;wx&quot;</span><span class="p">,</span> <span class="n">markersize</span><span class="o">=</span><span class="mi">20</span><span class="p">)</span>
+        <span class="c1">#         centerX=offsetX+correlation.shape[0]/2</span>
+        <span class="c1">#         centerY=offsetY+correlation.shape[1]/2</span>
+
+        <span class="c1">#         axes[0,1].plot(centerY, centerX, &#39;b+&#39;, markersize=20)</span>
+        <span class="n">axes</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">imshow</span><span class="p">(</span><span class="n">correlation</span><span class="p">)</span>
+        <span class="c1"># mark position of correlation maximum. x and y are reversed</span>
+        <span class="c1"># because we display on a numpy array</span>
+        <span class="n">axes</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">corr_y</span><span class="p">,</span> <span class="n">corr_x</span><span class="p">,</span> <span class="s2">&quot;wx&quot;</span><span class="p">,</span> <span class="n">markersize</span><span class="o">=</span><span class="mi">20</span><span class="p">)</span>
+
+        <span class="c1"># overlay original image over template for well</span>
+        <span class="c1">#         overlay=np.zeros((well_image.shape[0],well_image.shape[1]))</span>
+        <span class="n">overlay</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">copy</span><span class="p">(</span><span class="n">well_image</span><span class="p">)</span>
+        <span class="n">insert</span> <span class="o">=</span> <span class="mi">1</span> <span class="o">+</span> <span class="n">numpy</span><span class="o">.</span><span class="n">copy</span><span class="p">(</span>
+            <span class="n">overlay</span><span class="p">[</span>
+                <span class="n">corr_x</span> <span class="o">-</span> <span class="n">image</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">/</span> <span class="mi">2</span> <span class="p">:</span> <span class="n">corr_x</span> <span class="o">+</span> <span class="n">image</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">/</span> <span class="mi">2</span><span class="p">,</span>
+                <span class="n">corr_y</span> <span class="o">-</span> <span class="n">image</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">/</span> <span class="mi">2</span> <span class="p">:</span> <span class="n">corr_y</span> <span class="o">+</span> <span class="n">image</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">/</span> <span class="mi">2</span><span class="p">,</span>
+            <span class="p">]</span>
+        <span class="p">)</span>
+        <span class="n">image_scaled</span> <span class="o">=</span> <span class="n">image</span> <span class="o">/</span> <span class="n">image</span><span class="o">.</span><span class="n">max</span><span class="p">()</span>
+        <span class="n">insert</span> <span class="o">=</span> <span class="n">insert</span> <span class="o">+</span> <span class="n">image_scaled</span>
+        <span class="n">overlay</span><span class="p">[</span>
+            <span class="n">corr_x</span> <span class="o">-</span> <span class="n">image</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">/</span> <span class="mi">2</span> <span class="p">:</span> <span class="n">corr_x</span> <span class="o">+</span> <span class="n">image</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">/</span> <span class="mi">2</span><span class="p">,</span>
+            <span class="n">corr_y</span> <span class="o">-</span> <span class="n">image</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">/</span> <span class="mi">2</span> <span class="p">:</span> <span class="n">corr_y</span> <span class="o">+</span> <span class="n">image</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">/</span> <span class="mi">2</span><span class="p">,</span>
+        <span class="p">]</span> <span class="o">=</span> <span class="n">insert</span>
+        <span class="n">axes</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">imshow</span><span class="p">(</span><span class="n">overlay</span><span class="p">)</span>
+
+        <span class="n">axes</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">2</span><span class="p">]</span><span class="o">.</span><span class="n">imshow</span><span class="p">(</span><span class="n">t_image</span><span class="p">)</span>
+
+        <span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span></div>
+
+
+<div class="viewcode-block" id="create_well_image"><a class="viewcode-back" href="../../../microscope_automation.samples.html#microscope_automation.samples.find_well_center.create_well_image">[docs]</a><span class="k">def</span> <span class="nf">create_well_image</span><span class="p">(</span><span class="n">diameter</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Create mask for whole well. Using the whole well for alignment will</span>
+<span class="sd">    improve accuracy on the cost of speed.</span>
+<span class="sd">    We recommend to use create_edge_image if possible</span>
+
+<span class="sd">    Input:</span>
+<span class="sd">     diameter: well diameter in pixels</span>
+
+<span class="sd">    Return:</span>
+<span class="sd">     well_image: numpy array for well with well set to 1 and background set to 0</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">im</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">diameter</span><span class="p">,</span> <span class="n">diameter</span><span class="p">))</span>
+    <span class="n">rr</span><span class="p">,</span> <span class="n">cc</span> <span class="o">=</span> <span class="n">draw</span><span class="o">.</span><span class="n">circle</span><span class="p">(</span><span class="n">diameter</span> <span class="o">/</span> <span class="mi">2</span><span class="p">,</span> <span class="n">diameter</span> <span class="o">/</span> <span class="mi">2</span><span class="p">,</span> <span class="n">diameter</span> <span class="o">/</span> <span class="mf">2.0</span><span class="p">,</span> <span class="n">im</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span>
+    <span class="n">im</span><span class="p">[</span><span class="n">rr</span><span class="p">,</span> <span class="n">cc</span><span class="p">]</span> <span class="o">=</span> <span class="mi">1</span>
+    <span class="n">show_debug_image</span><span class="p">(</span><span class="n">im</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">im</span></div>
+
+
+<div class="viewcode-block" id="create_edge_image"><a class="viewcode-back" href="../../../microscope_automation.samples.html#microscope_automation.samples.find_well_center.create_edge_image">[docs]</a><span class="k">def</span> <span class="nf">create_edge_image</span><span class="p">(</span><span class="n">diameter</span><span class="p">,</span> <span class="n">length</span><span class="p">,</span> <span class="n">r</span><span class="p">,</span> <span class="n">phi</span><span class="p">,</span> <span class="n">add_noise</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Create ImageAICS for well edge used for alignment and test purposes.</span>
+
+<span class="sd">    Input:</span>
+<span class="sd">     diameter: Well diameter in pixels</span>
+
+<span class="sd">     length: size of image in pixels</span>
+
+<span class="sd">     r: distance of image from circle center in pixels.</span>
+
+<span class="sd">     phi: direction of image</span>
+
+<span class="sd">     addNoise: add noise for test purposes. Default is False.</span>
+
+<span class="sd">    Output:</span>
+<span class="sd">     im: well edge image to be used for alignment</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">im</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="nb">int</span><span class="p">(</span><span class="n">length</span><span class="p">),</span> <span class="nb">int</span><span class="p">(</span><span class="n">length</span><span class="p">)))</span>
+
+    <span class="c1"># center of ImageAICS</span>
+    <span class="n">xc</span> <span class="o">=</span> <span class="n">length</span> <span class="o">/</span> <span class="mi">2</span>
+    <span class="n">yc</span> <span class="o">=</span> <span class="n">length</span> <span class="o">/</span> <span class="mi">2</span>
+    <span class="c1"># center of circle relative to ImageAICS center based on radial coordinates</span>
+    <span class="n">phi_r</span> <span class="o">=</span> <span class="n">math</span><span class="o">.</span><span class="n">radians</span><span class="p">(</span><span class="n">phi</span><span class="p">)</span>
+    <span class="n">radius</span> <span class="o">=</span> <span class="n">diameter</span> <span class="o">/</span> <span class="mf">2.0</span>
+    <span class="n">x</span> <span class="o">=</span> <span class="n">xc</span> <span class="o">-</span> <span class="n">r</span> <span class="o">*</span> <span class="n">math</span><span class="o">.</span><span class="n">sin</span><span class="p">(</span><span class="n">phi_r</span><span class="p">)</span>
+    <span class="n">y</span> <span class="o">=</span> <span class="n">yc</span> <span class="o">-</span> <span class="n">r</span> <span class="o">*</span> <span class="n">math</span><span class="o">.</span><span class="n">cos</span><span class="p">(</span><span class="n">phi_r</span><span class="p">)</span>
+    <span class="c1"># draw circle segment</span>
+    <span class="n">rr</span><span class="p">,</span> <span class="n">cc</span> <span class="o">=</span> <span class="n">draw</span><span class="o">.</span><span class="n">circle</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">radius</span><span class="p">,</span> <span class="n">im</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span>
+    <span class="n">im</span><span class="p">[</span><span class="n">rr</span><span class="p">,</span> <span class="n">cc</span><span class="p">]</span> <span class="o">=</span> <span class="mi">1</span>
+    <span class="c1"># remove center</span>
+    <span class="c1"># draw circle segment</span>
+    <span class="n">rr</span><span class="p">,</span> <span class="n">cc</span> <span class="o">=</span> <span class="n">draw</span><span class="o">.</span><span class="n">circle</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">radius</span> <span class="o">-</span> <span class="mi">200</span><span class="p">,</span> <span class="n">im</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span>
+    <span class="n">im</span><span class="p">[</span><span class="n">rr</span><span class="p">,</span> <span class="n">cc</span><span class="p">]</span> <span class="o">=</span> <span class="mi">0</span>
+
+    <span class="c1"># add Gauss noise</span>
+    <span class="k">if</span> <span class="n">add_noise</span><span class="p">:</span>
+        <span class="n">im</span> <span class="o">=</span> <span class="n">im</span> <span class="o">+</span> <span class="p">(</span><span class="n">numpy</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">random</span><span class="p">(</span><span class="n">im</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span> <span class="o">-</span> <span class="mf">0.5</span><span class="p">)</span> <span class="o">*</span> <span class="mf">0.2</span>
+    <span class="n">show_debug_image</span><span class="p">(</span><span class="n">im</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">im</span></div>
+
+
+<div class="viewcode-block" id="find_well_center"><a class="viewcode-back" href="../../../microscope_automation.samples.html#microscope_automation.samples.find_well_center.find_well_center">[docs]</a><span class="k">def</span> <span class="nf">find_well_center</span><span class="p">(</span><span class="n">image</span><span class="p">,</span> <span class="n">well_diameter</span><span class="p">,</span> <span class="n">percentage</span><span class="p">,</span> <span class="n">phi</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Find center of well based on edge ImageAICS.</span>
+
+<span class="sd">    Input:</span>
+<span class="sd">     image: image with well edge</span>
+
+<span class="sd">     well_diameter: diameter of well in pixels</span>
+
+<span class="sd">     percentage: percentage of whole well used for convolution.</span>
+<span class="sd">     Large numbers increase accuracy, smaller speed.</span>
+<span class="sd">     well_diameter*percentage/100 has to be larger than size of ImageAICS</span>
+
+<span class="sd">     phi: direction of image from center</span>
+
+<span class="sd">    Return:</span>
+<span class="sd">     x_center, y_center: expected center of well</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="c1"># create image of well section, well_image has to be larger than image</span>
+    <span class="n">well_image_size</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span>
+        <span class="n">well_diameter</span> <span class="o">+</span> <span class="mi">2</span> <span class="o">*</span> <span class="nb">max</span><span class="p">(</span><span class="n">image</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span> <span class="o">*</span> <span class="n">percentage</span> <span class="o">/</span> <span class="mi">100</span><span class="p">,</span>
+        <span class="n">image</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span>
+        <span class="n">image</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span>
+    <span class="p">)</span>
+    <span class="n">well_image</span> <span class="o">=</span> <span class="n">create_edge_image</span><span class="p">(</span><span class="n">well_diameter</span><span class="p">,</span> <span class="n">well_image_size</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="n">phi</span><span class="p">)</span>
+
+    <span class="c1"># We take images of well edges with a 1.25x objective.</span>
+    <span class="c1"># The transmitted light illumination field does not cover the whole FOV</span>
+    <span class="c1"># of the objective (esp. if the well is filled with buffer),</span>
+    <span class="c1"># thus the images have a bright center that is smaller than the well</span>
+    <span class="c1"># and a dim ring for the rest of the well. We will remove the bright center</span>
+    <span class="c1"># to ensure proper working of the cross-correlation below.</span>
+    <span class="c1"># imagef=gaussian(image, sigma=4)</span>
+    <span class="n">img</span> <span class="o">=</span> <span class="n">image</span> <span class="o">/</span> <span class="n">image</span><span class="o">.</span><span class="n">max</span><span class="p">()</span>
+    <span class="n">img_filter</span> <span class="o">=</span> <span class="n">ndimage</span><span class="o">.</span><span class="n">median_filter</span><span class="p">(</span><span class="n">img</span><span class="p">,</span> <span class="mi">3</span><span class="p">)</span>
+    <span class="n">thresh</span> <span class="o">=</span> <span class="n">threshold_otsu</span><span class="p">(</span><span class="n">img_filter</span><span class="p">)</span>
+    <span class="n">img_filter</span><span class="p">[</span><span class="n">img_filter</span> <span class="o">&gt;</span> <span class="n">thresh</span><span class="p">]</span> <span class="o">=</span> <span class="n">img_filter</span><span class="o">.</span><span class="n">min</span><span class="p">()</span>
+
+    <span class="c1"># selem=skimorph.disk(10)</span>
+    <span class="c1"># img_top=skimorph.white_tophat(img, selem)</span>
+    <span class="c1"># img_top[img_filter&gt;thresh]=img_top.min()</span>
+
+    <span class="n">img_equal</span> <span class="o">=</span> <span class="n">ndimage</span><span class="o">.</span><span class="n">median_filter</span><span class="p">(</span><span class="n">exposure</span><span class="o">.</span><span class="n">equalize_hist</span><span class="p">(</span><span class="n">img_filter</span><span class="p">,</span> <span class="mi">200</span><span class="p">),</span> <span class="mi">30</span><span class="p">)</span>
+    <span class="n">thresh2</span> <span class="o">=</span> <span class="n">threshold_otsu</span><span class="p">(</span><span class="n">img_equal</span><span class="p">)</span>  <span class="c1"># noqa</span>
+    <span class="n">img_mask</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">img</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span>
+    <span class="n">img_mask</span><span class="p">[</span><span class="n">img_equal</span> <span class="o">&gt;</span> <span class="mf">0.7</span><span class="p">]</span> <span class="o">=</span> <span class="mi">1</span>
+    <span class="c1"># img_mask[img&gt;thresh]=1</span>
+    <span class="n">img_mask</span> <span class="o">=</span> <span class="n">skimorph</span><span class="o">.</span><span class="n">binary_closing</span><span class="p">(</span><span class="n">img_mask</span><span class="p">)</span>
+
+    <span class="c1"># calculate cross correlation between well ImageAICS and edge ImageAICS</span>
+    <span class="c1"># from http://scikit-image.org/docs/dev/api/skimage.feature.html?highlight=match_template#skimage.feature.match_template:  # noqa</span>
+    <span class="c1"># Match a template to a 2-D or 3-D image using normalized correlation.</span>
+    <span class="c1"># The output is an array with values between -1.0 and 1.0. The value at a given</span>
+    <span class="c1"># position corresponds to the correlation coefficient between the image and the</span>
+    <span class="c1"># template. For pad_input=True matches correspond to the center and otherwise to the</span>
+    <span class="c1"># top-left corner of the template. To find the best match you must search for peaks</span>
+    <span class="c1">#  in the response (output) image.</span>
+
+    <span class="n">corr</span> <span class="o">=</span> <span class="n">feature</span><span class="o">.</span><span class="n">match_template</span><span class="p">(</span><span class="n">well_image</span><span class="p">,</span> <span class="n">img_mask</span><span class="p">,</span> <span class="n">pad_input</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+    <span class="c1"># find maximum of correlation</span>
+    <span class="n">x</span><span class="p">,</span> <span class="n">y</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">unravel_index</span><span class="p">(</span><span class="n">corr</span><span class="o">.</span><span class="n">argmax</span><span class="p">(),</span> <span class="n">corr</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span>
+    <span class="c1"># we use complex numbers to calculate the offest between the image center</span>
+    <span class="c1"># and the well radius calculations are simplified in polar coordinates</span>
+    <span class="c1"># offCompl=complex(x-corr.shape[0]/2,y-corr.shape[1]/2)</span>
+    <span class="c1"># r_offset=cmath.polar(offCompl)[0]-wellDiameter/2</span>
+    <span class="c1"># phi_offset=cmath.phase(offCompl)</span>
+    <span class="c1"># offset=cmath.rect(r_offset, phi_offset)</span>
+    <span class="c1"># convert to coordinate system with origin in center of simulated well</span>
+    <span class="n">x_center</span> <span class="o">=</span> <span class="n">x</span> <span class="o">-</span> <span class="n">corr</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">/</span> <span class="mi">2</span>
+    <span class="n">y_center</span> <span class="o">=</span> <span class="n">y</span> <span class="o">-</span> <span class="n">corr</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">/</span> <span class="mi">2</span>
+    <span class="c1"># offsetX=offset.real</span>
+    <span class="c1"># offsetY=offset.imag</span>
+    <span class="n">show_debug_summary</span><span class="p">(</span><span class="n">image</span><span class="p">,</span> <span class="n">well_image</span><span class="p">,</span> <span class="n">img_mask</span><span class="p">,</span> <span class="n">corr</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">x_center</span><span class="p">,</span> <span class="n">y_center</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">x_center</span><span class="p">,</span> <span class="n">y_center</span></div>
+
+
+<div class="viewcode-block" id="find_well_center_fine"><a class="viewcode-back" href="../../../microscope_automation.samples.html#microscope_automation.samples.find_well_center.find_well_center_fine">[docs]</a><span class="k">def</span> <span class="nf">find_well_center_fine</span><span class="p">(</span><span class="n">image</span><span class="p">,</span> <span class="n">direction</span><span class="p">,</span> <span class="n">test</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Find edge of well in image in selected direction.</span>
+
+<span class="sd">    Input:</span>
+<span class="sd">     image: image with well edge</span>
+
+<span class="sd">     direction: direction to search for edge. String of form &#39;-x&#39;, &#39;x&#39;, &#39;-y&#39;, or &#39;y&#39;</span>
+
+<span class="sd">     test: returns 1 if True since test images may not have data (Default: False)</span>
+
+<span class="sd">    Return:</span>
+<span class="sd">     edge_pos: coordinate of well edge in selected direction in pixels</span>
+<span class="sd">     with origin in center of image</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="n">test</span><span class="p">:</span>
+        <span class="k">return</span> <span class="mi">1</span>
+
+    <span class="c1"># scikit-image assumes floating point images to be in the range [-1,1] or [0, 1]</span>
+    <span class="n">img</span> <span class="o">=</span> <span class="n">img_as_float</span><span class="p">(</span><span class="n">image</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">direction</span> <span class="o">==</span> <span class="s2">&quot;-x&quot;</span> <span class="ow">or</span> <span class="n">direction</span> <span class="o">==</span> <span class="s2">&quot;x&quot;</span><span class="p">:</span>
+        <span class="n">median_size</span> <span class="o">=</span> <span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">30</span><span class="p">)</span>
+        <span class="n">sobel_axis</span> <span class="o">=</span> <span class="mi">0</span>
+    <span class="k">elif</span> <span class="n">direction</span> <span class="o">==</span> <span class="s2">&quot;-y&quot;</span> <span class="ow">or</span> <span class="n">direction</span> <span class="o">==</span> <span class="s2">&quot;y&quot;</span><span class="p">:</span>
+        <span class="n">median_size</span> <span class="o">=</span> <span class="p">(</span><span class="mi">30</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+        <span class="n">sobel_axis</span> <span class="o">=</span> <span class="mi">1</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Not implemented&quot;</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">direction</span> <span class="o">==</span> <span class="s2">&quot;x&quot;</span><span class="p">:</span>
+        <span class="n">img</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">flipud</span><span class="p">(</span><span class="n">img</span><span class="p">)</span>
+    <span class="k">elif</span> <span class="n">direction</span> <span class="o">==</span> <span class="s2">&quot;y&quot;</span><span class="p">:</span>
+        <span class="n">img</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">fliplr</span><span class="p">(</span><span class="n">img</span><span class="p">)</span>
+
+    <span class="n">img_filter</span> <span class="o">=</span> <span class="n">ndimage</span><span class="o">.</span><span class="n">median_filter</span><span class="p">(</span><span class="n">img</span><span class="p">,</span> <span class="n">size</span><span class="o">=</span><span class="n">median_size</span><span class="p">)</span>
+    <span class="n">img_edges</span> <span class="o">=</span> <span class="n">ndimage</span><span class="o">.</span><span class="n">sobel</span><span class="p">(</span><span class="n">img_filter</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="n">sobel_axis</span><span class="p">)</span>
+
+    <span class="n">mask</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">img</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span>
+    <span class="n">mask</span><span class="p">[</span><span class="n">img_edges</span> <span class="o">&gt;</span> <span class="n">numpy</span><span class="o">.</span><span class="n">percentile</span><span class="p">(</span><span class="n">img_edges</span><span class="p">,</span> <span class="mf">99.5</span><span class="p">)]</span> <span class="o">=</span> <span class="mi">1</span>
+
+    <span class="n">pos_xy</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">nonzero</span><span class="p">(</span><span class="n">mask</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">direction</span> <span class="o">==</span> <span class="s2">&quot;x&quot;</span> <span class="ow">or</span> <span class="n">direction</span> <span class="o">==</span> <span class="s2">&quot;y&quot;</span><span class="p">:</span>
+        <span class="n">edge_pos</span> <span class="o">=</span> <span class="n">img</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="n">sobel_axis</span><span class="p">]</span> <span class="o">/</span> <span class="mi">2</span> <span class="o">-</span> <span class="n">pos_xy</span><span class="p">[</span><span class="n">sobel_axis</span><span class="p">]</span><span class="o">.</span><span class="n">min</span><span class="p">()</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">edge_pos</span> <span class="o">=</span> <span class="n">pos_xy</span><span class="p">[</span><span class="n">sobel_axis</span><span class="p">]</span><span class="o">.</span><span class="n">min</span><span class="p">()</span> <span class="o">-</span> <span class="n">img</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="n">sobel_axis</span><span class="p">]</span> <span class="o">/</span> <span class="mi">2</span>
+    <span class="nb">print</span><span class="p">(</span><span class="n">pos_xy</span><span class="p">[</span><span class="n">sobel_axis</span><span class="p">]</span><span class="o">.</span><span class="n">min</span><span class="p">(),</span> <span class="n">edge_pos</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">edge_pos</span></div>
+
+
+<span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s2">&quot;__main__&quot;</span><span class="p">:</span>
+    <span class="n">debug</span> <span class="o">=</span> <span class="kc">False</span>  <span class="c1"># if True, debug images will be shown</span>
+    <span class="n">summaryDebug</span> <span class="o">=</span> <span class="kc">True</span>  <span class="c1"># if True, summary debug images will be shown</span>
+    <span class="c1"># create test ImageAICS</span>
+    <span class="c1">#     wellDiameter=800</span>
+    <span class="c1">#     length=wellDiameter</span>
+    <span class="c1">#     r=0</span>
+    <span class="c1">#     phi=0</span>
+    <span class="c1">#     image=create_edge_image(wellDiameter, length, r, phi, True)</span>
+
+    <span class="c1"># find center with different percentage of reference ImageAICS</span>
+    <span class="c1">#     for perc in [200, 100, 80]:</span>
+    <span class="c1">#         x, y= find_well_center(image, wellDiameter, perc,0)</span>
+    <span class="c1">#         xe=r*math.cos(math.radians(phi))</span>
+    <span class="c1">#         ye=r*math.sin(math.radians(phi))</span>
+    <span class="c1">#         print &#39;Well center expected:&#39;, xe, ye</span>
+    <span class="c1">#         print &#39;Well center (0,0): &#39;, x,y</span>
+
+    <span class="c1"># create new test images</span>
+    <span class="n">well_diameter</span> <span class="o">=</span> <span class="mi">400</span>
+    <span class="n">length</span> <span class="o">=</span> <span class="n">well_diameter</span> <span class="o">/</span> <span class="mf">2.0</span>
+    <span class="n">r</span> <span class="o">=</span> <span class="n">well_diameter</span> <span class="o">/</span> <span class="mf">2.5</span>
+    <span class="k">for</span> <span class="n">phi</span> <span class="ow">in</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">45</span><span class="p">,</span> <span class="mi">90</span><span class="p">,</span> <span class="mi">180</span><span class="p">,</span> <span class="mi">360</span><span class="p">]:</span>
+        <span class="n">image</span> <span class="o">=</span> <span class="n">create_edge_image</span><span class="p">(</span><span class="n">well_diameter</span><span class="p">,</span> <span class="n">length</span><span class="p">,</span> <span class="n">r</span><span class="p">,</span> <span class="n">phi</span><span class="p">,</span> <span class="kc">True</span><span class="p">)</span>
+        <span class="n">x</span><span class="p">,</span> <span class="n">y</span> <span class="o">=</span> <span class="n">find_well_center</span><span class="p">(</span><span class="n">image</span><span class="p">,</span> <span class="n">well_diameter</span><span class="p">,</span> <span class="mi">100</span><span class="p">,</span> <span class="n">phi</span><span class="p">)</span>
+        <span class="n">xe</span> <span class="o">=</span> <span class="o">-</span><span class="n">r</span> <span class="o">*</span> <span class="n">math</span><span class="o">.</span><span class="n">sin</span><span class="p">(</span><span class="n">math</span><span class="o">.</span><span class="n">radians</span><span class="p">(</span><span class="n">phi</span><span class="p">))</span>
+        <span class="n">ye</span> <span class="o">=</span> <span class="o">-</span><span class="n">r</span> <span class="o">*</span> <span class="n">math</span><span class="o">.</span><span class="n">cos</span><span class="p">(</span><span class="n">math</span><span class="o">.</span><span class="n">radians</span><span class="p">(</span><span class="n">phi</span><span class="p">))</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Well center expected:&quot;</span><span class="p">,</span> <span class="n">xe</span><span class="p">,</span> <span class="n">ye</span><span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Well center measured: &quot;</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">)</span>
+
+    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Test findWellCenter finished&quot;</span><span class="p">)</span>
+</pre></div>
+
+          </div>
+          
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<h1 class="logo"><a href="../../../index.html">Microscope Automation</a></h1>
+
+
+
+
+
+
+
+
+<h3>Navigation</h3>
+<p class="caption"><span class="caption-text">Overview</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../index.html">README</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../installation.html">Installation</a></li>
+</ul>
+<p class="caption"><span class="caption-text">Hardware</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../hardware_components.html">hardware_components</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../hardware_control.html">hardware_control</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../RS232.html">RS232</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../setup_microscope.html">setup_microscope</a></li>
+</ul>
+<p class="caption"><span class="caption-text">Samples</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../correct_background.html">correct_background</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../draw_plate.html">draw_plate</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../find_well_center.html">find_well_center</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../find_cells.html">find_cells</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../interactive_location_picker_pyqtgraph.html">interactive_location_picker_pyqtgraph</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../positions_list.html">positions_list</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../samples.html">samples</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../setup_samples.html">setup_samples</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../tile_images.html">tile_images</a></li>
+</ul>
+<p class="caption"><span class="caption-text">Zeiss Microscopes</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../connect_zen_blue.html">connect_zen_blue</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../connect_zen_black.html">connect_zen_black</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../hardware_control_zeiss.html">hardware_control_zeiss</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../write_zen_tiles_experiment.html">write_zen_tiles_experiment</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../zen_experiment_info.html">zen_experiment_info</a></li>
+</ul>
+<p class="caption"><span class="caption-text">3i Microscopes</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../hardware_control_3i.html">hardware_control_3i</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../connect_slidebook.html">connect_slidebook</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../slidebook_experiment_info.html">slidebook_experiment_info</a></li>
+</ul>
+<p class="caption"><span class="caption-text">General Methods</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../automation_exceptions.html">automation_exceptions</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../automation_messages_form_layout.html">automation_messages_form_layout</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../error_handling.html">error_handling</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../get_path.html">get_path</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../image_AICS.html">image_AICS</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../load_image_czi.html">load_image_czi</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../meta_data_file.html">meta_data_file</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../preferences.html">preferences</a></li>
+</ul>
+<p class="caption"><span class="caption-text">Reference Docs</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../CONTRIBUTING.html">Allen Institute Contribution Agreement</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../LICENSE.html">LICENSE</a></li>
+</ul>
+
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="../../../index.html">Documentation overview</a><ul>
+  <li><a href="../../index.html">Module code</a><ul>
+  <li><a href="../../microscope_automation.html">microscope_automation</a><ul>
+  </ul></li>
+  </ul></li>
+  </ul></li>
+</ul>
+</div>
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../../../search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" />
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script>$('#searchbox').show(0);</script>
+
+
+
+
+
+
+
+
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2020, Allen Institute.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 3.3.1</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.12</a>
+      
+    </div>
+
+    
+
+    
+  </body>
+</html>

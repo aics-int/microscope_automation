@@ -1,0 +1,273 @@
+
+<!DOCTYPE html>
+
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>setup_microscope &#8212; Microscope Automation 0.0 documentation</title>
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    <link rel="stylesheet" href="_static/alabaster.css" type="text/css" />
+    <script id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+    <script src="_static/jquery.js"></script>
+    <script src="_static/underscore.js"></script>
+    <script src="_static/doctools.js"></script>
+    <script src="_static/language_data.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="correct_background" href="correct_background.html" />
+    <link rel="prev" title="RS232" href="RS232.html" />
+   
+  <link rel="stylesheet" href="_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head><body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          
+
+          <div class="body" role="main">
+            
+  <div class="contents topic" id="contents">
+<p class="topic-title">Contents</p>
+<ul class="simple">
+<li><p><a class="reference internal" href="#setup-microscope" id="id2">setup_microscope</a></p></li>
+</ul>
+</div>
+<div class="section" id="setup-microscope">
+<span id="id1"></span><h1><a class="toc-backref" href="#id2">setup_microscope</a><a class="headerlink" href="#setup-microscope" title="Permalink to this headline">¶</a></h1>
+<p>This module consists of methods which configure microscope hardware based on reference files.</p>
+<dl class="py function">
+<dt id="microscope_automation.hardware.setup_microscope.setup_cameras">
+<code class="sig-prename descclassname">microscope_automation.hardware.setup_microscope.</code><code class="sig-name descname">setup_cameras</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">specs</span></em>, <em class="sig-param"><span class="n">microscope</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/microscope_automation/hardware/setup_microscope.html#setup_cameras"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#microscope_automation.hardware.setup_microscope.setup_cameras" title="Permalink to this definition">¶</a></dt>
+<dd><p>Setup cameras and add to microscope object</p>
+<dl>
+<dt>Input:</dt><dd><p>specs: hardware specifications which info on cameras will be retrieved from</p>
+<p>microscope: microscope object which cameras will be added to</p>
+</dd>
+<dt>Output:</dt><dd><p>none</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt id="microscope_automation.hardware.setup_microscope.setup_pump">
+<code class="sig-prename descclassname">microscope_automation.hardware.setup_microscope.</code><code class="sig-name descname">setup_pump</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">specs</span></em>, <em class="sig-param"><span class="n">microscope</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/microscope_automation/hardware/setup_microscope.html#setup_pump"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#microscope_automation.hardware.setup_microscope.setup_pump" title="Permalink to this definition">¶</a></dt>
+<dd><p>Setup autofocus and add to microscope object</p>
+<dl>
+<dt>Input:</dt><dd><p>specs: hardware specifications which info on autofocus will be retrieved from</p>
+<p>microscope: microscope object which autofocus will be added to</p>
+<p>obj_changer: objective changer object to attach to this autofocus (Defult: None)</p>
+</dd>
+<dt>Output:</dt><dd><p>none</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt id="microscope_automation.hardware.setup_microscope.setup_stages">
+<code class="sig-prename descclassname">microscope_automation.hardware.setup_microscope.</code><code class="sig-name descname">setup_stages</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">specs</span></em>, <em class="sig-param"><span class="n">microscope</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/microscope_automation/hardware/setup_microscope.html#setup_stages"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#microscope_automation.hardware.setup_microscope.setup_stages" title="Permalink to this definition">¶</a></dt>
+<dd><p>Setup stages and add to microscope object</p>
+<dl>
+<dt>Input:</dt><dd><p>specs: hardware specifications which info on stages will be retrieved from</p>
+<p>microscope: microscope object which stages will be added to</p>
+</dd>
+<dt>Output:</dt><dd><p>none</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt id="microscope_automation.hardware.setup_microscope.setup_autofocus">
+<code class="sig-prename descclassname">microscope_automation.hardware.setup_microscope.</code><code class="sig-name descname">setup_autofocus</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">specs</span></em>, <em class="sig-param"><span class="n">microscope</span></em>, <em class="sig-param"><span class="n">obj_changer</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/microscope_automation/hardware/setup_microscope.html#setup_autofocus"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#microscope_automation.hardware.setup_microscope.setup_autofocus" title="Permalink to this definition">¶</a></dt>
+<dd><p>Setup autofocus and add to microscope object</p>
+<dl>
+<dt>Input:</dt><dd><p>specs: hardware specifications which info on autofocus will be retrieved from</p>
+<p>microscope: microscope object which autofocus will be added to</p>
+<p>obj_changer: objective changer object to attach to this autofocus (Defult: None)</p>
+</dd>
+<dt>Output:</dt><dd><p>none</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt id="microscope_automation.hardware.setup_microscope.setup_focus_drive">
+<code class="sig-prename descclassname">microscope_automation.hardware.setup_microscope.</code><code class="sig-name descname">setup_focus_drive</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">specs</span></em>, <em class="sig-param"><span class="n">microscope</span></em>, <em class="sig-param"><span class="n">obj_changer_id</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/microscope_automation/hardware/setup_microscope.html#setup_focus_drive"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#microscope_automation.hardware.setup_microscope.setup_focus_drive" title="Permalink to this definition">¶</a></dt>
+<dd><p>Setup focus drive and add to microscope object</p>
+<dl>
+<dt>Input:</dt><dd><p>specs: hardware specifications which info on focus drive will be retrieved from</p>
+<p>microscope: microscope object which focus drive will be added to</p>
+</dd>
+<dt>Output:</dt><dd><p>none</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt id="microscope_automation.hardware.setup_microscope.setup_obj_changer">
+<code class="sig-prename descclassname">microscope_automation.hardware.setup_microscope.</code><code class="sig-name descname">setup_obj_changer</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">specs</span></em>, <em class="sig-param"><span class="n">microscope</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/microscope_automation/hardware/setup_microscope.html#setup_obj_changer"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#microscope_automation.hardware.setup_microscope.setup_obj_changer" title="Permalink to this definition">¶</a></dt>
+<dd><p>Setup objective changer and add to microscope object</p>
+<dl>
+<dt>Input:</dt><dd><p>specs: hardware specification from which info on objective changer is retrieved</p>
+<p>microscope: microscope object which objective changer will be added to</p>
+</dd>
+<dt>Output:</dt><dd><p>objective_changer_object: instance of ObjectiveChanger which was
+just added to microscope</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt id="microscope_automation.hardware.setup_microscope.setup_safe_areas">
+<code class="sig-prename descclassname">microscope_automation.hardware.setup_microscope.</code><code class="sig-name descname">setup_safe_areas</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">specs</span></em>, <em class="sig-param"><span class="n">microscope</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/microscope_automation/hardware/setup_microscope.html#setup_safe_areas"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#microscope_automation.hardware.setup_microscope.setup_safe_areas" title="Permalink to this definition">¶</a></dt>
+<dd><p>Setup safe area to prevent crashes between stage and objective.
+Adds safe areas to microscope object</p>
+<dl>
+<dt>Input:</dt><dd><p>specs: hardware specifications which info on safe areas will be retrieved from</p>
+<p>microscope: microscope object which safe areas will be added to</p>
+</dd>
+<dt>Output:</dt><dd><p>none</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt id="microscope_automation.hardware.setup_microscope.setup_microscope">
+<code class="sig-prename descclassname">microscope_automation.hardware.setup_microscope.</code><code class="sig-name descname">setup_microscope</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">prefs</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/microscope_automation/hardware/setup_microscope.html#setup_microscope"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#microscope_automation.hardware.setup_microscope.setup_microscope" title="Permalink to this definition">¶</a></dt>
+<dd><p>Create object of class Microscope from module hardware.</p>
+<dl class="simple">
+<dt>Input:</dt><dd><p>prefs: preferences with information about microscope hardware</p>
+</dd>
+<dt>Output:</dt><dd><p>microscope: object of class Microscope</p>
+</dd>
+</dl>
+</dd></dl>
+
+</div>
+
+
+          </div>
+          
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<h1 class="logo"><a href="index.html">Microscope Automation</a></h1>
+
+
+
+
+
+
+
+
+<h3>Navigation</h3>
+<p class="caption"><span class="caption-text">Overview</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="index.html">README</a></li>
+<li class="toctree-l1"><a class="reference internal" href="installation.html">Installation</a></li>
+</ul>
+<p class="caption"><span class="caption-text">Hardware</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="hardware_components.html">hardware_components</a></li>
+<li class="toctree-l1"><a class="reference internal" href="hardware_control.html">hardware_control</a></li>
+<li class="toctree-l1"><a class="reference internal" href="RS232.html">RS232</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">setup_microscope</a></li>
+</ul>
+<p class="caption"><span class="caption-text">Samples</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="correct_background.html">correct_background</a></li>
+<li class="toctree-l1"><a class="reference internal" href="draw_plate.html">draw_plate</a></li>
+<li class="toctree-l1"><a class="reference internal" href="find_well_center.html">find_well_center</a></li>
+<li class="toctree-l1"><a class="reference internal" href="find_cells.html">find_cells</a></li>
+<li class="toctree-l1"><a class="reference internal" href="interactive_location_picker_pyqtgraph.html">interactive_location_picker_pyqtgraph</a></li>
+<li class="toctree-l1"><a class="reference internal" href="positions_list.html">positions_list</a></li>
+<li class="toctree-l1"><a class="reference internal" href="samples.html">samples</a></li>
+<li class="toctree-l1"><a class="reference internal" href="setup_samples.html">setup_samples</a></li>
+<li class="toctree-l1"><a class="reference internal" href="tile_images.html">tile_images</a></li>
+</ul>
+<p class="caption"><span class="caption-text">Zeiss Microscopes</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="connect_zen_blue.html">connect_zen_blue</a></li>
+<li class="toctree-l1"><a class="reference internal" href="connect_zen_black.html">connect_zen_black</a></li>
+<li class="toctree-l1"><a class="reference internal" href="hardware_control_zeiss.html">hardware_control_zeiss</a></li>
+<li class="toctree-l1"><a class="reference internal" href="write_zen_tiles_experiment.html">write_zen_tiles_experiment</a></li>
+<li class="toctree-l1"><a class="reference internal" href="zen_experiment_info.html">zen_experiment_info</a></li>
+</ul>
+<p class="caption"><span class="caption-text">3i Microscopes</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="hardware_control_3i.html">hardware_control_3i</a></li>
+<li class="toctree-l1"><a class="reference internal" href="connect_slidebook.html">connect_slidebook</a></li>
+<li class="toctree-l1"><a class="reference internal" href="slidebook_experiment_info.html">slidebook_experiment_info</a></li>
+</ul>
+<p class="caption"><span class="caption-text">General Methods</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="automation_exceptions.html">automation_exceptions</a></li>
+<li class="toctree-l1"><a class="reference internal" href="automation_messages_form_layout.html">automation_messages_form_layout</a></li>
+<li class="toctree-l1"><a class="reference internal" href="error_handling.html">error_handling</a></li>
+<li class="toctree-l1"><a class="reference internal" href="get_path.html">get_path</a></li>
+<li class="toctree-l1"><a class="reference internal" href="image_AICS.html">image_AICS</a></li>
+<li class="toctree-l1"><a class="reference internal" href="load_image_czi.html">load_image_czi</a></li>
+<li class="toctree-l1"><a class="reference internal" href="meta_data_file.html">meta_data_file</a></li>
+<li class="toctree-l1"><a class="reference internal" href="preferences.html">preferences</a></li>
+</ul>
+<p class="caption"><span class="caption-text">Reference Docs</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="CONTRIBUTING.html">Allen Institute Contribution Agreement</a></li>
+<li class="toctree-l1"><a class="reference internal" href="LICENSE.html">LICENSE</a></li>
+</ul>
+
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="index.html">Documentation overview</a><ul>
+      <li>Previous: <a href="RS232.html" title="previous chapter">RS232</a></li>
+      <li>Next: <a href="correct_background.html" title="next chapter">correct_background</a></li>
+  </ul></li>
+</ul>
+</div>
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" />
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script>$('#searchbox').show(0);</script>
+
+
+
+
+
+
+
+
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2020, Allen Institute.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 3.3.1</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.12</a>
+      
+      |
+      <a href="_sources/setup_microscope.rst.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+
+    
+  </body>
+</html>

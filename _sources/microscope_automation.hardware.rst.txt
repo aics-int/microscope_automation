@@ -1,0 +1,53 @@
+microscope\_automation.hardware package
+=======================================
+
+Submodules
+----------
+
+microscope\_automation.hardware.RS232 module
+--------------------------------------------
+
+.. automodule:: microscope_automation.hardware.RS232
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+microscope\_automation.hardware.RS232\_dummy module
+---------------------------------------------------
+
+.. automodule:: microscope_automation.hardware.RS232_dummy
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+microscope\_automation.hardware.hardware\_components module
+-----------------------------------------------------------
+
+.. automodule:: microscope_automation.hardware.hardware_components
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+microscope\_automation.hardware.hardware\_control module
+--------------------------------------------------------
+
+.. automodule:: microscope_automation.hardware.hardware_control
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+microscope\_automation.hardware.setup\_microscope module
+--------------------------------------------------------
+
+.. automodule:: microscope_automation.hardware.setup_microscope
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+Module contents
+---------------
+
+.. automodule:: microscope_automation.hardware
+   :members:
+   :undoc-members:
+   :show-inheritance:

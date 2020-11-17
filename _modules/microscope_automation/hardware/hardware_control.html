@@ -1,0 +1,553 @@
+
+<!DOCTYPE html>
+
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>microscope_automation.hardware.hardware_control &#8212; Microscope Automation 0.0 documentation</title>
+    <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+    <link rel="stylesheet" href="../../../_static/alabaster.css" type="text/css" />
+    <script id="documentation_options" data-url_root="../../../" src="../../../_static/documentation_options.js"></script>
+    <script src="../../../_static/jquery.js"></script>
+    <script src="../../../_static/underscore.js"></script>
+    <script src="../../../_static/doctools.js"></script>
+    <script src="../../../_static/language_data.js"></script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" />
+   
+  <link rel="stylesheet" href="../../../_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head><body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          
+
+          <div class="body" role="main">
+            
+  <h1>Source code for microscope_automation.hardware.hardware_control</h1><div class="highlight"><pre>
+<span></span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">Classes to describe and control hardware.</span>
+<span class="sd">Bridge between automation software and hardware specific implementations.</span>
+<span class="sd">Created on Jul 7, 2016</span>
+<span class="sd">Split into hardware_control and hardware_components on May 25, 2020</span>
+
+<span class="sd">@author: winfriedw</span>
+<span class="sd">&quot;&quot;&quot;</span>
+
+<span class="kn">import</span> <span class="nn">collections</span>
+<span class="kn">from</span> <span class="nn">..automation_exceptions</span> <span class="kn">import</span> <span class="p">(</span>
+    <span class="n">HardwareError</span><span class="p">,</span>
+    <span class="n">AutofocusError</span><span class="p">,</span>
+    <span class="n">HardwareCommandNotDefinedError</span><span class="p">,</span>
+    <span class="n">HardwareDoesNotExistError</span><span class="p">,</span>
+    <span class="n">LoadNotDefinedError</span><span class="p">,</span>
+    <span class="n">CrashDangerError</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="kn">from</span> <span class="nn">.</span> <span class="kn">import</span> <span class="n">hardware_components</span>
+
+<span class="c1"># setup logging</span>
+<span class="kn">import</span> <span class="nn">logging</span>
+
+<span class="n">logger</span> <span class="o">=</span> <span class="n">logging</span>
+
+
+<span class="n">logging</span><span class="o">.</span><span class="n">basicConfig</span><span class="p">(</span><span class="n">level</span><span class="o">=</span><span class="n">logging</span><span class="o">.</span><span class="n">WARNING</span><span class="p">)</span>
+<span class="n">logging</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s1">&#39;Switched on debug level logging in module &quot;</span><span class="si">{}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="vm">__name__</span><span class="p">))</span>
+
+
+<span class="c1"># keep track of xPos, yPos, and zPos of stage and focus for debugging purposes</span>
+<span class="n">xPos</span> <span class="o">=</span> <span class="n">hardware_components</span><span class="o">.</span><span class="n">xPos</span>
+<span class="n">yPos</span> <span class="o">=</span> <span class="n">hardware_components</span><span class="o">.</span><span class="n">yPos</span>
+<span class="n">zPos</span> <span class="o">=</span> <span class="n">hardware_components</span><span class="o">.</span><span class="n">zPos</span>
+
+
+<div class="viewcode-block" id="BaseMicroscope"><a class="viewcode-back" href="../../../microscope_automation.hardware.html#microscope_automation.hardware.hardware_control.BaseMicroscope">[docs]</a><span class="k">class</span> <span class="nc">BaseMicroscope</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Minimum set of attributes and methods required by Automation Software&quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">name</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">control_software_object</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">experiments_folder</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">microscope_components</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+    <span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Base class for any type of microscope</span>
+<span class="sd">        (e.g. Spinning Disk 3i, ZEN Blue, ZEN Black)</span>
+
+<span class="sd">        Input:</span>
+<span class="sd">         name: optional string with microscope name</span>
+
+<span class="sd">         controlSoftwareObject: object for software connection to microscope,</span>
+<span class="sd">         typically created with class ControlSoftware</span>
+
+<span class="sd">         experiments_folder: path to folder of microscope software defined experiments.</span>
+<span class="sd">         Path does not include experiment</span>
+
+<span class="sd">         microscope_components: optional list with component objects</span>
+
+<span class="sd">        Output:</span>
+<span class="sd">         none</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">hardware_components</span><span class="o">.</span><span class="n">log_method</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;__init__&quot;</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">name</span> <span class="o">=</span> <span class="n">name</span>
+
+        <span class="c1"># add control software object (only one is allowed) to Microscope</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">add_control_software</span><span class="p">(</span><span class="n">control_software_object</span><span class="p">)</span>
+
+        <span class="c1"># add components to microscope</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">microscope_components_ordered_dict</span> <span class="o">=</span> <span class="n">collections</span><span class="o">.</span><span class="n">OrderedDict</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">add_microscope_object</span><span class="p">(</span><span class="n">microscope_components</span><span class="p">)</span>
+
+        <span class="c1"># track last used experiment for test if microscope is ready</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">experiment_folder</span> <span class="o">=</span> <span class="n">experiments_folder</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">last_experiment</span> <span class="o">=</span> <span class="kc">None</span>
+
+        <span class="c1"># Track objectives that have been initialized</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">last_objective_position</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">objective_ready_dict</span> <span class="o">=</span> <span class="p">{}</span>
+
+<div class="viewcode-block" id="BaseMicroscope.not_implemented"><a class="viewcode-back" href="../../../microscope_automation.hardware.html#microscope_automation.hardware.hardware_control.BaseMicroscope.not_implemented">[docs]</a>    <span class="k">def</span> <span class="nf">not_implemented</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">method_name</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Raise exception if method is not implemented.</span>
+
+<span class="sd">        Input:</span>
+<span class="sd">         method_name: method that calls this method</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">raise</span> <span class="n">HardwareCommandNotDefinedError</span><span class="p">(</span><span class="n">method_name</span> <span class="o">+</span> <span class="s2">&quot; is not implemented&quot;</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="BaseMicroscope.recover_hardware"><a class="viewcode-back" href="../../../microscope_automation.hardware.html#microscope_automation.hardware.hardware_control.BaseMicroscope.recover_hardware">[docs]</a>    <span class="k">def</span> <span class="nf">recover_hardware</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">error</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Try to recover from failure of a hardware function</span>
+
+<span class="sd">        Input:</span>
+<span class="sd">         error: exception to recover from</span>
+
+<span class="sd">        Output:</span>
+<span class="sd">         return_dialog: value of the error dialog</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">error</span><span class="p">,</span> <span class="n">AutofocusError</span><span class="p">):</span>
+            <span class="n">return_dialog</span> <span class="o">=</span> <span class="n">error</span><span class="o">.</span><span class="n">error_dialog</span><span class="p">()</span>
+            <span class="k">if</span> <span class="n">return_dialog</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+                <span class="c1"># use [&#39;no_find_surface&#39;] for action_list</span>
+                <span class="c1"># to disable &#39;find_surface&#39; during auto-focus initialization</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">initialize_hardware</span><span class="p">(</span>
+                    <span class="n">initialize_components_ordered_dict</span><span class="o">=</span><span class="p">{</span>
+                        <span class="n">error</span><span class="o">.</span><span class="n">error_component</span><span class="o">.</span><span class="n">get_id</span><span class="p">():</span> <span class="p">[</span><span class="s2">&quot;no_find_surface&quot;</span><span class="p">]</span>
+                    <span class="p">},</span>
+                    <span class="n">reference_object_id</span><span class="o">=</span><span class="n">error</span><span class="o">.</span><span class="n">focus_reference_obj_id</span><span class="p">,</span>
+                    <span class="n">verbose</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+                <span class="p">)</span>
+            <span class="k">return</span> <span class="n">return_dialog</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">error</span><span class="p">,</span> <span class="n">LoadNotDefinedError</span><span class="p">):</span>
+            <span class="n">return_dialog</span> <span class="o">=</span> <span class="n">error</span><span class="o">.</span><span class="n">error_dialog</span><span class="p">()</span>
+            <span class="k">if</span> <span class="n">return_dialog</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">initialize_hardware</span><span class="p">(</span>
+                    <span class="n">initialize_components_ordered_dict</span><span class="o">=</span><span class="p">{</span>
+                        <span class="n">error</span><span class="o">.</span><span class="n">error_component</span><span class="o">.</span><span class="n">get_id</span><span class="p">():</span> <span class="p">[</span><span class="s2">&quot;set_load&quot;</span><span class="p">]</span>
+                    <span class="p">},</span>
+                    <span class="n">reference_object_id</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                    <span class="n">verbose</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+                <span class="p">)</span>
+            <span class="k">return</span> <span class="n">return_dialog</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">error</span><span class="p">,</span> <span class="n">CrashDangerError</span><span class="p">):</span>
+            <span class="k">return</span> <span class="n">error</span><span class="o">.</span><span class="n">error_dialog</span><span class="p">(</span><span class="s2">&quot;Move stage to safe area.&quot;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">error</span><span class="p">,</span> <span class="n">HardwareError</span><span class="p">):</span>
+            <span class="k">return</span> <span class="n">error</span><span class="o">.</span><span class="n">error_dialog</span><span class="p">()</span></div>
+
+<div class="viewcode-block" id="BaseMicroscope.microscope_is_ready"><a class="viewcode-back" href="../../../microscope_automation.hardware.html#microscope_automation.hardware.hardware_control.BaseMicroscope.microscope_is_ready">[docs]</a>    <span class="k">def</span> <span class="nf">microscope_is_ready</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">experiment</span><span class="p">,</span>
+        <span class="n">component_dict</span><span class="p">,</span>
+        <span class="n">focus_drive_id</span><span class="p">,</span>
+        <span class="n">objective_changer_id</span><span class="p">,</span>
+        <span class="n">safety_object_id</span><span class="p">,</span>
+        <span class="n">reference_object_id</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">load</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+        <span class="n">make_ready</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+        <span class="n">trials</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span>
+        <span class="n">verbose</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+    <span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Check if microscope is ready and setup up for data acquisition.</span>
+
+<span class="sd">        Input:</span>
+<span class="sd">         experiment: string with name of experiment as defined in microscope software</span>
+
+<span class="sd">         compenent_dict: dictionary with component_id as key and list of actions</span>
+
+<span class="sd">         focus_drive_id: string id for focus drive</span>
+
+<span class="sd">         objective_changer_id: string id for objective changer parfocality</span>
+<span class="sd">          and parcentricity has to be calibrated</span>
+
+<span class="sd">         safety_object_id: string id for safety area</span>
+
+<span class="sd">         reference_object_id: ID of object used to set parfocality and parcentricity</span>
+
+<span class="sd">         load: move objective into load position before moving stage</span>
+
+<span class="sd">         make_ready: if True, make attempt to ready microscope, e.g. setup autofocus</span>
+<span class="sd">         (Default: True)</span>
+
+<span class="sd">         trials: maximum number of attempt to initialize microscope.</span>
+<span class="sd">         Will allow user to make adjustments on microscope. (Default: 3)</span>
+
+<span class="sd">         verbose: print debug messages (Default: True)</span>
+
+<span class="sd">        Output:</span>
+<span class="sd">         ready: True if microscope is ready for use, False if not</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">is_ready</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="c1"># Test if com</span>
+        <span class="k">for</span> <span class="n">component_id</span><span class="p">,</span> <span class="n">action</span> <span class="ow">in</span> <span class="n">component_dict</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+            <span class="n">is_ready</span><span class="p">[</span><span class="n">component_id</span><span class="p">]</span> <span class="o">=</span> <span class="kc">True</span>
+        <span class="n">is_ready</span><span class="p">[</span><span class="s2">&quot;Microscope&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="nb">all</span><span class="p">(</span><span class="n">is_ready</span><span class="o">.</span><span class="n">values</span><span class="p">())</span>
+        <span class="k">return</span> <span class="n">is_ready</span></div>
+
+<div class="viewcode-block" id="BaseMicroscope.goto_load"><a class="viewcode-back" href="../../../microscope_automation.hardware.html#microscope_automation.hardware.hardware_control.BaseMicroscope.goto_load">[docs]</a>    <span class="k">def</span> <span class="nf">goto_load</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">focus_drive_id</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Set focus position to load position.</span>
+
+<span class="sd">        Input:</span>
+<span class="sd">         focus_drive_id: id of focus drive to set load position on</span>
+
+<span class="sd">        Output:</span>
+<span class="sd">         z_load: load position in mum</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">focus_drive_object</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_microscope_object</span><span class="p">(</span><span class="n">focus_drive_id</span><span class="p">)</span>
+        <span class="n">communication_object</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_control_software</span><span class="p">()</span><span class="o">.</span><span class="n">connection</span>
+
+        <span class="k">return</span> <span class="n">focus_drive_object</span><span class="o">.</span><span class="n">goto_load</span><span class="p">(</span><span class="n">communication_object</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="BaseMicroscope.add_control_software"><a class="viewcode-back" href="../../../microscope_automation.hardware.html#microscope_automation.hardware.hardware_control.BaseMicroscope.add_control_software">[docs]</a>    <span class="k">def</span> <span class="nf">add_control_software</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">control_software_object</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Add object that connects this code to the  vendor specific microscope</span>
+<span class="sd">        control code to Microscope.</span>
+
+<span class="sd">        Input:</span>
+<span class="sd">         controlSoftwareObject: single object connecting to vendor software</span>
+
+<span class="sd">        Output:</span>
+<span class="sd">         none</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">hardware_components</span><span class="o">.</span><span class="n">log_method</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;add_control_software&quot;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">__control_software</span> <span class="o">=</span> <span class="n">control_software_object</span></div>
+
+    <span class="k">def</span> <span class="nf">_get_control_software</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Returns object that connects this code to the vendor specific</span>
+<span class="sd">         microscope control code to Microscope.</span>
+
+<span class="sd">        Input:</span>
+<span class="sd">         none</span>
+
+<span class="sd">        Output:</span>
+<span class="sd">         controlSoftwareObject: single object connecting to vendor software</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">hardware_components</span><span class="o">.</span><span class="n">log_method</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;_get_control_software&quot;</span><span class="p">)</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">__control_software</span>
+
+<div class="viewcode-block" id="BaseMicroscope.add_microscope_object"><a class="viewcode-back" href="../../../microscope_automation.hardware.html#microscope_automation.hardware.hardware_control.BaseMicroscope.add_microscope_object">[docs]</a>    <span class="k">def</span> <span class="nf">add_microscope_object</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">component_objects</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Add component to microscope.</span>
+
+<span class="sd">        Input:</span>
+<span class="sd">         component_objects: object of a component class (e.g. Stage, Camera)</span>
+<span class="sd">         or list of component classes</span>
+
+<span class="sd">        Output:</span>
+<span class="sd">         none</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">component_objects</span><span class="p">,</span> <span class="nb">list</span><span class="p">):</span>
+            <span class="n">component_objects</span> <span class="o">=</span> <span class="p">[</span><span class="n">component_objects</span><span class="p">]</span>
+
+        <span class="k">for</span> <span class="n">component_object</span> <span class="ow">in</span> <span class="n">component_objects</span><span class="p">:</span>
+            <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">component_object</span><span class="p">,</span> <span class="n">hardware_components</span><span class="o">.</span><span class="n">MicroscopeComponent</span><span class="p">):</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">microscope_components_ordered_dict</span><span class="p">[</span>
+                    <span class="n">component_object</span><span class="o">.</span><span class="n">get_id</span><span class="p">()</span>
+                <span class="p">]</span> <span class="o">=</span> <span class="n">component_object</span>
+                <span class="c1"># attach microscope to let component know to what microscope it belongs</span>
+                <span class="n">component_object</span><span class="o">.</span><span class="n">microscope</span> <span class="o">=</span> <span class="bp">self</span></div>
+
+    <span class="k">def</span> <span class="nf">_get_microscope_object</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">component_id</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Get component of microscope.</span>
+
+<span class="sd">        Input:</span>
+<span class="sd">         component_id: Unique string id for microscope component</span>
+
+<span class="sd">        Output:</span>
+<span class="sd">         component_object: object of a component class (e.g. Stage, Camera)</span>
+<span class="sd">         or list of component classes</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># Test if component exists.</span>
+        <span class="c1"># If component does note exist raise exeption</span>
+        <span class="k">if</span> <span class="n">component_id</span> <span class="ow">not</span> <span class="ow">in</span> <span class="nb">list</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">microscope_components_ordered_dict</span><span class="o">.</span><span class="n">keys</span><span class="p">()):</span>
+            <span class="k">raise</span> <span class="n">HardwareDoesNotExistError</span><span class="p">(</span><span class="n">error_component</span><span class="o">=</span><span class="n">component_id</span><span class="p">)</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">microscope_components_ordered_dict</span><span class="p">[</span><span class="n">component_id</span><span class="p">]</span>
+
+<div class="viewcode-block" id="BaseMicroscope.get_load_position"><a class="viewcode-back" href="../../../microscope_automation.hardware.html#microscope_automation.hardware.hardware_control.BaseMicroscope.get_load_position">[docs]</a>    <span class="k">def</span> <span class="nf">get_load_position</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">focus_drive_id</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Get load position of focus drive.</span>
+
+<span class="sd">        Input:</span>
+<span class="sd">         focus_drive_id: id of focus drive to get load position of</span>
+
+<span class="sd">        Output:</span>
+<span class="sd">         z_load: load position in mum</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">focus_drive_object</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_microscope_object</span><span class="p">(</span><span class="n">focus_drive_id</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">focus_drive_object</span><span class="o">.</span><span class="n">get_load_position</span><span class="p">()</span></div>
+
+    <span class="k">def</span> <span class="nf">_get_focus_id</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">reference_object_id</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Set reference position in object coordinates.</span>
+
+<span class="sd">        Input:</span>
+<span class="sd">         reference_object_id: ID of plate, plate holder or other sample object</span>
+<span class="sd">         the hardware is initialized for. Used for setting up of autofocus</span>
+
+<span class="sd">        Output:</span>
+<span class="sd">         focus_id: ID of focus drive attached to the reference object</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">not_implemented</span><span class="p">(</span><span class="s2">&quot;_get_focus_id&quot;</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">_get_safety_id</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">reference_object_id</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Set reference position in object coordinates.</span>
+
+<span class="sd">        Input:</span>
+<span class="sd">         reference_object_id: ID of plate, plate holder or other sample object</span>
+<span class="sd">         the hardware is initialized for. Used for setting up of autofocus</span>
+
+<span class="sd">        Output:</span>
+<span class="sd">         safety: ID of safety attached to the reference object</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">not_implemented</span><span class="p">(</span><span class="s2">&quot;_get_safety_id&quot;</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">_get_objective_changer_id</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">reference_object_id</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Set reference position in object coordinates.</span>
+
+<span class="sd">        Input:</span>
+<span class="sd">         reference_object_id: ID of plate, plate holder or other sample object</span>
+<span class="sd">         the hardware is initialized for. Used for setting up of autofocus</span>
+
+<span class="sd">        Output:</span>
+<span class="sd">         obj_changer_id: ID of objective changer attached to the reference object</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">not_implemented</span><span class="p">(</span><span class="s2">&quot;_get_objective_changer_id&quot;</span><span class="p">)</span>
+
+<div class="viewcode-block" id="BaseMicroscope.live_mode"><a class="viewcode-back" href="../../../microscope_automation.hardware.html#microscope_automation.hardware.hardware_control.BaseMicroscope.live_mode">[docs]</a>    <span class="k">def</span> <span class="nf">live_mode</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">camera_id</span><span class="p">,</span> <span class="n">experiment</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">live</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Start/stop live mode of ZEN software.</span>
+
+<span class="sd">        Input:</span>
+<span class="sd">         camera_id: string id for camera</span>
+
+<span class="sd">         experiment: name of ZEN experiment (default = None)</span>
+
+<span class="sd">         live: switch live mode on (True = default) or off (False)</span>
+
+<span class="sd">        Output:</span>
+<span class="sd">         None</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">not_implemented</span><span class="p">(</span><span class="s2">&quot;live_mode&quot;</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="BaseMicroscope.recall_focus"><a class="viewcode-back" href="../../../microscope_automation.hardware.html#microscope_automation.hardware.hardware_control.BaseMicroscope.recall_focus">[docs]</a>    <span class="k">def</span> <span class="nf">recall_focus</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">auto_focus_id</span><span class="p">,</span> <span class="n">reference_object_id</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">pre_set_focus</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Find difference between stored focus position and actual autofocus position.</span>
+<span class="sd">        Recall focus will move the focus drive to it&#39;s stored position.</span>
+
+<span class="sd">        Input:</span>
+<span class="sd">         auto_focus_id: string id for camera</span>
+
+<span class="sd">         reference_object_id: name of ZEN experiment (default = None)</span>
+
+<span class="sd">         pre_set_focus: Move focus to previous auto-focus position.</span>
+<span class="sd">         This makes definite focus more robust</span>
+
+<span class="sd">        Output:</span>
+<span class="sd">         delta_z: difference between stored z position of focus drive</span>
+<span class="sd">         and position after recall focus</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">communication_object</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_control_software</span><span class="p">()</span><span class="o">.</span><span class="n">connection</span>
+        <span class="n">autofocus</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_microscope_object</span><span class="p">(</span><span class="n">auto_focus_id</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">autofocus</span><span class="o">.</span><span class="n">recall_focus</span><span class="p">(</span>
+            <span class="n">communication_object</span><span class="p">,</span> <span class="n">reference_object_id</span><span class="p">,</span> <span class="n">pre_set_focus</span><span class="o">=</span><span class="n">pre_set_focus</span>
+        <span class="p">)</span></div>
+
+<div class="viewcode-block" id="BaseMicroscope.trigger_pump"><a class="viewcode-back" href="../../../microscope_automation.hardware.html#microscope_automation.hardware.hardware_control.BaseMicroscope.trigger_pump">[docs]</a>    <span class="k">def</span> <span class="nf">trigger_pump</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">pump_id</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Triggers pump of pump_id.</span>
+
+<span class="sd">        Raises HardwareDoesNotExistError if pump is not attached to microscope</span>
+
+<span class="sd">        Input:</span>
+<span class="sd">         pump_id: pump to trigger</span>
+
+<span class="sd">        Output:</span>
+<span class="sd">         none</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">communication_object</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_control_software</span><span class="p">()</span><span class="o">.</span><span class="n">connection</span>
+        <span class="n">pump</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_microscope_object</span><span class="p">(</span><span class="n">pump_id</span><span class="p">)</span>
+        <span class="n">pump</span><span class="o">.</span><span class="n">trigger_pump</span><span class="p">(</span><span class="n">communication_object</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="BaseMicroscope.change_magnification"><a class="viewcode-back" href="../../../microscope_automation.hardware.html#microscope_automation.hardware.hardware_control.BaseMicroscope.change_magnification">[docs]</a>    <span class="k">def</span> <span class="nf">change_magnification</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">objective_changer_id</span><span class="p">,</span>
+        <span class="n">magnification</span><span class="p">,</span>
+        <span class="n">sample_object</span><span class="p">,</span>
+        <span class="n">use_safe_position</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+        <span class="n">verbose</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+        <span class="n">load</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+    <span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Change to objective with given magnification.</span>
+
+<span class="sd">        Input:</span>
+<span class="sd">         magnification: magnification of selected objective as float.</span>
+<span class="sd">         Not well defined if multiple objectives with identical magnification exist.</span>
+
+<span class="sd">         sample_object: object that has safe coordinates attached.</span>
+<span class="sd">         If use_safe_position == True than stage and focus drive will move to</span>
+<span class="sd">         this position before magnification is changed to avoid collision</span>
+<span class="sd">         between objective and stage.</span>
+
+<span class="sd">         use_safe_position: move stage and focus drive to safe position before switching</span>
+<span class="sd">         magnification to minimize risk of collision (Default: True)</span>
+
+<span class="sd">         verbose: if True print debug information (Default = True)</span>
+
+<span class="sd">         load: if True, move objective to load position before switching (Default: True)</span>
+
+<span class="sd">        Output:</span>
+<span class="sd">         objective_name: name of new objective</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">communication_object</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_control_software</span><span class="p">()</span><span class="o">.</span><span class="n">connection</span>
+        <span class="n">obj_changer</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_microscope_object</span><span class="p">(</span><span class="n">objective_changer_id</span><span class="p">)</span>
+        <span class="n">objective_name</span> <span class="o">=</span> <span class="n">obj_changer</span><span class="o">.</span><span class="n">change_magnification</span><span class="p">(</span>
+            <span class="n">communication_object</span><span class="p">,</span>
+            <span class="n">magnification</span><span class="p">,</span>
+            <span class="n">sample_object</span><span class="p">,</span>
+            <span class="n">use_safe_position</span><span class="p">,</span>
+            <span class="n">verbose</span><span class="p">,</span>
+            <span class="n">load</span><span class="p">,</span>
+        <span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">objective_name</span></div></div>
+</pre></div>
+
+          </div>
+          
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<h1 class="logo"><a href="../../../index.html">Microscope Automation</a></h1>
+
+
+
+
+
+
+
+
+<h3>Navigation</h3>
+<p class="caption"><span class="caption-text">Overview</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../index.html">README</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../installation.html">Installation</a></li>
+</ul>
+<p class="caption"><span class="caption-text">Hardware</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../hardware_components.html">hardware_components</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../hardware_control.html">hardware_control</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../RS232.html">RS232</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../setup_microscope.html">setup_microscope</a></li>
+</ul>
+<p class="caption"><span class="caption-text">Samples</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../correct_background.html">correct_background</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../draw_plate.html">draw_plate</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../find_well_center.html">find_well_center</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../find_cells.html">find_cells</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../interactive_location_picker_pyqtgraph.html">interactive_location_picker_pyqtgraph</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../positions_list.html">positions_list</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../samples.html">samples</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../setup_samples.html">setup_samples</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../tile_images.html">tile_images</a></li>
+</ul>
+<p class="caption"><span class="caption-text">Zeiss Microscopes</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../connect_zen_blue.html">connect_zen_blue</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../connect_zen_black.html">connect_zen_black</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../hardware_control_zeiss.html">hardware_control_zeiss</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../write_zen_tiles_experiment.html">write_zen_tiles_experiment</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../zen_experiment_info.html">zen_experiment_info</a></li>
+</ul>
+<p class="caption"><span class="caption-text">3i Microscopes</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../hardware_control_3i.html">hardware_control_3i</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../connect_slidebook.html">connect_slidebook</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../slidebook_experiment_info.html">slidebook_experiment_info</a></li>
+</ul>
+<p class="caption"><span class="caption-text">General Methods</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../automation_exceptions.html">automation_exceptions</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../automation_messages_form_layout.html">automation_messages_form_layout</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../error_handling.html">error_handling</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../get_path.html">get_path</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../image_AICS.html">image_AICS</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../load_image_czi.html">load_image_czi</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../meta_data_file.html">meta_data_file</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../preferences.html">preferences</a></li>
+</ul>
+<p class="caption"><span class="caption-text">Reference Docs</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../CONTRIBUTING.html">Allen Institute Contribution Agreement</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../LICENSE.html">LICENSE</a></li>
+</ul>
+
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="../../../index.html">Documentation overview</a><ul>
+  <li><a href="../../index.html">Module code</a><ul>
+  <li><a href="../../microscope_automation.html">microscope_automation</a><ul>
+  </ul></li>
+  </ul></li>
+  </ul></li>
+</ul>
+</div>
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../../../search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" />
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script>$('#searchbox').show(0);</script>
+
+
+
+
+
+
+
+
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2020, Allen Institute.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 3.3.1</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.12</a>
+      
+    </div>
+
+    
+
+    
+  </body>
+</html>

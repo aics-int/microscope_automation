@@ -1,0 +1,445 @@
+
+<!DOCTYPE html>
+
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>microscope_automation.samples.positions_list &#8212; Microscope Automation 0.0 documentation</title>
+    <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+    <link rel="stylesheet" href="../../../_static/alabaster.css" type="text/css" />
+    <script id="documentation_options" data-url_root="../../../" src="../../../_static/documentation_options.js"></script>
+    <script src="../../../_static/jquery.js"></script>
+    <script src="../../../_static/underscore.js"></script>
+    <script src="../../../_static/doctools.js"></script>
+    <script src="../../../_static/language_data.js"></script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" />
+   
+  <link rel="stylesheet" href="../../../_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head><body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          
+
+          <div class="body" role="main">
+            
+  <h1>Source code for microscope_automation.samples.positions_list</h1><div class="highlight"><pre>
+<span></span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">Class to create position lists for tiling and multi-position imaging.</span>
+<span class="sd">Created on Aug 14, 2017</span>
+
+<span class="sd">@author: winfriedw</span>
+<span class="sd">&quot;&quot;&quot;</span>
+
+<span class="kn">import</span> <span class="nn">numpy</span>
+<span class="kn">import</span> <span class="nn">matplotlib.pyplot</span> <span class="k">as</span> <span class="nn">plt</span>
+<span class="kn">import</span> <span class="nn">math</span>
+
+<span class="n">VALID_TILE_TYPE</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;none&quot;</span><span class="p">,</span> <span class="s2">&quot;rectangle&quot;</span><span class="p">,</span> <span class="s2">&quot;ellipse&quot;</span><span class="p">]</span>
+
+
+<div class="viewcode-block" id="CreateTilePositions"><a class="viewcode-back" href="../../../positions_list.html#microscope_automation.samples.positions_list.CreateTilePositions">[docs]</a><span class="k">class</span> <span class="nc">CreateTilePositions</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Create position lists for tiling and multi-position imaging.&quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span> <span class="n">tile_type</span><span class="o">=</span><span class="s2">&quot;none&quot;</span><span class="p">,</span> <span class="n">tile_number</span><span class="o">=</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="mi">2</span><span class="p">),</span> <span class="n">tile_size</span><span class="o">=</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">),</span> <span class="n">degrees</span><span class="o">=</span><span class="mi">0</span>
+    <span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Create position lists for tiling and multi-position imaging.</span>
+
+<span class="sd">        Input:</span>
+<span class="sd">         tile_type: string to describe type of tiling. Allowed values:</span>
+<span class="sd">          &#39;none&#39;: do not tile</span>
+
+<span class="sd">          &#39;rectangle&#39;: tiles are arranged to form a rectangle</span>
+
+<span class="sd">          &#39;ellipse&#39;: tiles are arranged to form an ellipse</span>
+
+<span class="sd">         tile_number: tuple with number of tiles in x and y direction</span>
+
+<span class="sd">         tile_size: tuple with size of tiles in x and y direction</span>
+
+<span class="sd">         degrees: Angle the tile field is rotated counterclockwise in degrees</span>
+
+<span class="sd">        Output:</span>
+<span class="sd">         none</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">set_tile_type</span><span class="p">(</span><span class="n">tile_type</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">set_tile_number</span><span class="p">(</span><span class="n">tile_number</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">set_tile_size</span><span class="p">(</span><span class="n">tile_size</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">set_field_rotation</span><span class="p">(</span><span class="n">degrees</span><span class="p">)</span>
+
+<div class="viewcode-block" id="CreateTilePositions.set_tile_type"><a class="viewcode-back" href="../../../positions_list.html#microscope_automation.samples.positions_list.CreateTilePositions.set_tile_type">[docs]</a>    <span class="k">def</span> <span class="nf">set_tile_type</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">tile_type</span><span class="o">=</span><span class="s2">&quot;none&quot;</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Set type of tiling.</span>
+
+<span class="sd">        Input:</span>
+<span class="sd">         tile_type: string to describe type of tiling. Allowed values:</span>
+<span class="sd">          &#39;none&#39;: do not tile</span>
+
+<span class="sd">          &#39;rectangle&#39;: tiles are arranged to form a rectangle</span>
+
+<span class="sd">          &#39;ellipse&#39;: tiles are arranged to form an ellipse</span>
+
+<span class="sd">        Output:</span>
+<span class="sd">         none</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># TODO: Check that tile type is valid and throw error if not</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">tile_type</span> <span class="o">=</span> <span class="n">tile_type</span></div>
+
+<div class="viewcode-block" id="CreateTilePositions.get_tile_type"><a class="viewcode-back" href="../../../positions_list.html#microscope_automation.samples.positions_list.CreateTilePositions.get_tile_type">[docs]</a>    <span class="k">def</span> <span class="nf">get_tile_type</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Return type of tiling.</span>
+
+<span class="sd">        Input:</span>
+<span class="sd">         none</span>
+
+<span class="sd">        Output:</span>
+<span class="sd">         tile_type: string to describe type of tiling. Allowed values:</span>
+<span class="sd">          &#39;none&#39;: do not tile</span>
+
+<span class="sd">          &#39;rectangle&#39;: tiles are arranged to form a rectangle</span>
+
+<span class="sd">          &#39;ellipse&#39;: tiles are arranged to form an ellipse</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">tile_type</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">tile_type</span>
+        <span class="k">return</span> <span class="n">tile_type</span></div>
+
+<div class="viewcode-block" id="CreateTilePositions.set_tile_number"><a class="viewcode-back" href="../../../positions_list.html#microscope_automation.samples.positions_list.CreateTilePositions.set_tile_number">[docs]</a>    <span class="k">def</span> <span class="nf">set_tile_number</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">tile_number</span><span class="o">=</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="mi">2</span><span class="p">)):</span>
+        <span class="sd">&quot;&quot;&quot;Set number of tiles in x and y.</span>
+
+<span class="sd">        Input:</span>
+<span class="sd">         tile_number: tuple with number of tiles in x and y direction</span>
+
+<span class="sd">        Output:</span>
+<span class="sd">         none</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">tile_number</span> <span class="o">=</span> <span class="n">tile_number</span></div>
+
+<div class="viewcode-block" id="CreateTilePositions.get_tile_number"><a class="viewcode-back" href="../../../positions_list.html#microscope_automation.samples.positions_list.CreateTilePositions.get_tile_number">[docs]</a>    <span class="k">def</span> <span class="nf">get_tile_number</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Return number of tiles in x and y.</span>
+
+<span class="sd">        Input:</span>
+<span class="sd">         none</span>
+
+<span class="sd">        Output:</span>
+<span class="sd">         tile_number: tuple with number of tiles in x and y direction</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">tile_number</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">tile_number</span>
+        <span class="k">return</span> <span class="n">tile_number</span></div>
+
+<div class="viewcode-block" id="CreateTilePositions.set_tile_size"><a class="viewcode-back" href="../../../positions_list.html#microscope_automation.samples.positions_list.CreateTilePositions.set_tile_size">[docs]</a>    <span class="k">def</span> <span class="nf">set_tile_size</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">tile_size</span><span class="o">=</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">)):</span>
+        <span class="sd">&quot;&quot;&quot;Set size of tiles in x and y.</span>
+
+<span class="sd">        Input:</span>
+<span class="sd">         tile_size: tuple with size of tiles in x and y direction</span>
+
+<span class="sd">        Output:</span>
+<span class="sd">         none</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">tile_size</span> <span class="o">=</span> <span class="n">tile_size</span></div>
+
+<div class="viewcode-block" id="CreateTilePositions.get_tile_size"><a class="viewcode-back" href="../../../positions_list.html#microscope_automation.samples.positions_list.CreateTilePositions.get_tile_size">[docs]</a>    <span class="k">def</span> <span class="nf">get_tile_size</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Retrieve size of tiles in x and y.</span>
+
+<span class="sd">        Input:</span>
+<span class="sd">         none</span>
+
+<span class="sd">        Output:</span>
+<span class="sd">         tile_size: tuple with size of tiles in x and y direction</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">tile_size</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">tile_size</span>
+        <span class="k">return</span> <span class="n">tile_size</span></div>
+
+<div class="viewcode-block" id="CreateTilePositions.set_field_rotation"><a class="viewcode-back" href="../../../positions_list.html#microscope_automation.samples.positions_list.CreateTilePositions.set_field_rotation">[docs]</a>    <span class="k">def</span> <span class="nf">set_field_rotation</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">degrees</span><span class="o">=</span><span class="mi">0</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Set size of tiles in x and y.</span>
+
+<span class="sd">        Input:</span>
+<span class="sd">         degrees: Angle the tile field is rotated counterclockwise in degrees</span>
+
+<span class="sd">        Output:</span>
+<span class="sd">         none</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">degrees</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">degrees</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">field_rotation</span> <span class="o">=</span> <span class="n">degrees</span></div>
+
+<div class="viewcode-block" id="CreateTilePositions.get_field_rotation"><a class="viewcode-back" href="../../../positions_list.html#microscope_automation.samples.positions_list.CreateTilePositions.get_field_rotation">[docs]</a>    <span class="k">def</span> <span class="nf">get_field_rotation</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Set size of tiles in x and y.</span>
+
+<span class="sd">        Input:</span>
+<span class="sd">         none</span>
+
+<span class="sd">        Output:</span>
+<span class="sd">         degrees: Angle the tile field is rotated counterclockwise in degrees</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">degrees</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">field_rotation</span>
+        <span class="k">return</span> <span class="n">degrees</span></div>
+
+<div class="viewcode-block" id="CreateTilePositions.create_rectangle"><a class="viewcode-back" href="../../../positions_list.html#microscope_automation.samples.positions_list.CreateTilePositions.create_rectangle">[docs]</a>    <span class="k">def</span> <span class="nf">create_rectangle</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">nx</span><span class="p">,</span> <span class="n">ny</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Return positions for rectangle with step size of one.</span>
+
+<span class="sd">        Input:</span>
+<span class="sd">         nx, ny: number of tiles in x and y</span>
+
+<span class="sd">        Output:</span>
+<span class="sd">         rect_list: list for rectangle positions, centered around zero</span>
+<span class="sd">         and with step size of one</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">x_array</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="o">-</span><span class="n">nx</span> <span class="o">/</span> <span class="mf">2.0</span><span class="p">,</span> <span class="n">nx</span> <span class="o">/</span> <span class="mf">2.0</span><span class="p">)</span> <span class="o">+</span> <span class="mf">0.5</span>
+        <span class="n">y_array</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="o">-</span><span class="n">ny</span> <span class="o">/</span> <span class="mf">2.0</span><span class="p">,</span> <span class="n">ny</span> <span class="o">/</span> <span class="mf">2.0</span><span class="p">)</span> <span class="o">+</span> <span class="mf">0.5</span>
+        <span class="n">rect_list</span> <span class="o">=</span> <span class="p">[(</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">x_array</span> <span class="k">for</span> <span class="n">y</span> <span class="ow">in</span> <span class="n">y_array</span><span class="p">]</span>
+        <span class="k">return</span> <span class="n">rect_list</span></div>
+
+<div class="viewcode-block" id="CreateTilePositions.create_ellipse"><a class="viewcode-back" href="../../../positions_list.html#microscope_automation.samples.positions_list.CreateTilePositions.create_ellipse">[docs]</a>    <span class="k">def</span> <span class="nf">create_ellipse</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">nx</span><span class="p">,</span> <span class="n">ny</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Return positions for ellipse with step size of one.</span>
+
+<span class="sd">        Input:</span>
+<span class="sd">         nx, ny: number of tiles in x and y</span>
+
+<span class="sd">        Output:</span>
+<span class="sd">         ellipse_list: list for rectangle positions, centered around zero</span>
+<span class="sd">         and with step size of one</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># Start with rectangle</span>
+        <span class="n">rect_list</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">create_rectangle</span><span class="p">(</span><span class="n">nx</span><span class="p">,</span> <span class="n">ny</span><span class="p">)</span>
+        <span class="c1"># delete positions outside of ellipse</span>
+        <span class="n">ellipse_list</span> <span class="o">=</span> <span class="p">[</span>
+            <span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">z</span><span class="p">)</span>
+            <span class="k">for</span> <span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">z</span><span class="p">)</span> <span class="ow">in</span> <span class="n">rect_list</span>
+            <span class="k">if</span> <span class="n">x</span> <span class="o">**</span> <span class="mi">2</span> <span class="o">/</span> <span class="p">(</span><span class="n">nx</span> <span class="o">/</span> <span class="mi">2</span><span class="p">)</span> <span class="o">**</span> <span class="mi">2</span> <span class="o">+</span> <span class="n">y</span> <span class="o">**</span> <span class="mi">2</span> <span class="o">/</span> <span class="p">(</span><span class="n">ny</span> <span class="o">/</span> <span class="mi">2</span><span class="p">)</span> <span class="o">**</span> <span class="mi">2</span> <span class="o">&lt;=</span> <span class="mi">1</span>
+        <span class="p">]</span>
+        <span class="k">return</span> <span class="n">ellipse_list</span></div>
+
+<div class="viewcode-block" id="CreateTilePositions.rotate_pos_list"><a class="viewcode-back" href="../../../positions_list.html#microscope_automation.samples.positions_list.CreateTilePositions.rotate_pos_list">[docs]</a>    <span class="k">def</span> <span class="nf">rotate_pos_list</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">pos_list</span><span class="p">,</span> <span class="n">degrees</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Rotate all coordinates in pos_list counterclockwise</span>
+<span class="sd">        by angle degree around center = (0, 0, 0).</span>
+
+<span class="sd">        Input:</span>
+<span class="sd">         pos_list: list with (x, y, z) coordinates</span>
+
+<span class="sd">         degrees: amount of counterclock rotation around origin in degree</span>
+
+<span class="sd">        Output:</span>
+<span class="sd">         rot_list: list with (x, y, z) coordinates after rotation.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># convert angle from degrees to radians.</span>
+        <span class="n">rad</span> <span class="o">=</span> <span class="n">math</span><span class="o">.</span><span class="n">radians</span><span class="p">(</span><span class="n">degrees</span><span class="p">)</span>
+
+        <span class="c1"># rotate</span>
+        <span class="n">rotate_list</span> <span class="o">=</span> <span class="p">[</span>
+            <span class="p">(</span>
+                <span class="n">math</span><span class="o">.</span><span class="n">cos</span><span class="p">(</span><span class="n">rad</span><span class="p">)</span> <span class="o">*</span> <span class="n">px</span> <span class="o">-</span> <span class="n">math</span><span class="o">.</span><span class="n">sin</span><span class="p">(</span><span class="n">rad</span><span class="p">)</span> <span class="o">*</span> <span class="n">py</span><span class="p">,</span>
+                <span class="n">math</span><span class="o">.</span><span class="n">sin</span><span class="p">(</span><span class="n">rad</span><span class="p">)</span> <span class="o">*</span> <span class="n">px</span> <span class="o">+</span> <span class="n">math</span><span class="o">.</span><span class="n">cos</span><span class="p">(</span><span class="n">rad</span><span class="p">)</span> <span class="o">*</span> <span class="n">py</span><span class="p">,</span>
+                <span class="n">pz</span><span class="p">,</span>
+            <span class="p">)</span>
+            <span class="k">for</span> <span class="n">px</span><span class="p">,</span> <span class="n">py</span><span class="p">,</span> <span class="n">pz</span> <span class="ow">in</span> <span class="n">pos_list</span>
+        <span class="p">]</span>
+        <span class="k">return</span> <span class="n">rotate_list</span></div>
+
+<div class="viewcode-block" id="CreateTilePositions.get_pos_list"><a class="viewcode-back" href="../../../positions_list.html#microscope_automation.samples.positions_list.CreateTilePositions.get_pos_list">[docs]</a>    <span class="k">def</span> <span class="nf">get_pos_list</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">center</span><span class="o">=</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">)):</span>
+        <span class="sd">&quot;&quot;&quot;Return list with positions.</span>
+
+<span class="sd">        Input:</span>
+<span class="sd">         center: Center position for tiles as tuple (x, y, z)</span>
+
+<span class="sd">        Output:</span>
+<span class="sd">         pos_list: list with tuples (x,y) for tile centers.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># calculate tile positions for different tile types centered around (0, 0, 0)</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_tile_type</span><span class="p">()</span> <span class="o">==</span> <span class="s2">&quot;none&quot;</span><span class="p">:</span>
+            <span class="n">pos_list</span> <span class="o">=</span> <span class="p">[(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">)]</span>
+            <span class="n">x_size</span><span class="p">,</span> <span class="n">y_size</span> <span class="o">=</span> <span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_tile_type</span><span class="p">()</span> <span class="o">==</span> <span class="s2">&quot;rectangle&quot;</span><span class="p">:</span>
+            <span class="n">nx</span><span class="p">,</span> <span class="n">ny</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_tile_number</span><span class="p">()</span>
+            <span class="n">pos_list</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">create_rectangle</span><span class="p">(</span><span class="n">nx</span><span class="p">,</span> <span class="n">ny</span><span class="p">)</span>
+            <span class="n">x_size</span><span class="p">,</span> <span class="n">y_size</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_tile_size</span><span class="p">()</span>
+        <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_tile_type</span><span class="p">()</span> <span class="o">==</span> <span class="s2">&quot;ellipse&quot;</span><span class="p">:</span>
+            <span class="n">nx</span><span class="p">,</span> <span class="n">ny</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_tile_number</span><span class="p">()</span>
+            <span class="n">pos_list</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">create_ellipse</span><span class="p">(</span><span class="n">nx</span><span class="p">,</span> <span class="n">ny</span><span class="p">)</span>
+            <span class="n">x_size</span><span class="p">,</span> <span class="n">y_size</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_tile_size</span><span class="p">()</span>
+
+        <span class="c1"># rotate tile field</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_field_rotation</span><span class="p">()</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="n">pos_list</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">rotate_pos_list</span><span class="p">(</span><span class="n">pos_list</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_field_rotation</span><span class="p">())</span>
+        <span class="c1"># multiply with tile size</span>
+
+        <span class="n">pos_list</span> <span class="o">=</span> <span class="p">[(</span><span class="n">x</span> <span class="o">*</span> <span class="n">x_size</span><span class="p">,</span> <span class="n">y</span> <span class="o">*</span> <span class="n">y_size</span><span class="p">,</span> <span class="n">z</span><span class="p">)</span> <span class="k">for</span> <span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">z</span> <span class="ow">in</span> <span class="n">pos_list</span><span class="p">]</span>
+        <span class="c1"># add offset</span>
+        <span class="n">pos_list</span> <span class="o">=</span> <span class="p">[</span>
+            <span class="p">(</span><span class="n">x</span> <span class="o">+</span> <span class="n">center</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">y</span> <span class="o">+</span> <span class="n">center</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">z</span> <span class="o">+</span> <span class="n">center</span><span class="p">[</span><span class="mi">2</span><span class="p">])</span> <span class="k">for</span> <span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">z</span><span class="p">)</span> <span class="ow">in</span> <span class="n">pos_list</span>
+        <span class="p">]</span>
+        <span class="k">return</span> <span class="n">pos_list</span></div>
+
+<div class="viewcode-block" id="CreateTilePositions.show"><a class="viewcode-back" href="../../../positions_list.html#microscope_automation.samples.positions_list.CreateTilePositions.show">[docs]</a>    <span class="k">def</span> <span class="nf">show</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">center</span><span class="o">=</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">)):</span>
+        <span class="sd">&quot;&quot;&quot;Display positions.</span>
+
+<span class="sd">        Input:</span>
+<span class="sd">         center: Center position for tiles</span>
+
+<span class="sd">        Output:</span>
+<span class="sd">         none</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># create data</span>
+        <span class="n">pos_list</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_pos_list</span><span class="p">(</span><span class="n">center</span><span class="p">)</span>
+        <span class="n">x_pos</span> <span class="o">=</span> <span class="p">[</span><span class="n">xyz</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="k">for</span> <span class="n">xyz</span> <span class="ow">in</span> <span class="n">pos_list</span><span class="p">]</span>
+        <span class="n">y_pos</span> <span class="o">=</span> <span class="p">[</span><span class="n">xyz</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="k">for</span> <span class="n">xyz</span> <span class="ow">in</span> <span class="n">pos_list</span><span class="p">]</span>
+        <span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">x_pos</span><span class="p">,</span> <span class="n">y_pos</span><span class="p">,</span> <span class="s2">&quot;bo&quot;</span><span class="p">)</span>
+        <span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span></div></div>
+
+
+<span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s2">&quot;__main__&quot;</span><span class="p">:</span>
+    <span class="n">tileList</span> <span class="o">=</span> <span class="n">CreateTilePositions</span><span class="p">(</span><span class="n">tile_type</span><span class="o">=</span><span class="s2">&quot;None&quot;</span><span class="p">,</span> <span class="n">tile_size</span><span class="o">=</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">))</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Tile size: </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">tileList</span><span class="o">.</span><span class="n">get_tile_size</span><span class="p">()))</span>
+
+    <span class="c1"># for tile_type in [&#39;ellipse&#39;]:</span>
+    <span class="k">for</span> <span class="n">tile_type</span> <span class="ow">in</span> <span class="n">VALID_TILE_TYPE</span><span class="p">:</span>
+        <span class="n">tileList</span><span class="o">.</span><span class="n">set_tile_type</span><span class="p">(</span><span class="n">tile_type</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">tile_number</span> <span class="ow">in</span> <span class="p">[(</span><span class="mi">10</span><span class="p">,</span> <span class="mi">10</span><span class="p">),</span> <span class="p">(</span><span class="mi">20</span><span class="p">,</span> <span class="mi">20</span><span class="p">),</span> <span class="p">(</span><span class="mi">3</span><span class="p">,</span> <span class="mi">30</span><span class="p">),</span> <span class="p">(</span><span class="mi">10</span><span class="p">,</span> <span class="mi">4</span><span class="p">)]:</span>
+            <span class="k">for</span> <span class="n">degrees</span> <span class="ow">in</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">45</span><span class="p">,</span> <span class="mi">90</span><span class="p">,</span> <span class="o">-</span><span class="mi">45</span><span class="p">]:</span>
+                <span class="n">tileList</span><span class="o">.</span><span class="n">set_field_rotation</span><span class="p">(</span><span class="n">degrees</span><span class="p">)</span>
+                <span class="n">tileList</span><span class="o">.</span><span class="n">set_tile_number</span><span class="p">(</span><span class="n">tile_number</span><span class="p">)</span>
+                <span class="nb">print</span><span class="p">(</span>
+                    <span class="s2">&quot;Tile list for tile type </span><span class="si">{}</span><span class="s2"> with no center and </span><span class="si">{}</span><span class="s2"> tiles: </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
+                        <span class="n">tileList</span><span class="o">.</span><span class="n">get_tile_type</span><span class="p">(),</span>
+                        <span class="n">tileList</span><span class="o">.</span><span class="n">get_tile_number</span><span class="p">(),</span>
+                        <span class="n">tileList</span><span class="o">.</span><span class="n">get_pos_list</span><span class="p">(),</span>
+                    <span class="p">)</span>
+                <span class="p">)</span>
+                <span class="n">tileList</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+                <span class="n">center</span> <span class="o">=</span> <span class="p">(</span><span class="mi">5</span><span class="p">,</span> <span class="mi">10</span><span class="p">,</span> <span class="mi">15</span><span class="p">)</span>
+                <span class="nb">print</span><span class="p">(</span>
+                    <span class="s2">&quot;Tile list for tile type </span><span class="si">{}</span><span class="s2"> with center </span><span class="si">{}</span><span class="s2"> and </span><span class="si">{}</span><span class="s2"> tiles: </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
+                        <span class="n">tileList</span><span class="o">.</span><span class="n">get_tile_type</span><span class="p">(),</span>
+                        <span class="n">center</span><span class="p">,</span>
+                        <span class="n">tileList</span><span class="o">.</span><span class="n">get_tile_number</span><span class="p">(),</span>
+                        <span class="n">tileList</span><span class="o">.</span><span class="n">get_pos_list</span><span class="p">(</span><span class="n">center</span><span class="p">),</span>
+                    <span class="p">)</span>
+                <span class="p">)</span>
+                <span class="n">tileList</span><span class="o">.</span><span class="n">show</span><span class="p">(</span><span class="n">center</span><span class="p">)</span>
+</pre></div>
+
+          </div>
+          
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<h1 class="logo"><a href="../../../index.html">Microscope Automation</a></h1>
+
+
+
+
+
+
+
+
+<h3>Navigation</h3>
+<p class="caption"><span class="caption-text">Overview</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../index.html">README</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../installation.html">Installation</a></li>
+</ul>
+<p class="caption"><span class="caption-text">Hardware</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../hardware_components.html">hardware_components</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../hardware_control.html">hardware_control</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../RS232.html">RS232</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../setup_microscope.html">setup_microscope</a></li>
+</ul>
+<p class="caption"><span class="caption-text">Samples</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../correct_background.html">correct_background</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../draw_plate.html">draw_plate</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../find_well_center.html">find_well_center</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../find_cells.html">find_cells</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../interactive_location_picker_pyqtgraph.html">interactive_location_picker_pyqtgraph</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../positions_list.html">positions_list</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../samples.html">samples</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../setup_samples.html">setup_samples</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../tile_images.html">tile_images</a></li>
+</ul>
+<p class="caption"><span class="caption-text">Zeiss Microscopes</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../connect_zen_blue.html">connect_zen_blue</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../connect_zen_black.html">connect_zen_black</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../hardware_control_zeiss.html">hardware_control_zeiss</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../write_zen_tiles_experiment.html">write_zen_tiles_experiment</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../zen_experiment_info.html">zen_experiment_info</a></li>
+</ul>
+<p class="caption"><span class="caption-text">3i Microscopes</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../hardware_control_3i.html">hardware_control_3i</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../connect_slidebook.html">connect_slidebook</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../slidebook_experiment_info.html">slidebook_experiment_info</a></li>
+</ul>
+<p class="caption"><span class="caption-text">General Methods</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../automation_exceptions.html">automation_exceptions</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../automation_messages_form_layout.html">automation_messages_form_layout</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../error_handling.html">error_handling</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../get_path.html">get_path</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../image_AICS.html">image_AICS</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../load_image_czi.html">load_image_czi</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../meta_data_file.html">meta_data_file</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../preferences.html">preferences</a></li>
+</ul>
+<p class="caption"><span class="caption-text">Reference Docs</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../CONTRIBUTING.html">Allen Institute Contribution Agreement</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../LICENSE.html">LICENSE</a></li>
+</ul>
+
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="../../../index.html">Documentation overview</a><ul>
+  <li><a href="../../index.html">Module code</a><ul>
+  <li><a href="../../microscope_automation.html">microscope_automation</a><ul>
+  </ul></li>
+  </ul></li>
+  </ul></li>
+</ul>
+</div>
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../../../search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" />
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script>$('#searchbox').show(0);</script>
+
+
+
+
+
+
+
+
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2020, Allen Institute.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 3.3.1</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.12</a>
+      
+    </div>
+
+    
+
+    
+  </body>
+</html>

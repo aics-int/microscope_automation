@@ -1,0 +1,355 @@
+
+<!DOCTYPE html>
+
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>microscope_automation.samples.draw_plate &#8212; Microscope Automation 0.0 documentation</title>
+    <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+    <link rel="stylesheet" href="../../../_static/alabaster.css" type="text/css" />
+    <script id="documentation_options" data-url_root="../../../" src="../../../_static/documentation_options.js"></script>
+    <script src="../../../_static/jquery.js"></script>
+    <script src="../../../_static/underscore.js"></script>
+    <script src="../../../_static/doctools.js"></script>
+    <script src="../../../_static/language_data.js"></script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" />
+   
+  <link rel="stylesheet" href="../../../_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head><body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          
+
+          <div class="body" role="main">
+            
+  <h1>Source code for microscope_automation.samples.draw_plate</h1><div class="highlight"><pre>
+<span></span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">Draw 96 Well plate.</span>
+<span class="sd">Colorcode wells based on content.</span>
+<span class="sd">Get information from yml file.</span>
+
+<span class="sd">Created on Jun 28, 2016</span>
+
+<span class="sd">@author: winfriedw</span>
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="kn">import</span> <span class="nn">numpy</span>
+<span class="kn">import</span> <span class="nn">matplotlib.pyplot</span> <span class="k">as</span> <span class="nn">plt</span>
+<span class="kn">import</span> <span class="nn">matplotlib.patches</span> <span class="k">as</span> <span class="nn">mpatches</span>
+<span class="kn">import</span> <span class="nn">string</span>
+
+<span class="kn">from</span> <span class="nn">..preferences</span> <span class="kn">import</span> <span class="n">Preferences</span>
+
+
+<div class="viewcode-block" id="draw_label"><a class="viewcode-back" href="../../../microscope_automation.samples.html#microscope_automation.samples.draw_plate.draw_label">[docs]</a><span class="k">def</span> <span class="nf">draw_label</span><span class="p">(</span><span class="n">x</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">y</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">text</span><span class="o">=</span><span class="s2">&quot;Hallo World!&quot;</span><span class="p">,</span> <span class="n">align</span><span class="o">=</span><span class="s2">&quot;center&quot;</span><span class="p">):</span>
+    <span class="n">label</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">text</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">text</span><span class="p">,</span> <span class="n">ha</span><span class="o">=</span><span class="n">align</span><span class="p">,</span> <span class="n">va</span><span class="o">=</span><span class="s2">&quot;center&quot;</span><span class="p">,</span> <span class="n">family</span><span class="o">=</span><span class="s2">&quot;sans-serif&quot;</span><span class="p">,</span> <span class="n">size</span><span class="o">=</span><span class="mi">20</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">label</span></div>
+
+
+<div class="viewcode-block" id="draw_well"><a class="viewcode-back" href="../../../microscope_automation.samples.html#microscope_automation.samples.draw_plate.draw_well">[docs]</a><span class="k">def</span> <span class="nf">draw_well</span><span class="p">(</span><span class="n">pos</span><span class="p">,</span> <span class="n">diameter</span><span class="p">,</span> <span class="n">color</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Draws Well</span>
+
+<span class="sd">    Input:</span>
+<span class="sd">     pos: [x,y] position of Well center in mm</span>
+
+<span class="sd">     diameter: diameter of Well in mm</span>
+
+<span class="sd">    Output:</span>
+<span class="sd">     none</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="c1"># add a circle</span>
+    <span class="n">well</span> <span class="o">=</span> <span class="n">mpatches</span><span class="o">.</span><span class="n">Circle</span><span class="p">(</span><span class="n">pos</span><span class="p">,</span> <span class="n">diameter</span> <span class="o">/</span> <span class="mf">2.0</span><span class="p">,</span> <span class="n">ec</span><span class="o">=</span><span class="s2">&quot;black&quot;</span><span class="p">,</span> <span class="n">fc</span><span class="o">=</span><span class="n">color</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">well</span></div>
+
+
+<div class="viewcode-block" id="draw_wells"><a class="viewcode-back" href="../../../microscope_automation.samples.html#microscope_automation.samples.draw_plate.draw_wells">[docs]</a><span class="k">def</span> <span class="nf">draw_wells</span><span class="p">(</span><span class="n">ax</span><span class="p">,</span> <span class="n">n_col</span><span class="o">=</span><span class="mi">12</span><span class="p">,</span> <span class="n">n_row</span><span class="o">=</span><span class="mi">8</span><span class="p">,</span> <span class="n">pitch</span><span class="o">=</span><span class="mi">9</span><span class="p">,</span> <span class="n">diameter</span><span class="o">=</span><span class="mf">6.94</span><span class="p">,</span> <span class="n">prefs</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Draw plate wells based on content</span>
+
+<span class="sd">    Input:</span>
+<span class="sd">     n_col: number of columns, labeled from 1 to n_col</span>
+
+<span class="sd">     n_row: number of rows, labeled alphabetically</span>
+
+<span class="sd">     pitch: distance between individual wells in mm</span>
+
+<span class="sd">     diameter: diameter of Well in mm</span>
+
+<span class="sd">    Output:</span>
+<span class="sd">     none</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="c1"># create n_col x n_row grid to plot the wells with distance pitch</span>
+    <span class="c1"># with additional column and row for labels</span>
+    <span class="n">grid</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">mgrid</span><span class="p">[</span><span class="mi">0</span><span class="p">:</span><span class="n">n_row</span><span class="p">,</span> <span class="mi">0</span><span class="p">:</span><span class="n">n_col</span><span class="p">]</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">)</span><span class="o">.</span><span class="n">T</span>
+
+    <span class="c1"># get information about Well content</span>
+    <span class="k">if</span> <span class="n">prefs</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">row</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="n">wells</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">n_col</span><span class="p">):</span>
+            <span class="n">row</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot;empty&quot;</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">j</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">n_row</span><span class="p">):</span>
+            <span class="n">wells</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">row</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">wells</span> <span class="o">=</span> <span class="n">prefs</span><span class="o">.</span><span class="n">get_pref</span><span class="p">(</span><span class="s2">&quot;wells&quot;</span><span class="p">)</span>
+
+    <span class="c1"># draw wells</span>
+    <span class="k">for</span> <span class="n">row</span><span class="p">,</span> <span class="n">col</span> <span class="ow">in</span> <span class="n">grid</span><span class="p">:</span>
+        <span class="n">well_content</span> <span class="o">=</span> <span class="n">wells</span><span class="p">[</span><span class="n">row</span><span class="p">][</span><span class="n">col</span><span class="p">]</span>
+        <span class="n">x</span> <span class="o">=</span> <span class="p">(</span><span class="n">col</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span> <span class="o">*</span> <span class="n">pitch</span> <span class="o">+</span> <span class="n">pitch</span> <span class="o">/</span> <span class="mf">2.0</span>
+        <span class="n">y</span> <span class="o">=</span> <span class="p">(</span><span class="n">n_row</span> <span class="o">-</span> <span class="n">row</span><span class="p">)</span> <span class="o">*</span> <span class="n">pitch</span> <span class="o">+</span> <span class="n">pitch</span> <span class="o">/</span> <span class="mf">2.0</span>
+        <span class="k">if</span> <span class="n">prefs</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">color</span> <span class="o">=</span> <span class="s2">&quot;white&quot;</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">color</span> <span class="o">=</span> <span class="n">prefs</span><span class="o">.</span><span class="n">get_pref</span><span class="p">(</span><span class="n">well_content</span><span class="p">)[</span><span class="s2">&quot;color&quot;</span><span class="p">]</span>
+        <span class="n">ax</span><span class="o">.</span><span class="n">add_patch</span><span class="p">(</span><span class="n">draw_well</span><span class="p">([</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">],</span> <span class="n">diameter</span><span class="p">,</span> <span class="n">color</span><span class="p">))</span></div>
+
+
+<div class="viewcode-block" id="draw_column_labels"><a class="viewcode-back" href="../../../microscope_automation.samples.html#microscope_automation.samples.draw_plate.draw_column_labels">[docs]</a><span class="k">def</span> <span class="nf">draw_column_labels</span><span class="p">(</span><span class="n">n_row</span><span class="o">=</span><span class="mi">8</span><span class="p">,</span> <span class="n">n_col</span><span class="o">=</span><span class="mi">12</span><span class="p">,</span> <span class="n">pitch</span><span class="o">=</span><span class="mi">9</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Draw plate wells based on content</span>
+
+<span class="sd">    Input:</span>
+<span class="sd">     n_col: number of columns, labeled from 1 to n_col</span>
+
+<span class="sd">     pitch: distance between individual wells in mm</span>
+
+<span class="sd">    Output:</span>
+<span class="sd">     none</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="n">n_col</span> <span class="o">+</span> <span class="mi">1</span><span class="p">):</span>
+        <span class="n">x</span> <span class="o">=</span> <span class="n">i</span> <span class="o">*</span> <span class="n">pitch</span> <span class="o">+</span> <span class="n">pitch</span> <span class="o">/</span> <span class="mi">2</span>
+        <span class="n">y</span> <span class="o">=</span> <span class="p">(</span><span class="n">n_row</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span> <span class="o">*</span> <span class="n">pitch</span> <span class="o">+</span> <span class="n">pitch</span> <span class="o">/</span> <span class="mf">2.0</span>
+        <span class="n">draw_label</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="n">i</span><span class="p">))</span></div>
+
+
+<div class="viewcode-block" id="draw_row_labels"><a class="viewcode-back" href="../../../microscope_automation.samples.html#microscope_automation.samples.draw_plate.draw_row_labels">[docs]</a><span class="k">def</span> <span class="nf">draw_row_labels</span><span class="p">(</span><span class="n">n_row</span><span class="o">=</span><span class="mi">8</span><span class="p">,</span> <span class="n">pitch</span><span class="o">=</span><span class="mi">9</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Draw plate wells based on content</span>
+
+<span class="sd">    Input:</span>
+<span class="sd">     n_row: number of rows, labeled alphabetically</span>
+
+<span class="sd">     pitch: distance between individual wells in mm</span>
+
+<span class="sd">    Output:</span>
+<span class="sd">     none</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">n_row</span><span class="p">):</span>
+        <span class="n">x</span> <span class="o">=</span> <span class="n">pitch</span> <span class="o">/</span> <span class="mf">2.0</span>
+        <span class="n">y</span> <span class="o">=</span> <span class="p">(</span><span class="n">n_row</span> <span class="o">-</span> <span class="n">i</span><span class="p">)</span> <span class="o">*</span> <span class="n">pitch</span> <span class="o">+</span> <span class="n">pitch</span> <span class="o">/</span> <span class="mf">2.0</span>
+        <span class="n">draw_label</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">string</span><span class="o">.</span><span class="n">ascii_uppercase</span><span class="p">[</span><span class="n">i</span><span class="p">])</span></div>
+
+
+<div class="viewcode-block" id="draw_legend"><a class="viewcode-back" href="../../../microscope_automation.samples.html#microscope_automation.samples.draw_plate.draw_legend">[docs]</a><span class="k">def</span> <span class="nf">draw_legend</span><span class="p">(</span><span class="n">ax</span><span class="p">,</span> <span class="n">n_row</span><span class="p">,</span> <span class="n">n_col</span><span class="p">,</span> <span class="n">pitch</span><span class="p">,</span> <span class="n">prefs</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Draw legend</span>
+
+<span class="sd">    Input:</span>
+<span class="sd">     n_row: number of rows, labeled alphabetically</span>
+
+<span class="sd">     n_col: number of columns</span>
+
+<span class="sd">     pitch: distance between individual wells in mm</span>
+
+<span class="sd">     prefs: preferences</span>
+
+<span class="sd">    Output:</span>
+<span class="sd">     none</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">legend</span> <span class="o">=</span> <span class="n">prefs</span><span class="o">.</span><span class="n">get_pref</span><span class="p">(</span><span class="s2">&quot;legend&quot;</span><span class="p">)</span>
+    <span class="n">n_legend</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">legend</span><span class="p">)</span>
+
+    <span class="c1"># x=(n_col+1)*pitch</span>
+    <span class="n">x</span> <span class="o">=</span> <span class="mi">0</span>
+    <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">n_legend</span><span class="p">):</span>
+        <span class="n">y</span> <span class="o">=</span> <span class="n">i</span>
+        <span class="k">if</span> <span class="n">legend</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="s2">&quot;title&quot;</span><span class="p">:</span>
+            <span class="n">draw_label</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">legend</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="mi">1</span><span class="p">],</span> <span class="s2">&quot;left&quot;</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">color</span> <span class="o">=</span> <span class="n">prefs</span><span class="o">.</span><span class="n">get_pref</span><span class="p">(</span><span class="n">legend</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="mi">1</span><span class="p">])[</span><span class="s2">&quot;color&quot;</span><span class="p">]</span>
+            <span class="n">ax</span><span class="o">.</span><span class="n">add_patch</span><span class="p">(</span><span class="n">draw_well</span><span class="p">([</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">],</span> <span class="mf">0.6</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="n">color</span><span class="p">))</span>
+            <span class="c1"># drawWell([x, y], diameter, color=&#39;black&#39;)</span>
+            <span class="n">text</span> <span class="o">=</span> <span class="n">prefs</span><span class="o">.</span><span class="n">get_pref</span><span class="p">(</span><span class="n">legend</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="mi">1</span><span class="p">])[</span><span class="s2">&quot;label&quot;</span><span class="p">]</span>
+            <span class="n">draw_label</span><span class="p">(</span><span class="n">x</span> <span class="o">+</span> <span class="mf">0.8</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">text</span><span class="p">,</span> <span class="s2">&quot;left&quot;</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="draw_plate"><a class="viewcode-back" href="../../../microscope_automation.samples.html#microscope_automation.samples.draw_plate.draw_plate">[docs]</a><span class="k">def</span> <span class="nf">draw_plate</span><span class="p">(</span><span class="n">n_col</span><span class="o">=</span><span class="mi">12</span><span class="p">,</span> <span class="n">n_row</span><span class="o">=</span><span class="mi">8</span><span class="p">,</span> <span class="n">pitch</span><span class="o">=</span><span class="mi">9</span><span class="p">,</span> <span class="n">diameter</span><span class="o">=</span><span class="mf">6.94</span><span class="p">,</span> <span class="n">prefs</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Draw plate and label wells based on content</span>
+
+<span class="sd">    Input:</span>
+<span class="sd">     n_col: number of columns, labeled from 1 to n_col</span>
+
+<span class="sd">     n_row: number of rows, labeled alphabetically</span>
+
+<span class="sd">     pitch: distance between individual wells in mm</span>
+
+<span class="sd">     diameter: diameter of Well in mm</span>
+
+<span class="sd">    Output:</span>
+<span class="sd">     none</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">ax1</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplot</span><span class="p">(</span><span class="mi">121</span><span class="p">)</span>
+
+    <span class="c1"># draw row and column labels</span>
+    <span class="n">draw_column_labels</span><span class="p">(</span><span class="n">n_row</span><span class="p">,</span> <span class="n">n_col</span><span class="p">,</span> <span class="n">pitch</span><span class="p">)</span>
+    <span class="n">draw_row_labels</span><span class="p">(</span><span class="n">n_row</span><span class="p">,</span> <span class="n">pitch</span><span class="p">)</span>
+
+    <span class="c1"># draw wells</span>
+    <span class="n">draw_wells</span><span class="p">(</span><span class="n">ax1</span><span class="p">,</span> <span class="n">n_col</span><span class="p">,</span> <span class="n">n_row</span><span class="p">,</span> <span class="n">pitch</span><span class="p">,</span> <span class="n">diameter</span><span class="p">,</span> <span class="n">prefs</span><span class="p">)</span>
+    <span class="n">plt</span><span class="o">.</span><span class="n">tight_layout</span><span class="p">()</span>
+    <span class="n">plt</span><span class="o">.</span><span class="n">axis</span><span class="p">(</span><span class="s2">&quot;equal&quot;</span><span class="p">)</span>
+    <span class="n">plt</span><span class="o">.</span><span class="n">axis</span><span class="p">(</span><span class="s2">&quot;off&quot;</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="ow">not</span> <span class="p">(</span><span class="n">prefs</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">):</span>
+        <span class="c1"># draw legend</span>
+        <span class="n">ax2</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplot</span><span class="p">(</span><span class="mi">122</span><span class="p">)</span>
+
+        <span class="n">draw_legend</span><span class="p">(</span><span class="n">ax2</span><span class="p">,</span> <span class="n">n_row</span><span class="p">,</span> <span class="n">n_col</span><span class="p">,</span> <span class="n">pitch</span><span class="p">,</span> <span class="n">prefs</span><span class="p">)</span>
+        <span class="n">legends</span> <span class="o">=</span> <span class="n">prefs</span><span class="o">.</span><span class="n">get_pref</span><span class="p">(</span><span class="s2">&quot;legend&quot;</span><span class="p">)</span>
+        <span class="n">nLengends</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">legends</span><span class="p">)</span>
+        <span class="n">plt</span><span class="o">.</span><span class="n">axis</span><span class="p">([</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="mi">5</span><span class="p">,</span> <span class="n">nLengends</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">])</span>
+        <span class="c1"># create plot</span>
+        <span class="n">plt</span><span class="o">.</span><span class="n">axis</span><span class="p">(</span><span class="s2">&quot;off&quot;</span><span class="p">)</span>
+
+    <span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span></div>
+
+
+<span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s2">&quot;__main__&quot;</span><span class="p">:</span>
+    <span class="c1"># location of preferences file with plate layout</span>
+    <span class="n">prefs_file</span> <span class="o">=</span> <span class="s2">&quot;/Users/winfriedw/Documents/Eclipse/Mars_011816/microscopeAutomation/src/PlateLayout_short.yml&quot;</span>  <span class="c1"># noqa</span>
+
+    <span class="c1"># draw plate without preferences</span>
+    <span class="n">draw_plate</span><span class="p">(</span><span class="n">n_col</span><span class="o">=</span><span class="mi">4</span><span class="p">,</span> <span class="n">n_row</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span> <span class="n">pitch</span><span class="o">=</span><span class="mi">26</span><span class="p">,</span> <span class="n">diameter</span><span class="o">=</span><span class="mf">22.05</span><span class="p">)</span>
+
+    <span class="c1"># draw plate with preferences</span>
+    <span class="n">prefs</span> <span class="o">=</span> <span class="n">Preferences</span><span class="p">(</span><span class="n">prefs_file</span><span class="p">)</span>
+    <span class="n">n_row</span> <span class="o">=</span> <span class="n">prefs</span><span class="o">.</span><span class="n">get_pref</span><span class="p">(</span><span class="s2">&quot;Rows&quot;</span><span class="p">)</span>
+    <span class="n">n_col</span> <span class="o">=</span> <span class="n">prefs</span><span class="o">.</span><span class="n">get_pref</span><span class="p">(</span><span class="s2">&quot;Columns&quot;</span><span class="p">)</span>
+    <span class="n">pitch</span> <span class="o">=</span> <span class="n">prefs</span><span class="o">.</span><span class="n">get_pref</span><span class="p">(</span><span class="s2">&quot;Pitch&quot;</span><span class="p">)</span>
+    <span class="n">diameter</span> <span class="o">=</span> <span class="n">prefs</span><span class="o">.</span><span class="n">get_pref</span><span class="p">(</span><span class="s2">&quot;Diameter&quot;</span><span class="p">)</span>
+    <span class="n">draw_plate</span><span class="p">(</span><span class="n">n_col</span><span class="p">,</span> <span class="n">n_row</span><span class="p">,</span> <span class="n">pitch</span><span class="p">,</span> <span class="n">diameter</span><span class="p">,</span> <span class="n">prefs</span><span class="p">)</span>
+</pre></div>
+
+          </div>
+          
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<h1 class="logo"><a href="../../../index.html">Microscope Automation</a></h1>
+
+
+
+
+
+
+
+
+<h3>Navigation</h3>
+<p class="caption"><span class="caption-text">Overview</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../index.html">README</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../installation.html">Installation</a></li>
+</ul>
+<p class="caption"><span class="caption-text">Hardware</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../hardware_components.html">hardware_components</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../hardware_control.html">hardware_control</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../RS232.html">RS232</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../setup_microscope.html">setup_microscope</a></li>
+</ul>
+<p class="caption"><span class="caption-text">Samples</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../correct_background.html">correct_background</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../draw_plate.html">draw_plate</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../find_well_center.html">find_well_center</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../find_cells.html">find_cells</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../interactive_location_picker_pyqtgraph.html">interactive_location_picker_pyqtgraph</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../positions_list.html">positions_list</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../samples.html">samples</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../setup_samples.html">setup_samples</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../tile_images.html">tile_images</a></li>
+</ul>
+<p class="caption"><span class="caption-text">Zeiss Microscopes</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../connect_zen_blue.html">connect_zen_blue</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../connect_zen_black.html">connect_zen_black</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../hardware_control_zeiss.html">hardware_control_zeiss</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../write_zen_tiles_experiment.html">write_zen_tiles_experiment</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../zen_experiment_info.html">zen_experiment_info</a></li>
+</ul>
+<p class="caption"><span class="caption-text">3i Microscopes</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../hardware_control_3i.html">hardware_control_3i</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../connect_slidebook.html">connect_slidebook</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../slidebook_experiment_info.html">slidebook_experiment_info</a></li>
+</ul>
+<p class="caption"><span class="caption-text">General Methods</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../automation_exceptions.html">automation_exceptions</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../automation_messages_form_layout.html">automation_messages_form_layout</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../error_handling.html">error_handling</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../get_path.html">get_path</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../image_AICS.html">image_AICS</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../load_image_czi.html">load_image_czi</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../meta_data_file.html">meta_data_file</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../preferences.html">preferences</a></li>
+</ul>
+<p class="caption"><span class="caption-text">Reference Docs</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../CONTRIBUTING.html">Allen Institute Contribution Agreement</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../LICENSE.html">LICENSE</a></li>
+</ul>
+
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="../../../index.html">Documentation overview</a><ul>
+  <li><a href="../../index.html">Module code</a><ul>
+  <li><a href="../../microscope_automation.html">microscope_automation</a><ul>
+  </ul></li>
+  </ul></li>
+  </ul></li>
+</ul>
+</div>
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../../../search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" />
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script>$('#searchbox').show(0);</script>
+
+
+
+
+
+
+
+
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2020, Allen Institute.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 3.3.1</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.12</a>
+      
+    </div>
+
+    
+
+    
+  </body>
+</html>

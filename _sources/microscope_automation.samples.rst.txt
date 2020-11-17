@@ -1,0 +1,85 @@
+microscope\_automation.samples package
+======================================
+
+Submodules
+----------
+
+microscope\_automation.samples.correct\_background module
+---------------------------------------------------------
+
+.. automodule:: microscope_automation.samples.correct_background
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+microscope\_automation.samples.draw\_plate module
+-------------------------------------------------
+
+.. automodule:: microscope_automation.samples.draw_plate
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+microscope\_automation.samples.find\_cells module
+-------------------------------------------------
+
+.. automodule:: microscope_automation.samples.find_cells
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+microscope\_automation.samples.find\_well\_center module
+--------------------------------------------------------
+
+.. automodule:: microscope_automation.samples.find_well_center
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+microscope\_automation.samples.interactive\_location\_picker\_pyqtgraph module
+------------------------------------------------------------------------------
+
+.. automodule:: microscope_automation.samples.interactive_location_picker_pyqtgraph
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+microscope\_automation.samples.positions\_list module
+-----------------------------------------------------
+
+.. automodule:: microscope_automation.samples.positions_list
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+microscope\_automation.samples.samples module
+---------------------------------------------
+
+.. automodule:: microscope_automation.samples.samples
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+microscope\_automation.samples.setup\_samples module
+----------------------------------------------------
+
+.. automodule:: microscope_automation.samples.setup_samples
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+microscope\_automation.samples.tile\_images module
+--------------------------------------------------
+
+.. automodule:: microscope_automation.samples.tile_images
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+Module contents
+---------------
+
+.. automodule:: microscope_automation.samples
+   :members:
+   :undoc-members:
+   :show-inheritance:

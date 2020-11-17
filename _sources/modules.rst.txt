@@ -1,0 +1,7 @@
+microscope_automation
+=====================
+
+.. toctree::
+   :maxdepth: 4
+
+   microscope_automation

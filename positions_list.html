@@ -1,0 +1,350 @@
+
+<!DOCTYPE html>
+
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>positions_list &#8212; Microscope Automation 0.0 documentation</title>
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    <link rel="stylesheet" href="_static/alabaster.css" type="text/css" />
+    <script id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+    <script src="_static/jquery.js"></script>
+    <script src="_static/underscore.js"></script>
+    <script src="_static/doctools.js"></script>
+    <script src="_static/language_data.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="samples" href="samples.html" />
+    <link rel="prev" title="interactive_location_picker_pyqtgraph" href="interactive_location_picker_pyqtgraph.html" />
+   
+  <link rel="stylesheet" href="_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head><body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          
+
+          <div class="body" role="main">
+            
+  <div class="contents topic" id="contents">
+<p class="topic-title">Contents</p>
+<ul class="simple">
+<li><p><a class="reference internal" href="#positions-list" id="id2">positions_list</a></p>
+<ul>
+<li><p><a class="reference internal" href="#class-createtilepositions-object" id="id3">class CreateTilePositions(object)</a></p></li>
+</ul>
+</li>
+</ul>
+</div>
+<div class="section" id="positions-list">
+<span id="id1"></span><h1><a class="toc-backref" href="#id2">positions_list</a><a class="headerlink" href="#positions-list" title="Permalink to this headline">¶</a></h1>
+<p>This module contains just one class, which is used in the <a class="reference internal" href="samples.html#samples"><span class="std std-ref">samples</span></a> module
+to create a list of positions for tiling images.</p>
+<div class="section" id="class-createtilepositions-object">
+<h2><a class="toc-backref" href="#id3">class CreateTilePositions(object)</a><a class="headerlink" href="#class-createtilepositions-object" title="Permalink to this headline">¶</a></h2>
+<dl class="py class">
+<dt id="microscope_automation.samples.positions_list.CreateTilePositions">
+<em class="property">class </em><code class="sig-prename descclassname">microscope_automation.samples.positions_list.</code><code class="sig-name descname">CreateTilePositions</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">tile_type</span><span class="o">=</span><span class="default_value">'none'</span></em>, <em class="sig-param"><span class="n">tile_number</span><span class="o">=</span><span class="default_value">(2, 2)</span></em>, <em class="sig-param"><span class="n">tile_size</span><span class="o">=</span><span class="default_value">(1, 1)</span></em>, <em class="sig-param"><span class="n">degrees</span><span class="o">=</span><span class="default_value">0</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/microscope_automation/samples/positions_list.html#CreateTilePositions"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#microscope_automation.samples.positions_list.CreateTilePositions" title="Permalink to this definition">¶</a></dt>
+<dd><p>Create position lists for tiling and multi-position imaging.</p>
+<dl class="py method">
+<dt id="microscope_automation.samples.positions_list.CreateTilePositions.create_ellipse">
+<code class="sig-name descname">create_ellipse</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">nx</span></em>, <em class="sig-param"><span class="n">ny</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/microscope_automation/samples/positions_list.html#CreateTilePositions.create_ellipse"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#microscope_automation.samples.positions_list.CreateTilePositions.create_ellipse" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return positions for ellipse with step size of one.</p>
+<dl class="simple">
+<dt>Input:</dt><dd><p>nx, ny: number of tiles in x and y</p>
+</dd>
+<dt>Output:</dt><dd><p>ellipse_list: list for rectangle positions, centered around zero
+and with step size of one</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="microscope_automation.samples.positions_list.CreateTilePositions.create_rectangle">
+<code class="sig-name descname">create_rectangle</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">nx</span></em>, <em class="sig-param"><span class="n">ny</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/microscope_automation/samples/positions_list.html#CreateTilePositions.create_rectangle"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#microscope_automation.samples.positions_list.CreateTilePositions.create_rectangle" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return positions for rectangle with step size of one.</p>
+<dl class="simple">
+<dt>Input:</dt><dd><p>nx, ny: number of tiles in x and y</p>
+</dd>
+<dt>Output:</dt><dd><p>rect_list: list for rectangle positions, centered around zero
+and with step size of one</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="microscope_automation.samples.positions_list.CreateTilePositions.get_field_rotation">
+<code class="sig-name descname">get_field_rotation</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/microscope_automation/samples/positions_list.html#CreateTilePositions.get_field_rotation"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#microscope_automation.samples.positions_list.CreateTilePositions.get_field_rotation" title="Permalink to this definition">¶</a></dt>
+<dd><p>Set size of tiles in x and y.</p>
+<dl class="simple">
+<dt>Input:</dt><dd><p>none</p>
+</dd>
+<dt>Output:</dt><dd><p>degrees: Angle the tile field is rotated counterclockwise in degrees</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="microscope_automation.samples.positions_list.CreateTilePositions.get_pos_list">
+<code class="sig-name descname">get_pos_list</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">center</span><span class="o">=</span><span class="default_value">(0, 0, 0)</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/microscope_automation/samples/positions_list.html#CreateTilePositions.get_pos_list"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#microscope_automation.samples.positions_list.CreateTilePositions.get_pos_list" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return list with positions.</p>
+<dl class="simple">
+<dt>Input:</dt><dd><p>center: Center position for tiles as tuple (x, y, z)</p>
+</dd>
+<dt>Output:</dt><dd><p>pos_list: list with tuples (x,y) for tile centers.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="microscope_automation.samples.positions_list.CreateTilePositions.get_tile_number">
+<code class="sig-name descname">get_tile_number</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/microscope_automation/samples/positions_list.html#CreateTilePositions.get_tile_number"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#microscope_automation.samples.positions_list.CreateTilePositions.get_tile_number" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return number of tiles in x and y.</p>
+<dl class="simple">
+<dt>Input:</dt><dd><p>none</p>
+</dd>
+<dt>Output:</dt><dd><p>tile_number: tuple with number of tiles in x and y direction</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="microscope_automation.samples.positions_list.CreateTilePositions.get_tile_size">
+<code class="sig-name descname">get_tile_size</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/microscope_automation/samples/positions_list.html#CreateTilePositions.get_tile_size"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#microscope_automation.samples.positions_list.CreateTilePositions.get_tile_size" title="Permalink to this definition">¶</a></dt>
+<dd><p>Retrieve size of tiles in x and y.</p>
+<dl class="simple">
+<dt>Input:</dt><dd><p>none</p>
+</dd>
+<dt>Output:</dt><dd><p>tile_size: tuple with size of tiles in x and y direction</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="microscope_automation.samples.positions_list.CreateTilePositions.get_tile_type">
+<code class="sig-name descname">get_tile_type</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/microscope_automation/samples/positions_list.html#CreateTilePositions.get_tile_type"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#microscope_automation.samples.positions_list.CreateTilePositions.get_tile_type" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return type of tiling.</p>
+<dl>
+<dt>Input:</dt><dd><p>none</p>
+</dd>
+<dt>Output:</dt><dd><dl>
+<dt>tile_type: string to describe type of tiling. Allowed values:</dt><dd><p>‘none’: do not tile</p>
+<p>‘rectangle’: tiles are arranged to form a rectangle</p>
+<p>‘ellipse’: tiles are arranged to form an ellipse</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="microscope_automation.samples.positions_list.CreateTilePositions.rotate_pos_list">
+<code class="sig-name descname">rotate_pos_list</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">pos_list</span></em>, <em class="sig-param"><span class="n">degrees</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/microscope_automation/samples/positions_list.html#CreateTilePositions.rotate_pos_list"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#microscope_automation.samples.positions_list.CreateTilePositions.rotate_pos_list" title="Permalink to this definition">¶</a></dt>
+<dd><p>Rotate all coordinates in pos_list counterclockwise
+by angle degree around center = (0, 0, 0).</p>
+<dl>
+<dt>Input:</dt><dd><p>pos_list: list with (x, y, z) coordinates</p>
+<p>degrees: amount of counterclock rotation around origin in degree</p>
+</dd>
+<dt>Output:</dt><dd><p>rot_list: list with (x, y, z) coordinates after rotation.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="microscope_automation.samples.positions_list.CreateTilePositions.set_field_rotation">
+<code class="sig-name descname">set_field_rotation</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">degrees</span><span class="o">=</span><span class="default_value">0</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/microscope_automation/samples/positions_list.html#CreateTilePositions.set_field_rotation"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#microscope_automation.samples.positions_list.CreateTilePositions.set_field_rotation" title="Permalink to this definition">¶</a></dt>
+<dd><p>Set size of tiles in x and y.</p>
+<dl class="simple">
+<dt>Input:</dt><dd><p>degrees: Angle the tile field is rotated counterclockwise in degrees</p>
+</dd>
+<dt>Output:</dt><dd><p>none</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="microscope_automation.samples.positions_list.CreateTilePositions.set_tile_number">
+<code class="sig-name descname">set_tile_number</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">tile_number</span><span class="o">=</span><span class="default_value">(2, 2)</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/microscope_automation/samples/positions_list.html#CreateTilePositions.set_tile_number"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#microscope_automation.samples.positions_list.CreateTilePositions.set_tile_number" title="Permalink to this definition">¶</a></dt>
+<dd><p>Set number of tiles in x and y.</p>
+<dl class="simple">
+<dt>Input:</dt><dd><p>tile_number: tuple with number of tiles in x and y direction</p>
+</dd>
+<dt>Output:</dt><dd><p>none</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="microscope_automation.samples.positions_list.CreateTilePositions.set_tile_size">
+<code class="sig-name descname">set_tile_size</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">tile_size</span><span class="o">=</span><span class="default_value">(1, 1)</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/microscope_automation/samples/positions_list.html#CreateTilePositions.set_tile_size"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#microscope_automation.samples.positions_list.CreateTilePositions.set_tile_size" title="Permalink to this definition">¶</a></dt>
+<dd><p>Set size of tiles in x and y.</p>
+<dl class="simple">
+<dt>Input:</dt><dd><p>tile_size: tuple with size of tiles in x and y direction</p>
+</dd>
+<dt>Output:</dt><dd><p>none</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="microscope_automation.samples.positions_list.CreateTilePositions.set_tile_type">
+<code class="sig-name descname">set_tile_type</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">tile_type</span><span class="o">=</span><span class="default_value">'none'</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/microscope_automation/samples/positions_list.html#CreateTilePositions.set_tile_type"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#microscope_automation.samples.positions_list.CreateTilePositions.set_tile_type" title="Permalink to this definition">¶</a></dt>
+<dd><p>Set type of tiling.</p>
+<dl>
+<dt>Input:</dt><dd><dl>
+<dt>tile_type: string to describe type of tiling. Allowed values:</dt><dd><p>‘none’: do not tile</p>
+<p>‘rectangle’: tiles are arranged to form a rectangle</p>
+<p>‘ellipse’: tiles are arranged to form an ellipse</p>
+</dd>
+</dl>
+</dd>
+<dt>Output:</dt><dd><p>none</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="microscope_automation.samples.positions_list.CreateTilePositions.show">
+<code class="sig-name descname">show</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">center</span><span class="o">=</span><span class="default_value">(0, 0, 0)</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/microscope_automation/samples/positions_list.html#CreateTilePositions.show"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#microscope_automation.samples.positions_list.CreateTilePositions.show" title="Permalink to this definition">¶</a></dt>
+<dd><p>Display positions.</p>
+<dl class="simple">
+<dt>Input:</dt><dd><p>center: Center position for tiles</p>
+</dd>
+<dt>Output:</dt><dd><p>none</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+</div>
+
+
+          </div>
+          
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<h1 class="logo"><a href="index.html">Microscope Automation</a></h1>
+
+
+
+
+
+
+
+
+<h3>Navigation</h3>
+<p class="caption"><span class="caption-text">Overview</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="index.html">README</a></li>
+<li class="toctree-l1"><a class="reference internal" href="installation.html">Installation</a></li>
+</ul>
+<p class="caption"><span class="caption-text">Hardware</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="hardware_components.html">hardware_components</a></li>
+<li class="toctree-l1"><a class="reference internal" href="hardware_control.html">hardware_control</a></li>
+<li class="toctree-l1"><a class="reference internal" href="RS232.html">RS232</a></li>
+<li class="toctree-l1"><a class="reference internal" href="setup_microscope.html">setup_microscope</a></li>
+</ul>
+<p class="caption"><span class="caption-text">Samples</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="correct_background.html">correct_background</a></li>
+<li class="toctree-l1"><a class="reference internal" href="draw_plate.html">draw_plate</a></li>
+<li class="toctree-l1"><a class="reference internal" href="find_well_center.html">find_well_center</a></li>
+<li class="toctree-l1"><a class="reference internal" href="find_cells.html">find_cells</a></li>
+<li class="toctree-l1"><a class="reference internal" href="interactive_location_picker_pyqtgraph.html">interactive_location_picker_pyqtgraph</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">positions_list</a></li>
+<li class="toctree-l1"><a class="reference internal" href="samples.html">samples</a></li>
+<li class="toctree-l1"><a class="reference internal" href="setup_samples.html">setup_samples</a></li>
+<li class="toctree-l1"><a class="reference internal" href="tile_images.html">tile_images</a></li>
+</ul>
+<p class="caption"><span class="caption-text">Zeiss Microscopes</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="connect_zen_blue.html">connect_zen_blue</a></li>
+<li class="toctree-l1"><a class="reference internal" href="connect_zen_black.html">connect_zen_black</a></li>
+<li class="toctree-l1"><a class="reference internal" href="hardware_control_zeiss.html">hardware_control_zeiss</a></li>
+<li class="toctree-l1"><a class="reference internal" href="write_zen_tiles_experiment.html">write_zen_tiles_experiment</a></li>
+<li class="toctree-l1"><a class="reference internal" href="zen_experiment_info.html">zen_experiment_info</a></li>
+</ul>
+<p class="caption"><span class="caption-text">3i Microscopes</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="hardware_control_3i.html">hardware_control_3i</a></li>
+<li class="toctree-l1"><a class="reference internal" href="connect_slidebook.html">connect_slidebook</a></li>
+<li class="toctree-l1"><a class="reference internal" href="slidebook_experiment_info.html">slidebook_experiment_info</a></li>
+</ul>
+<p class="caption"><span class="caption-text">General Methods</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="automation_exceptions.html">automation_exceptions</a></li>
+<li class="toctree-l1"><a class="reference internal" href="automation_messages_form_layout.html">automation_messages_form_layout</a></li>
+<li class="toctree-l1"><a class="reference internal" href="error_handling.html">error_handling</a></li>
+<li class="toctree-l1"><a class="reference internal" href="get_path.html">get_path</a></li>
+<li class="toctree-l1"><a class="reference internal" href="image_AICS.html">image_AICS</a></li>
+<li class="toctree-l1"><a class="reference internal" href="load_image_czi.html">load_image_czi</a></li>
+<li class="toctree-l1"><a class="reference internal" href="meta_data_file.html">meta_data_file</a></li>
+<li class="toctree-l1"><a class="reference internal" href="preferences.html">preferences</a></li>
+</ul>
+<p class="caption"><span class="caption-text">Reference Docs</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="CONTRIBUTING.html">Allen Institute Contribution Agreement</a></li>
+<li class="toctree-l1"><a class="reference internal" href="LICENSE.html">LICENSE</a></li>
+</ul>
+
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="index.html">Documentation overview</a><ul>
+      <li>Previous: <a href="interactive_location_picker_pyqtgraph.html" title="previous chapter">interactive_location_picker_pyqtgraph</a></li>
+      <li>Next: <a href="samples.html" title="next chapter">samples</a></li>
+  </ul></li>
+</ul>
+</div>
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" />
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script>$('#searchbox').show(0);</script>
+
+
+
+
+
+
+
+
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2020, Allen Institute.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 3.3.1</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.12</a>
+      
+      |
+      <a href="_sources/positions_list.rst.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+
+    
+  </body>
+</html>

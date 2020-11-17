@@ -1,0 +1,389 @@
+
+<!DOCTYPE html>
+
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>find_cells &#8212; Microscope Automation 0.0 documentation</title>
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    <link rel="stylesheet" href="_static/alabaster.css" type="text/css" />
+    <script id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+    <script src="_static/jquery.js"></script>
+    <script src="_static/underscore.js"></script>
+    <script src="_static/doctools.js"></script>
+    <script src="_static/language_data.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="interactive_location_picker_pyqtgraph" href="interactive_location_picker_pyqtgraph.html" />
+    <link rel="prev" title="find_well_center" href="find_well_center.html" />
+   
+  <link rel="stylesheet" href="_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head><body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          
+
+          <div class="body" role="main">
+            
+  <div class="contents topic" id="contents">
+<p class="topic-title">Contents</p>
+<ul class="simple">
+<li><p><a class="reference internal" href="#find-cells" id="id2">find_cells</a></p>
+<ul>
+<li><p><a class="reference internal" href="#class-cellfinder" id="id3">class CellFinder</a></p></li>
+<li><p><a class="reference internal" href="#class-calibrationviewer" id="id4">class CalibrationViewer</a></p></li>
+</ul>
+</li>
+</ul>
+</div>
+<div class="section" id="find-cells">
+<span id="id1"></span><h1><a class="toc-backref" href="#id2">find_cells</a><a class="headerlink" href="#find-cells" title="Permalink to this headline">¶</a></h1>
+<p>This module finds cells in an image using two classes and the following helper functions:</p>
+<dl class="py function">
+<dt id="microscope_automation.samples.find_cells.segment">
+<code class="sig-prename descclassname">microscope_automation.samples.find_cells.</code><code class="sig-name descname">segment</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">image</span></em>, <em class="sig-param"><span class="n">img_dir</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/microscope_automation/samples/find_cells.html#segment"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#microscope_automation.samples.find_cells.segment" title="Permalink to this definition">¶</a></dt>
+<dd><p>FOR TESTING PURPOSES ONLY</p>
+<dl>
+<dt>Input:</dt><dd><p>image:</p>
+<p>img_dir:</p>
+</dd>
+<dt>Output:</dt><dd><p>none</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt id="microscope_automation.samples.find_cells.segment_dir">
+<code class="sig-prename descclassname">microscope_automation.samples.find_cells.</code><code class="sig-name descname">segment_dir</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">directory</span></em>, <em class="sig-param"><span class="n">multi</span><span class="o">=</span><span class="default_value">True</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/microscope_automation/samples/find_cells.html#segment_dir"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#microscope_automation.samples.find_cells.segment_dir" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt id="microscope_automation.samples.find_cells.display_and_save">
+<code class="sig-prename descclassname">microscope_automation.samples.find_cells.</code><code class="sig-name descname">display_and_save</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">image</span></em>, <em class="sig-param"><span class="n">name</span></em>, <em class="sig-param"><span class="n">location</span><span class="o">=</span><span class="default_value">'/home/mattb/git/microscopeautomation/data/test_data_matthew/segmentationtest/'</span></em>, <em class="sig-param"><span class="n">display</span><span class="o">=</span><span class="default_value">False</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/microscope_automation/samples/find_cells.html#display_and_save"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#microscope_automation.samples.find_cells.display_and_save" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<div class="section" id="class-cellfinder">
+<h2><a class="toc-backref" href="#id3">class CellFinder</a><a class="headerlink" href="#class-cellfinder" title="Permalink to this headline">¶</a></h2>
+<dl class="py class">
+<dt id="microscope_automation.samples.find_cells.CellFinder">
+<em class="property">class </em><code class="sig-prename descclassname">microscope_automation.samples.find_cells.</code><code class="sig-name descname">CellFinder</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">image</span></em>, <em class="sig-param"><span class="n">prefs</span></em>, <em class="sig-param"><span class="n">parent_colony_object</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/microscope_automation/samples/find_cells.html#CellFinder"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#microscope_automation.samples.find_cells.CellFinder" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="py method">
+<dt id="microscope_automation.samples.find_cells.CellFinder.adjust_image">
+<code class="sig-name descname">adjust_image</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/microscope_automation/samples/find_cells.html#CellFinder.adjust_image"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#microscope_automation.samples.find_cells.CellFinder.adjust_image" title="Permalink to this definition">¶</a></dt>
+<dd><p>Adjust contrast, gamma, etc.
+Will have additional parameters for adjustment preferences.</p>
+<dl class="simple">
+<dt>Input:</dt><dd><p>none</p>
+</dd>
+<dt>Output:</dt><dd><p>seg: 2D numpy array of image data</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="microscope_automation.samples.find_cells.CellFinder.choose_imaging_location">
+<code class="sig-name descname">choose_imaging_location</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/microscope_automation/samples/find_cells.html#CellFinder.choose_imaging_location"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#microscope_automation.samples.find_cells.CellFinder.choose_imaging_location" title="Permalink to this definition">¶</a></dt>
+<dd><p>Choose a location (or locations) to image. General outline:</p>
+<ul class="simple">
+<li><p>if looking for smooth locations, use twofold distance map algorithm</p></li>
+<li><p>if looking for rough locations (TBD)</p></li>
+<li><p>convert image locations to stage coordinates</p></li>
+</ul>
+<dl class="simple">
+<dt>Input:</dt><dd><p>none</p>
+</dd>
+<dt>Output:</dt><dd><p>none</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="microscope_automation.samples.find_cells.CellFinder.export_cells">
+<code class="sig-name descname">export_cells</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/microscope_automation/samples/find_cells.html#CellFinder.export_cells"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#microscope_automation.samples.find_cells.CellFinder.export_cells" title="Permalink to this definition">¶</a></dt>
+<dd><p>Convert the cell list into Cell objects.
+Add operation metadata to original image</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="microscope_automation.samples.find_cells.CellFinder.filter_objects">
+<code class="sig-name descname">filter_objects</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/microscope_automation/samples/find_cells.html#CellFinder.filter_objects"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#microscope_automation.samples.find_cells.CellFinder.filter_objects" title="Permalink to this definition">¶</a></dt>
+<dd><p>Filter objects in image to identify best colonies.</p>
+<dl class="simple">
+<dt>Input:</dt><dd><p>none</p>
+</dd>
+<dt>Output:</dt><dd><p>seg: 2D numpy array of image data</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="microscope_automation.samples.find_cells.CellFinder.final_edge_detection">
+<code class="sig-name descname">final_edge_detection</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/microscope_automation/samples/find_cells.html#CellFinder.final_edge_detection"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#microscope_automation.samples.find_cells.CellFinder.final_edge_detection" title="Permalink to this definition">¶</a></dt>
+<dd><p>Find improved edges.</p>
+<dl class="simple">
+<dt>Input:</dt><dd><p>none</p>
+</dd>
+<dt>Output:</dt><dd><p>seg: 2D numpy array of image data</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="microscope_automation.samples.find_cells.CellFinder.find_cells">
+<code class="sig-name descname">find_cells</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/microscope_automation/samples/find_cells.html#CellFinder.find_cells"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#microscope_automation.samples.find_cells.CellFinder.find_cells" title="Permalink to this definition">¶</a></dt>
+<dd><p>Find cells in a given image. General outline:</p>
+<ul class="simple">
+<li><p>segment colony</p></li>
+<li><p>choose location to image</p></li>
+<li><p>return cell information</p></li>
+</ul>
+<dl class="simple">
+<dt>Input:</dt><dd><p>none</p>
+</dd>
+<dt>Output:</dt><dd><p>cell_dict: dictionary of the form {‘name’: cell_object}</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="microscope_automation.samples.find_cells.CellFinder.get_original_data">
+<code class="sig-name descname">get_original_data</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/microscope_automation/samples/find_cells.html#CellFinder.get_original_data"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#microscope_automation.samples.find_cells.CellFinder.get_original_data" title="Permalink to this definition">¶</a></dt>
+<dd><p>Retrieve data from original image. Currently ImageAICS type.
+Will need to be converted to float and normalized between 0 and 1</p>
+<dl class="simple">
+<dt>Input:</dt><dd><p>image: ImageAICS image</p>
+</dd>
+<dt>Output:</dt><dd><p>seg: 2D numpy array of image data</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="microscope_automation.samples.find_cells.CellFinder.improve_initial_edges">
+<code class="sig-name descname">improve_initial_edges</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/microscope_automation/samples/find_cells.html#CellFinder.improve_initial_edges"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#microscope_automation.samples.find_cells.CellFinder.improve_initial_edges" title="Permalink to this definition">¶</a></dt>
+<dd><p>Improve initial edge detection with dilation, hole filling, etc.</p>
+<dl class="simple">
+<dt>Input:</dt><dd><p>none</p>
+</dd>
+<dt>Output:</dt><dd><p>seg: 2D numpy array of image data</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="microscope_automation.samples.find_cells.CellFinder.initial_edge_detection">
+<code class="sig-name descname">initial_edge_detection</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/microscope_automation/samples/find_cells.html#CellFinder.initial_edge_detection"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#microscope_automation.samples.find_cells.CellFinder.initial_edge_detection" title="Permalink to this definition">¶</a></dt>
+<dd><p>Initial edge detection.</p>
+<dl class="simple">
+<dt>Input:</dt><dd><p>none</p>
+</dd>
+<dt>Output:</dt><dd><p>seg: 2D numpy array of image data</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="microscope_automation.samples.find_cells.CellFinder.is_outlier">
+<em class="property">static </em><code class="sig-name descname">is_outlier</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">points</span></em>, <em class="sig-param"><span class="n">thresh</span><span class="o">=</span><span class="default_value">3.5</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/microscope_automation/samples/find_cells.html#CellFinder.is_outlier"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#microscope_automation.samples.find_cells.CellFinder.is_outlier" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns a boolean array with True if points are outliers and False
+otherwise.</p>
+<dl>
+<dt>Input:</dt><dd><p>points: An num_observations by num_dimensions array of observations</p>
+<p>thresh: The modified z-score to use as a threshold. Observations with
+a modified z-score (based on the median absolute deviation) greater
+than this value will be classified as outliers.</p>
+</dd>
+<dt>Output:</dt><dd><p>mask: A num_observations-length boolean array.</p>
+</dd>
+<dt>References:</dt><dd><p>Boris Iglewicz and David Hoaglin (1993), “Volume 16: How to Detect and
+Handle Outliers”, The ASQC Basic References in Quality Control:
+Statistical Techniques, Edward F. Mykytka, Ph.D., Editor.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="microscope_automation.samples.find_cells.CellFinder.segment_image">
+<code class="sig-name descname">segment_image</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/microscope_automation/samples/find_cells.html#CellFinder.segment_image"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#microscope_automation.samples.find_cells.CellFinder.segment_image" title="Permalink to this definition">¶</a></dt>
+<dd><p>Segment a given image. General outline:</p>
+<ul class="simple">
+<li><p>get original data</p></li>
+<li><p>adjust image for edge detection</p></li>
+<li><p>initial edge detection</p></li>
+<li><p>dilation and hole filling</p></li>
+<li><p>filtering</p></li>
+<li><p>final edge detection</p></li>
+</ul>
+<dl class="simple">
+<dt>Input:</dt><dd><p>none</p>
+</dd>
+<dt>Output:</dt><dd><p>seg: segmented image</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="microscope_automation.samples.find_cells.CellFinder.twofold_distance_map">
+<code class="sig-name descname">twofold_distance_map</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/microscope_automation/samples/find_cells.html#CellFinder.twofold_distance_map"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#microscope_automation.samples.find_cells.CellFinder.twofold_distance_map" title="Permalink to this definition">¶</a></dt>
+<dd><p>Compute the entire distance map for a segmented colony</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="microscope_automation.samples.find_cells.CellFinder.validate">
+<code class="sig-name descname">validate</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">form_title</span></em>, <em class="sig-param"><span class="n">form_comment</span></em>, <em class="sig-param"><span class="n">pref_data</span></em>, <em class="sig-param"><span class="n">default</span><span class="o">=</span><span class="default_value">False</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/microscope_automation/samples/find_cells.html#CellFinder.validate"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#microscope_automation.samples.find_cells.CellFinder.validate" title="Permalink to this definition">¶</a></dt>
+<dd><p>Function to calibrate steps of the cell finding process</p>
+<dl>
+<dt>Input:</dt><dd><p>form_title: title of form to be displayed</p>
+<p>form_comment: comment for form to be displayed</p>
+<p>pref_data: (list) contains form fields, preference names, preference values,
+and (in that order)</p>
+<p>default: checked or unchecked as default for continuing. (Default = False)</p>
+</dd>
+<dt>Output:</dt><dd><p>boolean for whether to continue recursion</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="class-calibrationviewer">
+<h2><a class="toc-backref" href="#id4">class CalibrationViewer</a><a class="headerlink" href="#class-calibrationviewer" title="Permalink to this headline">¶</a></h2>
+<dl class="py class">
+<dt id="microscope_automation.samples.find_cells.CalibrationViewer">
+<em class="property">class </em><code class="sig-prename descclassname">microscope_automation.samples.find_cells.</code><code class="sig-name descname">CalibrationViewer</code><a class="reference internal" href="_modules/microscope_automation/samples/find_cells.html#CalibrationViewer"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#microscope_automation.samples.find_cells.CalibrationViewer" title="Permalink to this definition">¶</a></dt>
+<dd><p>This class is intended to be a bookkeeper for image viewing threads.
+Scipy’s imshow doesn’t play nice with</p>
+</dd></dl>
+
+</div>
+</div>
+
+
+          </div>
+          
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<h1 class="logo"><a href="index.html">Microscope Automation</a></h1>
+
+
+
+
+
+
+
+
+<h3>Navigation</h3>
+<p class="caption"><span class="caption-text">Overview</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="index.html">README</a></li>
+<li class="toctree-l1"><a class="reference internal" href="installation.html">Installation</a></li>
+</ul>
+<p class="caption"><span class="caption-text">Hardware</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="hardware_components.html">hardware_components</a></li>
+<li class="toctree-l1"><a class="reference internal" href="hardware_control.html">hardware_control</a></li>
+<li class="toctree-l1"><a class="reference internal" href="RS232.html">RS232</a></li>
+<li class="toctree-l1"><a class="reference internal" href="setup_microscope.html">setup_microscope</a></li>
+</ul>
+<p class="caption"><span class="caption-text">Samples</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="correct_background.html">correct_background</a></li>
+<li class="toctree-l1"><a class="reference internal" href="draw_plate.html">draw_plate</a></li>
+<li class="toctree-l1"><a class="reference internal" href="find_well_center.html">find_well_center</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">find_cells</a></li>
+<li class="toctree-l1"><a class="reference internal" href="interactive_location_picker_pyqtgraph.html">interactive_location_picker_pyqtgraph</a></li>
+<li class="toctree-l1"><a class="reference internal" href="positions_list.html">positions_list</a></li>
+<li class="toctree-l1"><a class="reference internal" href="samples.html">samples</a></li>
+<li class="toctree-l1"><a class="reference internal" href="setup_samples.html">setup_samples</a></li>
+<li class="toctree-l1"><a class="reference internal" href="tile_images.html">tile_images</a></li>
+</ul>
+<p class="caption"><span class="caption-text">Zeiss Microscopes</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="connect_zen_blue.html">connect_zen_blue</a></li>
+<li class="toctree-l1"><a class="reference internal" href="connect_zen_black.html">connect_zen_black</a></li>
+<li class="toctree-l1"><a class="reference internal" href="hardware_control_zeiss.html">hardware_control_zeiss</a></li>
+<li class="toctree-l1"><a class="reference internal" href="write_zen_tiles_experiment.html">write_zen_tiles_experiment</a></li>
+<li class="toctree-l1"><a class="reference internal" href="zen_experiment_info.html">zen_experiment_info</a></li>
+</ul>
+<p class="caption"><span class="caption-text">3i Microscopes</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="hardware_control_3i.html">hardware_control_3i</a></li>
+<li class="toctree-l1"><a class="reference internal" href="connect_slidebook.html">connect_slidebook</a></li>
+<li class="toctree-l1"><a class="reference internal" href="slidebook_experiment_info.html">slidebook_experiment_info</a></li>
+</ul>
+<p class="caption"><span class="caption-text">General Methods</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="automation_exceptions.html">automation_exceptions</a></li>
+<li class="toctree-l1"><a class="reference internal" href="automation_messages_form_layout.html">automation_messages_form_layout</a></li>
+<li class="toctree-l1"><a class="reference internal" href="error_handling.html">error_handling</a></li>
+<li class="toctree-l1"><a class="reference internal" href="get_path.html">get_path</a></li>
+<li class="toctree-l1"><a class="reference internal" href="image_AICS.html">image_AICS</a></li>
+<li class="toctree-l1"><a class="reference internal" href="load_image_czi.html">load_image_czi</a></li>
+<li class="toctree-l1"><a class="reference internal" href="meta_data_file.html">meta_data_file</a></li>
+<li class="toctree-l1"><a class="reference internal" href="preferences.html">preferences</a></li>
+</ul>
+<p class="caption"><span class="caption-text">Reference Docs</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="CONTRIBUTING.html">Allen Institute Contribution Agreement</a></li>
+<li class="toctree-l1"><a class="reference internal" href="LICENSE.html">LICENSE</a></li>
+</ul>
+
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="index.html">Documentation overview</a><ul>
+      <li>Previous: <a href="find_well_center.html" title="previous chapter">find_well_center</a></li>
+      <li>Next: <a href="interactive_location_picker_pyqtgraph.html" title="next chapter">interactive_location_picker_pyqtgraph</a></li>
+  </ul></li>
+</ul>
+</div>
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" />
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script>$('#searchbox').show(0);</script>
+
+
+
+
+
+
+
+
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2020, Allen Institute.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 3.3.1</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.12</a>
+      
+      |
+      <a href="_sources/find_cells.rst.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+
+    
+  </body>
+</html>

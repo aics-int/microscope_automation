@@ -1,0 +1,935 @@
+
+<!DOCTYPE html>
+
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>microscope_automation.samples.find_cells &#8212; Microscope Automation 0.0 documentation</title>
+    <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+    <link rel="stylesheet" href="../../../_static/alabaster.css" type="text/css" />
+    <script id="documentation_options" data-url_root="../../../" src="../../../_static/documentation_options.js"></script>
+    <script src="../../../_static/jquery.js"></script>
+    <script src="../../../_static/underscore.js"></script>
+    <script src="../../../_static/doctools.js"></script>
+    <script src="../../../_static/language_data.js"></script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" />
+   
+  <link rel="stylesheet" href="../../../_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head><body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          
+
+          <div class="body" role="main">
+            
+  <h1>Source code for microscope_automation.samples.find_cells</h1><div class="highlight"><pre>
+<span></span><span class="c1"># from aicsimagetools import CziReader, TifReader</span>
+<span class="kn">import</span> <span class="nn">os</span>
+<span class="kn">import</span> <span class="nn">matplotlib</span>
+<span class="kn">import</span> <span class="nn">matplotlib.pyplot</span> <span class="k">as</span> <span class="nn">plt</span>
+<span class="kn">import</span> <span class="nn">numpy</span>
+<span class="kn">from</span> <span class="nn">skimage</span> <span class="kn">import</span> <span class="n">exposure</span><span class="p">,</span> <span class="n">feature</span><span class="p">,</span> <span class="n">morphology</span><span class="p">,</span> <span class="n">measure</span><span class="p">,</span> <span class="n">segmentation</span>
+<span class="kn">from</span> <span class="nn">scipy</span> <span class="kn">import</span> <span class="n">ndimage</span>
+<span class="kn">from</span> <span class="nn">matplotlib.pyplot</span> <span class="kn">import</span> <span class="n">imshow</span>
+<span class="kn">import</span> <span class="nn">queue</span>
+<span class="kn">import</span> <span class="nn">threading</span>
+<span class="kn">import</span> <span class="nn">time</span>
+<span class="kn">import</span> <span class="nn">multiprocessing</span>
+<span class="kn">import</span> <span class="nn">psutil</span>
+<span class="kn">import</span> <span class="nn">gc</span>
+<span class="kn">from</span> <span class="nn">.samples</span> <span class="kn">import</span> <span class="n">Cell</span>
+<span class="kn">from</span> <span class="nn">..</span> <span class="kn">import</span> <span class="n">automation_messages_form_layout</span> <span class="k">as</span> <span class="n">form</span>
+
+
+<div class="viewcode-block" id="CellFinder"><a class="viewcode-back" href="../../../microscope_automation.samples.html#microscope_automation.samples.find_cells.CellFinder">[docs]</a><span class="k">class</span> <span class="nc">CellFinder</span><span class="p">:</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">image</span><span class="p">,</span> <span class="n">prefs</span><span class="p">,</span> <span class="n">parent_colony_object</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Find cells in an ImageAICS image</span>
+
+<span class="sd">        Input:</span>
+<span class="sd">         image: ImageAICS image to find cells in</span>
+
+<span class="sd">         prefs: preferences for image analysis</span>
+
+<span class="sd">         parent_colony_object: colony object which is using this CellFinder</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">original</span> <span class="o">=</span> <span class="n">image</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">original_data</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">seg</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">d_map</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">prefs</span> <span class="o">=</span> <span class="n">prefs</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">image_locations</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">cell_dict</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">colony_object</span> <span class="o">=</span> <span class="n">parent_colony_object</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">calibrate</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">prefs</span><span class="o">.</span><span class="n">get_pref</span><span class="p">(</span><span class="s2">&quot;Calibrate&quot;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">viewer</span> <span class="o">=</span> <span class="n">CalibrationViewer</span><span class="p">()</span>
+        <span class="k">if</span> <span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;SCIPY_PIL_IMAGE_VIEWER&quot;</span><span class="p">)</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="p">[</span><span class="s2">&quot;SCIPY_PIL_IMAGE_VIEWER&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">prefs</span><span class="o">.</span><span class="n">get_pref</span><span class="p">(</span><span class="s2">&quot;ImageViewer&quot;</span><span class="p">)</span>
+
+<div class="viewcode-block" id="CellFinder.set_calibration"><a class="viewcode-back" href="../../../microscope_automation.samples.html#microscope_automation.samples.find_cells.CellFinder.set_calibration">[docs]</a>    <span class="k">def</span> <span class="nf">set_calibration</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
+        <span class="k">assert</span> <span class="n">value</span> <span class="ow">is</span> <span class="nb">bool</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">calibrate</span> <span class="o">=</span> <span class="n">value</span></div>
+
+<div class="viewcode-block" id="CellFinder.find_cells"><a class="viewcode-back" href="../../../microscope_automation.samples.html#microscope_automation.samples.find_cells.CellFinder.find_cells">[docs]</a>    <span class="k">def</span> <span class="nf">find_cells</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Find cells in a given image. General outline:</span>
+
+<span class="sd">        - segment colony</span>
+<span class="sd">        - choose location to image</span>
+<span class="sd">        - return cell information</span>
+
+<span class="sd">        Input:</span>
+<span class="sd">         none</span>
+
+<span class="sd">        Output:</span>
+<span class="sd">         cell_dict: dictionary of the form {&#39;name&#39;: cell_object}</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">segment_image</span><span class="p">()</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">choose_imaging_location</span><span class="p">()</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">export_cells</span><span class="p">()</span>
+        <span class="k">except</span> <span class="ne">AssertionError</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span><span class="n">e</span><span class="o">.</span><span class="n">args</span><span class="p">)</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">cell_dict</span></div>
+
+<div class="viewcode-block" id="CellFinder.segment_image"><a class="viewcode-back" href="../../../microscope_automation.samples.html#microscope_automation.samples.find_cells.CellFinder.segment_image">[docs]</a>    <span class="k">def</span> <span class="nf">segment_image</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Segment a given image. General outline:</span>
+
+<span class="sd">        - get original data</span>
+<span class="sd">        - adjust image for edge detection</span>
+<span class="sd">        - initial edge detection</span>
+<span class="sd">        - dilation and hole filling</span>
+<span class="sd">        - filtering</span>
+<span class="sd">        - final edge detection</span>
+
+<span class="sd">        Input:</span>
+<span class="sd">         none</span>
+
+<span class="sd">        Output:</span>
+<span class="sd">         seg: segmented image</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">get_original_data</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">adjust_image</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">initial_edge_detection</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">improve_initial_edges</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">filter_objects</span><span class="p">()</span>
+        <span class="c1"># self.final_edge_detection()</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Done with Segmentation&quot;</span><span class="p">)</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">seg</span></div>
+
+<div class="viewcode-block" id="CellFinder.choose_imaging_location"><a class="viewcode-back" href="../../../microscope_automation.samples.html#microscope_automation.samples.find_cells.CellFinder.choose_imaging_location">[docs]</a>    <span class="k">def</span> <span class="nf">choose_imaging_location</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Choose a location (or locations) to image. General outline:</span>
+
+<span class="sd">        - if looking for smooth locations, use twofold distance map algorithm</span>
+<span class="sd">        - if looking for rough locations (TBD)</span>
+<span class="sd">        - convert image locations to stage coordinates</span>
+
+<span class="sd">        Input:</span>
+<span class="sd">         none</span>
+
+<span class="sd">        Output:</span>
+<span class="sd">         none</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">prefs</span><span class="o">.</span><span class="n">get_pref</span><span class="p">(</span><span class="s2">&quot;FindSmoothAreas&quot;</span><span class="p">):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">twofold_distance_map</span><span class="p">()</span>
+        <span class="c1"># if calibration succeeded and continuous calibration not desired</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">calibrate</span> <span class="ow">and</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">prefs</span><span class="o">.</span><span class="n">get_pref</span><span class="p">(</span><span class="s2">&quot;DevCalibration&quot;</span><span class="p">):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">calibrate</span> <span class="o">=</span> <span class="kc">False</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">prefs</span><span class="o">.</span><span class="n">setPref</span><span class="p">(</span><span class="s2">&quot;Calibrate&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">calibrate</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="CellFinder.export_cells"><a class="viewcode-back" href="../../../microscope_automation.samples.html#microscope_automation.samples.find_cells.CellFinder.export_cells">[docs]</a>    <span class="k">def</span> <span class="nf">export_cells</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Convert the cell list into Cell objects.</span>
+<span class="sd">        Add operation metadata to original image</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">for</span> <span class="p">(</span><span class="n">ind</span><span class="p">,</span> <span class="n">point</span><span class="p">)</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">image_locations</span><span class="p">,</span> <span class="n">start</span><span class="o">=</span><span class="mi">1</span><span class="p">):</span>
+            <span class="n">name</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">colony_object</span><span class="o">.</span><span class="n">name</span> <span class="o">+</span> <span class="s2">&quot;_</span><span class="si">{:04}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">ind</span><span class="p">)</span>
+            <span class="n">x_pos</span> <span class="o">=</span> <span class="n">point</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">seg</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">/</span> <span class="mi">2</span>
+            <span class="n">y_pos</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">seg</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">/</span> <span class="mi">2</span> <span class="o">-</span> <span class="n">point</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Cell Position: (</span><span class="si">{}</span><span class="s2">, </span><span class="si">{}</span><span class="s2">)&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">x_pos</span><span class="p">,</span> <span class="n">y_pos</span><span class="p">))</span>
+            <span class="n">cell_to_add</span> <span class="o">=</span> <span class="n">Cell</span><span class="p">(</span>
+                <span class="n">name</span><span class="o">=</span><span class="n">name</span><span class="p">,</span> <span class="n">center</span><span class="o">=</span><span class="p">[</span><span class="n">x_pos</span><span class="p">,</span> <span class="n">y_pos</span><span class="p">,</span> <span class="mi">0</span><span class="p">],</span> <span class="n">colony_object</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">colony_object</span>
+            <span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">cell_dict</span><span class="o">.</span><span class="n">update</span><span class="p">({</span><span class="n">name</span><span class="p">:</span> <span class="n">cell_to_add</span><span class="p">})</span>
+        <span class="n">metadata</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="c1"># Add non-boolean (i.e. non-flag) values to metadata with prefix &quot;cf_&quot;</span>
+        <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">value</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">prefs</span><span class="o">.</span><span class="n">prefs</span><span class="o">.</span><span class="n">iteritems</span><span class="p">():</span>
+            <span class="k">if</span> <span class="nb">type</span><span class="p">(</span><span class="n">value</span><span class="p">)</span> <span class="ow">is</span> <span class="ow">not</span> <span class="nb">bool</span><span class="p">:</span>
+                <span class="n">metadata</span><span class="o">.</span><span class="n">update</span><span class="p">({</span><span class="s2">&quot;cf_&quot;</span> <span class="o">+</span> <span class="n">key</span><span class="p">:</span> <span class="n">value</span><span class="p">})</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">original</span><span class="o">.</span><span class="n">add_meta</span><span class="p">(</span><span class="n">metadata</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="CellFinder.get_original_data"><a class="viewcode-back" href="../../../microscope_automation.samples.html#microscope_automation.samples.find_cells.CellFinder.get_original_data">[docs]</a>    <span class="k">def</span> <span class="nf">get_original_data</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Retrieve data from original image. Currently ImageAICS type.</span>
+<span class="sd">        Will need to be converted to float and normalized between 0 and 1</span>
+
+<span class="sd">        Input:</span>
+<span class="sd">         image: ImageAICS image</span>
+
+<span class="sd">        Output:</span>
+<span class="sd">         seg: 2D numpy array of image data</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># only retrieve original data if segmentation hasn&#39;t already occurred</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">seg</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">img_data</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">original</span><span class="o">.</span><span class="n">get_data</span><span class="p">()</span>
+            <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">img_data</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span> <span class="o">==</span> <span class="mi">2</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">original_data</span> <span class="o">=</span> <span class="n">img_data</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="n">numpy</span><span class="o">.</span><span class="n">float</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="c1"># TODO: fix this transpose</span>
+                <span class="c1"># self.original_data = self.original.get_data()[:, :, self.prefs.get_pref(&#39;ImageIndex&#39;)].astype(np.float)  # noqa</span>
+                <span class="c1"># self.original_data = np.transpose(self.original_data, (0, 1))</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">original_data</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">original</span><span class="o">.</span><span class="n">get_data</span><span class="p">()[</span>
+                    <span class="p">:,</span> <span class="p">:,</span> <span class="bp">self</span><span class="o">.</span><span class="n">prefs</span><span class="o">.</span><span class="n">get_pref</span><span class="p">(</span><span class="s2">&quot;ImageIndex&quot;</span><span class="p">)</span>
+                <span class="p">]</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="n">numpy</span><span class="o">.</span><span class="n">float</span><span class="p">)</span>
+            <span class="c1"># self.original_data = np.transpose(self.original_data, (1, 0))</span>
+            <span class="c1"># self.original_data /= self.original_data.max()</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">original_data</span> <span class="o">=</span> <span class="n">exposure</span><span class="o">.</span><span class="n">rescale_intensity</span><span class="p">(</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">original_data</span><span class="p">,</span> <span class="n">out_range</span><span class="o">=</span><span class="p">(</span><span class="mf">0.0</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">)</span>
+            <span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">seg</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">copy</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">original_data</span><span class="p">)</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">seg</span></div>
+
+<div class="viewcode-block" id="CellFinder.adjust_image"><a class="viewcode-back" href="../../../microscope_automation.samples.html#microscope_automation.samples.find_cells.CellFinder.adjust_image">[docs]</a>    <span class="k">def</span> <span class="nf">adjust_image</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Adjust contrast, gamma, etc.</span>
+<span class="sd">        Will have additional parameters for adjustment preferences.</span>
+
+<span class="sd">        Input:</span>
+<span class="sd">         none</span>
+
+<span class="sd">        Output:</span>
+<span class="sd">         seg: 2D numpy array of image data</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">fields</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;Sigmoid Threshold&quot;</span><span class="p">,</span> <span class="s2">&quot;Sigmoid Gain&quot;</span><span class="p">,</span> <span class="s2">&quot;Gamma&quot;</span><span class="p">]</span>
+        <span class="n">names</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;SigmoidThreshold&quot;</span><span class="p">,</span> <span class="s2">&quot;SigmoidGain&quot;</span><span class="p">,</span> <span class="s2">&quot;Gamma&quot;</span><span class="p">]</span>
+        <span class="n">values</span> <span class="o">=</span> <span class="p">[</span><span class="nb">float</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">prefs</span><span class="o">.</span><span class="n">get_pref</span><span class="p">(</span><span class="n">name</span><span class="p">))</span> <span class="k">for</span> <span class="n">name</span> <span class="ow">in</span> <span class="n">names</span><span class="p">]</span>
+        <span class="n">adjusted</span> <span class="o">=</span> <span class="n">exposure</span><span class="o">.</span><span class="n">adjust_sigmoid</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">seg</span><span class="p">,</span> <span class="n">values</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">values</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
+        <span class="n">adjusted</span> <span class="o">=</span> <span class="n">exposure</span><span class="o">.</span><span class="n">adjust_gamma</span><span class="p">(</span><span class="n">adjusted</span><span class="p">,</span> <span class="n">values</span><span class="p">[</span><span class="mi">2</span><span class="p">])</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">calibrate</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">viewer</span><span class="o">.</span><span class="n">display_image</span><span class="p">(</span><span class="n">adjusted</span><span class="p">)</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">validate</span><span class="p">(</span>
+                <span class="s2">&quot;Calibrate Contrast&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;Calibrate sigmoid and gamma adjustment values&quot;</span><span class="p">,</span>
+                <span class="p">[</span><span class="n">fields</span><span class="p">,</span> <span class="n">names</span><span class="p">,</span> <span class="n">values</span><span class="p">],</span>
+            <span class="p">):</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">viewer</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">adjust_image</span><span class="p">()</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">seg</span> <span class="o">=</span> <span class="n">adjusted</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">viewer</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">seg</span> <span class="o">=</span> <span class="n">adjusted</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">seg</span></div>
+
+<div class="viewcode-block" id="CellFinder.initial_edge_detection"><a class="viewcode-back" href="../../../microscope_automation.samples.html#microscope_automation.samples.find_cells.CellFinder.initial_edge_detection">[docs]</a>    <span class="k">def</span> <span class="nf">initial_edge_detection</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Initial edge detection.</span>
+
+<span class="sd">        Input:</span>
+<span class="sd">         none</span>
+
+<span class="sd">        Output:</span>
+<span class="sd">         seg: 2D numpy array of image data</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">fields</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;Canny Standard Deviation Threshold&quot;</span><span class="p">]</span>
+        <span class="n">names</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;Canny1Sigma&quot;</span><span class="p">]</span>
+        <span class="n">values</span> <span class="o">=</span> <span class="p">[</span><span class="nb">float</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">prefs</span><span class="o">.</span><span class="n">get_pref</span><span class="p">(</span><span class="n">name</span><span class="p">))</span> <span class="k">for</span> <span class="n">name</span> <span class="ow">in</span> <span class="n">names</span><span class="p">]</span>
+        <span class="n">edge</span> <span class="o">=</span> <span class="n">feature</span><span class="o">.</span><span class="n">canny</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">seg</span><span class="p">,</span> <span class="n">values</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+        <span class="c1"># Remove edge detection that occurs because of image edge artifacts</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">prefs</span><span class="o">.</span><span class="n">get_pref</span><span class="p">(</span><span class="s2">&quot;ClearEdges&quot;</span><span class="p">)</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">prefs</span><span class="o">.</span><span class="n">get_pref</span><span class="p">(</span><span class="s2">&quot;Tile&quot;</span><span class="p">):</span>
+            <span class="n">height</span> <span class="o">=</span> <span class="mi">0</span>
+            <span class="n">width</span> <span class="o">=</span> <span class="mi">0</span>
+            <span class="n">columns</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">prefs</span><span class="o">.</span><span class="n">get_pref</span><span class="p">(</span><span class="s2">&quot;nColTile&quot;</span><span class="p">)</span>
+            <span class="n">rows</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">prefs</span><span class="o">.</span><span class="n">get_pref</span><span class="p">(</span><span class="s2">&quot;nRowTile&quot;</span><span class="p">)</span>
+            <span class="c1"># clear columns based on tiling</span>
+            <span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="n">columns</span><span class="p">):</span>
+                <span class="n">height</span> <span class="o">+=</span> <span class="n">edge</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">/</span> <span class="n">columns</span>
+                <span class="n">edge</span><span class="p">[:,</span> <span class="n">height</span> <span class="o">-</span> <span class="nb">min</span><span class="p">(</span><span class="mi">3</span><span class="p">,</span> <span class="n">columns</span><span class="p">)</span> <span class="p">:</span> <span class="n">height</span> <span class="o">+</span> <span class="nb">min</span><span class="p">(</span><span class="mi">3</span><span class="p">,</span> <span class="n">columns</span><span class="p">)]</span> <span class="o">=</span> <span class="mi">0</span>
+            <span class="c1"># clear rows based on tiling</span>
+            <span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="n">rows</span><span class="p">):</span>
+                <span class="n">width</span> <span class="o">+=</span> <span class="n">edge</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">/</span> <span class="n">rows</span>
+                <span class="n">edge</span><span class="p">[</span><span class="n">width</span> <span class="o">-</span> <span class="nb">min</span><span class="p">(</span><span class="mi">3</span><span class="p">,</span> <span class="n">rows</span><span class="p">)</span> <span class="p">:</span> <span class="n">width</span> <span class="o">+</span> <span class="nb">min</span><span class="p">(</span><span class="mi">3</span><span class="p">,</span> <span class="n">rows</span><span class="p">)]</span> <span class="o">=</span> <span class="mi">0</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">calibrate</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">viewer</span><span class="o">.</span><span class="n">display_image</span><span class="p">(</span><span class="n">edge</span><span class="p">)</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">validate</span><span class="p">(</span>
+                <span class="s2">&quot;Calibrate Initial Edge Detection&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;Calibrate the sigma threshold for first canny edge detection&quot;</span><span class="p">,</span>
+                <span class="p">[</span><span class="n">fields</span><span class="p">,</span> <span class="n">names</span><span class="p">,</span> <span class="n">values</span><span class="p">],</span>
+            <span class="p">):</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">viewer</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">initial_edge_detection</span><span class="p">()</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">seg</span> <span class="o">=</span> <span class="n">edge</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">viewer</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">seg</span> <span class="o">=</span> <span class="n">edge</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">seg</span></div>
+
+<div class="viewcode-block" id="CellFinder.improve_initial_edges"><a class="viewcode-back" href="../../../microscope_automation.samples.html#microscope_automation.samples.find_cells.CellFinder.improve_initial_edges">[docs]</a>    <span class="k">def</span> <span class="nf">improve_initial_edges</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Improve initial edge detection with dilation, hole filling, etc.</span>
+
+<span class="sd">        Input:</span>
+<span class="sd">         none</span>
+
+<span class="sd">        Output:</span>
+<span class="sd">         seg: 2D numpy array of image data</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">fields</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;Dilation Size&quot;</span><span class="p">]</span>
+        <span class="n">names</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;DilationSize&quot;</span><span class="p">]</span>
+        <span class="n">values</span> <span class="o">=</span> <span class="p">[</span><span class="nb">int</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">prefs</span><span class="o">.</span><span class="n">get_pref</span><span class="p">(</span><span class="n">name</span><span class="p">))</span> <span class="k">for</span> <span class="n">name</span> <span class="ow">in</span> <span class="n">names</span><span class="p">]</span>
+        <span class="n">improve</span> <span class="o">=</span> <span class="n">morphology</span><span class="o">.</span><span class="n">dilation</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">seg</span><span class="p">,</span> <span class="n">morphology</span><span class="o">.</span><span class="n">diamond</span><span class="p">(</span><span class="n">values</span><span class="p">[</span><span class="mi">0</span><span class="p">]))</span>
+        <span class="n">improve</span> <span class="o">=</span> <span class="n">ndimage</span><span class="o">.</span><span class="n">binary_fill_holes</span><span class="p">(</span><span class="n">improve</span><span class="p">)</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">calibrate</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">viewer</span><span class="o">.</span><span class="n">display_image</span><span class="p">(</span><span class="n">improve</span><span class="p">)</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">validate</span><span class="p">(</span>
+                <span class="s2">&quot;Calibrate Dilation and Hole Filling&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;Adjust dilation size to improve hole filling&quot;</span><span class="p">,</span>
+                <span class="p">[</span><span class="n">fields</span><span class="p">,</span> <span class="n">names</span><span class="p">,</span> <span class="n">values</span><span class="p">],</span>
+            <span class="p">):</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">viewer</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">improve_initial_edges</span><span class="p">()</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">seg</span> <span class="o">=</span> <span class="n">improve</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">viewer</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">seg</span> <span class="o">=</span> <span class="n">improve</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">seg</span></div>
+
+<div class="viewcode-block" id="CellFinder.filter_objects"><a class="viewcode-back" href="../../../microscope_automation.samples.html#microscope_automation.samples.find_cells.CellFinder.filter_objects">[docs]</a>    <span class="k">def</span> <span class="nf">filter_objects</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Filter objects in image to identify best colonies.</span>
+
+<span class="sd">        Input:</span>
+<span class="sd">         none</span>
+
+<span class="sd">        Output:</span>
+<span class="sd">         seg: 2D numpy array of image data</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">filter_type</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">prefs</span><span class="o">.</span><span class="n">get_pref</span><span class="p">(</span><span class="s2">&quot;FilterBy&quot;</span><span class="p">)</span>
+        <span class="n">label_objects</span><span class="p">,</span> <span class="n">nb_labels</span> <span class="o">=</span> <span class="n">ndimage</span><span class="o">.</span><span class="n">label</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">seg</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">filter_type</span> <span class="o">==</span> <span class="s2">&quot;Size&quot;</span><span class="p">:</span>
+            <span class="c1"># find the object of the largest size and use that as imaging colony</span>
+            <span class="n">sizes</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">bincount</span><span class="p">(</span><span class="n">label_objects</span><span class="o">.</span><span class="n">ravel</span><span class="p">())</span>
+            <span class="n">sizes</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="mi">0</span>  <span class="c1"># clear first item, which is the background</span>
+            <span class="n">name</span> <span class="o">=</span> <span class="s2">&quot;SizeThreshold&quot;</span>
+            <span class="k">if</span> <span class="n">sizes</span><span class="o">.</span><span class="n">max</span><span class="p">()</span> <span class="o">&lt;</span> <span class="bp">self</span><span class="o">.</span><span class="n">prefs</span><span class="o">.</span><span class="n">get_pref</span><span class="p">(</span><span class="n">name</span><span class="p">):</span>
+                <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">calibrate</span><span class="p">:</span>
+                    <span class="n">result</span> <span class="o">=</span> <span class="n">form</span><span class="o">.</span><span class="n">value_calibration_form</span><span class="p">(</span>
+                        <span class="s2">&quot;Calibrate Size Threshold&quot;</span><span class="p">,</span>
+                        <span class="s2">&quot;Minimum colony size: </span><span class="si">{}</span><span class="se">\n</span><span class="s2">, adjust lower bound?&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
+                            <span class="n">sizes</span><span class="o">.</span><span class="n">max</span><span class="p">()</span>
+                        <span class="p">),</span>
+                        <span class="kc">False</span><span class="p">,</span>
+                        <span class="p">(</span><span class="s2">&quot;Minimum Size&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">prefs</span><span class="o">.</span><span class="n">get_pref</span><span class="p">(</span><span class="n">name</span><span class="p">)),</span>
+                    <span class="p">)</span>
+                    <span class="k">if</span> <span class="n">result</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+                        <span class="n">form</span><span class="o">.</span><span class="n">stop_script</span><span class="p">()</span>
+                    <span class="k">elif</span> <span class="ow">not</span> <span class="n">result</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]:</span>
+                        <span class="bp">self</span><span class="o">.</span><span class="n">prefs</span><span class="o">.</span><span class="n">setPref</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">result</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+                    <span class="k">else</span><span class="p">:</span>
+                        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">prefs</span><span class="o">.</span><span class="n">get_pref</span><span class="p">(</span><span class="s2">&quot;UseOutlier&quot;</span><span class="p">):</span>
+                            <span class="n">thresh_mask</span> <span class="o">=</span> <span class="p">(</span>
+                                <span class="bp">self</span><span class="o">.</span><span class="n">is_outlier</span><span class="p">(</span>
+                                    <span class="n">sizes</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">prefs</span><span class="o">.</span><span class="n">get_pref</span><span class="p">(</span><span class="s2">&quot;OutlierThreshold&quot;</span><span class="p">)</span>
+                                <span class="p">)</span>
+                                <span class="o">*</span> <span class="n">sizes</span>
+                            <span class="p">)</span>
+                        <span class="k">else</span><span class="p">:</span>
+                            <span class="n">thresh_mask</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">zeros_like</span><span class="p">(</span><span class="n">sizes</span><span class="p">)</span>
+                            <span class="n">thresh_mask</span><span class="p">[</span><span class="n">sizes</span><span class="o">.</span><span class="n">argmax</span><span class="p">()]</span> <span class="o">=</span> <span class="mi">1</span>
+                        <span class="n">filtered</span> <span class="o">=</span> <span class="n">thresh_mask</span><span class="p">[</span><span class="n">label_objects</span><span class="p">]</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">bool</span><span class="p">)</span>
+                        <span class="n">border</span> <span class="o">=</span> <span class="n">segmentation</span><span class="o">.</span><span class="n">clear_border</span><span class="p">(</span><span class="n">filtered</span><span class="p">)</span>
+                        <span class="k">if</span> <span class="n">border</span><span class="o">.</span><span class="n">any</span><span class="p">():</span>
+                            <span class="c1"># don&#39;t apply border filter if border is only object</span>
+                            <span class="n">filtered</span> <span class="o">=</span> <span class="n">border</span>
+                        <span class="bp">self</span><span class="o">.</span><span class="n">seg</span> <span class="o">=</span> <span class="n">filtered</span>
+                        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">seg</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="k">assert</span> <span class="s2">&quot;Colony too small to image&quot;</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">prefs</span><span class="o">.</span><span class="n">get_pref</span><span class="p">(</span><span class="s2">&quot;UseOutlier&quot;</span><span class="p">):</span>
+                <span class="n">thresh_mask</span> <span class="o">=</span> <span class="p">(</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">is_outlier</span><span class="p">(</span><span class="n">sizes</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">prefs</span><span class="o">.</span><span class="n">get_pref</span><span class="p">(</span><span class="s2">&quot;OutlierThreshold&quot;</span><span class="p">))</span>
+                    <span class="o">*</span> <span class="n">sizes</span>
+                <span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">thresh_mask</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">zeros_like</span><span class="p">(</span><span class="n">sizes</span><span class="p">)</span>
+                <span class="n">thresh_mask</span><span class="p">[</span><span class="n">sizes</span><span class="o">.</span><span class="n">argmax</span><span class="p">()]</span> <span class="o">=</span> <span class="mi">1</span>
+            <span class="n">filtered</span> <span class="o">=</span> <span class="n">thresh_mask</span><span class="p">[</span><span class="n">label_objects</span><span class="p">]</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">bool</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="n">filter_type</span> <span class="o">==</span> <span class="s2">&quot;Center&quot;</span><span class="p">:</span>
+            <span class="c1"># get the object in the center of the FOV and use that as imaging colony</span>
+            <span class="c1"># this requires that a labeled object be in the center of the image</span>
+            <span class="c1"># should only be used if pre-scanning and selecting colonies individually</span>
+            <span class="n">center_label</span> <span class="o">=</span> <span class="n">label_objects</span><span class="p">[(</span><span class="bp">self</span><span class="o">.</span><span class="n">seg</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">/</span> <span class="mi">2</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">seg</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">/</span> <span class="mi">2</span><span class="p">)]</span>
+            <span class="n">center_mask</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">zeros_like</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">seg</span><span class="p">)</span>
+            <span class="n">center_mask</span><span class="p">[</span><span class="n">label_objects</span> <span class="o">==</span> <span class="n">center_label</span><span class="p">]</span> <span class="o">=</span> <span class="mi">1</span>
+            <span class="n">filtered</span> <span class="o">=</span> <span class="n">label_objects</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">bool</span><span class="p">)</span> <span class="o">*</span> <span class="n">center_mask</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Filter type not specified in preferences&quot;</span><span class="p">)</span>
+        <span class="n">border</span> <span class="o">=</span> <span class="n">segmentation</span><span class="o">.</span><span class="n">clear_border</span><span class="p">(</span><span class="n">filtered</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">border</span><span class="o">.</span><span class="n">any</span><span class="p">():</span>
+            <span class="c1"># don&#39;t apply border filter if border is only object</span>
+            <span class="n">filtered</span> <span class="o">=</span> <span class="n">border</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">seg</span> <span class="o">=</span> <span class="n">filtered</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">seg</span></div>
+
+<div class="viewcode-block" id="CellFinder.final_edge_detection"><a class="viewcode-back" href="../../../microscope_automation.samples.html#microscope_automation.samples.find_cells.CellFinder.final_edge_detection">[docs]</a>    <span class="k">def</span> <span class="nf">final_edge_detection</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Find improved edges.</span>
+
+<span class="sd">        Input:</span>
+<span class="sd">         none</span>
+
+<span class="sd">        Output:</span>
+<span class="sd">         seg: 2D numpy array of image data</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">edge</span> <span class="o">=</span> <span class="n">feature</span><span class="o">.</span><span class="n">canny</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">seg</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">prefs</span><span class="o">.</span><span class="n">get_pref</span><span class="p">(</span><span class="s2">&quot;Canny2Sigma&quot;</span><span class="p">))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">seg</span> <span class="o">=</span> <span class="n">edge</span>
+        <span class="c1"># plt.imsave(&#39;/home/mattb/git/microscopeautomation/data/test_data_matthew/2017_3_7/canny2.png&#39;,</span>
+        <span class="c1">#            self.seg, cmap=matplotlib.cm.gray)</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">seg</span></div>
+
+<div class="viewcode-block" id="CellFinder.twofold_distance_map"><a class="viewcode-back" href="../../../microscope_automation.samples.html#microscope_automation.samples.find_cells.CellFinder.twofold_distance_map">[docs]</a>    <span class="k">def</span> <span class="nf">twofold_distance_map</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Compute the entire distance map for a segmented colony&quot;&quot;&quot;</span>
+        <span class="n">fields</span> <span class="o">=</span> <span class="p">[</span>
+            <span class="s2">&quot;Minimum Distance from Edge&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;Maximum Distance from Edge&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;Gaussian Filter Threshold&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;Canny Edge Detection Threshold&quot;</span><span class="p">,</span>
+        <span class="p">]</span>
+        <span class="n">names</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;DistanceMin&quot;</span><span class="p">,</span> <span class="s2">&quot;DistanceMax&quot;</span><span class="p">,</span> <span class="s2">&quot;GaussianFilter&quot;</span><span class="p">,</span> <span class="s2">&quot;Canny3Sigma&quot;</span><span class="p">]</span>
+        <span class="n">values</span> <span class="o">=</span> <span class="p">[</span><span class="nb">float</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">prefs</span><span class="o">.</span><span class="n">get_pref</span><span class="p">(</span><span class="n">name</span><span class="p">))</span> <span class="k">for</span> <span class="n">name</span> <span class="ow">in</span> <span class="n">names</span><span class="p">]</span>
+        <span class="n">distance_map</span> <span class="o">=</span> <span class="n">ndimage</span><span class="o">.</span><span class="n">distance_transform_edt</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">seg</span><span class="p">)</span>
+        <span class="n">d_max</span> <span class="o">=</span> <span class="n">distance_map</span><span class="o">.</span><span class="n">max</span><span class="p">()</span>
+        <span class="n">distance_map</span> <span class="o">*=</span> <span class="p">(</span><span class="n">distance_map</span> <span class="o">&gt;</span> <span class="p">(</span><span class="n">d_max</span> <span class="o">*</span> <span class="n">values</span><span class="p">[</span><span class="mi">0</span><span class="p">]))</span> <span class="o">&amp;</span> <span class="p">(</span>
+            <span class="n">distance_map</span> <span class="o">&lt;</span> <span class="p">(</span><span class="n">d_max</span> <span class="o">*</span> <span class="n">values</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
+        <span class="p">)</span>
+        <span class="n">distance_map</span> <span class="o">=</span> <span class="n">distance_map</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">bool</span><span class="p">)</span>
+        <span class="c1"># might need to switch this from original to adjusted image</span>
+        <span class="n">colony_only</span> <span class="o">=</span> <span class="n">ndimage</span><span class="o">.</span><span class="n">gaussian_filter</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">original_data</span><span class="p">,</span> <span class="n">values</span><span class="p">[</span><span class="mi">2</span><span class="p">])</span>
+        <span class="n">colony_only</span> <span class="o">*=</span> <span class="n">distance_map</span>
+        <span class="n">colony_edges</span> <span class="o">=</span> <span class="n">feature</span><span class="o">.</span><span class="n">canny</span><span class="p">(</span><span class="n">colony_only</span><span class="p">,</span> <span class="n">values</span><span class="p">[</span><span class="mi">3</span><span class="p">])</span>
+        <span class="n">inner_edges</span> <span class="o">=</span> <span class="n">ndimage</span><span class="o">.</span><span class="n">distance_transform_edt</span><span class="p">(</span><span class="o">~</span><span class="n">colony_edges</span> <span class="o">*</span> <span class="n">distance_map</span><span class="p">)</span>
+
+        <span class="c1"># helper function to avoid repeated code,</span>
+        <span class="c1"># checks with user that point chosen is suitable</span>
+        <span class="k">def</span> <span class="nf">verify_smooth_point</span><span class="p">():</span>
+            <span class="n">smooth_point</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">inner_edges</span> <span class="o">==</span> <span class="n">inner_edges</span><span class="o">.</span><span class="n">max</span><span class="p">())</span>
+            <span class="n">point</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">copy</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">original_data</span><span class="p">)</span>
+            <span class="n">point</span><span class="p">[</span>
+                <span class="n">smooth_point</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span> <span class="o">-</span> <span class="mi">3</span> <span class="p">:</span> <span class="n">smooth_point</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span> <span class="o">+</span> <span class="mi">3</span><span class="p">,</span>
+                <span class="n">smooth_point</span><span class="p">[</span><span class="mi">1</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span> <span class="o">-</span> <span class="mi">3</span> <span class="p">:</span> <span class="n">smooth_point</span><span class="p">[</span><span class="mi">1</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span> <span class="o">+</span> <span class="mi">3</span><span class="p">,</span>
+            <span class="p">]</span> <span class="o">=</span> <span class="mi">1</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">viewer</span><span class="o">.</span><span class="n">display_image</span><span class="p">(</span><span class="n">point</span><span class="p">)</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">validate</span><span class="p">(</span>
+                <span class="s2">&quot;Chosen point&quot;</span><span class="p">,</span> <span class="s2">&quot;Is this chosen point acceptable?&quot;</span><span class="p">,</span> <span class="p">[],</span> <span class="n">default</span><span class="o">=</span><span class="kc">True</span>
+            <span class="p">):</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">viewer</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+                <span class="c1"># form.stop_script(&quot;Point after calibration was found to be unacceptable&quot;)  # noqa</span>
+                <span class="c1"># restart calibration</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">calibrate</span> <span class="o">=</span> <span class="kc">True</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">find_cells</span><span class="p">()</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">viewer</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">image_locations</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="n">smooth_point</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="mi">0</span><span class="p">],</span> <span class="n">smooth_point</span><span class="p">[</span><span class="mi">1</span><span class="p">][</span><span class="mi">0</span><span class="p">]))</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">calibrate</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">viewer</span><span class="o">.</span><span class="n">display_image</span><span class="p">(</span><span class="n">colony_edges</span><span class="p">)</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">validate</span><span class="p">(</span>
+                <span class="s2">&quot;Calibrate Twofold Distance Detection&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;Calibrate the values for twofold distance map smooth point detection&quot;</span><span class="p">,</span>
+                <span class="p">[</span><span class="n">fields</span><span class="p">,</span> <span class="n">names</span><span class="p">,</span> <span class="n">values</span><span class="p">],</span>
+            <span class="p">):</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">viewer</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">twofold_distance_map</span><span class="p">()</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">viewer</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+                <span class="n">verify_smooth_point</span><span class="p">()</span>
+        <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">prefs</span><span class="o">.</span><span class="n">get_pref</span><span class="p">(</span><span class="s2">&quot;PreScanVerify&quot;</span><span class="p">):</span>
+            <span class="n">verify_smooth_point</span><span class="p">()</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">smooth_point</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">inner_edges</span> <span class="o">==</span> <span class="n">inner_edges</span><span class="o">.</span><span class="n">max</span><span class="p">())</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">image_locations</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="n">smooth_point</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="mi">0</span><span class="p">],</span> <span class="n">smooth_point</span><span class="p">[</span><span class="mi">1</span><span class="p">][</span><span class="mi">0</span><span class="p">]))</span></div>
+
+    <span class="c1"># HELPER FUNCTIONS</span>
+
+<div class="viewcode-block" id="CellFinder.is_outlier"><a class="viewcode-back" href="../../../microscope_automation.samples.html#microscope_automation.samples.find_cells.CellFinder.is_outlier">[docs]</a>    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">is_outlier</span><span class="p">(</span><span class="n">points</span><span class="p">,</span> <span class="n">thresh</span><span class="o">=</span><span class="mf">3.5</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Returns a boolean array with True if points are outliers and False</span>
+<span class="sd">        otherwise.</span>
+
+<span class="sd">        Input:</span>
+<span class="sd">         points: An num_observations by num_dimensions array of observations</span>
+
+<span class="sd">         thresh: The modified z-score to use as a threshold. Observations with</span>
+<span class="sd">         a modified z-score (based on the median absolute deviation) greater</span>
+<span class="sd">         than this value will be classified as outliers.</span>
+
+<span class="sd">        Output:</span>
+<span class="sd">         mask: A num_observations-length boolean array.</span>
+
+<span class="sd">        References:</span>
+<span class="sd">            Boris Iglewicz and David Hoaglin (1993), &quot;Volume 16: How to Detect and</span>
+<span class="sd">            Handle Outliers&quot;, The ASQC Basic References in Quality Control:</span>
+<span class="sd">            Statistical Techniques, Edward F. Mykytka, Ph.D., Editor.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">points</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+            <span class="n">points</span> <span class="o">=</span> <span class="n">points</span><span class="p">[:,</span> <span class="kc">None</span><span class="p">]</span>
+        <span class="n">median</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">median</span><span class="p">(</span><span class="n">points</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+        <span class="n">diff</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">sum</span><span class="p">((</span><span class="n">points</span> <span class="o">-</span> <span class="n">median</span><span class="p">)</span> <span class="o">**</span> <span class="mi">2</span><span class="p">,</span> <span class="n">axis</span><span class="o">=-</span><span class="mi">1</span><span class="p">)</span>
+        <span class="n">diff</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">diff</span><span class="p">)</span>
+        <span class="n">med_abs_deviation</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">median</span><span class="p">(</span><span class="n">diff</span><span class="p">)</span>
+
+        <span class="n">modified_z_score</span> <span class="o">=</span> <span class="mf">0.6745</span> <span class="o">*</span> <span class="n">diff</span> <span class="o">/</span> <span class="n">med_abs_deviation</span>
+
+        <span class="k">return</span> <span class="n">modified_z_score</span> <span class="o">&gt;</span> <span class="n">thresh</span></div>
+
+<div class="viewcode-block" id="CellFinder.validate"><a class="viewcode-back" href="../../../microscope_automation.samples.html#microscope_automation.samples.find_cells.CellFinder.validate">[docs]</a>    <span class="k">def</span> <span class="nf">validate</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">form_title</span><span class="p">,</span> <span class="n">form_comment</span><span class="p">,</span> <span class="n">pref_data</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Function to calibrate steps of the cell finding process</span>
+
+<span class="sd">        Input:</span>
+<span class="sd">         form_title: title of form to be displayed</span>
+
+<span class="sd">         form_comment: comment for form to be displayed</span>
+
+<span class="sd">         pref_data: (list) contains form fields, preference names, preference values,</span>
+<span class="sd">         and (in that order)</span>
+
+<span class="sd">         default: checked or unchecked as default for continuing. (Default = False)</span>
+
+<span class="sd">        Output:</span>
+<span class="sd">         boolean for whether to continue recursion</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">assert</span> <span class="nb">len</span><span class="p">(</span><span class="nb">set</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">x</span><span class="p">)</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">pref_data</span><span class="p">))</span> <span class="o">&lt;=</span> <span class="mi">1</span><span class="p">,</span> <span class="s2">&quot;Mismatched parameter lengths&quot;</span>
+        <span class="n">args</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="p">[(</span><span class="n">pref_data</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="n">i</span><span class="p">],</span> <span class="n">pref_data</span><span class="p">[</span><span class="mi">2</span><span class="p">][</span><span class="n">i</span><span class="p">])</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">pref_data</span><span class="p">[</span><span class="mi">2</span><span class="p">]))]</span>
+            <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">pref_data</span><span class="p">)</span>
+            <span class="k">else</span> <span class="p">[]</span>
+        <span class="p">)</span>
+        <span class="n">time</span><span class="o">.</span><span class="n">sleep</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span>  <span class="c1"># timeout for image to display</span>
+        <span class="n">result</span> <span class="o">=</span> <span class="n">form</span><span class="o">.</span><span class="n">value_calibration_form</span><span class="p">(</span><span class="n">form_title</span><span class="p">,</span> <span class="n">form_comment</span><span class="p">,</span> <span class="n">default</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">result</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">viewer</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+            <span class="n">form</span><span class="o">.</span><span class="n">stop_script</span><span class="p">()</span>
+        <span class="c1"># calibration incorrect</span>
+        <span class="k">elif</span> <span class="ow">not</span> <span class="n">result</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="ow">and</span> <span class="nb">len</span><span class="p">(</span><span class="n">pref_data</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="k">return</span> <span class="kc">True</span>
+        <span class="c1"># values were not correct</span>
+        <span class="k">elif</span> <span class="ow">not</span> <span class="n">result</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="ow">and</span> <span class="ow">not</span> <span class="nb">all</span><span class="p">(</span>
+            <span class="n">result</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">==</span> <span class="n">pref_data</span><span class="p">[</span><span class="mi">2</span><span class="p">][</span><span class="n">i</span><span class="p">]</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">pref_data</span><span class="p">[</span><span class="mi">2</span><span class="p">]))</span>
+        <span class="p">):</span>
+            <span class="k">for</span> <span class="n">ii</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">pref_data</span><span class="p">[</span><span class="mi">1</span><span class="p">])):</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">prefs</span><span class="o">.</span><span class="n">setPref</span><span class="p">(</span><span class="n">pref_data</span><span class="p">[</span><span class="mi">1</span><span class="p">][</span><span class="n">ii</span><span class="p">],</span> <span class="n">result</span><span class="p">[</span><span class="n">ii</span><span class="p">])</span>
+            <span class="k">return</span> <span class="kc">True</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">return</span> <span class="kc">False</span></div></div>
+
+
+<div class="viewcode-block" id="CalibrationViewer"><a class="viewcode-back" href="../../../microscope_automation.samples.html#microscope_automation.samples.find_cells.CalibrationViewer">[docs]</a><span class="k">class</span> <span class="nc">CalibrationViewer</span><span class="p">:</span>
+    <span class="sd">&quot;&quot;&quot;This class is intended to be a bookkeeper for image viewing threads.</span>
+<span class="sd">    Scipy&#39;s imshow doesn&#39;t play nice with</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">process</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">filename</span> <span class="o">=</span> <span class="kc">None</span>
+
+    <span class="k">def</span> <span class="fm">__exit__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">exc_type</span><span class="p">,</span> <span class="n">exc_val</span><span class="p">,</span> <span class="n">exc_tb</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+
+<div class="viewcode-block" id="CalibrationViewer.display_image"><a class="viewcode-back" href="../../../microscope_automation.samples.html#microscope_automation.samples.find_cells.CalibrationViewer.display_image">[docs]</a>    <span class="k">def</span> <span class="nf">display_image</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">image</span><span class="p">,</span> <span class="n">cmap</span><span class="o">=</span><span class="s2">&quot;Greys_r&quot;</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">process</span> <span class="o">=</span> <span class="n">multiprocessing</span><span class="o">.</span><span class="n">Process</span><span class="p">(</span><span class="n">target</span><span class="o">=</span><span class="n">imshow</span><span class="p">,</span> <span class="n">args</span><span class="o">=</span><span class="p">[</span><span class="n">image</span><span class="p">])</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">process</span><span class="o">.</span><span class="n">start</span><span class="p">()</span></div>
+
+<div class="viewcode-block" id="CalibrationViewer.close"><a class="viewcode-back" href="../../../microscope_automation.samples.html#microscope_automation.samples.find_cells.CalibrationViewer.close">[docs]</a>    <span class="k">def</span> <span class="nf">close</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">process</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">process</span><span class="o">.</span><span class="n">terminate</span><span class="p">()</span>
+        <span class="k">for</span> <span class="n">proc</span> <span class="ow">in</span> <span class="n">psutil</span><span class="o">.</span><span class="n">process_iter</span><span class="p">():</span>
+            <span class="k">if</span> <span class="n">proc</span><span class="o">.</span><span class="n">name</span><span class="p">()</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s2">&quot;display&quot;</span><span class="p">)</span> <span class="ow">or</span> <span class="n">proc</span><span class="o">.</span><span class="n">name</span><span class="p">()</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span>
+                <span class="s2">&quot;PicasaPhotoViewer&quot;</span>
+            <span class="p">):</span>
+                <span class="n">proc</span><span class="o">.</span><span class="n">kill</span><span class="p">()</span></div></div>
+
+
+<div class="viewcode-block" id="display_and_save"><a class="viewcode-back" href="../../../microscope_automation.samples.html#microscope_automation.samples.find_cells.display_and_save">[docs]</a><span class="k">def</span> <span class="nf">display_and_save</span><span class="p">(</span>
+    <span class="n">image</span><span class="p">,</span>
+    <span class="n">name</span><span class="p">,</span>
+    <span class="n">location</span><span class="o">=</span><span class="s2">&quot;/home/mattb/git/microscopeautomation/data/test_data_matthew/segmentationtest/&quot;</span><span class="p">,</span>  <span class="c1"># noqa</span>
+    <span class="n">display</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+<span class="p">):</span>
+    <span class="k">if</span> <span class="n">display</span><span class="p">:</span>
+        <span class="n">plt</span><span class="o">.</span><span class="n">imshow</span><span class="p">(</span><span class="n">image</span><span class="p">,</span> <span class="n">cmap</span><span class="o">=</span><span class="s2">&quot;Greys&quot;</span><span class="p">)</span>
+        <span class="n">plt</span><span class="o">.</span><span class="n">title</span><span class="p">(</span><span class="n">name</span><span class="p">)</span>
+        <span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+    <span class="n">filename</span> <span class="o">=</span> <span class="n">location</span> <span class="o">+</span> <span class="n">name</span> <span class="o">+</span> <span class="s2">&quot;.png&quot;</span>
+    <span class="n">plt</span><span class="o">.</span><span class="n">imsave</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="n">image</span><span class="p">,</span> <span class="n">cmap</span><span class="o">=</span><span class="n">matplotlib</span><span class="o">.</span><span class="n">cm</span><span class="o">.</span><span class="n">gray</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="segment_dir"><a class="viewcode-back" href="../../../microscope_automation.samples.html#microscope_automation.samples.find_cells.segment_dir">[docs]</a><span class="k">def</span> <span class="nf">segment_dir</span><span class="p">(</span><span class="n">directory</span><span class="p">,</span> <span class="n">multi</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
+    <span class="n">file_match</span> <span class="o">=</span> <span class="p">[</span>
+        <span class="n">img</span>
+        <span class="k">for</span> <span class="n">img</span> <span class="ow">in</span> <span class="nb">filter</span><span class="p">(</span>
+            <span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">x</span><span class="o">.</span><span class="n">endswith</span><span class="p">(</span><span class="s2">&quot;.tif&quot;</span><span class="p">),</span>
+            <span class="p">[</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">directory</span><span class="p">,</span> <span class="n">loc</span><span class="p">)</span> <span class="k">for</span> <span class="n">loc</span> <span class="ow">in</span> <span class="n">os</span><span class="o">.</span><span class="n">listdir</span><span class="p">(</span><span class="n">directory</span><span class="p">)],</span>
+        <span class="p">)</span>
+    <span class="p">]</span>
+    <span class="n">location</span> <span class="o">=</span> <span class="s2">&quot;/home/mattb/git/microscopeautomation/data/test_data_matthew/segmentationtest/size_filter/&quot;</span>  <span class="c1"># noqa</span>
+
+    <span class="n">thread_list</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;T1&quot;</span><span class="p">,</span> <span class="s2">&quot;T2&quot;</span><span class="p">,</span> <span class="s2">&quot;T3&quot;</span><span class="p">,</span> <span class="s2">&quot;T4&quot;</span><span class="p">]</span>
+    <span class="n">queue_lock</span> <span class="o">=</span> <span class="n">threading</span><span class="o">.</span><span class="n">Lock</span><span class="p">()</span>
+    <span class="n">img_queue</span> <span class="o">=</span> <span class="n">queue</span><span class="o">.</span><span class="n">Queue</span><span class="p">(</span><span class="mi">100</span><span class="p">)</span>
+    <span class="n">threads</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="n">threadID</span> <span class="o">=</span> <span class="mi">1</span>
+    <span class="n">exit_flag</span> <span class="o">=</span> <span class="kc">False</span>
+
+    <span class="k">class</span> <span class="nc">MultiThread</span><span class="p">(</span><span class="n">threading</span><span class="o">.</span><span class="n">Thread</span><span class="p">):</span>
+        <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">threadID</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">q</span><span class="p">):</span>
+            <span class="n">threading</span><span class="o">.</span><span class="n">Thread</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">threadID</span> <span class="o">=</span> <span class="n">threadID</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">name</span> <span class="o">=</span> <span class="n">name</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">q</span> <span class="o">=</span> <span class="n">q</span>
+
+        <span class="k">def</span> <span class="nf">run</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Starting &quot;</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">)</span>
+            <span class="n">process_data</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">q</span><span class="p">)</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Exiting &quot;</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">multi</span><span class="p">:</span>
+
+        <span class="k">def</span> <span class="nf">process_data</span><span class="p">(</span><span class="n">q</span><span class="p">):</span>
+            <span class="k">while</span> <span class="ow">not</span> <span class="n">exit_flag</span><span class="p">:</span>
+                <span class="n">queue_lock</span><span class="o">.</span><span class="n">acquire</span><span class="p">()</span>
+                <span class="k">if</span> <span class="ow">not</span> <span class="n">img_queue</span><span class="o">.</span><span class="n">empty</span><span class="p">():</span>
+                    <span class="n">queue_data</span> <span class="o">=</span> <span class="n">q</span><span class="o">.</span><span class="n">get</span><span class="p">()</span>
+                    <span class="n">queue_lock</span><span class="o">.</span><span class="n">release</span><span class="p">()</span>
+                    <span class="n">segment</span><span class="p">(</span><span class="o">*</span><span class="n">queue_data</span><span class="p">)</span>
+                    <span class="n">gc</span><span class="o">.</span><span class="n">collect</span><span class="p">()</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">queue_lock</span><span class="o">.</span><span class="n">release</span><span class="p">()</span>
+                <span class="n">time</span><span class="o">.</span><span class="n">sleep</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+
+        <span class="k">for</span> <span class="n">name</span> <span class="ow">in</span> <span class="n">thread_list</span><span class="p">:</span>
+            <span class="n">thread</span> <span class="o">=</span> <span class="n">MultiThread</span><span class="p">(</span><span class="n">threadID</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">img_queue</span><span class="p">)</span>
+            <span class="n">thread</span><span class="o">.</span><span class="n">start</span><span class="p">()</span>
+            <span class="n">threads</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">thread</span><span class="p">)</span>
+            <span class="n">threadID</span> <span class="o">+=</span> <span class="mi">1</span>
+
+        <span class="n">count</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="n">queue_lock</span><span class="o">.</span><span class="n">acquire</span><span class="p">()</span>
+        <span class="k">for</span> <span class="n">img</span> <span class="ow">in</span> <span class="n">file_match</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">count</span> <span class="o">&gt;</span> <span class="n">numpy</span><span class="o">.</span><span class="n">iinfo</span><span class="p">(</span><span class="n">numpy</span><span class="o">.</span><span class="n">uint8</span><span class="p">)</span><span class="o">.</span><span class="n">max</span><span class="p">:</span>
+                <span class="k">break</span>
+            <span class="n">file_loc</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">basename</span><span class="p">(</span><span class="n">img</span><span class="p">)</span>
+            <span class="n">per_parent</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">location</span><span class="p">,</span> <span class="n">file_loc</span><span class="p">)</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">per_parent</span><span class="p">):</span>
+                <span class="n">os</span><span class="o">.</span><span class="n">mkdir</span><span class="p">(</span><span class="n">per_parent</span><span class="p">)</span>
+            <span class="n">img_queue</span><span class="o">.</span><span class="n">put</span><span class="p">([</span><span class="n">img</span><span class="p">,</span> <span class="n">per_parent</span> <span class="o">+</span> <span class="n">os</span><span class="o">.</span><span class="n">sep</span><span class="p">])</span>
+            <span class="n">count</span> <span class="o">+=</span> <span class="mi">1</span>
+        <span class="n">queue_lock</span><span class="o">.</span><span class="n">release</span><span class="p">()</span>
+
+        <span class="k">while</span> <span class="ow">not</span> <span class="n">img_queue</span><span class="o">.</span><span class="n">empty</span><span class="p">():</span>
+            <span class="k">pass</span>
+
+        <span class="n">exit_flag</span> <span class="o">=</span> <span class="kc">True</span>
+
+        <span class="k">for</span> <span class="n">t</span> <span class="ow">in</span> <span class="n">threads</span><span class="p">:</span>
+            <span class="n">t</span><span class="o">.</span><span class="n">join</span><span class="p">()</span>
+            <span class="c1"># segment(img, per_parent + os.sep)</span>
+            <span class="c1"># segmented = segment(img, per_parent)</span>
+            <span class="c1"># filename = file_loc + &quot;.png&quot;</span>
+            <span class="c1"># plt.imshow(segmented, cmap=&#39;Greys&#39;)</span>
+            <span class="c1"># plt.imsave(location + filename, segmented, cmap=matplotlib.cm.gray)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">for</span> <span class="n">img</span> <span class="ow">in</span> <span class="n">file_match</span><span class="p">:</span>
+            <span class="n">file_loc</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">basename</span><span class="p">(</span><span class="n">img</span><span class="p">)</span>
+            <span class="n">per_parent</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">location</span><span class="p">,</span> <span class="n">file_loc</span><span class="p">)</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">per_parent</span><span class="p">):</span>
+                <span class="n">os</span><span class="o">.</span><span class="n">mkdir</span><span class="p">(</span><span class="n">per_parent</span><span class="p">)</span>
+            <span class="n">segment</span><span class="p">(</span><span class="n">img</span><span class="p">,</span> <span class="n">per_parent</span> <span class="o">+</span> <span class="n">os</span><span class="o">.</span><span class="n">sep</span><span class="p">)</span></div>
+
+
+<span class="c1"># @jit</span>
+<div class="viewcode-block" id="segment"><a class="viewcode-back" href="../../../microscope_automation.samples.html#microscope_automation.samples.find_cells.segment">[docs]</a><span class="k">def</span> <span class="nf">segment</span><span class="p">(</span><span class="n">image</span><span class="p">,</span> <span class="n">img_dir</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;FOR TESTING PURPOSES ONLY</span>
+
+<span class="sd">    Input:</span>
+<span class="sd">     image:</span>
+
+<span class="sd">     img_dir:</span>
+
+<span class="sd">    Output:</span>
+<span class="sd">     none</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="c1"># img = TifReader(image)</span>
+    <span class="n">img</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="n">img_data</span> <span class="o">=</span> <span class="n">img</span><span class="o">.</span><span class="n">load</span><span class="p">()</span>
+    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">img_data</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span> <span class="o">==</span> <span class="mi">3</span><span class="p">:</span>
+        <span class="n">img_data</span> <span class="o">=</span> <span class="n">measure</span><span class="o">.</span><span class="n">block_reduce</span><span class="p">(</span><span class="n">img_data</span><span class="p">,</span> <span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">10</span><span class="p">,</span> <span class="mi">10</span><span class="p">),</span> <span class="n">func</span><span class="o">=</span><span class="n">numpy</span><span class="o">.</span><span class="n">mean</span><span class="p">)[</span><span class="mi">0</span><span class="p">,</span> <span class="p">:,</span> <span class="p">:]</span>
+    <span class="k">elif</span> <span class="nb">len</span><span class="p">(</span><span class="n">img_data</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span> <span class="o">==</span> <span class="mi">4</span><span class="p">:</span>
+        <span class="n">img_data</span> <span class="o">=</span> <span class="n">measure</span><span class="o">.</span><span class="n">block_reduce</span><span class="p">(</span><span class="n">img_data</span><span class="p">,</span> <span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">10</span><span class="p">,</span> <span class="mi">10</span><span class="p">),</span> <span class="n">func</span><span class="o">=</span><span class="n">numpy</span><span class="o">.</span><span class="n">mean</span><span class="p">)[</span>
+            <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="p">:,</span> <span class="p">:</span>
+        <span class="p">]</span>
+    <span class="n">img_data</span> <span class="o">=</span> <span class="n">img_data</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="n">numpy</span><span class="o">.</span><span class="n">float</span><span class="p">)</span> <span class="o">/</span> <span class="n">img_data</span><span class="o">.</span><span class="n">max</span><span class="p">()</span>
+    <span class="n">display_and_save</span><span class="p">(</span><span class="n">img_data</span><span class="p">,</span> <span class="s2">&quot;00Original&quot;</span><span class="p">,</span> <span class="n">img_dir</span><span class="p">,</span> <span class="kc">False</span><span class="p">)</span>
+
+    <span class="n">sigmoid</span> <span class="o">=</span> <span class="n">exposure</span><span class="o">.</span><span class="n">adjust_sigmoid</span><span class="p">(</span><span class="n">img_data</span><span class="p">,</span> <span class="mf">0.5</span><span class="p">,</span> <span class="mi">10</span><span class="p">)</span>
+    <span class="n">display_and_save</span><span class="p">(</span><span class="n">sigmoid</span><span class="p">,</span> <span class="s2">&quot;01Sigmoid&quot;</span><span class="p">,</span> <span class="n">img_dir</span><span class="p">,</span> <span class="kc">False</span><span class="p">)</span>
+    <span class="n">gamma_corrected</span> <span class="o">=</span> <span class="n">exposure</span><span class="o">.</span><span class="n">adjust_gamma</span><span class="p">(</span><span class="n">sigmoid</span><span class="p">,</span> <span class="mi">2</span><span class="p">)</span>
+    <span class="n">display_and_save</span><span class="p">(</span><span class="n">gamma_corrected</span><span class="p">,</span> <span class="s2">&quot;02Gamma&quot;</span><span class="p">,</span> <span class="n">img_dir</span><span class="p">,</span> <span class="kc">False</span><span class="p">)</span>
+    <span class="n">g_edges</span> <span class="o">=</span> <span class="n">feature</span><span class="o">.</span><span class="n">canny</span><span class="p">(</span><span class="n">gamma_corrected</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+    <span class="n">display_and_save</span><span class="p">(</span><span class="n">g_edges</span><span class="p">,</span> <span class="s2">&quot;03Canny1&quot;</span><span class="p">,</span> <span class="n">img_dir</span><span class="p">,</span> <span class="kc">False</span><span class="p">)</span>
+    <span class="n">dilation</span> <span class="o">=</span> <span class="n">morphology</span><span class="o">.</span><span class="n">dilation</span><span class="p">(</span><span class="n">g_edges</span><span class="p">,</span> <span class="n">morphology</span><span class="o">.</span><span class="n">diamond</span><span class="p">(</span><span class="mi">3</span><span class="p">))</span>
+    <span class="n">display_and_save</span><span class="p">(</span><span class="n">dilation</span><span class="p">,</span> <span class="s2">&quot;04Dilation&quot;</span><span class="p">,</span> <span class="n">img_dir</span><span class="p">,</span> <span class="kc">False</span><span class="p">)</span>
+    <span class="n">filled</span> <span class="o">=</span> <span class="n">ndimage</span><span class="o">.</span><span class="n">binary_fill_holes</span><span class="p">(</span><span class="n">dilation</span><span class="p">)</span>
+    <span class="n">display_and_save</span><span class="p">(</span><span class="n">filled</span><span class="p">,</span> <span class="s2">&quot;05Filled&quot;</span><span class="p">,</span> <span class="n">img_dir</span><span class="p">,</span> <span class="kc">False</span><span class="p">)</span>
+
+    <span class="n">label_objects</span><span class="p">,</span> <span class="n">nb_labels</span> <span class="o">=</span> <span class="n">ndimage</span><span class="o">.</span><span class="n">label</span><span class="p">(</span><span class="n">filled</span><span class="p">)</span>
+    <span class="n">sizes</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">bincount</span><span class="p">(</span><span class="n">label_objects</span><span class="o">.</span><span class="n">ravel</span><span class="p">())</span>
+    <span class="n">sizes</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="mi">0</span>  <span class="c1"># clear first item, which is the background</span>
+    <span class="n">thresh_mask</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">zeros_like</span><span class="p">(</span><span class="n">sizes</span><span class="p">)</span>
+    <span class="n">thresh_mask</span><span class="p">[</span><span class="n">sizes</span><span class="o">.</span><span class="n">argmax</span><span class="p">()]</span> <span class="o">=</span> <span class="n">sizes</span><span class="o">.</span><span class="n">max</span><span class="p">()</span>
+    <span class="c1"># It seems like all sizes below 450,000 are garbage/too small to image</span>
+
+    <span class="c1"># with open(&#39;/home/mattb/git/microscopeautomation/data/test_data_matthew/segmentationtest/sizes.txt&#39;, &#39;a&#39;) as f:  # noqa</span>
+    <span class="c1">#     f.write(&quot;{} == {} \n&quot;.format(os.path.basename(image), sizes.max()))</span>
+    <span class="n">cleaned</span> <span class="o">=</span> <span class="n">thresh_mask</span><span class="p">[</span><span class="n">label_objects</span><span class="p">]</span>  <span class="c1"># this line is magic that I don&#39;t understand</span>
+    <span class="n">cleaned</span> <span class="o">=</span> <span class="n">cleaned</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="n">numpy</span><span class="o">.</span><span class="n">float</span><span class="p">)</span> <span class="o">/</span> <span class="n">cleaned</span><span class="o">.</span><span class="n">max</span><span class="p">()</span>
+    <span class="n">display_and_save</span><span class="p">(</span><span class="n">cleaned</span><span class="p">,</span> <span class="s2">&quot;06Cleaned&quot;</span><span class="p">,</span> <span class="n">img_dir</span><span class="p">,</span> <span class="kc">False</span><span class="p">)</span>
+
+    <span class="n">border</span> <span class="o">=</span> <span class="n">segmentation</span><span class="o">.</span><span class="n">clear_border</span><span class="p">(</span><span class="n">cleaned</span><span class="p">)</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">border</span><span class="o">.</span><span class="n">any</span><span class="p">():</span>
+        <span class="n">border</span> <span class="o">=</span> <span class="n">cleaned</span>
+    <span class="n">display_and_save</span><span class="p">(</span><span class="n">border</span><span class="p">,</span> <span class="s2">&quot;07Border&quot;</span><span class="p">,</span> <span class="n">img_dir</span><span class="p">,</span> <span class="kc">False</span><span class="p">)</span>
+
+    <span class="n">binary</span> <span class="o">=</span> <span class="n">border</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">bool</span><span class="p">)</span>
+    <span class="n">display_and_save</span><span class="p">(</span><span class="n">binary</span><span class="p">,</span> <span class="s2">&quot;08Binary&quot;</span><span class="p">,</span> <span class="n">img_dir</span><span class="p">,</span> <span class="kc">False</span><span class="p">)</span>
+
+    <span class="n">final_edges</span> <span class="o">=</span> <span class="n">feature</span><span class="o">.</span><span class="n">canny</span><span class="p">(</span><span class="n">binary</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
+    <span class="n">display_and_save</span><span class="p">(</span><span class="n">final_edges</span><span class="p">,</span> <span class="s2">&quot;09Edges&quot;</span><span class="p">,</span> <span class="n">img_dir</span><span class="p">,</span> <span class="kc">False</span><span class="p">)</span>
+
+    <span class="c1"># binary = ndi.binary_fill_holes(final_edges)</span>
+    <span class="c1"># display_and_save(binary, &quot;9Binary&quot;, img_dir, False)</span>
+    <span class="n">overlay</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">copy</span><span class="p">(</span><span class="n">img_data</span><span class="p">)</span>
+    <span class="n">overlay</span><span class="p">[</span><span class="n">final_edges</span><span class="p">]</span> <span class="o">=</span> <span class="mi">1</span>
+    <span class="n">display_and_save</span><span class="p">(</span><span class="n">overlay</span><span class="p">,</span> <span class="s2">&quot;10Overlay&quot;</span><span class="p">,</span> <span class="n">img_dir</span><span class="p">,</span> <span class="kc">False</span><span class="p">)</span>
+
+    <span class="n">distance</span> <span class="o">=</span> <span class="n">ndimage</span><span class="o">.</span><span class="n">distance_transform_edt</span><span class="p">(</span><span class="n">binary</span><span class="p">)</span>
+    <span class="n">display_and_save</span><span class="p">(</span><span class="n">distance</span><span class="p">,</span> <span class="s2">&quot;11Distance&quot;</span><span class="p">,</span> <span class="n">img_dir</span><span class="p">,</span> <span class="kc">False</span><span class="p">)</span>
+
+    <span class="n">d_max</span> <span class="o">=</span> <span class="n">distance</span><span class="o">.</span><span class="n">max</span><span class="p">()</span>
+    <span class="n">top_percent</span> <span class="o">=</span> <span class="n">distance</span> <span class="o">*</span> <span class="p">((</span><span class="n">distance</span> <span class="o">&gt;</span> <span class="p">(</span><span class="n">d_max</span> <span class="o">*</span> <span class="mf">0.5</span><span class="p">))</span> <span class="o">&amp;</span> <span class="p">((</span><span class="n">d_max</span> <span class="o">*</span> <span class="mf">1.0</span><span class="p">)</span> <span class="o">&gt;=</span> <span class="n">distance</span><span class="p">))</span>
+    <span class="c1"># top_percent = np.zeros_like(distance)</span>
+    <span class="c1"># cond = distance &gt; (distance.max() * 0.8)</span>
+    <span class="c1"># top_percent[cond] = 1</span>
+    <span class="n">display_and_save</span><span class="p">(</span><span class="n">top_percent</span><span class="p">,</span> <span class="s2">&quot;12DistancePercent&quot;</span><span class="p">,</span> <span class="n">img_dir</span><span class="p">,</span> <span class="kc">False</span><span class="p">)</span>
+
+    <span class="c1"># smoothing</span>
+    <span class="n">colony_only</span> <span class="o">=</span> <span class="n">ndimage</span><span class="o">.</span><span class="n">gaussian_filter</span><span class="p">(</span><span class="n">img_data</span><span class="p">,</span> <span class="mf">1.5</span><span class="p">)</span>
+    <span class="n">colony_mask</span> <span class="o">=</span> <span class="n">colony_only</span> <span class="o">*</span> <span class="n">top_percent</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">bool</span><span class="p">)</span>
+    <span class="n">display_and_save</span><span class="p">(</span><span class="n">colony_mask</span><span class="p">,</span> <span class="s2">&quot;15ColonyMask&quot;</span><span class="p">,</span> <span class="n">img_dir</span><span class="p">,</span> <span class="kc">False</span><span class="p">)</span>
+
+    <span class="n">colony_edges</span> <span class="o">=</span> <span class="n">feature</span><span class="o">.</span><span class="n">canny</span><span class="p">(</span><span class="n">colony_mask</span><span class="p">)</span>
+    <span class="n">display_and_save</span><span class="p">(</span><span class="n">colony_edges</span><span class="p">,</span> <span class="s2">&quot;16ColonyEdges&quot;</span><span class="p">,</span> <span class="n">img_dir</span><span class="p">,</span> <span class="kc">False</span><span class="p">)</span>
+
+    <span class="n">inner_edges</span> <span class="o">=</span> <span class="n">ndimage</span><span class="o">.</span><span class="n">distance_transform_edt</span><span class="p">(</span>
+        <span class="o">~</span><span class="n">colony_edges</span> <span class="o">*</span> <span class="n">top_percent</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">bool</span><span class="p">)</span>
+    <span class="p">)</span>
+    <span class="n">display_and_save</span><span class="p">(</span><span class="n">inner_edges</span><span class="p">,</span> <span class="s2">&quot;17InnerDistance&quot;</span><span class="p">,</span> <span class="n">img_dir</span><span class="p">,</span> <span class="kc">False</span><span class="p">)</span>
+
+    <span class="n">smooth_point</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">inner_edges</span> <span class="o">==</span> <span class="n">inner_edges</span><span class="o">.</span><span class="n">max</span><span class="p">())</span>
+    <span class="n">smooth_point</span> <span class="o">=</span> <span class="p">(</span><span class="n">smooth_point</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="mi">0</span><span class="p">],</span> <span class="n">smooth_point</span><span class="p">[</span><span class="mi">1</span><span class="p">][</span><span class="mi">0</span><span class="p">])</span>
+    <span class="n">smooth_dist</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">copy</span><span class="p">(</span><span class="n">inner_edges</span><span class="p">)</span>
+    <span class="n">smooth_dist</span><span class="p">[</span>
+        <span class="n">smooth_point</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">-</span> <span class="mi">3</span> <span class="p">:</span> <span class="n">smooth_point</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">+</span> <span class="mi">3</span><span class="p">,</span>
+        <span class="n">smooth_point</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">-</span> <span class="mi">3</span> <span class="p">:</span> <span class="n">smooth_point</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">+</span> <span class="mi">3</span><span class="p">,</span>
+    <span class="p">]</span> <span class="o">=</span> <span class="p">(</span>
+        <span class="n">smooth_dist</span><span class="o">.</span><span class="n">max</span><span class="p">()</span> <span class="o">*</span> <span class="mi">3</span>
+    <span class="p">)</span>
+    <span class="n">display_and_save</span><span class="p">(</span><span class="n">smooth_dist</span><span class="p">,</span> <span class="s2">&quot;18SmoothMax&quot;</span><span class="p">,</span> <span class="n">img_dir</span><span class="p">,</span> <span class="kc">False</span><span class="p">)</span>
+
+    <span class="n">overlay</span><span class="p">[</span>
+        <span class="n">smooth_point</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">-</span> <span class="mi">3</span> <span class="p">:</span> <span class="n">smooth_point</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">+</span> <span class="mi">3</span><span class="p">,</span>
+        <span class="n">smooth_point</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">-</span> <span class="mi">3</span> <span class="p">:</span> <span class="n">smooth_point</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">+</span> <span class="mi">3</span><span class="p">,</span>
+    <span class="p">]</span> <span class="o">=</span> <span class="mi">0</span>
+    <span class="n">display_and_save</span><span class="p">(</span><span class="n">overlay</span><span class="p">,</span> <span class="s2">&quot;19SmoothOverlay&quot;</span><span class="p">,</span> <span class="n">img_dir</span><span class="p">,</span> <span class="kc">False</span><span class="p">)</span>
+
+    <span class="n">dist_edges</span> <span class="o">=</span> <span class="n">feature</span><span class="o">.</span><span class="n">canny</span><span class="p">(</span><span class="n">top_percent</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">bool</span><span class="p">))</span>
+    <span class="n">display_and_save</span><span class="p">(</span><span class="n">dist_edges</span><span class="p">,</span> <span class="s2">&quot;20DistanceEdges&quot;</span><span class="p">,</span> <span class="n">img_dir</span><span class="p">,</span> <span class="kc">False</span><span class="p">)</span>
+
+    <span class="n">overlay</span><span class="p">[</span><span class="n">dist_edges</span><span class="p">]</span> <span class="o">=</span> <span class="mi">0</span>
+    <span class="n">display_and_save</span><span class="p">(</span><span class="n">overlay</span><span class="p">,</span> <span class="s2">&quot;21DistanceOverlay&quot;</span><span class="p">,</span> <span class="n">img_dir</span><span class="p">,</span> <span class="kc">False</span><span class="p">)</span>
+
+    <span class="n">bottom_percent</span> <span class="o">=</span> <span class="n">distance</span> <span class="o">*</span> <span class="p">(</span><span class="n">distance</span> <span class="o">&lt;</span> <span class="p">(</span><span class="n">d_max</span> <span class="o">*</span> <span class="mf">0.5</span><span class="p">))</span>
+    <span class="n">display_and_save</span><span class="p">(</span><span class="n">bottom_percent</span><span class="p">,</span> <span class="s2">&quot;22BottomPercent&quot;</span><span class="p">,</span> <span class="n">img_dir</span><span class="p">,</span> <span class="kc">False</span><span class="p">)</span>
+
+    <span class="n">colony_mask</span> <span class="o">=</span> <span class="n">colony_only</span> <span class="o">*</span> <span class="n">bottom_percent</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">bool</span><span class="p">)</span>
+    <span class="n">display_and_save</span><span class="p">(</span><span class="n">colony_mask</span><span class="p">,</span> <span class="s2">&quot;23BottomSmoothed&quot;</span><span class="p">,</span> <span class="n">img_dir</span><span class="p">,</span> <span class="kc">False</span><span class="p">)</span>
+
+    <span class="n">colony_edges</span> <span class="o">=</span> <span class="n">feature</span><span class="o">.</span><span class="n">canny</span><span class="p">(</span><span class="n">colony_mask</span><span class="p">)</span>
+    <span class="n">display_and_save</span><span class="p">(</span><span class="n">colony_edges</span><span class="p">,</span> <span class="s2">&quot;24RoughEdges&quot;</span><span class="p">,</span> <span class="n">img_dir</span><span class="p">,</span> <span class="kc">False</span><span class="p">)</span>
+
+    <span class="n">outer_edges</span> <span class="o">=</span> <span class="n">ndimage</span><span class="o">.</span><span class="n">distance_transform_edt</span><span class="p">(</span>
+        <span class="o">~</span><span class="n">colony_edges</span> <span class="o">*</span> <span class="n">bottom_percent</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">bool</span><span class="p">)</span>
+    <span class="p">)</span>
+    <span class="n">display_and_save</span><span class="p">(</span><span class="n">outer_edges</span><span class="p">,</span> <span class="s2">&quot;25OuterDistance&quot;</span><span class="p">,</span> <span class="n">img_dir</span><span class="p">,</span> <span class="kc">False</span><span class="p">)</span>
+
+    <span class="n">bottom_mask</span> <span class="o">=</span> <span class="p">(</span><span class="n">bottom_percent</span> <span class="o">*</span> <span class="p">(</span><span class="n">distance</span> <span class="o">*</span> <span class="p">(</span><span class="n">distance</span> <span class="o">&gt;</span> <span class="p">(</span><span class="n">d_max</span> <span class="o">*</span> <span class="mf">0.1</span><span class="p">))))</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span>
+        <span class="nb">bool</span>
+    <span class="p">)</span>
+    <span class="n">outer_edges</span> <span class="o">+=</span> <span class="p">(</span><span class="o">~</span><span class="n">bottom_mask</span><span class="p">)</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">float</span><span class="p">)</span> <span class="o">*</span> <span class="n">outer_edges</span><span class="o">.</span><span class="n">max</span><span class="p">()</span>
+    <span class="n">display_and_save</span><span class="p">(</span><span class="n">outer_edges</span><span class="p">,</span> <span class="s2">&quot;26OuterMasking&quot;</span><span class="p">,</span> <span class="n">img_dir</span><span class="p">,</span> <span class="kc">False</span><span class="p">)</span>
+
+    <span class="n">rough_point</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">outer_edges</span> <span class="o">==</span> <span class="n">outer_edges</span><span class="o">.</span><span class="n">min</span><span class="p">())</span>
+    <span class="n">rough_point</span> <span class="o">=</span> <span class="p">(</span><span class="n">rough_point</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="mi">0</span><span class="p">],</span> <span class="n">rough_point</span><span class="p">[</span><span class="mi">1</span><span class="p">][</span><span class="mi">0</span><span class="p">])</span>
+    <span class="n">rough_dist</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">copy</span><span class="p">(</span><span class="n">outer_edges</span><span class="p">)</span>
+    <span class="n">rough_dist</span><span class="p">[</span>
+        <span class="n">rough_point</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">-</span> <span class="mi">3</span> <span class="p">:</span> <span class="n">rough_point</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">+</span> <span class="mi">3</span><span class="p">,</span> <span class="n">rough_point</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">-</span> <span class="mi">3</span> <span class="p">:</span> <span class="n">rough_point</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">+</span> <span class="mi">3</span>
+    <span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="n">rough_dist</span><span class="o">.</span><span class="n">max</span><span class="p">()</span> <span class="o">*</span> <span class="mi">3</span><span class="p">)</span>
+    <span class="n">display_and_save</span><span class="p">(</span><span class="n">rough_dist</span><span class="p">,</span> <span class="s2">&quot;27RoughMin&quot;</span><span class="p">,</span> <span class="n">img_dir</span><span class="p">,</span> <span class="kc">False</span><span class="p">)</span>
+
+    <span class="n">overlay</span><span class="p">[</span>
+        <span class="n">rough_point</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">-</span> <span class="mi">3</span> <span class="p">:</span> <span class="n">rough_point</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">+</span> <span class="mi">3</span><span class="p">,</span> <span class="n">rough_point</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">-</span> <span class="mi">3</span> <span class="p">:</span> <span class="n">rough_point</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">+</span> <span class="mi">3</span>
+    <span class="p">]</span> <span class="o">=</span> <span class="mi">1</span>
+    <span class="n">display_and_save</span><span class="p">(</span><span class="n">overlay</span><span class="p">,</span> <span class="s2">&quot;28RoughOverlay&quot;</span><span class="p">,</span> <span class="n">img_dir</span><span class="p">,</span> <span class="kc">False</span><span class="p">)</span>
+
+    <span class="n">glcm</span> <span class="o">=</span> <span class="n">feature</span><span class="o">.</span><span class="n">greycomatrix</span><span class="p">(</span><span class="n">img_data</span><span class="p">,</span> <span class="p">[</span><span class="mi">5</span><span class="p">],</span> <span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+    <span class="n">display_and_save</span><span class="p">(</span><span class="n">glcm</span><span class="p">[:,</span> <span class="p">:,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">],</span> <span class="s2">&quot;29GLCM&quot;</span><span class="p">,</span> <span class="n">img_dir</span><span class="p">,</span> <span class="kc">False</span><span class="p">)</span>
+
+    <span class="c1"># mean_mask = img_data * distance.astype(bool)</span>
+    <span class="c1"># mean = filters.rank.mean(mean_mask, morphology.square(3))</span>
+    <span class="c1"># display_and_save(mean, &quot;29MeanImage&quot;, img_dir, False)</span>
+
+    <span class="c1"># display_and_save(overlay, &quot;ChosenPointOverlay-&quot; + str(time.time()), &#39;/home/mattb/git/microscopeautomation/data/test_data_matthew/segmentationtest/roughness_comparison/&#39;, False)  # noqa</span>
+
+    <span class="c1"># return overlay</span>
+    <span class="n">img</span><span class="o">.</span><span class="n">close</span><span class="p">()</span></div>
+
+
+<span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s2">&quot;__main__&quot;</span><span class="p">:</span>
+    <span class="n">start</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span>
+    <span class="n">segment_dir</span><span class="p">(</span>
+        <span class="s2">&quot;/home/mattb/git/microscopeautomation/data/test_data_matthew/colony_seg_test/&quot;</span><span class="p">,</span>
+        <span class="kc">False</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Finished in </span><span class="si">{}</span><span class="s2"> seconds&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span> <span class="o">-</span> <span class="n">start</span><span class="p">))</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;end&quot;</span><span class="p">)</span>
+</pre></div>
+
+          </div>
+          
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<h1 class="logo"><a href="../../../index.html">Microscope Automation</a></h1>
+
+
+
+
+
+
+
+
+<h3>Navigation</h3>
+<p class="caption"><span class="caption-text">Overview</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../index.html">README</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../installation.html">Installation</a></li>
+</ul>
+<p class="caption"><span class="caption-text">Hardware</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../hardware_components.html">hardware_components</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../hardware_control.html">hardware_control</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../RS232.html">RS232</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../setup_microscope.html">setup_microscope</a></li>
+</ul>
+<p class="caption"><span class="caption-text">Samples</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../correct_background.html">correct_background</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../draw_plate.html">draw_plate</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../find_well_center.html">find_well_center</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../find_cells.html">find_cells</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../interactive_location_picker_pyqtgraph.html">interactive_location_picker_pyqtgraph</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../positions_list.html">positions_list</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../samples.html">samples</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../setup_samples.html">setup_samples</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../tile_images.html">tile_images</a></li>
+</ul>
+<p class="caption"><span class="caption-text">Zeiss Microscopes</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../connect_zen_blue.html">connect_zen_blue</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../connect_zen_black.html">connect_zen_black</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../hardware_control_zeiss.html">hardware_control_zeiss</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../write_zen_tiles_experiment.html">write_zen_tiles_experiment</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../zen_experiment_info.html">zen_experiment_info</a></li>
+</ul>
+<p class="caption"><span class="caption-text">3i Microscopes</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../hardware_control_3i.html">hardware_control_3i</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../connect_slidebook.html">connect_slidebook</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../slidebook_experiment_info.html">slidebook_experiment_info</a></li>
+</ul>
+<p class="caption"><span class="caption-text">General Methods</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../automation_exceptions.html">automation_exceptions</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../automation_messages_form_layout.html">automation_messages_form_layout</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../error_handling.html">error_handling</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../get_path.html">get_path</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../image_AICS.html">image_AICS</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../load_image_czi.html">load_image_czi</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../meta_data_file.html">meta_data_file</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../preferences.html">preferences</a></li>
+</ul>
+<p class="caption"><span class="caption-text">Reference Docs</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../CONTRIBUTING.html">Allen Institute Contribution Agreement</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../LICENSE.html">LICENSE</a></li>
+</ul>
+
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="../../../index.html">Documentation overview</a><ul>
+  <li><a href="../../index.html">Module code</a><ul>
+  <li><a href="../../microscope_automation.html">microscope_automation</a><ul>
+  </ul></li>
+  </ul></li>
+  </ul></li>
+</ul>
+</div>
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../../../search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" />
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script>$('#searchbox').show(0);</script>
+
+
+
+
+
+
+
+
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2020, Allen Institute.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 3.3.1</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.12</a>
+      
+    </div>
+
+    
+
+    
+  </body>
+</html>

@@ -1,0 +1,267 @@
+
+<!DOCTYPE html>
+
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>find_well_center &#8212; Microscope Automation 0.0 documentation</title>
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    <link rel="stylesheet" href="_static/alabaster.css" type="text/css" />
+    <script id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+    <script src="_static/jquery.js"></script>
+    <script src="_static/underscore.js"></script>
+    <script src="_static/doctools.js"></script>
+    <script src="_static/language_data.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="find_cells" href="find_cells.html" />
+    <link rel="prev" title="draw_plate" href="draw_plate.html" />
+   
+  <link rel="stylesheet" href="_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head><body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          
+
+          <div class="body" role="main">
+            
+  <div class="contents topic" id="contents">
+<p class="topic-title">Contents</p>
+<ul class="simple">
+<li><p><a class="reference internal" href="#find-well-center" id="id2">find_well_center</a></p></li>
+</ul>
+</div>
+<div class="section" id="find-well-center">
+<span id="id1"></span><h1><a class="toc-backref" href="#id2">find_well_center</a><a class="headerlink" href="#find-well-center" title="Permalink to this headline">¶</a></h1>
+<p>This module finds the center of well based on ImageAICS of well segment by
+generating an ImageAICS of the whole well and convolving it with the ImageAICS
+of the segment.</p>
+<dl class="py function">
+<dt id="microscope_automation.samples.find_well_center.show_hist">
+<code class="sig-prename descclassname">microscope_automation.samples.find_well_center.</code><code class="sig-name descname">show_hist</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">image</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/microscope_automation/samples/find_well_center.html#show_hist"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#microscope_automation.samples.find_well_center.show_hist" title="Permalink to this definition">¶</a></dt>
+<dd><p>Plot histogram.</p>
+<dl class="simple">
+<dt>Input:</dt><dd><p>image</p>
+</dd>
+<dt>Output:</dt><dd><p>none</p>
+</dd>
+</dl>
+<p>We have problems with the pyplot.hist function.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt id="microscope_automation.samples.find_well_center.show_debug_image">
+<code class="sig-prename descclassname">microscope_automation.samples.find_well_center.</code><code class="sig-name descname">show_debug_image</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">image</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/microscope_automation/samples/find_well_center.html#show_debug_image"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#microscope_automation.samples.find_well_center.show_debug_image" title="Permalink to this definition">¶</a></dt>
+<dd><p>Show ImageAICS when in debug mode.
+Input: ImageAICS
+Return: none</p>
+</dd></dl>
+
+<dl class="py function">
+<dt id="microscope_automation.samples.find_well_center.show_debug_summary">
+<code class="sig-prename descclassname">microscope_automation.samples.find_well_center.</code><code class="sig-name descname">show_debug_summary</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">image</span></em>, <em class="sig-param"><span class="n">well_image</span></em>, <em class="sig-param"><span class="n">correlation</span></em>, <em class="sig-param"><span class="n">t_image</span></em>, <em class="sig-param"><span class="n">corr_x</span></em>, <em class="sig-param"><span class="n">corr_y</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/microscope_automation/samples/find_well_center.html#show_debug_summary"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#microscope_automation.samples.find_well_center.show_debug_summary" title="Permalink to this definition">¶</a></dt>
+<dd><p>Show all images to calculate new center.</p>
+<dl>
+<dt>Input:</dt><dd><p>image: microscope image of well center</p>
+<p>well_image: synthetic image of well used for alignment</p>
+<p>correlation: image of crosscorrelation</p>
+<p>t_image: image after thresholding used for crosscorrelation</p>
+<p>corr_x, corr_y: correlation peak</p>
+</dd>
+<dt>Output:</dt><dd><p>none</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt id="microscope_automation.samples.find_well_center.create_well_image">
+<code class="sig-prename descclassname">microscope_automation.samples.find_well_center.</code><code class="sig-name descname">create_well_image</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">diameter</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/microscope_automation/samples/find_well_center.html#create_well_image"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#microscope_automation.samples.find_well_center.create_well_image" title="Permalink to this definition">¶</a></dt>
+<dd><p>Create mask for whole well. Using the whole well for alignment will
+improve accuracy on the cost of speed.
+We recommend to use create_edge_image if possible</p>
+<dl class="simple">
+<dt>Input:</dt><dd><p>diameter: well diameter in pixels</p>
+</dd>
+<dt>Return:</dt><dd><p>well_image: numpy array for well with well set to 1 and background set to 0</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt id="microscope_automation.samples.find_well_center.create_edge_image">
+<code class="sig-prename descclassname">microscope_automation.samples.find_well_center.</code><code class="sig-name descname">create_edge_image</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">diameter</span></em>, <em class="sig-param"><span class="n">length</span></em>, <em class="sig-param"><span class="n">r</span></em>, <em class="sig-param"><span class="n">phi</span></em>, <em class="sig-param"><span class="n">add_noise</span><span class="o">=</span><span class="default_value">False</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/microscope_automation/samples/find_well_center.html#create_edge_image"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#microscope_automation.samples.find_well_center.create_edge_image" title="Permalink to this definition">¶</a></dt>
+<dd><p>Create ImageAICS for well edge used for alignment and test purposes.</p>
+<dl>
+<dt>Input:</dt><dd><p>diameter: Well diameter in pixels</p>
+<p>length: size of image in pixels</p>
+<p>r: distance of image from circle center in pixels.</p>
+<p>phi: direction of image</p>
+<p>addNoise: add noise for test purposes. Default is False.</p>
+</dd>
+<dt>Output:</dt><dd><p>im: well edge image to be used for alignment</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt id="microscope_automation.samples.find_well_center.find_well_center">
+<code class="sig-prename descclassname">microscope_automation.samples.find_well_center.</code><code class="sig-name descname">find_well_center</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">image</span></em>, <em class="sig-param"><span class="n">well_diameter</span></em>, <em class="sig-param"><span class="n">percentage</span></em>, <em class="sig-param"><span class="n">phi</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/microscope_automation/samples/find_well_center.html#find_well_center"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#microscope_automation.samples.find_well_center.find_well_center" title="Permalink to this definition">¶</a></dt>
+<dd><p>Find center of well based on edge ImageAICS.</p>
+<dl>
+<dt>Input:</dt><dd><p>image: image with well edge</p>
+<p>well_diameter: diameter of well in pixels</p>
+<p>percentage: percentage of whole well used for convolution.
+Large numbers increase accuracy, smaller speed.
+well_diameter*percentage/100 has to be larger than size of ImageAICS</p>
+<p>phi: direction of image from center</p>
+</dd>
+<dt>Return:</dt><dd><p>x_center, y_center: expected center of well</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt id="microscope_automation.samples.find_well_center.find_well_center_fine">
+<code class="sig-prename descclassname">microscope_automation.samples.find_well_center.</code><code class="sig-name descname">find_well_center_fine</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">image</span></em>, <em class="sig-param"><span class="n">direction</span></em>, <em class="sig-param"><span class="n">test</span><span class="o">=</span><span class="default_value">False</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/microscope_automation/samples/find_well_center.html#find_well_center_fine"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#microscope_automation.samples.find_well_center.find_well_center_fine" title="Permalink to this definition">¶</a></dt>
+<dd><p>Find edge of well in image in selected direction.</p>
+<dl>
+<dt>Input:</dt><dd><p>image: image with well edge</p>
+<p>direction: direction to search for edge. String of form ‘-x’, ‘x’, ‘-y’, or ‘y’</p>
+<p>test: returns 1 if True since test images may not have data (Default: False)</p>
+</dd>
+<dt>Return:</dt><dd><p>edge_pos: coordinate of well edge in selected direction in pixels
+with origin in center of image</p>
+</dd>
+</dl>
+</dd></dl>
+
+</div>
+
+
+          </div>
+          
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<h1 class="logo"><a href="index.html">Microscope Automation</a></h1>
+
+
+
+
+
+
+
+
+<h3>Navigation</h3>
+<p class="caption"><span class="caption-text">Overview</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="index.html">README</a></li>
+<li class="toctree-l1"><a class="reference internal" href="installation.html">Installation</a></li>
+</ul>
+<p class="caption"><span class="caption-text">Hardware</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="hardware_components.html">hardware_components</a></li>
+<li class="toctree-l1"><a class="reference internal" href="hardware_control.html">hardware_control</a></li>
+<li class="toctree-l1"><a class="reference internal" href="RS232.html">RS232</a></li>
+<li class="toctree-l1"><a class="reference internal" href="setup_microscope.html">setup_microscope</a></li>
+</ul>
+<p class="caption"><span class="caption-text">Samples</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="correct_background.html">correct_background</a></li>
+<li class="toctree-l1"><a class="reference internal" href="draw_plate.html">draw_plate</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">find_well_center</a></li>
+<li class="toctree-l1"><a class="reference internal" href="find_cells.html">find_cells</a></li>
+<li class="toctree-l1"><a class="reference internal" href="interactive_location_picker_pyqtgraph.html">interactive_location_picker_pyqtgraph</a></li>
+<li class="toctree-l1"><a class="reference internal" href="positions_list.html">positions_list</a></li>
+<li class="toctree-l1"><a class="reference internal" href="samples.html">samples</a></li>
+<li class="toctree-l1"><a class="reference internal" href="setup_samples.html">setup_samples</a></li>
+<li class="toctree-l1"><a class="reference internal" href="tile_images.html">tile_images</a></li>
+</ul>
+<p class="caption"><span class="caption-text">Zeiss Microscopes</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="connect_zen_blue.html">connect_zen_blue</a></li>
+<li class="toctree-l1"><a class="reference internal" href="connect_zen_black.html">connect_zen_black</a></li>
+<li class="toctree-l1"><a class="reference internal" href="hardware_control_zeiss.html">hardware_control_zeiss</a></li>
+<li class="toctree-l1"><a class="reference internal" href="write_zen_tiles_experiment.html">write_zen_tiles_experiment</a></li>
+<li class="toctree-l1"><a class="reference internal" href="zen_experiment_info.html">zen_experiment_info</a></li>
+</ul>
+<p class="caption"><span class="caption-text">3i Microscopes</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="hardware_control_3i.html">hardware_control_3i</a></li>
+<li class="toctree-l1"><a class="reference internal" href="connect_slidebook.html">connect_slidebook</a></li>
+<li class="toctree-l1"><a class="reference internal" href="slidebook_experiment_info.html">slidebook_experiment_info</a></li>
+</ul>
+<p class="caption"><span class="caption-text">General Methods</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="automation_exceptions.html">automation_exceptions</a></li>
+<li class="toctree-l1"><a class="reference internal" href="automation_messages_form_layout.html">automation_messages_form_layout</a></li>
+<li class="toctree-l1"><a class="reference internal" href="error_handling.html">error_handling</a></li>
+<li class="toctree-l1"><a class="reference internal" href="get_path.html">get_path</a></li>
+<li class="toctree-l1"><a class="reference internal" href="image_AICS.html">image_AICS</a></li>
+<li class="toctree-l1"><a class="reference internal" href="load_image_czi.html">load_image_czi</a></li>
+<li class="toctree-l1"><a class="reference internal" href="meta_data_file.html">meta_data_file</a></li>
+<li class="toctree-l1"><a class="reference internal" href="preferences.html">preferences</a></li>
+</ul>
+<p class="caption"><span class="caption-text">Reference Docs</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="CONTRIBUTING.html">Allen Institute Contribution Agreement</a></li>
+<li class="toctree-l1"><a class="reference internal" href="LICENSE.html">LICENSE</a></li>
+</ul>
+
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="index.html">Documentation overview</a><ul>
+      <li>Previous: <a href="draw_plate.html" title="previous chapter">draw_plate</a></li>
+      <li>Next: <a href="find_cells.html" title="next chapter">find_cells</a></li>
+  </ul></li>
+</ul>
+</div>
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" />
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script>$('#searchbox').show(0);</script>
+
+
+
+
+
+
+
+
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2020, Allen Institute.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 3.3.1</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.12</a>
+      
+      |
+      <a href="_sources/find_well_center.rst.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+
+    
+  </body>
+</html>

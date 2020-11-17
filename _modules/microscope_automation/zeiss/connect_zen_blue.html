@@ -1,0 +1,1714 @@
+
+<!DOCTYPE html>
+
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>microscope_automation.zeiss.connect_zen_blue &#8212; Microscope Automation 0.0 documentation</title>
+    <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+    <link rel="stylesheet" href="../../../_static/alabaster.css" type="text/css" />
+    <script id="documentation_options" data-url_root="../../../" src="../../../_static/documentation_options.js"></script>
+    <script src="../../../_static/jquery.js"></script>
+    <script src="../../../_static/underscore.js"></script>
+    <script src="../../../_static/doctools.js"></script>
+    <script src="../../../_static/language_data.js"></script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" />
+   
+  <link rel="stylesheet" href="../../../_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head><body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          
+
+          <div class="body" role="main">
+            
+  <h1>Source code for microscope_automation.zeiss.connect_zen_blue</h1><div class="highlight"><pre>
+<span></span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">Communication layer for Zen Blue API</span>
+<span class="sd">Date Created: June 09, 2016</span>
+<span class="sd">&quot;&quot;&quot;</span>
+
+<span class="kn">import</span> <span class="nn">time</span>
+<span class="kn">import</span> <span class="nn">os.path</span>
+<span class="kn">import</span> <span class="nn">logging</span>
+<span class="kn">from</span> <span class="nn">serial.serialutil</span> <span class="kn">import</span> <span class="n">SerialException</span>
+<span class="kn">from</span> <span class="nn">..load_image_czi</span> <span class="kn">import</span> <span class="n">LoadImageCzi</span>
+<span class="kn">from</span> <span class="nn">..automation_exceptions</span> <span class="kn">import</span> <span class="p">(</span>
+    <span class="n">HardwareError</span><span class="p">,</span>
+    <span class="n">AutofocusError</span><span class="p">,</span>
+    <span class="n">AutofocusObjectiveChangedError</span><span class="p">,</span>
+    <span class="n">AutofocusNotSetError</span><span class="p">,</span>
+    <span class="n">LoadNotDefinedError</span><span class="p">,</span>
+    <span class="n">WorkNotDefinedError</span><span class="p">,</span>
+    <span class="n">ExperimentError</span><span class="p">,</span>
+    <span class="n">ExperimentNotExistError</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="kn">from</span> <span class="nn">.zen_experiment_info</span> <span class="kn">import</span> <span class="n">ZenExperiment</span>
+
+<span class="k">try</span><span class="p">:</span>
+    <span class="kn">from</span> <span class="nn">..hardware.RS232</span> <span class="kn">import</span> <span class="n">Braintree</span>
+<span class="k">except</span> <span class="ne">ImportError</span><span class="p">:</span>
+    <span class="kn">from</span> <span class="nn">..hardware.RS232_dummy</span> <span class="kn">import</span> <span class="n">Braintree</span>
+
+<span class="c1"># Create Logger</span>
+<span class="n">log</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="s2">&quot;microscopeAutomation connect_zen_blue&quot;</span><span class="p">)</span>
+
+<span class="c1">################################################################################</span>
+<span class="c1">#</span>
+<span class="c1"># Class to control Zeiss hardware through the Zeiss software Zen blue</span>
+<span class="c1"># To use this class dll have to be exported.</span>
+<span class="c1">#</span>
+<span class="c1">################################################################################</span>
+
+
+<div class="viewcode-block" id="ConnectMicroscope"><a class="viewcode-back" href="../../../microscope_automation.zeiss.html#microscope_automation.zeiss.connect_zen_blue.ConnectMicroscope">[docs]</a><span class="k">class</span> <span class="nc">ConnectMicroscope</span><span class="p">:</span>
+    <span class="sd">&quot;&quot;&quot;Simulation: Connect to Carl Zeiss ZEN blue Python API.</span>
+
+<span class="sd">    To be able to use ZEN services in a COM environment,</span>
+<span class="sd">    the ZEN functionality must be registered as follows as administrator</span>
+<span class="sd">    (right click when opening command prompt to run as administrator)</span>
+<span class="sd">    (you might have to update versions):</span>
+
+<span class="sd">    pushd &quot;C:\\Windows\\Microsoft.NET\\Framework64\\v4.0.30319&quot;</span>
+<span class="sd">    SET dll-1=&quot;C:\\Program Files\\Carl Zeiss\\ZEN 2\\ZEN 2 (blue edition)\\Zeiss.Micro.Scripting.dll&quot;</span>
+<span class="sd">    regasm /u /codebase /tlb %dll-1%</span>
+<span class="sd">    regasm /codebase /tlb %dll-1%</span>
+
+<span class="sd">    SET dll-2=&quot;C:\\Program Files\\Carl Zeiss\\ZEN 2\\ZEN 2 (blue edition)\\Zeiss.Micro.LM.Scripting.dll&quot;</span>
+<span class="sd">    regasm /u /codebase /tlb %dll-2%</span>
+<span class="sd">    regasm /codebase /tlb %dll-2%</span>
+<span class="sd">    popd</span>
+<span class="sd">    &quot;&quot;&quot;</span>  <span class="c1"># noqa</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">connect_dll</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Connect to Carl Zeiss ZEN blue Python API</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># setup logging</span>
+        <span class="c1"># Import the ZEN OAD Scripting into Python</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">connect_dll</span><span class="p">:</span>
+            <span class="kn">from</span> <span class="nn">.</span> <span class="kn">import</span> <span class="n">connect_zen_blue_dummy</span> <span class="k">as</span> <span class="n">microscopeConnection</span>
+
+            <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Running in Test Mode - Connecting to Simulated hardware&quot;</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="kn">import</span> <span class="nn">win32com.client</span> <span class="k">as</span> <span class="nn">microscopeConnection</span>
+
+                <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Connected to microscope hardware - Zen Blue&quot;</span><span class="p">)</span>
+            <span class="k">except</span> <span class="ne">ImportError</span><span class="p">:</span>
+                <span class="kn">from</span> <span class="nn">.</span> <span class="kn">import</span> <span class="n">connect_zen_blue_dummy</span> <span class="k">as</span> <span class="n">microscopeConnection</span>
+                <span class="kn">from</span> <span class="nn">..hardware.RS232_dummy</span> <span class="kn">import</span> <span class="n">Braintree</span>  <span class="c1"># noqa</span>
+
+                <span class="nb">print</span><span class="p">(</span>
+                    <span class="s2">&quot;Failed to connect to Zen Blue Production SW,&quot;</span>
+                    <span class="s2">&quot;connecting to simulated hardware&quot;</span>
+                <span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">Zen</span> <span class="o">=</span> <span class="n">microscopeConnection</span><span class="o">.</span><span class="n">GetActiveObject</span><span class="p">(</span>
+            <span class="s2">&quot;Zeiss.Micro.Scripting.ZenWrapperLM&quot;</span>
+        <span class="p">)</span>
+
+        <span class="c1"># predefine internal settings</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">zLoad</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">zWork</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">image</span> <span class="o">=</span> <span class="kc">None</span>
+
+        <span class="c1"># Save stored position. We will use this position to move the objective</span>
+        <span class="c1"># to this position before recalling this position.</span>
+        <span class="c1"># If the stored position is close to the find_surface position,</span>
+        <span class="c1"># Definite Focus works much faster.</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">DFObjective</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">DFStoredFocus</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">lastKnownFocusPosition</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">set_autofocus_not_ready</span><span class="p">()</span>
+
+        <span class="n">log</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Connected to ZEN&quot;</span><span class="p">)</span>
+
+    <span class="c1">###############################################################################</span>
+    <span class="c1">#</span>
+    <span class="c1"># Methods to handle ZEN blueExperiment Settings</span>
+    <span class="c1">#</span>
+    <span class="c1">###############################################################################</span>
+
+<div class="viewcode-block" id="ConnectMicroscope.create_experiment_path"><a class="viewcode-back" href="../../../microscope_automation.zeiss.html#microscope_automation.zeiss.connect_zen_blue.ConnectMicroscope.create_experiment_path">[docs]</a>    <span class="k">def</span> <span class="nf">create_experiment_path</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">experiment</span><span class="p">,</span> <span class="n">experiment_folder</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Creates complete path to experiment.</span>
+<span class="sd">        Raises exception if experiment does not exist</span>
+
+<span class="sd">        Input:</span>
+<span class="sd">         experiment: string with name of experiment (with or w/o extension .czexp)</span>
+
+<span class="sd">         experiment_folder: folder for capture settings</span>
+
+<span class="sd">        Output:</span>
+<span class="sd">         experiment_path: path to experiment</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># check if experiment has proper extension</span>
+        <span class="n">extension</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">splitext</span><span class="p">(</span><span class="n">experiment</span><span class="p">)[</span><span class="mi">1</span><span class="p">]</span>
+        <span class="k">if</span> <span class="n">extension</span> <span class="o">!=</span> <span class="s2">&quot;.czexp&quot;</span><span class="p">:</span>
+            <span class="n">experiment</span> <span class="o">=</span> <span class="n">experiment</span> <span class="o">+</span> <span class="s2">&quot;.czexp&quot;</span>
+        <span class="n">experiment_path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">normpath</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">experiment_folder</span><span class="p">,</span> <span class="n">experiment</span><span class="p">))</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">experiment_path</span><span class="p">):</span>
+            <span class="k">raise</span> <span class="n">ExperimentNotExistError</span><span class="p">(</span>
+                <span class="s2">&quot;Could not create experiment path </span><span class="si">{}</span><span class="s2">.&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">experiment_path</span><span class="p">),</span>
+                <span class="n">experiment</span><span class="p">,</span>
+            <span class="p">)</span>
+        <span class="k">return</span> <span class="n">experiment_path</span></div>
+
+    <span class="c1">###############################################################################</span>
+    <span class="c1">#</span>
+    <span class="c1"># Methods to save and load images</span>
+    <span class="c1">#</span>
+    <span class="c1">###############################################################################</span>
+
+<div class="viewcode-block" id="ConnectMicroscope.save_image"><a class="viewcode-back" href="../../../microscope_automation.zeiss.html#microscope_automation.zeiss.connect_zen_blue.ConnectMicroscope.save_image">[docs]</a>    <span class="k">def</span> <span class="nf">save_image</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">fileName</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Save last acquired ImageAICS in original file format</span>
+<span class="sd">        using microscope software.</span>
+
+<span class="sd">        Input:</span>
+<span class="sd">         file: file name and path for ImageAICS save</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">image</span><span class="o">.</span><span class="n">Save_2</span><span class="p">(</span><span class="n">fileName</span><span class="p">)</span>
+            <span class="n">log</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;save ImageAICS to &quot;</span> <span class="o">+</span> <span class="n">fileName</span><span class="p">)</span>
+        <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">err</span><span class="p">:</span>
+            <span class="n">log</span><span class="o">.</span><span class="n">exception</span><span class="p">(</span><span class="n">err</span><span class="p">)</span>
+            <span class="k">raise</span> <span class="n">HardwareError</span><span class="p">(</span><span class="s2">&quot;Error in save_image to </span><span class="si">{}</span><span class="s2">.&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">fileName</span><span class="p">))</span></div>
+
+<div class="viewcode-block" id="ConnectMicroscope.load_image"><a class="viewcode-back" href="../../../microscope_automation.zeiss.html#microscope_automation.zeiss.connect_zen_blue.ConnectMicroscope.load_image">[docs]</a>    <span class="k">def</span> <span class="nf">load_image</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">image</span><span class="p">,</span> <span class="n">get_meta</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Load image using aicsimage and return it a class ImageAICS</span>
+
+<span class="sd">        Input:</span>
+<span class="sd">         image: image object of class ImageAICS. Holds meta data at this moment,</span>
+<span class="sd">         no image data.</span>
+
+<span class="sd">         get_meta: if true, retrieve meta data from file. Default is False</span>
+
+<span class="sd">        Output:</span>
+<span class="sd">         image: image with data and meta data as ImageAICS class</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="n">rz</span> <span class="o">=</span> <span class="n">LoadImageCzi</span><span class="p">()</span>
+        <span class="n">image</span> <span class="o">=</span> <span class="n">rz</span><span class="o">.</span><span class="n">load_image</span><span class="p">(</span><span class="n">image</span><span class="p">,</span> <span class="n">get_meta_data</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        <span class="n">log</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;loaded file &quot;</span> <span class="o">+</span> <span class="n">image</span><span class="o">.</span><span class="n">get_meta</span><span class="p">(</span><span class="s2">&quot;aics_filePath&quot;</span><span class="p">))</span>
+        <span class="k">return</span> <span class="n">image</span></div>
+
+    <span class="c1">###############################################################################</span>
+    <span class="c1">#</span>
+    <span class="c1"># Methods to acquire images</span>
+    <span class="c1">#</span>
+    <span class="c1">###############################################################################</span>
+
+<div class="viewcode-block" id="ConnectMicroscope.snap_image"><a class="viewcode-back" href="../../../microscope_automation.zeiss.html#microscope_automation.zeiss.connect_zen_blue.ConnectMicroscope.snap_image">[docs]</a>    <span class="k">def</span> <span class="nf">snap_image</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">experiment</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Snap image with parameters defined in experiment.</span>
+<span class="sd">        Image object is stored in self.image.</span>
+<span class="sd">        Acquires single image from experiment (e.g. single slice of stack).</span>
+
+<span class="sd">        Input:</span>
+<span class="sd">         experiment: string with name of experiment as defined within</span>
+<span class="sd">         Microscope software. If None use active experiment.</span>
+
+<span class="sd">        Output:</span>
+<span class="sd">         none</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">log</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;snap image using experiment &quot;</span><span class="p">,</span> <span class="n">experiment</span><span class="p">)</span>
+
+        <span class="c1"># if method switches objective the stored position for definite focus is invalid</span>
+        <span class="n">current_objective</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_objective_name</span><span class="p">()</span>
+
+        <span class="k">try</span><span class="p">:</span>
+            <span class="c1"># call ZEN API to set experiment</span>
+            <span class="k">if</span> <span class="n">experiment</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="c1"># use active experiment in software. Will fail if no experiment is set.</span>
+                <span class="k">try</span><span class="p">:</span>
+                    <span class="n">exp_class</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">Zen</span><span class="o">.</span><span class="n">Acquisition</span><span class="o">.</span><span class="n">Experiments</span><span class="o">.</span><span class="n">ActiveExperiment</span>
+                <span class="k">except</span> <span class="ne">Exception</span><span class="p">:</span>
+                    <span class="k">raise</span> <span class="n">ExperimentError</span><span class="p">(</span><span class="s2">&quot;No active experiment is defined.&quot;</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">exp_class</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">Zen</span><span class="o">.</span><span class="n">Acquisition</span><span class="o">.</span><span class="n">Experiments</span><span class="o">.</span><span class="n">GetByName</span><span class="p">(</span><span class="n">experiment</span><span class="p">)</span>
+            <span class="c1"># check if experiment exists</span>
+            <span class="k">if</span> <span class="n">exp_class</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">Zen</span><span class="o">.</span><span class="n">Acquisition</span><span class="o">.</span><span class="n">Experiments</span><span class="o">.</span><span class="n">Contains</span><span class="p">(</span>
+                <span class="n">exp_class</span>
+            <span class="p">):</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">image</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">Zen</span><span class="o">.</span><span class="n">Acquisition</span><span class="o">.</span><span class="n">AcquireImage_3</span><span class="p">(</span><span class="n">exp_class</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">ExperimentNotExistError</span><span class="p">(</span><span class="n">experiment</span><span class="p">)</span>
+        <span class="k">except</span> <span class="p">(</span><span class="n">ExperimentNotExistError</span><span class="p">,</span> <span class="n">ExperimentError</span><span class="p">)</span> <span class="k">as</span> <span class="n">err</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="n">err</span>
+        <span class="k">except</span> <span class="ne">Exception</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="n">HardwareError</span><span class="p">(</span><span class="s2">&quot;Error in snap_image.&quot;</span><span class="p">)</span>
+
+        <span class="c1"># set flag for definite focus if objective was changed</span>
+        <span class="k">if</span> <span class="p">(</span>
+            <span class="n">current_objective</span> <span class="o">!=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_objective_name</span><span class="p">()</span>
+            <span class="ow">or</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_objective_name</span><span class="p">()</span> <span class="o">==</span> <span class="s2">&quot;&quot;</span>
+        <span class="p">):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">set_autofocus_not_ready</span><span class="p">()</span></div>
+
+<div class="viewcode-block" id="ConnectMicroscope.close_experiment"><a class="viewcode-back" href="../../../microscope_automation.zeiss.html#microscope_automation.zeiss.connect_zen_blue.ConnectMicroscope.close_experiment">[docs]</a>    <span class="k">def</span> <span class="nf">close_experiment</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">experiment</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Closes experiment and forces reload.</span>
+
+<span class="sd">        Input:</span>
+<span class="sd">         experiment: string with name of experiment defined within Microscope software</span>
+
+<span class="sd">        Output:</span>
+<span class="sd">         none</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">exp_class</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">Zen</span><span class="o">.</span><span class="n">Acquisition</span><span class="o">.</span><span class="n">Experiments</span><span class="o">.</span><span class="n">GetByName</span><span class="p">(</span><span class="n">experiment</span><span class="p">)</span>
+        <span class="n">exp_class</span><span class="o">.</span><span class="n">Close</span><span class="p">()</span></div>
+
+<div class="viewcode-block" id="ConnectMicroscope.get_experiment_folder"><a class="viewcode-back" href="../../../microscope_automation.zeiss.html#microscope_automation.zeiss.connect_zen_blue.ConnectMicroscope.get_experiment_folder">[docs]</a>    <span class="k">def</span> <span class="nf">get_experiment_folder</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Return path to user specific experiment file.</span>
+
+<span class="sd">        Input:</span>
+<span class="sd">         none</span>
+
+<span class="sd">        Output:</span>
+<span class="sd">         experiment_path: path to experiment file</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">user_document_path</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">Zen</span><span class="o">.</span><span class="n">Application</span><span class="o">.</span><span class="n">Environment</span><span class="o">.</span><span class="n">GetFolderPath</span><span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">Zen</span><span class="o">.</span><span class="n">ZenSpecialFolder</span><span class="o">.</span><span class="n">UserDocuments</span>
+        <span class="p">)</span>
+        <span class="k">return</span> <span class="n">user_document_path</span></div>
+
+<div class="viewcode-block" id="ConnectMicroscope.wait_for_experiment"><a class="viewcode-back" href="../../../microscope_automation.zeiss.html#microscope_automation.zeiss.connect_zen_blue.ConnectMicroscope.wait_for_experiment">[docs]</a>    <span class="k">def</span> <span class="nf">wait_for_experiment</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">experiment</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Wait until experimentis active experiment.</span>
+
+<span class="sd">        Input:</span>
+<span class="sd">         experiment: string with name of experiment defined within Microscope software.</span>
+
+<span class="sd">        Output:</span>
+<span class="sd">         none</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># if experiment name contains extension remove it</span>
+        <span class="n">target_experiment</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">splitext</span><span class="p">(</span><span class="n">experiment</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="k">while</span> <span class="kc">True</span><span class="p">:</span>
+            <span class="n">active_experiment</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">splitext</span><span class="p">(</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">Zen</span><span class="o">.</span><span class="n">Acquisition</span><span class="o">.</span><span class="n">Experiments</span><span class="o">.</span><span class="n">ActiveExperiment</span><span class="o">.</span><span class="n">name</span>
+            <span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
+            <span class="nb">print</span><span class="p">(</span><span class="n">active_experiment</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">target_experiment</span> <span class="o">==</span> <span class="n">active_experiment</span><span class="p">:</span>
+                <span class="k">break</span></div>
+
+<div class="viewcode-block" id="ConnectMicroscope.wait_for_objective"><a class="viewcode-back" href="../../../microscope_automation.zeiss.html#microscope_automation.zeiss.connect_zen_blue.ConnectMicroscope.wait_for_objective">[docs]</a>    <span class="k">def</span> <span class="nf">wait_for_objective</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">target_objective</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Wait until objective is in place.</span>
+
+<span class="sd">        Input:</span>
+<span class="sd">         target_objective: string with name of objective.</span>
+
+<span class="sd">        Output:</span>
+<span class="sd">         None</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">while</span> <span class="kc">True</span><span class="p">:</span>
+            <span class="n">current_objective</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_objective_name</span><span class="p">()</span>
+            <span class="k">if</span> <span class="n">current_objective</span> <span class="o">==</span> <span class="n">target_objective</span><span class="p">:</span>
+                <span class="k">break</span></div>
+
+<div class="viewcode-block" id="ConnectMicroscope.set_experiment"><a class="viewcode-back" href="../../../microscope_automation.zeiss.html#microscope_automation.zeiss.connect_zen_blue.ConnectMicroscope.set_experiment">[docs]</a>    <span class="k">def</span> <span class="nf">set_experiment</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">experiment</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">pos_list</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Sets the experiment with ZEN API</span>
+
+<span class="sd">        Input:</span>
+<span class="sd">         experiment: string with name of experiment defined within Microscope software.</span>
+<span class="sd">         If None use actual experiment.</span>
+
+<span class="sd">         pos_list: if experiment has tiles enabled execute experiment at positions</span>
+<span class="sd">         [(x1, y1, z1), (x2 ...]. Supports only one block experiments.</span>
+
+<span class="sd">        Output:</span>
+<span class="sd">         exp_class: the instance of the experiment returned by ZEN API</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">experiment</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="c1"># use active experiment in software. Will fail if no experiment is set.</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="n">exp_class</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">Zen</span><span class="o">.</span><span class="n">Acquisition</span><span class="o">.</span><span class="n">Experiments</span><span class="o">.</span><span class="n">ActiveExperiment</span>
+            <span class="k">except</span> <span class="ne">Exception</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="n">ExperimentError</span><span class="p">(</span><span class="s2">&quot;No active experiment is defined.&quot;</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">exp_class</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">Zen</span><span class="o">.</span><span class="n">Acquisition</span><span class="o">.</span><span class="n">Experiments</span><span class="o">.</span><span class="n">GetByName</span><span class="p">(</span><span class="n">experiment</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">pos_list</span><span class="p">:</span>
+                <span class="n">exp_class</span><span class="o">.</span><span class="n">ClearTileRegionsAndPositions</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+                <span class="k">for</span> <span class="n">pos</span> <span class="ow">in</span> <span class="n">pos_list</span><span class="p">:</span>
+                    <span class="n">exp_class</span><span class="o">.</span><span class="n">AddSinglePosition</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">pos</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">pos</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">pos</span><span class="p">[</span><span class="mi">2</span><span class="p">])</span>
+
+        <span class="k">return</span> <span class="n">exp_class</span></div>
+
+<div class="viewcode-block" id="ConnectMicroscope.execute_experiment"><a class="viewcode-back" href="../../../microscope_automation.zeiss.html#microscope_automation.zeiss.connect_zen_blue.ConnectMicroscope.execute_experiment">[docs]</a>    <span class="k">def</span> <span class="nf">execute_experiment</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">experiment</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">pos_list</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Execute experiments with parameters defined in experiment.</span>
+<span class="sd">        Image object is stored in self.image.</span>
+<span class="sd">        Takes all images that are part of experiment (e.g. all slices).</span>
+
+<span class="sd">        Input:</span>
+<span class="sd">         experiment: string with name of experiment defined within Microscope software.</span>
+<span class="sd">         If None use actual experiment.</span>
+
+<span class="sd">         pos_list: if experiment has tiles enabled execute experiment at positions</span>
+<span class="sd">         [(x1, y1, z1), (x2 ...]. Supports only one block experiments.</span>
+
+<span class="sd">        Output:</span>
+<span class="sd">         none</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">log</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;execute experiment to acquire image using experiment </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">experiment</span><span class="p">)</span>
+
+        <span class="c1"># if method switches objective the stored position for definite focus is invalid</span>
+        <span class="n">current_objective</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_objective_name</span><span class="p">()</span>
+
+        <span class="c1"># stop live mode, otherwise the wrong objective might be used</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">live_mode_stop</span><span class="p">()</span>
+
+        <span class="n">exp_class</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">set_experiment</span><span class="p">(</span><span class="n">experiment</span><span class="p">,</span> <span class="n">pos_list</span><span class="p">)</span>
+
+        <span class="k">try</span><span class="p">:</span>
+            <span class="c1"># Reason for the duplicate try except block:</span>
+            <span class="c1"># One specific experiment - WellTile_10x fails to execute the first</span>
+            <span class="c1"># time the execution function is called. Hence, it needs a second call</span>
+            <span class="c1"># if the first one fails, and that seems to fix the bug.</span>
+            <span class="c1"># Note - This is a temporary fix. There is something messed up with the</span>
+            <span class="c1"># communication object. We will be looking into it further.</span>
+            <span class="c1"># TODO - MICRND-741</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="c1"># check if experiment exists</span>
+                <span class="k">if</span> <span class="n">exp_class</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">Zen</span><span class="o">.</span><span class="n">Acquisition</span><span class="o">.</span><span class="n">Experiments</span><span class="o">.</span><span class="n">Contains</span><span class="p">(</span>
+                    <span class="n">exp_class</span>
+                <span class="p">):</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">image</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">Zen</span><span class="o">.</span><span class="n">Acquisition</span><span class="o">.</span><span class="n">Execute</span><span class="p">(</span><span class="n">exp_class</span><span class="p">)</span>
+                    <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">image</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+                        <span class="k">raise</span> <span class="n">ExperimentError</span><span class="p">(</span>
+                            <span class="s2">&quot;Zen.Acquisition.Execute() did not return image.&quot;</span>
+                        <span class="p">)</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="k">raise</span> <span class="n">ExperimentNotExistError</span><span class="p">(</span><span class="n">experiment</span><span class="p">)</span>
+            <span class="k">except</span> <span class="ne">Exception</span><span class="p">:</span>
+                <span class="k">if</span> <span class="n">exp_class</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">Zen</span><span class="o">.</span><span class="n">Acquisition</span><span class="o">.</span><span class="n">Experiments</span><span class="o">.</span><span class="n">Contains</span><span class="p">(</span>
+                    <span class="n">exp_class</span>
+                <span class="p">):</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">image</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">Zen</span><span class="o">.</span><span class="n">Acquisition</span><span class="o">.</span><span class="n">Execute</span><span class="p">(</span><span class="n">exp_class</span><span class="p">)</span>
+                    <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">image</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+                        <span class="k">raise</span> <span class="n">ExperimentError</span><span class="p">(</span>
+                            <span class="s2">&quot;Zen.Acquisition.Execute() did not return image.&quot;</span>
+                        <span class="p">)</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="k">raise</span> <span class="n">ExperimentNotExistError</span><span class="p">(</span><span class="n">experiment</span><span class="p">)</span>
+        <span class="k">except</span> <span class="p">(</span><span class="n">ExperimentError</span><span class="p">,</span> <span class="n">ExperimentNotExistError</span><span class="p">)</span> <span class="k">as</span> <span class="n">err</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="n">err</span>
+        <span class="k">except</span> <span class="ne">Exception</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="n">HardwareError</span><span class="p">(</span><span class="s2">&quot;Error in execute_experiment.&quot;</span><span class="p">)</span>
+        <span class="c1"># set flag for definite focus if objective was changed</span>
+        <span class="k">if</span> <span class="p">(</span>
+            <span class="n">current_objective</span> <span class="o">!=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_objective_name</span><span class="p">()</span>
+            <span class="ow">or</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_objective_name</span><span class="p">()</span> <span class="o">==</span> <span class="s2">&quot;&quot;</span>
+        <span class="p">):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">set_autofocus_not_ready</span><span class="p">()</span></div>
+
+<div class="viewcode-block" id="ConnectMicroscope.live_mode_start"><a class="viewcode-back" href="../../../microscope_automation.zeiss.html#microscope_automation.zeiss.connect_zen_blue.ConnectMicroscope.live_mode_start">[docs]</a>    <span class="k">def</span> <span class="nf">live_mode_start</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">experiment</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Start live mode of ZEN software.</span>
+
+<span class="sd">        Input:</span>
+<span class="sd">         experiment: name of ZEN experiment (default = None)</span>
+
+<span class="sd">        Output:</span>
+<span class="sd">         imgLive: image of type ZenImage</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># if method switches objective the stored position for definite focus is invalid</span>
+        <span class="n">current_objective</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_objective_name</span><span class="p">()</span>
+
+        <span class="k">try</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">experiment</span><span class="p">:</span>
+                <span class="c1"># get experiment as type ZenExperiment by name</span>
+                <span class="n">exp_class</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">Zen</span><span class="o">.</span><span class="n">Acquisition</span><span class="o">.</span><span class="n">Experiments</span><span class="o">.</span><span class="n">GetByName</span><span class="p">(</span><span class="n">experiment</span><span class="p">)</span>
+                <span class="k">if</span> <span class="n">exp_class</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">or</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">Zen</span><span class="o">.</span><span class="n">Acquisition</span><span class="o">.</span><span class="n">Experiments</span><span class="o">.</span><span class="n">Contains</span><span class="p">(</span>
+                    <span class="n">exp_class</span>
+                <span class="p">):</span>
+                    <span class="k">raise</span> <span class="n">ExperimentNotExistError</span><span class="p">(</span><span class="n">experiment</span><span class="p">)</span>
+                <span class="c1"># Reason for the duplicate try except block:</span>
+                <span class="c1"># One specific experiment - WellTile_10x fails to execute the first</span>
+                <span class="c1"># time the execution function is called. Hence, it needs a second call</span>
+                <span class="c1"># if the first one fails, and that seems to fix the bug.</span>
+                <span class="c1"># Note - This is a temporary fix. There is something messed up with the</span>
+                <span class="c1"># communication object. We will be looking into it further.</span>
+                <span class="k">try</span><span class="p">:</span>
+                    <span class="n">imgLive</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">Zen</span><span class="o">.</span><span class="n">Acquisition</span><span class="o">.</span><span class="n">StartLive_2</span><span class="p">(</span><span class="n">exp_class</span><span class="p">)</span>
+                <span class="k">except</span> <span class="ne">Exception</span><span class="p">:</span>
+                    <span class="n">imgLive</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">Zen</span><span class="o">.</span><span class="n">Acquisition</span><span class="o">.</span><span class="n">StartLive_2</span><span class="p">(</span><span class="n">exp_class</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="k">try</span><span class="p">:</span>
+                    <span class="n">exp_class</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">Zen</span><span class="o">.</span><span class="n">Acquisition</span><span class="o">.</span><span class="n">Experiments</span><span class="o">.</span><span class="n">ActiveExperiment</span>
+                <span class="k">except</span> <span class="ne">Exception</span><span class="p">:</span>
+                    <span class="k">raise</span> <span class="n">ExperimentError</span><span class="p">(</span><span class="s2">&quot;No active experiment is defined.&quot;</span><span class="p">)</span>
+                <span class="n">imgLive</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">Zen</span><span class="o">.</span><span class="n">Acquisition</span><span class="o">.</span><span class="n">StartLive_2</span><span class="p">(</span><span class="n">exp_class</span><span class="p">)</span>
+        <span class="k">except</span> <span class="p">(</span><span class="n">ExperimentNotExistError</span><span class="p">,</span> <span class="n">ExperimentError</span><span class="p">)</span> <span class="k">as</span> <span class="n">err</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="n">err</span>
+        <span class="k">except</span> <span class="ne">Exception</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="n">HardwareError</span><span class="p">(</span><span class="s2">&quot;Error in live_mode_start.&quot;</span><span class="p">)</span>
+
+        <span class="c1"># set flag for definite focus if objective was changed</span>
+        <span class="k">if</span> <span class="p">(</span>
+            <span class="n">current_objective</span> <span class="o">!=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_objective_name</span><span class="p">()</span>
+            <span class="ow">or</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_objective_name</span><span class="p">()</span> <span class="o">==</span> <span class="s2">&quot;&quot;</span>
+        <span class="p">):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">set_autofocus_not_ready</span><span class="p">()</span>
+
+        <span class="k">return</span> <span class="n">imgLive</span></div>
+
+<div class="viewcode-block" id="ConnectMicroscope.live_mode_stop"><a class="viewcode-back" href="../../../microscope_automation.zeiss.html#microscope_automation.zeiss.connect_zen_blue.ConnectMicroscope.live_mode_stop">[docs]</a>    <span class="k">def</span> <span class="nf">live_mode_stop</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">experiment</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Stop live mode of ZEN software.</span>
+
+<span class="sd">        Input:</span>
+<span class="sd">         experiment: name of ZEN experiment (default = None)</span>
+
+<span class="sd">        Output:</span>
+<span class="sd">         none</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">experiment</span><span class="p">:</span>
+                <span class="n">exp_class</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">Zen</span><span class="o">.</span><span class="n">Acquisition</span><span class="o">.</span><span class="n">Experiments</span><span class="o">.</span><span class="n">GetByName</span><span class="p">(</span><span class="n">experiment</span><span class="p">)</span>
+                <span class="k">if</span> <span class="n">exp_class</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">or</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">Zen</span><span class="o">.</span><span class="n">Acquisition</span><span class="o">.</span><span class="n">Experiments</span><span class="o">.</span><span class="n">Contains</span><span class="p">(</span>
+                    <span class="n">exp_class</span>
+                <span class="p">):</span>
+                    <span class="k">raise</span> <span class="n">ExperimentNotExistError</span><span class="p">(</span><span class="n">experiment</span><span class="p">)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">Zen</span><span class="o">.</span><span class="n">Acquisition</span><span class="o">.</span><span class="n">StopLive_2</span><span class="p">(</span><span class="n">exp_class</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">Zen</span><span class="o">.</span><span class="n">Acquisition</span><span class="o">.</span><span class="n">StopLive</span><span class="p">()</span>
+        <span class="k">except</span> <span class="n">ExperimentNotExistError</span> <span class="k">as</span> <span class="n">err</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="n">err</span>
+        <span class="k">except</span> <span class="ne">Exception</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="n">HardwareError</span><span class="p">(</span><span class="s2">&quot;Error in live_mode_stop.&quot;</span><span class="p">)</span></div>
+
+    <span class="c1">###############################################################################</span>
+    <span class="c1">#</span>
+    <span class="c1"># Methods to interact with image display in ZEN</span>
+    <span class="c1">#</span>
+    <span class="c1">###############################################################################</span>
+
+<div class="viewcode-block" id="ConnectMicroscope.show_image"><a class="viewcode-back" href="../../../microscope_automation.zeiss.html#microscope_automation.zeiss.connect_zen_blue.ConnectMicroscope.show_image">[docs]</a>    <span class="k">def</span> <span class="nf">show_image</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Display last acquired image in ZEN software.</span>
+
+<span class="sd">        Input:</span>
+<span class="sd">         none</span>
+
+<span class="sd">        Output:</span>
+<span class="sd">         none</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">image</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;No active image in ZEN Blue software&quot;</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">Zen</span><span class="o">.</span><span class="n">Application</span><span class="o">.</span><span class="n">Documents</span><span class="o">.</span><span class="n">Add</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">image</span><span class="p">)</span>
+        <span class="k">except</span> <span class="ne">Exception</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="n">HardwareError</span><span class="p">(</span><span class="s2">&quot;Error in show_image.&quot;</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="ConnectMicroscope.remove_all"><a class="viewcode-back" href="../../../microscope_automation.zeiss.html#microscope_automation.zeiss.connect_zen_blue.ConnectMicroscope.remove_all">[docs]</a>    <span class="k">def</span> <span class="nf">remove_all</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Remove all images from display within ZEN software.</span>
+
+<span class="sd">        Input:</span>
+<span class="sd">         none</span>
+
+<span class="sd">        Output:</span>
+<span class="sd">         none</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">Zen</span><span class="o">.</span><span class="n">Application</span><span class="o">.</span><span class="n">Documents</span><span class="o">.</span><span class="n">RemoveAll</span><span class="p">(</span><span class="kc">True</span><span class="p">)</span>
+        <span class="k">except</span> <span class="ne">Exception</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="n">HardwareError</span><span class="p">(</span><span class="s2">&quot;Error in remove_all.&quot;</span><span class="p">)</span></div>
+
+    <span class="c1">###############################################################################</span>
+    <span class="c1">#</span>
+    <span class="c1"># Methods to control motorized xy stage</span>
+    <span class="c1">#</span>
+    <span class="c1">###############################################################################</span>
+
+<div class="viewcode-block" id="ConnectMicroscope.get_stage_pos"><a class="viewcode-back" href="../../../microscope_automation.zeiss.html#microscope_automation.zeiss.connect_zen_blue.ConnectMicroscope.get_stage_pos">[docs]</a>    <span class="k">def</span> <span class="nf">get_stage_pos</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Return current position of Microscope stage.</span>
+
+<span class="sd">        Input:</span>
+<span class="sd">         none</span>
+
+<span class="sd">        Output:</span>
+<span class="sd">         xPos, yPos: x and y position of stage in micrometer</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># Get current stage position</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">xPos</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">Zen</span><span class="o">.</span><span class="n">Devices</span><span class="o">.</span><span class="n">Stage</span><span class="o">.</span><span class="n">ActualPositionX</span>
+            <span class="n">yPos</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">Zen</span><span class="o">.</span><span class="n">Devices</span><span class="o">.</span><span class="n">Stage</span><span class="o">.</span><span class="n">ActualPositionY</span>
+        <span class="k">except</span> <span class="ne">Exception</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="n">HardwareError</span><span class="p">(</span><span class="s2">&quot;Error in get_stage_pos.&quot;</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">xPos</span><span class="p">,</span> <span class="n">yPos</span></div>
+
+<div class="viewcode-block" id="ConnectMicroscope.move_stage_to"><a class="viewcode-back" href="../../../microscope_automation.zeiss.html#microscope_automation.zeiss.connect_zen_blue.ConnectMicroscope.move_stage_to">[docs]</a>    <span class="k">def</span> <span class="nf">move_stage_to</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">xPos</span><span class="p">,</span> <span class="n">yPos</span><span class="p">,</span> <span class="n">zPos</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">experiment</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">test</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Move stage to new position.</span>
+
+<span class="sd">        Input:</span>
+<span class="sd">         xPos, yPos: new stage position in micrometers.</span>
+
+<span class="sd">         zPos, experiment: not used but included for consistency with Slidebook API</span>
+
+<span class="sd">         test: if True return travel path and do not move stage</span>
+
+<span class="sd">        Output:</span>
+<span class="sd">         xPos, yPos: x and y position of stage in micrometer after stage movement</span>
+<span class="sd">         (if test = False)</span>
+
+<span class="sd">         x_path, y_path: projected travel path (if test = True)</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">xPos</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">or</span> <span class="n">yPos</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="n">HardwareError</span><span class="p">(</span><span class="s2">&quot;Position not defined in move_stage_to.&quot;</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">test</span><span class="p">:</span>
+            <span class="n">x_current</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">Zen</span><span class="o">.</span><span class="n">Devices</span><span class="o">.</span><span class="n">Stage</span><span class="o">.</span><span class="n">ActualPositionX</span>
+            <span class="n">y_current</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">Zen</span><span class="o">.</span><span class="n">Devices</span><span class="o">.</span><span class="n">Stage</span><span class="o">.</span><span class="n">ActualPositionY</span>
+            <span class="n">xy_path</span> <span class="o">=</span> <span class="p">[(</span><span class="n">x_current</span><span class="p">,</span> <span class="n">y_current</span><span class="p">),</span> <span class="p">(</span><span class="n">xPos</span><span class="p">,</span> <span class="n">y_current</span><span class="p">),</span> <span class="p">(</span><span class="n">xPos</span><span class="p">,</span> <span class="n">yPos</span><span class="p">)]</span>
+            <span class="k">return</span> <span class="n">xy_path</span>
+
+        <span class="k">try</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">Zen</span><span class="o">.</span><span class="n">Devices</span><span class="o">.</span><span class="n">Stage</span><span class="o">.</span><span class="n">TargetPositionX</span> <span class="o">=</span> <span class="n">xPos</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">Zen</span><span class="o">.</span><span class="n">Devices</span><span class="o">.</span><span class="n">Stage</span><span class="o">.</span><span class="n">Apply</span><span class="p">()</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">Zen</span><span class="o">.</span><span class="n">Devices</span><span class="o">.</span><span class="n">Stage</span><span class="o">.</span><span class="n">TargetPositionY</span> <span class="o">=</span> <span class="n">yPos</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">Zen</span><span class="o">.</span><span class="n">Devices</span><span class="o">.</span><span class="n">Stage</span><span class="o">.</span><span class="n">Apply</span><span class="p">()</span>
+            <span class="c1"># check new position</span>
+            <span class="n">xStage</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">Zen</span><span class="o">.</span><span class="n">Devices</span><span class="o">.</span><span class="n">Stage</span><span class="o">.</span><span class="n">ActualPositionX</span>
+            <span class="n">yStage</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">Zen</span><span class="o">.</span><span class="n">Devices</span><span class="o">.</span><span class="n">Stage</span><span class="o">.</span><span class="n">ActualPositionY</span>
+        <span class="k">except</span> <span class="ne">Exception</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="n">HardwareError</span><span class="p">(</span><span class="s2">&quot;Error in move_stage_to.&quot;</span><span class="p">)</span>
+        <span class="k">return</span> <span class="p">[</span><span class="n">xStage</span><span class="p">,</span> <span class="n">yStage</span><span class="p">]</span></div>
+
+    <span class="c1">###############################################################################</span>
+    <span class="c1">#</span>
+    <span class="c1"># Methods to control focus including soft- and hardware autofocus</span>
+    <span class="c1">#</span>
+    <span class="c1">###############################################################################</span>
+<div class="viewcode-block" id="ConnectMicroscope.set_autofocus_ready"><a class="viewcode-back" href="../../../microscope_automation.zeiss.html#microscope_automation.zeiss.connect_zen_blue.ConnectMicroscope.set_autofocus_ready">[docs]</a>    <span class="k">def</span> <span class="nf">set_autofocus_ready</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Set flag that auto focus position for DF2 was stored</span>
+<span class="sd">        and recall_focus should work.</span>
+
+<span class="sd">        Input:</span>
+<span class="sd">         none</span>
+
+<span class="sd">        Output:</span>
+<span class="sd">         none</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">autofocusReady</span> <span class="o">=</span> <span class="kc">True</span></div>
+
+<div class="viewcode-block" id="ConnectMicroscope.set_autofocus_not_ready"><a class="viewcode-back" href="../../../microscope_automation.zeiss.html#microscope_automation.zeiss.connect_zen_blue.ConnectMicroscope.set_autofocus_not_ready">[docs]</a>    <span class="k">def</span> <span class="nf">set_autofocus_not_ready</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Set flag that auto focus position for DF2 is not ready</span>
+<span class="sd">        and recall_focus will not work.</span>
+
+<span class="sd">        Input:</span>
+<span class="sd">         none</span>
+
+<span class="sd">        Output:</span>
+<span class="sd">         none</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">autofocusReady</span> <span class="o">=</span> <span class="kc">False</span></div>
+
+<div class="viewcode-block" id="ConnectMicroscope.get_autofocus_ready"><a class="viewcode-back" href="../../../microscope_automation.zeiss.html#microscope_automation.zeiss.connect_zen_blue.ConnectMicroscope.get_autofocus_ready">[docs]</a>    <span class="k">def</span> <span class="nf">get_autofocus_ready</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Check if auto focus position for DF2 was stored and recall_focus should work.</span>
+
+<span class="sd">        Raises AutofocusNotSetError if not ready.</span>
+<span class="sd">        Raises AutofocusObjectiveChangedError if there is an issue with objective_name</span>
+
+<span class="sd">        Input:</span>
+<span class="sd">         none</span>
+
+<span class="sd">        Output:</span>
+<span class="sd">         ready: True if DF2 was initialized and recall_focus should work.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">objective_name</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_objective_name</span><span class="p">()</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">autofocusReady</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="n">AutofocusNotSetError</span><span class="p">(</span>
+                <span class="n">message</span><span class="o">=</span><span class="s2">&quot;Definite Focus is not ready.&quot;</span><span class="p">,</span> <span class="n">error_component</span><span class="o">=</span><span class="n">objective_name</span>
+            <span class="p">)</span>
+
+        <span class="c1"># do additional test to check if autofocus should work</span>
+        <span class="c1"># a valid objective selected?</span>
+        <span class="k">if</span> <span class="n">objective_name</span> <span class="o">==</span> <span class="s2">&quot;&quot;</span> <span class="ow">or</span> <span class="bp">self</span><span class="o">.</span><span class="n">DFObjective</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">set_autofocus_not_ready</span><span class="p">()</span>
+            <span class="k">raise</span> <span class="n">AutofocusError</span><span class="p">(</span>
+                <span class="n">message</span><span class="o">=</span><span class="s2">&quot;No objective selected.&quot;</span><span class="p">,</span> <span class="n">error_component</span><span class="o">=</span><span class="n">objective_name</span>
+            <span class="p">)</span>
+        <span class="c1"># was objective changed since focus was stored?</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">DFObjective</span> <span class="o">!=</span> <span class="n">objective_name</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">set_autofocus_not_ready</span><span class="p">()</span>
+            <span class="k">raise</span> <span class="n">AutofocusObjectiveChangedError</span><span class="p">(</span>
+                <span class="n">message</span><span class="o">=</span><span class="s2">&quot;Different objective was used to set focus position.&quot;</span><span class="p">,</span>
+                <span class="n">error_component</span><span class="o">=</span><span class="n">objective_name</span><span class="p">,</span>
+            <span class="p">)</span>
+        <span class="k">return</span> <span class="kc">True</span></div>
+
+<div class="viewcode-block" id="ConnectMicroscope.set_last_known_focus_position"><a class="viewcode-back" href="../../../microscope_automation.zeiss.html#microscope_automation.zeiss.connect_zen_blue.ConnectMicroscope.set_last_known_focus_position">[docs]</a>    <span class="k">def</span> <span class="nf">set_last_known_focus_position</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">focusPostion</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Stores focus position used for recovery if autofocus fails.</span>
+
+<span class="sd">        Input:</span>
+<span class="sd">         focusPostion: position in um to be used for autofocus recovery</span>
+
+<span class="sd">        Output:</span>
+<span class="sd">         none.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">lastKnownFocusPosition</span> <span class="o">=</span> <span class="n">focusPostion</span></div>
+
+<div class="viewcode-block" id="ConnectMicroscope.get_last_known_focus_position"><a class="viewcode-back" href="../../../microscope_automation.zeiss.html#microscope_automation.zeiss.connect_zen_blue.ConnectMicroscope.get_last_known_focus_position">[docs]</a>    <span class="k">def</span> <span class="nf">get_last_known_focus_position</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Retrieves focus position used for recovery if autofocus fails.</span>
+<span class="sd">        Will raise AutofocusNotSetError exception if not defined</span>
+
+<span class="sd">        Input:</span>
+<span class="sd">         focusPostion: position in um to be used for autofocus recovery</span>
+
+<span class="sd">        Output:</span>
+<span class="sd">         none.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">lastKnownFocusPosition</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="n">AutofocusNotSetError</span><span class="p">(</span><span class="n">message</span><span class="o">=</span><span class="s2">&quot;Autofocus position not defined.&quot;</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">lastKnownFocusPosition</span></div>
+
+<div class="viewcode-block" id="ConnectMicroscope.recover_focus"><a class="viewcode-back" href="../../../microscope_automation.zeiss.html#microscope_automation.zeiss.connect_zen_blue.ConnectMicroscope.recover_focus">[docs]</a>    <span class="k">def</span> <span class="nf">recover_focus</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Try to recover from autofocus failure.</span>
+
+<span class="sd">        Input:</span>
+<span class="sd">         none</span>
+
+<span class="sd">        Output:</span>
+<span class="sd">         none</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># Make sure valid objective is selected</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_objective_name</span><span class="p">()</span> <span class="o">==</span> <span class="s2">&quot;&quot;</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">set_autofocus_not_ready</span><span class="p">()</span>
+            <span class="k">raise</span> <span class="n">AutofocusError</span><span class="p">(</span><span class="n">message</span><span class="o">=</span><span class="s2">&quot;No objective selected.&quot;</span><span class="p">)</span>
+
+        <span class="c1"># move focus to last know position</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">move_focus_to</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">get_last_known_focus_position</span><span class="p">())</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">store_focus</span><span class="p">()</span></div>
+
+<div class="viewcode-block" id="ConnectMicroscope.find_autofocus"><a class="viewcode-back" href="../../../microscope_automation.zeiss.html#microscope_automation.zeiss.connect_zen_blue.ConnectMicroscope.find_autofocus">[docs]</a>    <span class="k">def</span> <span class="nf">find_autofocus</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">experiment</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Focus with ZEN software autofocus.</span>
+
+<span class="sd">        Input:</span>
+<span class="sd">         experiment: string with name for experiment defined in ZEN</span>
+
+<span class="sd">        Output:</span>
+<span class="sd">         zPos: position of focus drive after autofocus</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="c1"># use definite focus to find bottom of plate</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">Zen</span><span class="o">.</span><span class="n">Acquisition</span><span class="o">.</span><span class="n">FindSurface</span><span class="p">()</span>
+            <span class="n">experimentObj</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">Zen</span><span class="o">.</span><span class="n">Acquisition</span><span class="o">.</span><span class="n">Experiments</span><span class="o">.</span><span class="n">GetByName</span><span class="p">(</span><span class="n">experiment</span><span class="p">)</span>
+            <span class="c1"># use FindAutofocus_2 instead of FindAutofocus</span>
+            <span class="c1"># because method with parameters overloads method without parameters</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">Zen</span><span class="o">.</span><span class="n">Acquisition</span><span class="o">.</span><span class="n">FindAutofocus_2</span><span class="p">(</span><span class="n">experimentObj</span><span class="p">)</span>
+            <span class="n">zPos</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_focus_pos</span><span class="p">()</span>
+
+            <span class="c1"># store offset to definite focus</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">Zen</span><span class="o">.</span><span class="n">Acquisition</span><span class="o">.</span><span class="n">StoreFocus</span><span class="p">()</span>
+        <span class="k">except</span> <span class="ne">Exception</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="n">HardwareError</span><span class="p">(</span><span class="s2">&quot;Error in find_autofocus.&quot;</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">zPos</span></div>
+
+<div class="viewcode-block" id="ConnectMicroscope.find_surface"><a class="viewcode-back" href="../../../microscope_automation.zeiss.html#microscope_automation.zeiss.connect_zen_blue.ConnectMicroscope.find_surface">[docs]</a>    <span class="k">def</span> <span class="nf">find_surface</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Find cover slip using Definite Focus 2.</span>
+
+<span class="sd">        Input:</span>
+<span class="sd">         none</span>
+
+<span class="sd">        Output:</span>
+<span class="sd">         z: position of focus drive after find surface</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># FindSurface always returns None</span>
+        <span class="c1"># exception does not work</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">Zen</span><span class="o">.</span><span class="n">Acquisition</span><span class="o">.</span><span class="n">FindSurface</span><span class="p">()</span>
+            <span class="n">z</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">Zen</span><span class="o">.</span><span class="n">Devices</span><span class="o">.</span><span class="n">Focus</span><span class="o">.</span><span class="n">ActualPosition</span>
+        <span class="k">except</span> <span class="ne">Exception</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="n">HardwareError</span><span class="p">(</span><span class="s2">&quot;Error in find_surface.&quot;</span><span class="p">)</span>
+
+        <span class="c1"># Track absolute focus position for recovery in case of Definite Focus failure</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">set_last_known_focus_position</span><span class="p">(</span><span class="n">z</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">z</span></div>
+
+<div class="viewcode-block" id="ConnectMicroscope.store_focus"><a class="viewcode-back" href="../../../microscope_automation.zeiss.html#microscope_automation.zeiss.connect_zen_blue.ConnectMicroscope.store_focus">[docs]</a>    <span class="k">def</span> <span class="nf">store_focus</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Store actual focus position as offset from coverslip.</span>
+<span class="sd">        Stored focus position is lost when switching objective,</span>
+<span class="sd">        even when returning to original objective.</span>
+
+<span class="sd">        Input:</span>
+<span class="sd">         none</span>
+
+<span class="sd">        Output:</span>
+<span class="sd">         z: position of focus drive after store focus</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># check if correct objective was selected</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_objective_name</span><span class="p">()</span> <span class="o">==</span> <span class="s2">&quot;&quot;</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">set_autofocus_not_ready</span><span class="p">()</span>
+            <span class="k">raise</span> <span class="n">AutofocusError</span><span class="p">(</span>
+                <span class="n">message</span><span class="o">=</span><span class="s2">&quot;No objective selected to store autofocus position.&quot;</span>
+            <span class="p">)</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">Zen</span><span class="o">.</span><span class="n">Acquisition</span><span class="o">.</span><span class="n">StoreFocus</span><span class="p">()</span>
+            <span class="n">z</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">Zen</span><span class="o">.</span><span class="n">Devices</span><span class="o">.</span><span class="n">Focus</span><span class="o">.</span><span class="n">ActualPosition</span>
+        <span class="k">except</span> <span class="ne">Exception</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="n">HardwareError</span><span class="p">(</span><span class="s2">&quot;Error in store_focus.&quot;</span><span class="p">)</span>
+        <span class="c1"># Get objective used to set Definite Focus</span>
+        <span class="c1"># (Definite Focus will lose stored focus position after change of objective)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">DFObjective</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_objective_name</span><span class="p">()</span>
+
+        <span class="c1"># Save stored position. We will use this position to move the objective</span>
+        <span class="c1"># to this position before recalling this positions If the stored position</span>
+        <span class="c1"># is close to the find_surface position, Definite Focus works much faster.</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">DFStoredFocus</span> <span class="o">=</span> <span class="n">z</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">set_autofocus_ready</span><span class="p">()</span>
+
+        <span class="c1"># track absolute focus position for recovery in case of Definite Focus failure</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">set_last_known_focus_position</span><span class="p">(</span><span class="n">z</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">z</span></div>
+
+<div class="viewcode-block" id="ConnectMicroscope.recall_focus"><a class="viewcode-back" href="../../../microscope_automation.zeiss.html#microscope_automation.zeiss.connect_zen_blue.ConnectMicroscope.recall_focus">[docs]</a>    <span class="k">def</span> <span class="nf">recall_focus</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">pre_set_focus</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Find stored focus position as offset from coverslip.</span>
+<span class="sd">        Stored focus position is lost when switching objective,</span>
+<span class="sd">        even when returning to original objective.</span>
+
+<span class="sd">        Input:</span>
+<span class="sd">         pre_set_focus: Move focus to previous auto-focus position.</span>
+<span class="sd">         This makes definite focus more robust</span>
+
+<span class="sd">        Output:</span>
+<span class="sd">         z: position of focus drive after recall focus</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># Zen.Acquisition.RecallFocus will fail if Zen cannot find a stored position.</span>
+        <span class="c1"># This can happen if the objective was switched.</span>
+        <span class="c1"># After each objective switch a new focus position has to be stored within Zen.</span>
+        <span class="c1"># We don&#39;t know a way to catch a failure directly (tried exception and time out)</span>
+        <span class="c1"># Therefore we try to catch common indicators that RecallFocus will fail/failed</span>
+
+        <span class="c1"># If autofocus is not ready raise exception</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">get_autofocus_ready</span><span class="p">()</span>
+        <span class="c1"># Is z position after RecallFocus the same</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="c1"># Move the objective to the stored focus position before recalling</span>
+            <span class="c1"># this positions. If the stored position is close</span>
+            <span class="c1"># to the find_surface position, Definite Focus works much faster.</span>
+            <span class="k">if</span> <span class="n">pre_set_focus</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">move_focus_to</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">DFStoredFocus</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">Zen</span><span class="o">.</span><span class="n">Acquisition</span><span class="o">.</span><span class="n">RecallFocus</span><span class="p">()</span>
+
+            <span class="c1"># Store position, that will keep definite focus in optimal operational range</span>
+            <span class="n">z</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">store_focus</span><span class="p">()</span>
+        <span class="k">except</span> <span class="ne">Exception</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="n">HardwareError</span><span class="p">(</span><span class="s2">&quot;Error in recall_focus.&quot;</span><span class="p">)</span>
+        <span class="c1"># track absolute focus position for recovery in case of Definite Focus failure</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">set_last_known_focus_position</span><span class="p">(</span><span class="n">z</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">z</span></div>
+
+<div class="viewcode-block" id="ConnectMicroscope.get_focus_pos"><a class="viewcode-back" href="../../../microscope_automation.zeiss.html#microscope_automation.zeiss.connect_zen_blue.ConnectMicroscope.get_focus_pos">[docs]</a>    <span class="k">def</span> <span class="nf">get_focus_pos</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Return current position of focus drive.</span>
+
+<span class="sd">        Input:</span>
+<span class="sd">         none</span>
+
+<span class="sd">        Output:</span>
+<span class="sd">         zPos: position of focus drive in micrometer</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># Get current stage position</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">zPos</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">Zen</span><span class="o">.</span><span class="n">Devices</span><span class="o">.</span><span class="n">Focus</span><span class="o">.</span><span class="n">ActualPosition</span>
+            <span class="nb">print</span><span class="p">((</span><span class="s2">&quot;Focus position is </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">zPos</span><span class="p">)))</span>
+        <span class="k">except</span> <span class="ne">Exception</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="n">HardwareError</span><span class="p">(</span><span class="s2">&quot;Error in get_focus_pos.&quot;</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">zPos</span></div>
+
+<div class="viewcode-block" id="ConnectMicroscope.move_focus_to"><a class="viewcode-back" href="../../../microscope_automation.zeiss.html#microscope_automation.zeiss.connect_zen_blue.ConnectMicroscope.move_focus_to">[docs]</a>    <span class="k">def</span> <span class="nf">move_focus_to</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">zPos</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Move focus to new position.</span>
+
+<span class="sd">        Input:</span>
+<span class="sd">         zPos, yPos: new focus position in micrometers.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># an alternative to set the position</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">Zen</span><span class="o">.</span><span class="n">Devices</span><span class="o">.</span><span class="n">Focus</span><span class="o">.</span><span class="n">TargetPosition</span> <span class="o">=</span> <span class="n">zPos</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">Zen</span><span class="o">.</span><span class="n">Devices</span><span class="o">.</span><span class="n">Focus</span><span class="o">.</span><span class="n">Apply</span><span class="p">()</span>
+            <span class="c1"># check new position</span>
+            <span class="n">zFocus</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">Zen</span><span class="o">.</span><span class="n">Devices</span><span class="o">.</span><span class="n">Focus</span><span class="o">.</span><span class="n">ActualPosition</span>
+        <span class="k">except</span> <span class="ne">Exception</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="n">HardwareError</span><span class="p">(</span><span class="s2">&quot;Error in move_focus_to.&quot;</span><span class="p">)</span>
+        <span class="c1"># gives type error</span>
+        <span class="k">return</span> <span class="n">zFocus</span></div>
+
+<div class="viewcode-block" id="ConnectMicroscope.z_relative_move"><a class="viewcode-back" href="../../../microscope_automation.zeiss.html#microscope_automation.zeiss.connect_zen_blue.ConnectMicroscope.z_relative_move">[docs]</a>    <span class="k">def</span> <span class="nf">z_relative_move</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">delta</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Move focus relative to current position.</span>
+
+<span class="sd">        Input:</span>
+<span class="sd">         delta: distance in mum</span>
+
+<span class="sd">        Output:</span>
+<span class="sd">         z: new position of focus drive</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">zStart</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">Zen</span><span class="o">.</span><span class="n">Devices</span><span class="o">.</span><span class="n">Focus</span><span class="o">.</span><span class="n">ActualPosition</span>
+            <span class="n">zEndCalc</span> <span class="o">=</span> <span class="n">zStart</span> <span class="o">+</span> <span class="n">delta</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">Zen</span><span class="o">.</span><span class="n">Devices</span><span class="o">.</span><span class="n">Focus</span><span class="o">.</span><span class="n">MoveTo</span><span class="p">(</span><span class="n">zEndCalc</span><span class="p">)</span>
+            <span class="n">z</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">Zen</span><span class="o">.</span><span class="n">Devices</span><span class="o">.</span><span class="n">Focus</span><span class="o">.</span><span class="n">ActualPosition</span>
+        <span class="k">except</span> <span class="ne">Exception</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="n">HardwareError</span><span class="p">(</span><span class="s2">&quot;Error in z_relative_move.&quot;</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">z</span></div>
+
+<div class="viewcode-block" id="ConnectMicroscope.z_down_relative"><a class="viewcode-back" href="../../../microscope_automation.zeiss.html#microscope_automation.zeiss.connect_zen_blue.ConnectMicroscope.z_down_relative">[docs]</a>    <span class="k">def</span> <span class="nf">z_down_relative</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">delta</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Move focus relative to current position away from sample.</span>
+
+<span class="sd">        Input:</span>
+<span class="sd">         delta: absolute distance in mum</span>
+
+<span class="sd">        Output:</span>
+<span class="sd">         z: new position of focus drive</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">z</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">z_relative_move</span><span class="p">(</span><span class="o">-</span><span class="n">delta</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">z</span></div>
+
+<div class="viewcode-block" id="ConnectMicroscope.z_up_relative"><a class="viewcode-back" href="../../../microscope_automation.zeiss.html#microscope_automation.zeiss.connect_zen_blue.ConnectMicroscope.z_up_relative">[docs]</a>    <span class="k">def</span> <span class="nf">z_up_relative</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">delta</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Move focus relative to current position towards sample.</span>
+
+<span class="sd">        Input:</span>
+<span class="sd">         delta: absolute distance in mum</span>
+
+<span class="sd">        Output:</span>
+<span class="sd">         z: new position of focus drive</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">z</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">z_relative_move</span><span class="p">(</span><span class="n">delta</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">z</span></div>
+
+<div class="viewcode-block" id="ConnectMicroscope.set_focus_work_position"><a class="viewcode-back" href="../../../microscope_automation.zeiss.html#microscope_automation.zeiss.connect_zen_blue.ConnectMicroscope.set_focus_work_position">[docs]</a>    <span class="k">def</span> <span class="nf">set_focus_work_position</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;retrieve current position and set as work position.</span>
+
+<span class="sd">        Input:</span>
+<span class="sd">         none</span>
+
+<span class="sd">        Output:</span>
+<span class="sd">         z_work: current focus position in mum</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">zWork</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_focus_pos</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">zWork</span> <span class="o">=</span> <span class="n">zWork</span>
+
+        <span class="n">log</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Stored current focus position as work position&quot;</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="n">zWork</span><span class="p">))</span>
+
+        <span class="k">return</span> <span class="n">zWork</span></div>
+
+<div class="viewcode-block" id="ConnectMicroscope.set_focus_load_position"><a class="viewcode-back" href="../../../microscope_automation.zeiss.html#microscope_automation.zeiss.connect_zen_blue.ConnectMicroscope.set_focus_load_position">[docs]</a>    <span class="k">def</span> <span class="nf">set_focus_load_position</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;retrieve current position and set as load position.</span>
+
+<span class="sd">        Input:</span>
+<span class="sd">         none</span>
+
+<span class="sd">        Output:</span>
+<span class="sd">         zLoad: current focus position in mum</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">zLoad</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_focus_pos</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">zLoad</span> <span class="o">=</span> <span class="n">zLoad</span>
+
+        <span class="n">log</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Stored current focus position as load position: </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="n">zLoad</span><span class="p">))</span>
+
+        <span class="k">return</span> <span class="n">zLoad</span></div>
+
+<div class="viewcode-block" id="ConnectMicroscope.move_focus_to_load"><a class="viewcode-back" href="../../../microscope_automation.zeiss.html#microscope_automation.zeiss.connect_zen_blue.ConnectMicroscope.move_focus_to_load">[docs]</a>    <span class="k">def</span> <span class="nf">move_focus_to_load</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Move focus to load position if defined.</span>
+
+<span class="sd">        Input:</span>
+<span class="sd">         zPos, yPos: new focus position in micrometers.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># check if load position is defined</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">zLoad</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">log</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="s2">&quot;Load position not defined&quot;</span><span class="p">)</span>
+            <span class="k">raise</span> <span class="n">LoadNotDefinedError</span><span class="p">(</span>
+                <span class="s2">&quot;Tried to move focus drive to load position, but load position was not defined.&quot;</span>  <span class="c1"># noqa</span>
+            <span class="p">)</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">zLoad</span> <span class="o">&gt;</span> <span class="mi">1000</span><span class="p">:</span>
+            <span class="n">log</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="s2">&quot;Load position too high&quot;</span><span class="p">)</span>
+            <span class="k">raise</span> <span class="n">LoadNotDefinedError</span><span class="p">(</span>
+                <span class="s2">&quot;Tried to move focus drive to load position, but load position was too high.&quot;</span>  <span class="c1"># noqa</span>
+            <span class="p">)</span>
+
+        <span class="c1"># move to load position if defined</span>
+        <span class="n">z_focus</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">move_focus_to</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">zLoad</span><span class="p">)</span>
+
+        <span class="n">log</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;moved focus to load position: </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="n">z_focus</span><span class="p">))</span>
+
+        <span class="k">return</span> <span class="n">z_focus</span></div>
+
+<div class="viewcode-block" id="ConnectMicroscope.move_focus_to_work"><a class="viewcode-back" href="../../../microscope_automation.zeiss.html#microscope_automation.zeiss.connect_zen_blue.ConnectMicroscope.move_focus_to_work">[docs]</a>    <span class="k">def</span> <span class="nf">move_focus_to_work</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Move focus to work position if defined.</span>
+
+<span class="sd">        Input:</span>
+<span class="sd">         zPos, yPos: new focus position in micrometers.</span>
+
+<span class="sd">        Output:</span>
+<span class="sd">         none</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># check if load position is defined</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">zWork</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">log</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="s2">&quot;Work position not defined&quot;</span><span class="p">)</span>
+            <span class="k">raise</span> <span class="n">WorkNotDefinedError</span><span class="p">(</span>
+                <span class="s2">&quot;Tried to move focus drive to work position, but work position was not defined.&quot;</span>  <span class="c1"># noqa</span>
+            <span class="p">)</span>
+
+        <span class="c1"># move to load position if defined</span>
+        <span class="n">zFocus</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">move_focus_to</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">zWork</span><span class="p">)</span>
+
+        <span class="n">log</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;moved focus to load position: </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="n">zFocus</span><span class="p">))</span>
+
+        <span class="k">return</span> <span class="n">zFocus</span></div>
+
+    <span class="c1">###############################################################################</span>
+    <span class="c1">#</span>
+    <span class="c1"># Methods to interact with objectives and objective turret</span>
+    <span class="c1">#</span>
+    <span class="c1">###############################################################################</span>
+
+<div class="viewcode-block" id="ConnectMicroscope.get_all_objectives"><a class="viewcode-back" href="../../../microscope_automation.zeiss.html#microscope_automation.zeiss.connect_zen_blue.ConnectMicroscope.get_all_objectives">[docs]</a>    <span class="k">def</span> <span class="nf">get_all_objectives</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">n_positions</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Retrieve name and magnification of all objectives.</span>
+<span class="sd">        Warning! The objectives will move.</span>
+
+<span class="sd">        Input:</span>
+<span class="sd">         n_positions:  number of objective positions</span>
+
+<span class="sd">        Output:</span>
+<span class="sd">         objectives_dict: dictionary of all objectives mounted at microscope</span>
+<span class="sd">         in form {&#39;magnification&#39;: {&#39;Position&#39;: position, &#39;Name&#39;: name}</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="k">try</span><span class="p">:</span>
+            <span class="c1"># retrieve ZEN ObjectiveChanger object</span>
+            <span class="n">objective_changer</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">Zen</span><span class="o">.</span><span class="n">Devices</span><span class="o">.</span><span class="n">ObjectiveChanger</span>
+            <span class="n">objectives_dict</span> <span class="o">=</span> <span class="p">{}</span>
+
+            <span class="k">for</span> <span class="n">position</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="n">n_positions</span> <span class="o">+</span> <span class="mi">1</span><span class="p">):</span>
+                <span class="n">magnification</span> <span class="o">=</span> <span class="n">objective_changer</span><span class="o">.</span><span class="n">GetMagnificationByPosition</span><span class="p">(</span><span class="n">position</span><span class="p">)</span>
+                <span class="n">name</span> <span class="o">=</span> <span class="n">objective_changer</span><span class="o">.</span><span class="n">GetNameByPosition</span><span class="p">(</span><span class="n">position</span><span class="p">)</span>
+                <span class="k">if</span> <span class="ow">not</span> <span class="n">name</span><span class="p">:</span>
+                    <span class="n">name</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span>
+                <span class="n">objectives_dict</span><span class="p">[</span><span class="n">magnification</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;Position&quot;</span><span class="p">:</span> <span class="n">position</span><span class="p">,</span> <span class="s2">&quot;Name&quot;</span><span class="p">:</span> <span class="n">name</span><span class="p">}</span>
+                <span class="n">objinfo</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span>
+                <span class="n">objinfo</span> <span class="o">=</span> <span class="n">objinfo</span> <span class="o">+</span> <span class="s2">&quot; &quot;</span> <span class="o">+</span> <span class="nb">format</span><span class="p">(</span><span class="n">position</span><span class="p">)</span>
+                <span class="n">objinfo</span> <span class="o">=</span> <span class="n">objinfo</span> <span class="o">+</span> <span class="s2">&quot;</span><span class="se">\t</span><span class="s2">&quot;</span> <span class="o">+</span> <span class="nb">format</span><span class="p">(</span><span class="n">magnification</span><span class="p">)</span>
+                <span class="n">objinfo</span> <span class="o">=</span> <span class="n">objinfo</span> <span class="o">+</span> <span class="s2">&quot;</span><span class="se">\t</span><span class="s2">&quot;</span> <span class="o">+</span> <span class="n">name</span>
+                <span class="nb">print</span><span class="p">(</span><span class="n">objinfo</span><span class="p">)</span>
+        <span class="k">except</span> <span class="ne">Exception</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="n">HardwareError</span><span class="p">(</span><span class="s2">&quot;Error in get_all_objectives.&quot;</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">objectives_dict</span></div>
+
+<div class="viewcode-block" id="ConnectMicroscope.switch_objective"><a class="viewcode-back" href="../../../microscope_automation.zeiss.html#microscope_automation.zeiss.connect_zen_blue.ConnectMicroscope.switch_objective">[docs]</a>    <span class="k">def</span> <span class="nf">switch_objective</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">targetPosition</span><span class="p">,</span> <span class="n">load</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Switches objective.</span>
+
+<span class="sd">        Input:</span>
+<span class="sd">         targetPosition: Position of new objective on objective switcher</span>
+
+<span class="sd">         load: if True, move objective to load position before switching. Default: True</span>
+
+<span class="sd">        Output:</span>
+<span class="sd">         objectiveName: name of new objective</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># move focus drive to load position</span>
+        <span class="n">focus</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_focus_pos</span><span class="p">()</span>
+        <span class="k">if</span> <span class="n">load</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">move_focus_to_load</span><span class="p">()</span>
+
+        <span class="c1"># get name of original objective.</span>
+        <span class="c1"># We have to let autofocus know if we really changed the objective</span>
+        <span class="n">originalObjectiveName</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_objective_name</span><span class="p">()</span>
+
+        <span class="k">try</span><span class="p">:</span>
+            <span class="c1"># retrieve ZEN ObjectiveChanger object</span>
+            <span class="n">objRevolver</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">Zen</span><span class="o">.</span><span class="n">Devices</span><span class="o">.</span><span class="n">ObjectiveChanger</span>
+
+            <span class="c1"># switch objective</span>
+            <span class="n">objRevolver</span><span class="o">.</span><span class="n">TargetPosition</span> <span class="o">=</span> <span class="n">targetPosition</span>
+            <span class="n">objRevolver</span><span class="o">.</span><span class="n">Apply</span><span class="p">()</span>
+
+            <span class="c1"># get name of new objective</span>
+            <span class="n">objectiveName</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_objective_name</span><span class="p">()</span>
+        <span class="k">except</span> <span class="ne">Exception</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="n">HardwareError</span><span class="p">(</span><span class="s2">&quot;Error in switch_objective.&quot;</span><span class="p">)</span>
+
+        <span class="c1"># move focus drive back to original position</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">move_focus_to</span><span class="p">(</span><span class="n">focus</span><span class="p">)</span>
+
+        <span class="c1"># check if objective was really changed</span>
+        <span class="k">if</span> <span class="n">objectiveName</span> <span class="o">!=</span> <span class="n">originalObjectiveName</span><span class="p">:</span>
+            <span class="c1"># stored focus position for definite focus is no longer available</span>
+            <span class="c1"># because objectives where changed</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">set_autofocus_not_ready</span><span class="p">()</span>
+
+        <span class="k">return</span> <span class="n">objectiveName</span></div>
+
+<div class="viewcode-block" id="ConnectMicroscope.get_objective_magnification"><a class="viewcode-back" href="../../../microscope_automation.zeiss.html#microscope_automation.zeiss.connect_zen_blue.ConnectMicroscope.get_objective_magnification">[docs]</a>    <span class="k">def</span> <span class="nf">get_objective_magnification</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Get magnification of actual objective.</span>
+
+<span class="sd">        Input:</span>
+<span class="sd">         none</span>
+
+<span class="sd">        Output:</span>
+<span class="sd">         magnification: magnification of actual objective, objective in imaging position</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="c1"># retrieve ZEN ObjectiveChanger object</span>
+            <span class="n">objRevolver</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">Zen</span><span class="o">.</span><span class="n">Devices</span><span class="o">.</span><span class="n">ObjectiveChanger</span>
+
+            <span class="c1"># get magnification</span>
+            <span class="n">magnification</span> <span class="o">=</span> <span class="n">objRevolver</span><span class="o">.</span><span class="n">Magnification</span>
+        <span class="k">except</span> <span class="ne">Exception</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="n">HardwareError</span><span class="p">(</span><span class="s2">&quot;Error in get_objective_magnification.&quot;</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">magnification</span></div>
+
+<div class="viewcode-block" id="ConnectMicroscope.get_objective_name"><a class="viewcode-back" href="../../../microscope_automation.zeiss.html#microscope_automation.zeiss.connect_zen_blue.ConnectMicroscope.get_objective_name">[docs]</a>    <span class="k">def</span> <span class="nf">get_objective_name</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Get name of actual objective.</span>
+
+<span class="sd">        Input:</span>
+<span class="sd">         none</span>
+
+<span class="sd">        Output:</span>
+<span class="sd">         name: name of actual objective, objective in imaging position</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="c1"># retrieve ZEN ObjectiveChanger object</span>
+            <span class="n">objRevolver</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">Zen</span><span class="o">.</span><span class="n">Devices</span><span class="o">.</span><span class="n">ObjectiveChanger</span>
+
+            <span class="c1"># if name == None, automation software will stop later on,</span>
+            <span class="c1"># using empty string instead. This is a temp fix. See jira</span>
+            <span class="n">name</span> <span class="o">=</span> <span class="n">objRevolver</span><span class="o">.</span><span class="n">ActualPositionName</span>
+            <span class="k">if</span> <span class="n">name</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="n">name</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span>
+        <span class="k">except</span> <span class="ne">Exception</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="n">HardwareError</span><span class="p">(</span><span class="s2">&quot;Error in get_objective_name.&quot;</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">name</span></div>
+
+<div class="viewcode-block" id="ConnectMicroscope.get_objective_position"><a class="viewcode-back" href="../../../microscope_automation.zeiss.html#microscope_automation.zeiss.connect_zen_blue.ConnectMicroscope.get_objective_position">[docs]</a>    <span class="k">def</span> <span class="nf">get_objective_position</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Get position of actual objective.</span>
+
+<span class="sd">        Input:</span>
+<span class="sd">         none</span>
+
+<span class="sd">        Output:</span>
+<span class="sd">         position: position of actual objective, objective in imaging position</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="c1"># retrieve ZEN ObjectiveChanger object</span>
+            <span class="n">objRevolver</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">Zen</span><span class="o">.</span><span class="n">Devices</span><span class="o">.</span><span class="n">ObjectiveChanger</span>
+
+            <span class="c1"># get name of objective</span>
+            <span class="n">position</span> <span class="o">=</span> <span class="n">objRevolver</span><span class="o">.</span><span class="n">ActualPosition</span>
+        <span class="k">except</span> <span class="ne">Exception</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="n">HardwareError</span><span class="p">(</span><span class="s2">&quot;Error in get_objective_name.&quot;</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">position</span></div>
+
+<div class="viewcode-block" id="ConnectMicroscope.run_macro"><a class="viewcode-back" href="../../../microscope_automation.zeiss.html#microscope_automation.zeiss.connect_zen_blue.ConnectMicroscope.run_macro">[docs]</a>    <span class="k">def</span> <span class="nf">run_macro</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">macro_name</span><span class="p">,</span> <span class="n">macro_param</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Function to run a given Zen Blue Macro</span>
+
+<span class="sd">        Input:</span>
+<span class="sd">         macro_name: Name of the macro</span>
+
+<span class="sd">        Output:</span>
+<span class="sd">         none</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">macro_param</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+
+                <span class="bp">self</span><span class="o">.</span><span class="n">Zen</span><span class="o">.</span><span class="n">Application</span><span class="o">.</span><span class="n">RunMacro</span><span class="p">(</span><span class="n">macro_name</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">Zen</span><span class="o">.</span><span class="n">Application</span><span class="o">.</span><span class="n">RunMacro_2</span><span class="p">(</span><span class="n">macro_name</span><span class="p">,</span> <span class="n">macro_param</span><span class="p">)</span>
+
+        <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+            <span class="n">log</span><span class="p">(</span><span class="n">e</span><span class="p">)</span>
+            <span class="k">raise</span> <span class="n">e</span></div>
+
+    <span class="c1">###############################################################################</span>
+    <span class="c1">#</span>
+    <span class="c1"># Methods to control immersion water delivery</span>
+    <span class="c1">#</span>
+    <span class="c1">###############################################################################</span>
+
+<div class="viewcode-block" id="ConnectMicroscope.trigger_pump"><a class="viewcode-back" href="../../../microscope_automation.zeiss.html#microscope_automation.zeiss.connect_zen_blue.ConnectMicroscope.trigger_pump">[docs]</a>    <span class="k">def</span> <span class="nf">trigger_pump</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">seconds</span><span class="p">,</span> <span class="n">port</span><span class="o">=</span><span class="s2">&quot;COM1&quot;</span><span class="p">,</span> <span class="n">baudrate</span><span class="o">=</span><span class="mi">19200</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Trigger pump</span>
+
+<span class="sd">        Input:</span>
+<span class="sd">         seconds: the number of seconds pump is activated</span>
+
+<span class="sd">         port: com port, default = &#39;COM1&#39;</span>
+
+<span class="sd">         baudrate: baudrate for connection, can be set on pump, typically = 19200</span>
+
+<span class="sd">        Output:</span>
+<span class="sd">         none</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="c1"># connect to pump through RS232</span>
+            <span class="n">pump</span> <span class="o">=</span> <span class="n">Braintree</span><span class="p">(</span><span class="n">port</span><span class="o">=</span><span class="n">port</span><span class="p">,</span> <span class="n">baudrate</span><span class="o">=</span><span class="n">baudrate</span><span class="p">)</span>
+
+            <span class="c1"># activate pump</span>
+            <span class="n">pump</span><span class="o">.</span><span class="n">start_pump</span><span class="p">()</span>
+
+            <span class="c1"># continue pumping for seconds</span>
+            <span class="n">time</span><span class="o">.</span><span class="n">sleep</span><span class="p">(</span><span class="n">seconds</span><span class="p">)</span>
+
+            <span class="c1"># stop pump and close connection</span>
+            <span class="n">pump</span><span class="o">.</span><span class="n">close_connection</span><span class="p">()</span>
+        <span class="k">except</span> <span class="n">SerialException</span><span class="p">:</span>
+            <span class="kn">from</span> <span class="nn">..hardware</span> <span class="kn">import</span> <span class="n">RS232_dummy</span>
+
+            <span class="n">pump</span> <span class="o">=</span> <span class="n">RS232_dummy</span><span class="o">.</span><span class="n">Braintree</span><span class="p">(</span><span class="n">port</span><span class="o">=</span><span class="n">port</span><span class="p">,</span> <span class="n">baudrate</span><span class="o">=</span><span class="n">baudrate</span><span class="p">)</span>
+            <span class="n">pump</span><span class="o">.</span><span class="n">start_pump</span><span class="p">()</span>
+            <span class="n">time</span><span class="o">.</span><span class="n">sleep</span><span class="p">(</span><span class="n">seconds</span><span class="p">)</span>
+            <span class="n">pump</span><span class="o">.</span><span class="n">close_connection</span><span class="p">()</span>
+        <span class="k">except</span> <span class="ne">Exception</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="n">HardwareError</span><span class="p">(</span><span class="s2">&quot;Error in trigger_pump.&quot;</span><span class="p">)</span>
+
+        <span class="n">log</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;Pump activated for : </span><span class="si">%s</span><span class="s2"> sec&quot;</span><span class="p">,</span> <span class="n">seconds</span><span class="p">)</span></div>
+
+    <span class="c1">###############################################################################</span>
+    <span class="c1">#</span>
+    <span class="c1"># Methods to collect information about microsocpe</span>
+    <span class="c1">#</span>
+    <span class="c1">###############################################################################</span>
+
+<div class="viewcode-block" id="ConnectMicroscope.get_microscope_name"><a class="viewcode-back" href="../../../microscope_automation.zeiss.html#microscope_automation.zeiss.connect_zen_blue.ConnectMicroscope.get_microscope_name">[docs]</a>    <span class="k">def</span> <span class="nf">get_microscope_name</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Returns name of the microscope from hardware that</span>
+<span class="sd">        is controlled by this class.</span>
+
+<span class="sd">        Input:</span>
+<span class="sd">         none</span>
+
+<span class="sd">        Output:</span>
+<span class="sd">         Microscope: name of Microscope&quot;&quot;&quot;</span>
+
+        <span class="n">name</span> <span class="o">=</span> <span class="s2">&quot;get_microscope_name not implemented&quot;</span>
+        <span class="n">log</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;This class controls the microscope: </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">name</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">name</span></div>
+
+<div class="viewcode-block" id="ConnectMicroscope.stop"><a class="viewcode-back" href="../../../microscope_automation.zeiss.html#microscope_automation.zeiss.connect_zen_blue.ConnectMicroscope.stop">[docs]</a>    <span class="k">def</span> <span class="nf">stop</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Stop Microscope immediately&quot;&quot;&quot;</span>
+        <span class="n">log</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Microscope operation aborted&quot;</span><span class="p">)</span></div>
+
+    <span class="c1">###############################################################################</span>
+    <span class="c1">#</span>
+    <span class="c1"># Methods to collect information about experiments</span>
+    <span class="c1">#</span>
+    <span class="c1">###############################################################################</span>
+
+<div class="viewcode-block" id="ConnectMicroscope.validate_experiment"><a class="viewcode-back" href="../../../microscope_automation.zeiss.html#microscope_automation.zeiss.connect_zen_blue.ConnectMicroscope.validate_experiment">[docs]</a>    <span class="k">def</span> <span class="nf">validate_experiment</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">experiment_path</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">experiment_name</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Function to check if the experiment is defined in the Zen blue software</span>
+
+<span class="sd">        Input:</span>
+<span class="sd">         experiment_path: path of the experiment file</span>
+
+<span class="sd">         experiment_name: name of the experiment</span>
+
+<span class="sd">        Output:</span>
+<span class="sd">         valid_experiment: bool describing if the experiment is valid</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">zen_experiment</span> <span class="o">=</span> <span class="n">ZenExperiment</span><span class="p">(</span><span class="n">experiment_path</span><span class="p">,</span> <span class="n">experiment_name</span><span class="p">)</span>
+        <span class="n">valid_experiment</span> <span class="o">=</span> <span class="n">zen_experiment</span><span class="o">.</span><span class="n">experiment_exists</span><span class="p">()</span>
+        <span class="k">return</span> <span class="n">valid_experiment</span></div>
+
+<div class="viewcode-block" id="ConnectMicroscope.is_z_stack"><a class="viewcode-back" href="../../../microscope_automation.zeiss.html#microscope_automation.zeiss.connect_zen_blue.ConnectMicroscope.is_z_stack">[docs]</a>    <span class="k">def</span> <span class="nf">is_z_stack</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">experiment_path</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">experiment_name</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Function to check if the experiment is a z-stack experiment</span>
+
+<span class="sd">        Input:</span>
+<span class="sd">         experiment_path: path of the experiment file</span>
+
+<span class="sd">         experiment_name: name of the experiment</span>
+
+<span class="sd">        Output:</span>
+<span class="sd">         z_stack_experiment: bool describing if the experiment acquires a z stack</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">zen_experiment</span> <span class="o">=</span> <span class="n">ZenExperiment</span><span class="p">(</span><span class="n">experiment_path</span><span class="p">,</span> <span class="n">experiment_name</span><span class="p">)</span>
+        <span class="n">z_stack_experiment</span> <span class="o">=</span> <span class="n">zen_experiment</span><span class="o">.</span><span class="n">is_z_stack</span><span class="p">()</span>
+        <span class="k">return</span> <span class="n">z_stack_experiment</span></div>
+
+<div class="viewcode-block" id="ConnectMicroscope.z_stack_range"><a class="viewcode-back" href="../../../microscope_automation.zeiss.html#microscope_automation.zeiss.connect_zen_blue.ConnectMicroscope.z_stack_range">[docs]</a>    <span class="k">def</span> <span class="nf">z_stack_range</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">experiment_path</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">experiment_name</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Function to  get the range of first z-stack in experiment.</span>
+
+<span class="sd">        Input:</span>
+<span class="sd">         experiment_path: path of the experiment file</span>
+
+<span class="sd">         experiment_name: name of the experiment</span>
+
+<span class="sd">        Output:</span>
+<span class="sd">         zstack_range: range of the z-stack</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">zen_experiment</span> <span class="o">=</span> <span class="n">ZenExperiment</span><span class="p">(</span><span class="n">experiment_path</span><span class="p">,</span> <span class="n">experiment_name</span><span class="p">)</span>
+        <span class="n">zstack_range</span> <span class="o">=</span> <span class="n">zen_experiment</span><span class="o">.</span><span class="n">z_stack_range</span><span class="p">()</span>
+        <span class="k">return</span> <span class="n">zstack_range</span></div>
+
+<div class="viewcode-block" id="ConnectMicroscope.is_tile_scan"><a class="viewcode-back" href="../../../microscope_automation.zeiss.html#microscope_automation.zeiss.connect_zen_blue.ConnectMicroscope.is_tile_scan">[docs]</a>    <span class="k">def</span> <span class="nf">is_tile_scan</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">experiment_path</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">experiment_name</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Function to check if the experiment is a tile scan</span>
+
+<span class="sd">        Input:</span>
+<span class="sd">         experiment_path: path of the experiment file</span>
+
+<span class="sd">         experiment_name: name of the experiment</span>
+
+<span class="sd">        Output:</span>
+<span class="sd">         tile_scan_bool: bool describing if the experiment contains a tile scan</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">zen_experiment</span> <span class="o">=</span> <span class="n">ZenExperiment</span><span class="p">(</span><span class="n">experiment_path</span><span class="p">,</span> <span class="n">experiment_name</span><span class="p">)</span>
+        <span class="n">tile_scan_bool</span> <span class="o">=</span> <span class="n">zen_experiment</span><span class="o">.</span><span class="n">is_tile_scan</span><span class="p">()</span>
+        <span class="k">return</span> <span class="n">tile_scan_bool</span></div>
+
+<div class="viewcode-block" id="ConnectMicroscope.update_tile_positions"><a class="viewcode-back" href="../../../microscope_automation.zeiss.html#microscope_automation.zeiss.connect_zen_blue.ConnectMicroscope.update_tile_positions">[docs]</a>    <span class="k">def</span> <span class="nf">update_tile_positions</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span> <span class="n">experiment_path</span><span class="p">,</span> <span class="n">experiment_name</span><span class="p">,</span> <span class="n">x_value</span><span class="p">,</span> <span class="n">y_value</span><span class="p">,</span> <span class="n">z_value</span>
+    <span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Function to define the position of the tile</span>
+
+<span class="sd">        Input:</span>
+<span class="sd">         experiment_path: path of the experiment file</span>
+
+<span class="sd">         experiment_name: name of the experiment</span>
+
+<span class="sd">         x_value: float (x - coordinate)</span>
+
+<span class="sd">         y_value: float (y - coordinate)</span>
+
+<span class="sd">         z_value: float (z - coordinate)</span>
+
+<span class="sd">        Output:</span>
+<span class="sd">         none</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">zen_experiment</span> <span class="o">=</span> <span class="n">ZenExperiment</span><span class="p">(</span><span class="n">experiment_path</span><span class="p">,</span> <span class="n">experiment_name</span><span class="p">)</span>
+        <span class="n">zen_experiment</span><span class="o">.</span><span class="n">update_tile_positions</span><span class="p">(</span><span class="n">x_value</span><span class="p">,</span> <span class="n">y_value</span><span class="p">,</span> <span class="n">z_value</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="ConnectMicroscope.get_objective_position_from_experiment_file"><a class="viewcode-back" href="../../../microscope_automation.zeiss.html#microscope_automation.zeiss.connect_zen_blue.ConnectMicroscope.get_objective_position_from_experiment_file">[docs]</a>    <span class="k">def</span> <span class="nf">get_objective_position_from_experiment_file</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span> <span class="n">experiment_path</span><span class="p">,</span> <span class="n">experiment_name</span>
+    <span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Function to get the position of the objective used in the experiment</span>
+
+<span class="sd">        Input:</span>
+<span class="sd">         experiment_path: path of the experiment file</span>
+
+<span class="sd">         experiment_name: name of the experiment</span>
+
+<span class="sd">        Output:</span>
+<span class="sd">         position: the integer position of the objective</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">zen_experiment</span> <span class="o">=</span> <span class="n">ZenExperiment</span><span class="p">(</span><span class="n">experiment_path</span><span class="p">,</span> <span class="n">experiment_name</span><span class="p">)</span>
+        <span class="n">position</span> <span class="o">=</span> <span class="n">zen_experiment</span><span class="o">.</span><span class="n">get_objective_position</span><span class="p">()</span>
+        <span class="k">return</span> <span class="n">position</span></div>
+
+<div class="viewcode-block" id="ConnectMicroscope.get_focus_settings"><a class="viewcode-back" href="../../../microscope_automation.zeiss.html#microscope_automation.zeiss.connect_zen_blue.ConnectMicroscope.get_focus_settings">[docs]</a>    <span class="k">def</span> <span class="nf">get_focus_settings</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">experiment_path</span><span class="p">,</span> <span class="n">experiment_name</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Function to get the focus settings used in the experiment</span>
+
+<span class="sd">        Input:</span>
+<span class="sd">         experiment_path: path of the experiment file</span>
+
+<span class="sd">         experiment_name: name of the experiment</span>
+
+<span class="sd">        Output:</span>
+<span class="sd">         focus_settings: All instances of focus settings in experiment file</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">zen_experiment</span> <span class="o">=</span> <span class="n">ZenExperiment</span><span class="p">(</span><span class="n">experiment_path</span><span class="p">,</span> <span class="n">experiment_name</span><span class="p">)</span>
+        <span class="n">focus_settings</span> <span class="o">=</span> <span class="n">zen_experiment</span><span class="o">.</span><span class="n">get_focus_settings</span><span class="p">()</span>
+        <span class="k">return</span> <span class="n">focus_settings</span></div></div>
+
+
+<span class="c1">#################################################################################</span>
+<span class="c1">#</span>
+<span class="c1"># Test functions</span>
+<span class="c1">#</span>
+<span class="c1">#################################################################################</span>
+
+
+<div class="viewcode-block" id="test_definite_focus"><a class="viewcode-back" href="../../../microscope_automation.zeiss.html#microscope_automation.zeiss.connect_zen_blue.test_definite_focus">[docs]</a><span class="k">def</span> <span class="nf">test_definite_focus</span><span class="p">(</span><span class="n">microscope</span><span class="p">,</span> <span class="n">interactive</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Test DefiniteFocus 2 with ZEN Blue on spinning disk.</span>
+
+<span class="sd">    Input:</span>
+<span class="sd">     microscope: instance of class ConnectMicroscope</span>
+<span class="sd">     interactive: if true allow input from microscope</span>
+
+<span class="sd">    Output:</span>
+<span class="sd">     success: True when test was passed</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Start test_definite_focus&quot;</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">interactive</span><span class="p">:</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Use interactive mode&quot;</span><span class="p">)</span>
+    <span class="n">success</span> <span class="o">=</span> <span class="kc">True</span>
+
+    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Test stage movement without and with auto-focus&quot;</span><span class="p">)</span>
+    <span class="n">path</span> <span class="o">=</span> <span class="p">[</span>
+        <span class="p">[</span><span class="mi">34000</span><span class="p">,</span> <span class="mi">40000</span><span class="p">,</span> <span class="mi">8800</span><span class="p">],</span>
+        <span class="p">[</span><span class="mi">35000</span><span class="p">,</span> <span class="mi">40000</span><span class="p">,</span> <span class="mi">8850</span><span class="p">],</span>
+        <span class="p">[</span><span class="mi">35000</span><span class="p">,</span> <span class="mi">41000</span><span class="p">,</span> <span class="mi">8900</span><span class="p">],</span>
+        <span class="p">[</span><span class="mi">34000</span><span class="p">,</span> <span class="mi">40000</span><span class="p">,</span> <span class="mi">8950</span><span class="p">],</span>
+    <span class="p">]</span>
+
+    <span class="c1"># Initialize autofocus</span>
+    <span class="n">z_auto_focus</span> <span class="o">=</span> <span class="n">microscope</span><span class="o">.</span><span class="n">find_surface</span><span class="p">()</span>
+    <span class="nb">print</span><span class="p">((</span><span class="s2">&quot;Auto-focus found surface at </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">z_auto_focus</span><span class="p">)))</span>
+
+    <span class="k">if</span> <span class="n">interactive</span><span class="p">:</span>
+        <span class="nb">input</span><span class="p">(</span><span class="s2">&quot;Focus on surface and hit Enter&quot;</span><span class="p">)</span>
+        <span class="n">z_after_move</span> <span class="o">=</span> <span class="n">microscope</span><span class="o">.</span><span class="n">get_focus_pos</span><span class="p">()</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">z_after_move</span> <span class="o">=</span> <span class="n">microscope</span><span class="o">.</span><span class="n">z_up_relative</span><span class="p">(</span><span class="mi">10</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">((</span><span class="s2">&quot;Moved focus up 10 um to new position </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">z_after_move</span><span class="p">)))</span>
+    <span class="n">z_after_store</span> <span class="o">=</span> <span class="n">microscope</span><span class="o">.</span><span class="n">store_focus</span><span class="p">()</span>
+    <span class="nb">print</span><span class="p">((</span><span class="s2">&quot;Store new focus position at </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">z_after_store</span><span class="p">)))</span>
+
+    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Test stage movement without and with auto-focus&quot;</span><span class="p">)</span>
+    <span class="n">path</span> <span class="o">=</span> <span class="p">[</span>
+        <span class="p">[</span><span class="mi">34000</span><span class="p">,</span> <span class="mi">40000</span><span class="p">,</span> <span class="n">z_after_move</span><span class="p">],</span>
+        <span class="p">[</span><span class="mi">35000</span><span class="p">,</span> <span class="mi">40000</span><span class="p">,</span> <span class="n">z_after_move</span><span class="p">],</span>
+        <span class="p">[</span><span class="mi">35000</span><span class="p">,</span> <span class="mi">41000</span><span class="p">,</span> <span class="n">z_after_move</span><span class="p">],</span>
+        <span class="p">[</span><span class="mi">34000</span><span class="p">,</span> <span class="mi">40000</span><span class="p">,</span> <span class="n">z_after_move</span><span class="p">],</span>
+    <span class="p">]</span>
+
+    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">Move stage&quot;</span><span class="p">)</span>
+    <span class="c1"># print (&#39;1:ID for microscope.Zen.Devices.Focus.ActualPosition: {}&#39;</span>
+    <span class="c1">#        .format(id(microscope.Zen.Devices.Focus.ActualPosition)))</span>
+    <span class="k">for</span> <span class="n">auto_focus_flag</span> <span class="ow">in</span> <span class="p">[</span><span class="kc">False</span><span class="p">,</span> <span class="kc">True</span><span class="p">]:</span>
+        <span class="k">for</span> <span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">z</span> <span class="ow">in</span> <span class="n">path</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span>
+                <span class="p">(</span>
+                    <span class="s2">&quot;</span><span class="se">\n</span><span class="s2">Move stage to (</span><span class="si">{}</span><span class="s2">, </span><span class="si">{}</span><span class="s2">, </span><span class="si">{}</span><span class="s2">) with auto_focus_flag = </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
+                        <span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">z</span><span class="p">,</span> <span class="n">auto_focus_flag</span>
+                    <span class="p">)</span>
+                <span class="p">)</span>
+            <span class="p">)</span>
+            <span class="n">xStage</span><span class="p">,</span> <span class="n">yStage</span> <span class="o">=</span> <span class="n">microscope</span><span class="o">.</span><span class="n">move_stage_to</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">)</span>
+            <span class="c1"># print(&#39;2:ID for microscope.Zen.Devices.Focus.ActualPosition: {}&#39;\</span>
+            <span class="c1">#       .format(id(microscope.Zen.Devices.Focus.ActualPosition)))</span>
+            <span class="n">microscope</span><span class="o">.</span><span class="n">move_focus_to</span><span class="p">(</span><span class="n">z</span><span class="p">)</span>
+            <span class="c1"># print(&#39;3:ID for microscope.Zen.Devices.Focus.ActualPosition: {}&#39;</span>
+            <span class="c1">#       .format(id(microscope.Zen.Devices.Focus.ActualPosition)))</span>
+            <span class="k">if</span> <span class="n">auto_focus_flag</span><span class="p">:</span>
+                <span class="n">z_after_recall</span> <span class="o">=</span> <span class="n">microscope</span><span class="o">.</span><span class="n">recall_focus</span><span class="p">()</span>
+                <span class="c1"># print(&#39;4: ID for microscope.Zen.Devices.Focus.ActualPosition: {}&#39;</span>
+                <span class="c1">#       .format(id(microscope.Zen.Devices.Focus.ActualPosition)))</span>
+                <span class="nb">print</span><span class="p">((</span><span class="s2">&quot;Focus after recall: </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">z_after_recall</span><span class="p">)))</span>
+
+            <span class="n">x_new</span><span class="p">,</span> <span class="n">y_new</span> <span class="o">=</span> <span class="n">microscope</span><span class="o">.</span><span class="n">get_stage_pos</span><span class="p">()</span>
+            <span class="c1"># print(&#39;5: ID for microscope.Zen.Devices.Focus.ActualPosition: {}&#39;</span>
+            <span class="c1">#       .format(id(microscope.Zen.Devices.Focus.ActualPosition)))</span>
+            <span class="n">z_new</span> <span class="o">=</span> <span class="n">microscope</span><span class="o">.</span><span class="n">get_focus_pos</span><span class="p">()</span>
+            <span class="nb">print</span><span class="p">((</span><span class="s2">&quot;6: New position: </span><span class="si">{}</span><span class="s2">, </span><span class="si">{}</span><span class="s2">, </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">x_new</span><span class="p">,</span> <span class="n">y_new</span><span class="p">,</span> <span class="n">z_new</span><span class="p">)))</span>
+            <span class="c1"># print(&#39;ID for microscope.Zen.Devices.Focus.ActualPosition: {}&#39;</span>
+            <span class="c1">#       .format(id(microscope.Zen.Devices.Focus.ActualPosition)))</span>
+
+    <span class="k">return</span> <span class="n">success</span></div>
+
+
+<div class="viewcode-block" id="test_connect_zen_blue"><a class="viewcode-back" href="../../../microscope_automation.zeiss.html#microscope_automation.zeiss.connect_zen_blue.test_connect_zen_blue">[docs]</a><span class="k">def</span> <span class="nf">test_connect_zen_blue</span><span class="p">(</span>
+    <span class="n">test</span><span class="o">=</span><span class="p">[</span>
+        <span class="s2">&quot;test_definite_focus&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;execute_experiment&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;snap_image&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;get_all_objectives&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;trigger_pump&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;test_focus&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;save_image&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;test_stage&quot;</span><span class="p">,</span>
+    <span class="p">]</span>
+<span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Test suite to test module with Zeiss SD hardware or test hardware.</span>
+
+<span class="sd">    Input:</span>
+<span class="sd">     test: list with tests to perform</span>
+
+<span class="sd">    Output:</span>
+<span class="sd">     success: True when test was passed</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">success</span> <span class="o">=</span> <span class="kc">True</span>
+    <span class="n">experiment</span> <span class="o">=</span> <span class="s2">&quot;Setup_10x&quot;</span>
+    <span class="n">experiment_multi_pos</span> <span class="o">=</span> <span class="s2">&quot;MultiPos_10x&quot;</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Start test suite&quot;</span><span class="p">)</span>
+    <span class="kn">from</span> <span class="nn">..image_AICS</span> <span class="kn">import</span> <span class="n">ImageAICS</span>
+
+    <span class="c1"># test class ConnectMicroscope</span>
+    <span class="c1"># get instance of type ConnectMicroscope</span>
+    <span class="c1"># connect via .com to Zeiss ZEN blue software</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Connect to microscope&quot;</span><span class="p">)</span>
+    <span class="n">m</span> <span class="o">=</span> <span class="n">ConnectMicroscope</span><span class="p">()</span>
+
+    <span class="c1"># test Definite Focus 2</span>
+    <span class="k">if</span> <span class="s2">&quot;test_definite_focus&quot;</span> <span class="ow">in</span> <span class="n">test</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">test_definite_focus</span><span class="p">(</span><span class="n">m</span><span class="p">,</span> <span class="n">interactive</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;test_definite_focus passed test&quot;</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;test_definite_focus failed test&quot;</span><span class="p">)</span>
+
+    <span class="c1"># test Definite Focus 2</span>
+    <span class="k">if</span> <span class="s2">&quot;test_definite_focus_interactive&quot;</span> <span class="ow">in</span> <span class="n">test</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">test_definite_focus</span><span class="p">(</span><span class="n">m</span><span class="p">,</span> <span class="n">interactive</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;test_definite_focus passed test&quot;</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;test_definite_focus failed test&quot;</span><span class="p">)</span>
+
+    <span class="c1"># Acquire an ImageAICS using settings defined within the Zeiss ZEN software</span>
+    <span class="c1"># (requires ZEN 2.3)</span>
+    <span class="k">if</span> <span class="s2">&quot;execute_experiment&quot;</span> <span class="ow">in</span> <span class="n">test</span><span class="p">:</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Start test execute_experiment&quot;</span><span class="p">)</span>
+            <span class="nb">print</span><span class="p">((</span><span class="s2">&quot;Experiment: &quot;</span><span class="p">,</span> <span class="n">experiment</span><span class="p">))</span>
+            <span class="n">m</span><span class="o">.</span><span class="n">execute_experiment</span><span class="p">(</span><span class="n">experiment</span><span class="p">)</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Experiment: None&quot;</span><span class="p">)</span>
+            <span class="n">m</span><span class="o">.</span><span class="n">execute_experiment</span><span class="p">()</span>
+            <span class="nb">print</span><span class="p">(</span>
+                <span class="p">(</span>
+                    <span class="s2">&quot;Execute experiment </span><span class="si">{}</span><span class="s2"> at multiple positions&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
+                        <span class="n">experiment_multi_pos</span>
+                    <span class="p">)</span>
+                <span class="p">)</span>
+            <span class="p">)</span>
+            <span class="n">pos_list</span> <span class="o">=</span> <span class="p">[(</span><span class="mi">59597</span><span class="p">,</span> <span class="mi">40896</span><span class="p">,</span> <span class="mi">9941</span><span class="p">),</span> <span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">59939</span><span class="p">,</span> <span class="mi">40946</span><span class="p">,</span> <span class="mi">9941</span><span class="p">)]</span>
+            <span class="n">m</span><span class="o">.</span><span class="n">execute_experiment</span><span class="p">(</span><span class="n">experiment_multi_pos</span><span class="p">,</span> <span class="n">pos_list</span><span class="p">)</span>
+            <span class="c1"># display ImageAICS within ZEN software</span>
+            <span class="n">m</span><span class="o">.</span><span class="n">show_image</span><span class="p">()</span>
+            <span class="k">if</span> <span class="n">success</span><span class="p">:</span>
+                <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;execute_experiment passed test&quot;</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;execute_experiment failed test&quot;</span><span class="p">)</span>
+            <span class="k">return</span> <span class="kc">True</span>
+        <span class="k">except</span> <span class="ne">Exception</span><span class="p">:</span>
+            <span class="k">return</span> <span class="kc">False</span>
+
+    <span class="k">if</span> <span class="s2">&quot;snap_image&quot;</span> <span class="ow">in</span> <span class="n">test</span><span class="p">:</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Start test snap_image&quot;</span><span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Experiment: &quot;</span><span class="p">,</span> <span class="n">experiment</span><span class="p">)</span>
+        <span class="n">success</span> <span class="o">=</span> <span class="n">m</span><span class="o">.</span><span class="n">snap_image</span><span class="p">(</span><span class="n">experiment</span><span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Experiment: None&quot;</span><span class="p">)</span>
+        <span class="n">success</span> <span class="o">=</span> <span class="n">m</span><span class="o">.</span><span class="n">snap_image</span><span class="p">()</span>
+
+        <span class="c1"># display ImageAICS within ZEN software</span>
+        <span class="n">m</span><span class="o">.</span><span class="n">show_image</span><span class="p">()</span>
+        <span class="k">if</span> <span class="n">success</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;snap_image passed test&quot;</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;snap_image failed test&quot;</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="s2">&quot;live_mode&quot;</span> <span class="ow">in</span> <span class="n">test</span><span class="p">:</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Start test live_mode&quot;</span><span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Experiment: &quot;</span><span class="p">,</span> <span class="n">experiment</span><span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Start live mode for 5 sec&quot;</span><span class="p">)</span>
+        <span class="n">image</span> <span class="o">=</span> <span class="n">m</span><span class="o">.</span><span class="n">live_mode_start</span><span class="p">(</span><span class="n">experiment</span><span class="p">)</span>
+        <span class="n">time</span><span class="o">.</span><span class="n">sleep</span><span class="p">(</span><span class="mi">5</span><span class="p">)</span>
+        <span class="n">m</span><span class="o">.</span><span class="n">live_mode_stop</span><span class="p">(</span><span class="n">experiment</span><span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Live mode stopped&quot;</span><span class="p">)</span>
+
+    <span class="c1">#     test objective changer</span>
+    <span class="k">if</span> <span class="s2">&quot;get_all_objectives&quot;</span> <span class="ow">in</span> <span class="n">test</span><span class="p">:</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Start test get_all_objectives&quot;</span><span class="p">)</span>
+        <span class="c1">#     retrieve the names and magnification of all objectives</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Mounted objectives: </span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">m</span><span class="o">.</span><span class="n">get_all_objectives</span><span class="p">(</span><span class="mi">6</span><span class="p">))</span>
+
+        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;get_all_objectives passed test&quot;</span><span class="p">)</span>
+
+    <span class="c1">#     retrieve objective information</span>
+    <span class="k">if</span> <span class="s2">&quot;get_objective_information&quot;</span> <span class="ow">in</span> <span class="n">test</span><span class="p">:</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Start retrieve information about objectives&quot;</span><span class="p">)</span>
+        <span class="c1">#     retrieve the names and magnification of objective in imaging position</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Magnification: &quot;</span><span class="p">,</span> <span class="n">m</span><span class="o">.</span><span class="n">get_objective_magnification</span><span class="p">())</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Name: &quot;</span><span class="p">,</span> <span class="n">m</span><span class="o">.</span><span class="n">get_objective_name</span><span class="p">())</span>
+
+        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;get_objective_magnification and get_objective_name passed test&quot;</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="s2">&quot;trigger_pump&quot;</span> <span class="ow">in</span> <span class="n">test</span><span class="p">:</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Start test trigger_pump&quot;</span><span class="p">)</span>
+        <span class="c1">#     operate pump for 5 sec</span>
+        <span class="n">m</span><span class="o">.</span><span class="n">trigger_pump</span><span class="p">(</span><span class="n">seconds</span><span class="o">=</span><span class="mi">5</span><span class="p">,</span> <span class="n">port</span><span class="o">=</span><span class="s2">&quot;COM1&quot;</span><span class="p">,</span> <span class="n">baudrate</span><span class="o">=</span><span class="mi">19200</span><span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Pump triggered&quot;</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="s2">&quot;test_focus&quot;</span> <span class="ow">in</span> <span class="n">test</span><span class="p">:</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Start test test_focus&quot;</span><span class="p">)</span>
+        <span class="c1"># retrieve focus position</span>
+        <span class="n">zPos</span> <span class="o">=</span> <span class="n">m</span><span class="o">.</span><span class="n">get_focus_pos</span><span class="p">()</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Focus position: &quot;</span><span class="p">,</span> <span class="n">zPos</span><span class="p">)</span>
+
+        <span class="c1"># move focus to new position</span>
+        <span class="n">zPos</span> <span class="o">=</span> <span class="n">m</span><span class="o">.</span><span class="n">move_focus_to</span><span class="p">(</span><span class="n">zPos</span> <span class="o">-</span> <span class="mi">10</span><span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;New focus position: &quot;</span><span class="p">,</span> <span class="n">zPos</span><span class="p">)</span>
+
+        <span class="c1"># store current focus position as work position</span>
+        <span class="n">zPos</span> <span class="o">=</span> <span class="n">m</span><span class="o">.</span><span class="n">set_focus_work_position</span><span class="p">()</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Focus work position: &quot;</span><span class="p">,</span> <span class="n">zPos</span><span class="p">)</span>
+
+        <span class="c1"># store current focus position as load position</span>
+        <span class="n">zPos</span> <span class="o">=</span> <span class="n">m</span><span class="o">.</span><span class="n">set_focus_load_position</span><span class="p">()</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Focus load position: &quot;</span><span class="p">,</span> <span class="n">zPos</span><span class="p">)</span>
+
+        <span class="c1"># move focus to work position</span>
+        <span class="n">zPos</span> <span class="o">=</span> <span class="n">m</span><span class="o">.</span><span class="n">move_focus_to_work</span><span class="p">()</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;New focus position: &quot;</span><span class="p">,</span> <span class="n">zPos</span><span class="p">)</span>
+
+        <span class="c1"># move focus to load position</span>
+        <span class="n">zPos</span> <span class="o">=</span> <span class="n">m</span><span class="o">.</span><span class="n">move_focus_to_load</span><span class="p">()</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;New focus position: &quot;</span><span class="p">,</span> <span class="n">zPos</span><span class="p">)</span>
+
+        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;test_focus passed test&quot;</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="s2">&quot;save_image&quot;</span> <span class="ow">in</span> <span class="n">test</span><span class="p">:</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Start test save_image&quot;</span><span class="p">)</span>
+        <span class="c1">#     save ImageAICS from within Zeiss software to disk (in czi format)</span>
+        <span class="c1">#     filePath=&quot;F:\\Winfried\\Testdata\\testImage.czi&quot;</span>
+        <span class="n">file_path</span> <span class="o">=</span> <span class="s2">&quot;../data/testImages/testImage.czi&quot;</span>
+        <span class="n">m</span><span class="o">.</span><span class="n">save_image</span><span class="p">(</span><span class="n">file_path</span><span class="p">)</span>
+
+        <span class="c1"># create image object</span>
+        <span class="n">meta</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;aics_filePath&quot;</span><span class="p">:</span> <span class="n">file_path</span><span class="p">}</span>
+        <span class="n">image_test</span> <span class="o">=</span> <span class="n">ImageAICS</span><span class="p">(</span><span class="n">meta</span><span class="o">=</span><span class="n">meta</span><span class="p">)</span>
+
+        <span class="c1"># load ImageAICS from file using bioFormats</span>
+        <span class="n">image</span> <span class="o">=</span> <span class="n">m</span><span class="o">.</span><span class="n">load_image</span><span class="p">(</span><span class="n">image_test</span><span class="p">,</span> <span class="n">get_meta</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        <span class="n">image</span><span class="o">.</span><span class="n">show</span><span class="p">(</span><span class="n">file_path</span><span class="p">)</span>
+
+        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;save_image passed test&quot;</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="s2">&quot;test_stage&quot;</span> <span class="ow">in</span> <span class="n">test</span><span class="p">:</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Start test test_stage&quot;</span><span class="p">)</span>
+        <span class="n">x</span><span class="p">,</span> <span class="n">y</span> <span class="o">=</span> <span class="n">m</span><span class="o">.</span><span class="n">get_stage_pos</span><span class="p">()</span>  <span class="c1"># retrieve stage position in mum</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Stage position x: &quot;</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="s2">&quot;y: &quot;</span><span class="p">,</span> <span class="n">y</span><span class="p">)</span>
+        <span class="n">m</span><span class="o">.</span><span class="n">move_stage_to</span><span class="p">(</span><span class="n">x</span> <span class="o">+</span> <span class="mi">10</span><span class="p">,</span> <span class="n">y</span> <span class="o">+</span> <span class="mf">20.5</span><span class="p">)</span>  <span class="c1"># move stage to specified position in mum</span>
+
+        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;test_stage passed test&quot;</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="s2">&quot;test_macro&quot;</span> <span class="ow">in</span> <span class="n">test</span><span class="p">:</span>
+        <span class="n">macro_name</span> <span class="o">=</span> <span class="s2">&quot;TestMacro&quot;</span>
+        <span class="n">macro_parms</span> <span class="o">=</span> <span class="s2">&quot;from Software&quot;</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Test macro without parameters&quot;</span><span class="p">)</span>
+        <span class="n">m</span><span class="o">.</span><span class="n">run_macro</span><span class="p">(</span><span class="n">macro_name</span><span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Test macro with parameters&quot;</span><span class="p">)</span>
+        <span class="n">m</span><span class="o">.</span><span class="n">run_macro</span><span class="p">(</span><span class="n">macro_name</span><span class="p">,</span> <span class="n">macro_parms</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">success</span></div>
+
+
+<span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s2">&quot;__main__&quot;</span><span class="p">:</span>
+
+    <span class="c1"># test = [&#39;execute_experiment&#39;, &#39;test_definite_focus&#39;,</span>
+    <span class="c1">#         &#39;test_definite_focus_interactive&#39;, &#39;snap_image&#39;, &#39;live_mode&#39;,</span>
+    <span class="c1">#         &#39;get_all_objectives&#39;, &#39;get_objective_information&#39;,</span>
+    <span class="c1">#         &#39;trigger_pump&#39;, &#39;test_focus&#39;, &#39;save_image&#39;, &#39;test_stage&#39;, &#39;test_macro&#39;]</span>
+    <span class="n">test</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;test_macro&quot;</span><span class="p">]</span>
+    <span class="k">if</span> <span class="n">test_connect_zen_blue</span><span class="p">(</span><span class="n">test</span><span class="o">=</span><span class="n">test</span><span class="p">):</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Tests performed successful: &quot;</span><span class="p">,</span> <span class="n">test</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Test stopped without  success&quot;</span><span class="p">)</span>
+</pre></div>
+
+          </div>
+          
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<h1 class="logo"><a href="../../../index.html">Microscope Automation</a></h1>
+
+
+
+
+
+
+
+
+<h3>Navigation</h3>
+<p class="caption"><span class="caption-text">Overview</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../index.html">README</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../installation.html">Installation</a></li>
+</ul>
+<p class="caption"><span class="caption-text">Hardware</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../hardware_components.html">hardware_components</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../hardware_control.html">hardware_control</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../RS232.html">RS232</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../setup_microscope.html">setup_microscope</a></li>
+</ul>
+<p class="caption"><span class="caption-text">Samples</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../correct_background.html">correct_background</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../draw_plate.html">draw_plate</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../find_well_center.html">find_well_center</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../find_cells.html">find_cells</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../interactive_location_picker_pyqtgraph.html">interactive_location_picker_pyqtgraph</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../positions_list.html">positions_list</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../samples.html">samples</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../setup_samples.html">setup_samples</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../tile_images.html">tile_images</a></li>
+</ul>
+<p class="caption"><span class="caption-text">Zeiss Microscopes</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../connect_zen_blue.html">connect_zen_blue</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../connect_zen_black.html">connect_zen_black</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../hardware_control_zeiss.html">hardware_control_zeiss</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../write_zen_tiles_experiment.html">write_zen_tiles_experiment</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../zen_experiment_info.html">zen_experiment_info</a></li>
+</ul>
+<p class="caption"><span class="caption-text">3i Microscopes</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../hardware_control_3i.html">hardware_control_3i</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../connect_slidebook.html">connect_slidebook</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../slidebook_experiment_info.html">slidebook_experiment_info</a></li>
+</ul>
+<p class="caption"><span class="caption-text">General Methods</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../automation_exceptions.html">automation_exceptions</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../automation_messages_form_layout.html">automation_messages_form_layout</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../error_handling.html">error_handling</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../get_path.html">get_path</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../image_AICS.html">image_AICS</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../load_image_czi.html">load_image_czi</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../meta_data_file.html">meta_data_file</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../preferences.html">preferences</a></li>
+</ul>
+<p class="caption"><span class="caption-text">Reference Docs</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../CONTRIBUTING.html">Allen Institute Contribution Agreement</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../LICENSE.html">LICENSE</a></li>
+</ul>
+
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="../../../index.html">Documentation overview</a><ul>
+  <li><a href="../../index.html">Module code</a><ul>
+  <li><a href="../../microscope_automation.html">microscope_automation</a><ul>
+  </ul></li>
+  </ul></li>
+  </ul></li>
+</ul>
+</div>
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../../../search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" />
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script>$('#searchbox').show(0);</script>
+
+
+
+
+
+
+
+
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2020, Allen Institute.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 3.3.1</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.12</a>
+      
+    </div>
+
+    
+
+    
+  </body>
+</html>

@@ -1,0 +1,37 @@
+microscope\_automation.slidebook package
+========================================
+
+Submodules
+----------
+
+microscope\_automation.slidebook.connect\_slidebook module
+----------------------------------------------------------
+
+.. automodule:: microscope_automation.slidebook.connect_slidebook
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+microscope\_automation.slidebook.hardware\_control\_3i module
+-------------------------------------------------------------
+
+.. automodule:: microscope_automation.slidebook.hardware_control_3i
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+microscope\_automation.slidebook.slidebook\_experiment\_info module
+-------------------------------------------------------------------
+
+.. automodule:: microscope_automation.slidebook.slidebook_experiment_info
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+Module contents
+---------------
+
+.. automodule:: microscope_automation.slidebook
+   :members:
+   :undoc-members:
+   :show-inheritance:

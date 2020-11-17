@@ -1,0 +1,354 @@
+
+<!DOCTYPE html>
+
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>hardware_control &#8212; Microscope Automation 0.0 documentation</title>
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    <link rel="stylesheet" href="_static/alabaster.css" type="text/css" />
+    <script id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+    <script src="_static/jquery.js"></script>
+    <script src="_static/underscore.js"></script>
+    <script src="_static/doctools.js"></script>
+    <script src="_static/language_data.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="RS232" href="RS232.html" />
+    <link rel="prev" title="hardware_components" href="hardware_components.html" />
+   
+  <link rel="stylesheet" href="_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head><body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          
+
+          <div class="body" role="main">
+            
+  <div class="contents topic" id="contents">
+<p class="topic-title">Contents</p>
+<ul class="simple">
+<li><p><a class="reference internal" href="#hardware-control" id="id2">hardware_control</a></p>
+<ul>
+<li><p><a class="reference internal" href="#class-basemicroscope-object" id="id3">class BaseMicroscope(object)</a></p></li>
+</ul>
+</li>
+</ul>
+</div>
+<div class="section" id="hardware-control">
+<span id="id1"></span><h1><a class="toc-backref" href="#id2">hardware_control</a><a class="headerlink" href="#hardware-control" title="Permalink to this headline">¶</a></h1>
+<p>This module contains the base class, <a class="reference internal" href="#hardware-control-basemicroscope"><span class="std std-ref">class BaseMicroscope(object)</span></a>, to control specific hardware.
+This class is then extended by <a class="reference internal" href="hardware_control_3i.html#hardware-control-3i"><span class="std std-ref">hardware_control_3i</span></a> and <a class="reference internal" href="hardware_control_zeiss.html#hardware-control-zeiss"><span class="std std-ref">hardware_control_zeiss</span></a>
+the workflow and sample components of the Microscope Automation Software.
+At this moment the following microscope classes are implemented:</p>
+<p>These classes have a vendor independent API and connect through vendor
+software specific connect modules to the specific hardware.
+We strongly recommend to access hardware functionality always through
+the API exposed by classes from the various <code class="docutils literal notranslate"><span class="pre">hardware_control</span></code> modules.</p>
+<p>The classes are build around a list of objects of <a class="reference internal" href="hardware_components.html#hardware-components-microscopecomponent"><span class="std std-ref">class MicroscopeComponent(object)</span></a>.
+These objects are defined in module <a class="reference internal" href="hardware_components.html#hardware-components"><span class="std std-ref">hardware_components</span></a>.
+Most of these objects implement methods to control the hardware and store its
+state.</p>
+<div class="section" id="class-basemicroscope-object">
+<span id="hardware-control-basemicroscope"></span><h2><a class="toc-backref" href="#id3">class BaseMicroscope(object)</a><a class="headerlink" href="#class-basemicroscope-object" title="Permalink to this headline">¶</a></h2>
+<p>Base class with minimum functionality. The following public methods are implemented:</p>
+<dl class="py class">
+<dt id="microscope_automation.hardware.hardware_control.BaseMicroscope">
+<em class="property">class </em><code class="sig-prename descclassname">microscope_automation.hardware.hardware_control.</code><code class="sig-name descname">BaseMicroscope</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">name</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">control_software_object</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">experiments_folder</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">microscope_components</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/microscope_automation/hardware/hardware_control.html#BaseMicroscope"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#microscope_automation.hardware.hardware_control.BaseMicroscope" title="Permalink to this definition">¶</a></dt>
+<dd><p>Minimum set of attributes and methods required by Automation Software</p>
+<dl class="py method">
+<dt id="microscope_automation.hardware.hardware_control.BaseMicroscope.add_control_software">
+<code class="sig-name descname">add_control_software</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">control_software_object</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/microscope_automation/hardware/hardware_control.html#BaseMicroscope.add_control_software"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#microscope_automation.hardware.hardware_control.BaseMicroscope.add_control_software" title="Permalink to this definition">¶</a></dt>
+<dd><p>Add object that connects this code to the  vendor specific microscope
+control code to Microscope.</p>
+<dl class="simple">
+<dt>Input:</dt><dd><p>controlSoftwareObject: single object connecting to vendor software</p>
+</dd>
+<dt>Output:</dt><dd><p>none</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="microscope_automation.hardware.hardware_control.BaseMicroscope.add_microscope_object">
+<code class="sig-name descname">add_microscope_object</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">component_objects</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/microscope_automation/hardware/hardware_control.html#BaseMicroscope.add_microscope_object"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#microscope_automation.hardware.hardware_control.BaseMicroscope.add_microscope_object" title="Permalink to this definition">¶</a></dt>
+<dd><p>Add component to microscope.</p>
+<dl class="simple">
+<dt>Input:</dt><dd><p>component_objects: object of a component class (e.g. Stage, Camera)
+or list of component classes</p>
+</dd>
+<dt>Output:</dt><dd><p>none</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="microscope_automation.hardware.hardware_control.BaseMicroscope.change_magnification">
+<code class="sig-name descname">change_magnification</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">objective_changer_id</span></em>, <em class="sig-param"><span class="n">magnification</span></em>, <em class="sig-param"><span class="n">sample_object</span></em>, <em class="sig-param"><span class="n">use_safe_position</span><span class="o">=</span><span class="default_value">True</span></em>, <em class="sig-param"><span class="n">verbose</span><span class="o">=</span><span class="default_value">True</span></em>, <em class="sig-param"><span class="n">load</span><span class="o">=</span><span class="default_value">True</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/microscope_automation/hardware/hardware_control.html#BaseMicroscope.change_magnification"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#microscope_automation.hardware.hardware_control.BaseMicroscope.change_magnification" title="Permalink to this definition">¶</a></dt>
+<dd><p>Change to objective with given magnification.</p>
+<dl>
+<dt>Input:</dt><dd><p>magnification: magnification of selected objective as float.
+Not well defined if multiple objectives with identical magnification exist.</p>
+<p>sample_object: object that has safe coordinates attached.
+If use_safe_position == True than stage and focus drive will move to
+this position before magnification is changed to avoid collision
+between objective and stage.</p>
+<p>use_safe_position: move stage and focus drive to safe position before switching
+magnification to minimize risk of collision (Default: True)</p>
+<p>verbose: if True print debug information (Default = True)</p>
+<p>load: if True, move objective to load position before switching (Default: True)</p>
+</dd>
+<dt>Output:</dt><dd><p>objective_name: name of new objective</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="microscope_automation.hardware.hardware_control.BaseMicroscope.get_load_position">
+<code class="sig-name descname">get_load_position</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">focus_drive_id</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/microscope_automation/hardware/hardware_control.html#BaseMicroscope.get_load_position"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#microscope_automation.hardware.hardware_control.BaseMicroscope.get_load_position" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get load position of focus drive.</p>
+<dl class="simple">
+<dt>Input:</dt><dd><p>focus_drive_id: id of focus drive to get load position of</p>
+</dd>
+<dt>Output:</dt><dd><p>z_load: load position in mum</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="microscope_automation.hardware.hardware_control.BaseMicroscope.goto_load">
+<code class="sig-name descname">goto_load</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">focus_drive_id</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/microscope_automation/hardware/hardware_control.html#BaseMicroscope.goto_load"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#microscope_automation.hardware.hardware_control.BaseMicroscope.goto_load" title="Permalink to this definition">¶</a></dt>
+<dd><p>Set focus position to load position.</p>
+<dl class="simple">
+<dt>Input:</dt><dd><p>focus_drive_id: id of focus drive to set load position on</p>
+</dd>
+<dt>Output:</dt><dd><p>z_load: load position in mum</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="microscope_automation.hardware.hardware_control.BaseMicroscope.live_mode">
+<code class="sig-name descname">live_mode</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">camera_id</span></em>, <em class="sig-param"><span class="n">experiment</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">live</span><span class="o">=</span><span class="default_value">True</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/microscope_automation/hardware/hardware_control.html#BaseMicroscope.live_mode"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#microscope_automation.hardware.hardware_control.BaseMicroscope.live_mode" title="Permalink to this definition">¶</a></dt>
+<dd><p>Start/stop live mode of ZEN software.</p>
+<dl>
+<dt>Input:</dt><dd><p>camera_id: string id for camera</p>
+<p>experiment: name of ZEN experiment (default = None)</p>
+<p>live: switch live mode on (True = default) or off (False)</p>
+</dd>
+<dt>Output:</dt><dd><p>None</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="microscope_automation.hardware.hardware_control.BaseMicroscope.microscope_is_ready">
+<code class="sig-name descname">microscope_is_ready</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">experiment</span></em>, <em class="sig-param"><span class="n">component_dict</span></em>, <em class="sig-param"><span class="n">focus_drive_id</span></em>, <em class="sig-param"><span class="n">objective_changer_id</span></em>, <em class="sig-param"><span class="n">safety_object_id</span></em>, <em class="sig-param"><span class="n">reference_object_id</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">load</span><span class="o">=</span><span class="default_value">True</span></em>, <em class="sig-param"><span class="n">make_ready</span><span class="o">=</span><span class="default_value">True</span></em>, <em class="sig-param"><span class="n">trials</span><span class="o">=</span><span class="default_value">3</span></em>, <em class="sig-param"><span class="n">verbose</span><span class="o">=</span><span class="default_value">True</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/microscope_automation/hardware/hardware_control.html#BaseMicroscope.microscope_is_ready"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#microscope_automation.hardware.hardware_control.BaseMicroscope.microscope_is_ready" title="Permalink to this definition">¶</a></dt>
+<dd><p>Check if microscope is ready and setup up for data acquisition.</p>
+<dl>
+<dt>Input:</dt><dd><p>experiment: string with name of experiment as defined in microscope software</p>
+<p>compenent_dict: dictionary with component_id as key and list of actions</p>
+<p>focus_drive_id: string id for focus drive</p>
+<dl class="simple">
+<dt>objective_changer_id: string id for objective changer parfocality</dt><dd><p>and parcentricity has to be calibrated</p>
+</dd>
+</dl>
+<p>safety_object_id: string id for safety area</p>
+<p>reference_object_id: ID of object used to set parfocality and parcentricity</p>
+<p>load: move objective into load position before moving stage</p>
+<p>make_ready: if True, make attempt to ready microscope, e.g. setup autofocus
+(Default: True)</p>
+<p>trials: maximum number of attempt to initialize microscope.
+Will allow user to make adjustments on microscope. (Default: 3)</p>
+<p>verbose: print debug messages (Default: True)</p>
+</dd>
+<dt>Output:</dt><dd><p>ready: True if microscope is ready for use, False if not</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="microscope_automation.hardware.hardware_control.BaseMicroscope.not_implemented">
+<code class="sig-name descname">not_implemented</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">method_name</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/microscope_automation/hardware/hardware_control.html#BaseMicroscope.not_implemented"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#microscope_automation.hardware.hardware_control.BaseMicroscope.not_implemented" title="Permalink to this definition">¶</a></dt>
+<dd><p>Raise exception if method is not implemented.</p>
+<dl class="simple">
+<dt>Input:</dt><dd><p>method_name: method that calls this method</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="microscope_automation.hardware.hardware_control.BaseMicroscope.recall_focus">
+<code class="sig-name descname">recall_focus</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">auto_focus_id</span></em>, <em class="sig-param"><span class="n">reference_object_id</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">pre_set_focus</span><span class="o">=</span><span class="default_value">True</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/microscope_automation/hardware/hardware_control.html#BaseMicroscope.recall_focus"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#microscope_automation.hardware.hardware_control.BaseMicroscope.recall_focus" title="Permalink to this definition">¶</a></dt>
+<dd><p>Find difference between stored focus position and actual autofocus position.
+Recall focus will move the focus drive to it’s stored position.</p>
+<dl>
+<dt>Input:</dt><dd><p>auto_focus_id: string id for camera</p>
+<p>reference_object_id: name of ZEN experiment (default = None)</p>
+<p>pre_set_focus: Move focus to previous auto-focus position.
+This makes definite focus more robust</p>
+</dd>
+<dt>Output:</dt><dd><p>delta_z: difference between stored z position of focus drive
+and position after recall focus</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="microscope_automation.hardware.hardware_control.BaseMicroscope.recover_hardware">
+<code class="sig-name descname">recover_hardware</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">error</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/microscope_automation/hardware/hardware_control.html#BaseMicroscope.recover_hardware"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#microscope_automation.hardware.hardware_control.BaseMicroscope.recover_hardware" title="Permalink to this definition">¶</a></dt>
+<dd><p>Try to recover from failure of a hardware function</p>
+<dl class="simple">
+<dt>Input:</dt><dd><p>error: exception to recover from</p>
+</dd>
+<dt>Output:</dt><dd><p>return_dialog: value of the error dialog</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="microscope_automation.hardware.hardware_control.BaseMicroscope.trigger_pump">
+<code class="sig-name descname">trigger_pump</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">pump_id</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/microscope_automation/hardware/hardware_control.html#BaseMicroscope.trigger_pump"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#microscope_automation.hardware.hardware_control.BaseMicroscope.trigger_pump" title="Permalink to this definition">¶</a></dt>
+<dd><p>Triggers pump of pump_id.</p>
+<p>Raises HardwareDoesNotExistError if pump is not attached to microscope</p>
+<dl class="simple">
+<dt>Input:</dt><dd><p>pump_id: pump to trigger</p>
+</dd>
+<dt>Output:</dt><dd><p>none</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+</div>
+
+
+          </div>
+          
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<h1 class="logo"><a href="index.html">Microscope Automation</a></h1>
+
+
+
+
+
+
+
+
+<h3>Navigation</h3>
+<p class="caption"><span class="caption-text">Overview</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="index.html">README</a></li>
+<li class="toctree-l1"><a class="reference internal" href="installation.html">Installation</a></li>
+</ul>
+<p class="caption"><span class="caption-text">Hardware</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="hardware_components.html">hardware_components</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">hardware_control</a></li>
+<li class="toctree-l1"><a class="reference internal" href="RS232.html">RS232</a></li>
+<li class="toctree-l1"><a class="reference internal" href="setup_microscope.html">setup_microscope</a></li>
+</ul>
+<p class="caption"><span class="caption-text">Samples</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="correct_background.html">correct_background</a></li>
+<li class="toctree-l1"><a class="reference internal" href="draw_plate.html">draw_plate</a></li>
+<li class="toctree-l1"><a class="reference internal" href="find_well_center.html">find_well_center</a></li>
+<li class="toctree-l1"><a class="reference internal" href="find_cells.html">find_cells</a></li>
+<li class="toctree-l1"><a class="reference internal" href="interactive_location_picker_pyqtgraph.html">interactive_location_picker_pyqtgraph</a></li>
+<li class="toctree-l1"><a class="reference internal" href="positions_list.html">positions_list</a></li>
+<li class="toctree-l1"><a class="reference internal" href="samples.html">samples</a></li>
+<li class="toctree-l1"><a class="reference internal" href="setup_samples.html">setup_samples</a></li>
+<li class="toctree-l1"><a class="reference internal" href="tile_images.html">tile_images</a></li>
+</ul>
+<p class="caption"><span class="caption-text">Zeiss Microscopes</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="connect_zen_blue.html">connect_zen_blue</a></li>
+<li class="toctree-l1"><a class="reference internal" href="connect_zen_black.html">connect_zen_black</a></li>
+<li class="toctree-l1"><a class="reference internal" href="hardware_control_zeiss.html">hardware_control_zeiss</a></li>
+<li class="toctree-l1"><a class="reference internal" href="write_zen_tiles_experiment.html">write_zen_tiles_experiment</a></li>
+<li class="toctree-l1"><a class="reference internal" href="zen_experiment_info.html">zen_experiment_info</a></li>
+</ul>
+<p class="caption"><span class="caption-text">3i Microscopes</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="hardware_control_3i.html">hardware_control_3i</a></li>
+<li class="toctree-l1"><a class="reference internal" href="connect_slidebook.html">connect_slidebook</a></li>
+<li class="toctree-l1"><a class="reference internal" href="slidebook_experiment_info.html">slidebook_experiment_info</a></li>
+</ul>
+<p class="caption"><span class="caption-text">General Methods</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="automation_exceptions.html">automation_exceptions</a></li>
+<li class="toctree-l1"><a class="reference internal" href="automation_messages_form_layout.html">automation_messages_form_layout</a></li>
+<li class="toctree-l1"><a class="reference internal" href="error_handling.html">error_handling</a></li>
+<li class="toctree-l1"><a class="reference internal" href="get_path.html">get_path</a></li>
+<li class="toctree-l1"><a class="reference internal" href="image_AICS.html">image_AICS</a></li>
+<li class="toctree-l1"><a class="reference internal" href="load_image_czi.html">load_image_czi</a></li>
+<li class="toctree-l1"><a class="reference internal" href="meta_data_file.html">meta_data_file</a></li>
+<li class="toctree-l1"><a class="reference internal" href="preferences.html">preferences</a></li>
+</ul>
+<p class="caption"><span class="caption-text">Reference Docs</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="CONTRIBUTING.html">Allen Institute Contribution Agreement</a></li>
+<li class="toctree-l1"><a class="reference internal" href="LICENSE.html">LICENSE</a></li>
+</ul>
+
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="index.html">Documentation overview</a><ul>
+      <li>Previous: <a href="hardware_components.html" title="previous chapter">hardware_components</a></li>
+      <li>Next: <a href="RS232.html" title="next chapter">RS232</a></li>
+  </ul></li>
+</ul>
+</div>
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" />
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script>$('#searchbox').show(0);</script>
+
+
+
+
+
+
+
+
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2020, Allen Institute.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 3.3.1</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.12</a>
+      
+      |
+      <a href="_sources/hardware_control.rst.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+
+    
+  </body>
+</html>

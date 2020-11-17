@@ -1,0 +1,18 @@
+.. contents::
+
+.. _RS232:
+
+*****
+RS232
+*****
+The :ref:`RS232` module enables communication with other devices through RS232.
+It currently contains a single class, :ref:`RS232_Braintree`, which is used to
+control a Braintree pump, but more devices could be added in the future.
+
+.. _RS232_Braintree:
+
+class Braintree()
+=================
+
+.. autoclass:: microscope_automation.hardware.RS232.Braintree
+    :members:

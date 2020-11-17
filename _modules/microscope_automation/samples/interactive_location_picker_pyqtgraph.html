@@ -1,0 +1,547 @@
+
+<!DOCTYPE html>
+
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>microscope_automation.samples.interactive_location_picker_pyqtgraph &#8212; Microscope Automation 0.0 documentation</title>
+    <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+    <link rel="stylesheet" href="../../../_static/alabaster.css" type="text/css" />
+    <script id="documentation_options" data-url_root="../../../" src="../../../_static/documentation_options.js"></script>
+    <script src="../../../_static/jquery.js"></script>
+    <script src="../../../_static/underscore.js"></script>
+    <script src="../../../_static/doctools.js"></script>
+    <script src="../../../_static/language_data.js"></script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" />
+   
+  <link rel="stylesheet" href="../../../_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head><body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          
+
+          <div class="body" role="main">
+            
+  <h1>Source code for microscope_automation.samples.interactive_location_picker_pyqtgraph</h1><div class="highlight"><pre>
+<span></span><span class="kn">import</span> <span class="nn">pyqtgraph</span>
+<span class="kn">from</span> <span class="nn">pyqtgraph.Qt</span> <span class="kn">import</span> <span class="n">QtGui</span><span class="p">,</span> <span class="n">QtCore</span>
+
+<span class="c1"># from PySide import QtGui, QtCore</span>
+<span class="kn">import</span> <span class="nn">numpy</span>
+<span class="kn">from</span> <span class="nn">aicsimageio</span> <span class="kn">import</span> <span class="n">AICSImage</span>
+<span class="kn">import</span> <span class="nn">logging</span>
+
+<span class="n">log</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="vm">__name__</span><span class="p">)</span>
+
+<span class="n">KEY_ADD_POINTS</span> <span class="o">=</span> <span class="s2">&quot;A&quot;</span>
+<span class="n">KEY_DELETE_POINTS</span> <span class="o">=</span> <span class="s2">&quot;D&quot;</span>
+<span class="n">KEY_DELETE_ALL_POINTS</span> <span class="o">=</span> <span class="s2">&quot;-&quot;</span>
+<span class="n">KEY_FAIL_ACQUISITION</span> <span class="o">=</span> <span class="s2">&quot;`&quot;</span>
+<span class="n">KEY_UNDO</span> <span class="o">=</span> <span class="s2">&quot;</span><span class="se">\\</span><span class="s2">&quot;</span>
+<span class="c1"># Different modes of using the interactive tool</span>
+<span class="n">ADD_MODE</span> <span class="o">=</span> <span class="s2">&quot;add&quot;</span>
+<span class="n">DELETE_MODE</span> <span class="o">=</span> <span class="s2">&quot;delete&quot;</span>
+<span class="n">NEUTRAL_MODE</span> <span class="o">=</span> <span class="s2">&quot;neutral&quot;</span>
+
+
+<div class="viewcode-block" id="KeyPressWindow"><a class="viewcode-back" href="../../../microscope_automation.samples.html#microscope_automation.samples.interactive_location_picker_pyqtgraph.KeyPressWindow">[docs]</a><span class="k">class</span> <span class="nc">KeyPressWindow</span><span class="p">(</span><span class="n">pyqtgraph</span><span class="o">.</span><span class="n">GraphicsWindow</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Creating a class to define a custom key press signal</span>
+<span class="sd">    for selecting modes.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">sigKeyPress</span> <span class="o">=</span> <span class="n">QtCore</span><span class="o">.</span><span class="n">pyqtSignal</span><span class="p">(</span><span class="nb">object</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">(</span><span class="n">KeyPressWindow</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+
+<div class="viewcode-block" id="KeyPressWindow.keyPressEvent"><a class="viewcode-back" href="../../../microscope_automation.samples.html#microscope_automation.samples.interactive_location_picker_pyqtgraph.KeyPressWindow.keyPressEvent">[docs]</a>    <span class="k">def</span> <span class="nf">keyPressEvent</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ev</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">scene</span><span class="p">()</span><span class="o">.</span><span class="n">keyPressEvent</span><span class="p">(</span><span class="n">ev</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">sigKeyPress</span><span class="o">.</span><span class="n">emit</span><span class="p">(</span><span class="n">ev</span><span class="p">)</span></div></div>
+
+
+<div class="viewcode-block" id="ImageLocationPicker"><a class="viewcode-back" href="../../../microscope_automation.samples.html#microscope_automation.samples.interactive_location_picker_pyqtgraph.ImageLocationPicker">[docs]</a><span class="k">class</span> <span class="nc">ImageLocationPicker</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">image</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">location_list</span><span class="o">=</span><span class="p">[],</span>
+        <span class="n">app</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">spot_size</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span>
+        <span class="n">spot_brush</span><span class="o">=</span><span class="s2">&quot;r&quot;</span><span class="p">,</span>
+        <span class="n">spot_symbol</span><span class="o">=</span><span class="s2">&quot;+&quot;</span><span class="p">,</span>
+        <span class="n">spot_pen</span><span class="o">=</span><span class="s2">&quot;r&quot;</span><span class="p">,</span>
+    <span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Input:</span>
+<span class="sd">         image: Image in the form of a numpy array</span>
+
+<span class="sd">         location_list: List of tuples in the form of (x,y) coordinates</span>
+<span class="sd">         of the points selected</span>
+
+<span class="sd">         app: QtGui application object initialized in the beginning</span>
+<span class="sd">         to automation software in microscopeAutomation.py</span>
+
+<span class="sd">        Output:</span>
+<span class="sd">         none</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># flip image to have same orientation than in ZEN software</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">image</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">fliplr</span><span class="p">(</span><span class="n">image</span><span class="p">)</span>
+
+        <span class="c1"># ZEN and pyQTgraph have different coordinate origins</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">location_list</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">flip_coordinates</span><span class="p">(</span><span class="n">location_list</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">mode</span> <span class="o">=</span> <span class="n">NEUTRAL_MODE</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">spot_size</span> <span class="o">=</span> <span class="n">spot_size</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">spot_brush</span> <span class="o">=</span> <span class="n">spot_brush</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">spot_symbol</span> <span class="o">=</span> <span class="n">spot_symbol</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">spot_pen</span> <span class="o">=</span> <span class="n">spot_pen</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">__window</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">__app</span> <span class="o">=</span> <span class="n">app</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">scatterplot</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">counter</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="c1"># Double curly braces ({{}}) in the help string allows for formatting twice,</span>
+        <span class="c1"># after the single curly braces.</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">help_string</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="s2">&quot;Press </span><span class="si">{}</span><span class="s2"> to add points, </span><span class="si">{}</span><span class="s2"> to delete points,&quot;</span>
+            <span class="s2">&quot; and </span><span class="si">{}</span><span class="s2"> to delete all points.&quot;</span>
+            <span class="s2">&quot;</span><span class="se">\n</span><span class="s2">Press </span><span class="si">{}</span><span class="s2"> to toggle failed acquisition tag.&quot;</span>
+            <span class="s2">&quot;</span><span class="se">\n</span><span class="s2"># of Locations Selected = {{}}&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
+                <span class="n">KEY_ADD_POINTS</span><span class="p">,</span>
+                <span class="n">KEY_DELETE_POINTS</span><span class="p">,</span>
+                <span class="n">KEY_DELETE_ALL_POINTS</span><span class="p">,</span>
+                <span class="n">KEY_FAIL_ACQUISITION</span><span class="p">,</span>
+            <span class="p">)</span>
+        <span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">help_text</span> <span class="o">=</span> <span class="n">pyqtgraph</span><span class="o">.</span><span class="n">TextItem</span><span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">help_string</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">counter</span><span class="p">),</span> <span class="n">color</span><span class="o">=</span><span class="s2">&quot;g&quot;</span>
+        <span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">failed_text</span> <span class="o">=</span> <span class="n">pyqtgraph</span><span class="o">.</span><span class="n">TextItem</span><span class="p">(</span>
+            <span class="s2">&quot;This image has been failed&quot;</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="s2">&quot;r&quot;</span><span class="p">,</span> <span class="n">anchor</span><span class="o">=</span><span class="p">(</span><span class="o">-</span><span class="mi">4</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
+        <span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_failed_image</span> <span class="o">=</span> <span class="kc">False</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">prev_points</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">text_items</span> <span class="o">=</span> <span class="p">[]</span>
+
+<div class="viewcode-block" id="ImageLocationPicker.failed_image"><a class="viewcode-back" href="../../../microscope_automation.samples.html#microscope_automation.samples.interactive_location_picker_pyqtgraph.ImageLocationPicker.failed_image">[docs]</a>    <span class="k">def</span> <span class="nf">failed_image</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_failed_image</span></div>
+
+<div class="viewcode-block" id="ImageLocationPicker.flip_coordinates"><a class="viewcode-back" href="../../../microscope_automation.samples.html#microscope_automation.samples.interactive_location_picker_pyqtgraph.ImageLocationPicker.flip_coordinates">[docs]</a>    <span class="k">def</span> <span class="nf">flip_coordinates</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">location_list</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;ZEN has the image origin in the upper left corner,</span>
+<span class="sd">        QTgraph in the lower left corner.</span>
+<span class="sd">        This methods transforms coordinates between the two systems.</span>
+
+<span class="sd">        Input:</span>
+<span class="sd">         location_list: List of tuples (or single tuple) in the form of (x,y)</span>
+<span class="sd">         coordinates to be transformed</span>
+
+<span class="sd">        Output:</span>
+<span class="sd">         flipped_location_list: list with (x, y) tuples after transformation</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">xdim</span><span class="p">,</span> <span class="n">ydim</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">image</span><span class="o">.</span><span class="n">shape</span>
+        <span class="n">flipped_location_list</span> <span class="o">=</span> <span class="p">[]</span>
+
+        <span class="c1"># handle single tuple as well as list of tuples</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">location_list</span><span class="p">,</span> <span class="nb">tuple</span><span class="p">):</span>
+            <span class="n">location_list</span> <span class="o">=</span> <span class="p">[</span><span class="n">location_list</span><span class="p">]</span>
+        <span class="k">for</span> <span class="n">location</span> <span class="ow">in</span> <span class="n">location_list</span><span class="p">:</span>
+            <span class="n">x_flipped</span> <span class="o">=</span> <span class="n">location</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+            <span class="n">y_flipped</span> <span class="o">=</span> <span class="n">ydim</span> <span class="o">-</span> <span class="n">location</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+            <span class="n">flipped_location_list</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="n">x_flipped</span><span class="p">,</span> <span class="n">y_flipped</span><span class="p">))</span>
+        <span class="k">return</span> <span class="n">flipped_location_list</span></div>
+
+<div class="viewcode-block" id="ImageLocationPicker.plot_points"><a class="viewcode-back" href="../../../microscope_automation.samples.html#microscope_automation.samples.interactive_location_picker_pyqtgraph.ImageLocationPicker.plot_points">[docs]</a>    <span class="k">def</span> <span class="nf">plot_points</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">window_title</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Plots a given list of location on the image, gives the user ability</span>
+<span class="sd">        to edit them using add and delete modes</span>
+
+<span class="sd">        Input:</span>
+<span class="sd">         window_title: name to give the GUI window</span>
+
+<span class="sd">        Output:</span>
+<span class="sd">         none</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">__window</span> <span class="o">=</span> <span class="n">QtGui</span><span class="o">.</span><span class="n">QMainWindow</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">__window</span><span class="o">.</span><span class="n">setAttribute</span><span class="p">(</span><span class="n">QtCore</span><span class="o">.</span><span class="n">Qt</span><span class="o">.</span><span class="n">WA_DeleteOnClose</span><span class="p">)</span>
+        <span class="c1"># Resizing the window with an aspect ratio to support rectangular images</span>
+        <span class="c1"># throws off the coordinates that the automation software gives to the user,</span>
+        <span class="c1"># so this is hard coded to 1100x1100.</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">__window</span><span class="o">.</span><span class="n">resize</span><span class="p">(</span><span class="mi">1100</span><span class="p">,</span> <span class="mi">1100</span><span class="p">)</span>
+        <span class="n">view</span> <span class="o">=</span> <span class="n">KeyPressWindow</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">__window</span><span class="o">.</span><span class="n">setCentralWidget</span><span class="p">(</span><span class="n">view</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">__window</span><span class="o">.</span><span class="n">setWindowTitle</span><span class="p">(</span><span class="n">window_title</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">__window</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+
+        <span class="c1"># Function to update the help text on the ui to current self.counter value</span>
+        <span class="k">def</span> <span class="nf">_display_help_text</span><span class="p">():</span>
+            <span class="n">w</span><span class="o">.</span><span class="n">removeItem</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">help_text</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">help_text</span> <span class="o">=</span> <span class="n">pyqtgraph</span><span class="o">.</span><span class="n">TextItem</span><span class="p">(</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">help_string</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">counter</span><span class="p">),</span> <span class="n">color</span><span class="o">=</span><span class="s2">&quot;g&quot;</span>
+            <span class="p">)</span>
+            <span class="n">w</span><span class="o">.</span><span class="n">addItem</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">help_text</span><span class="p">)</span>
+
+        <span class="c1"># Add image to the plot</span>
+        <span class="n">w</span> <span class="o">=</span> <span class="n">view</span><span class="o">.</span><span class="n">addPlot</span><span class="p">()</span>
+
+        <span class="k">def</span> <span class="nf">refresh_point_index</span><span class="p">():</span>
+            <span class="k">for</span> <span class="n">numhelp</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">text_items</span><span class="p">:</span>
+                <span class="n">w</span><span class="o">.</span><span class="n">removeItem</span><span class="p">(</span><span class="n">numhelp</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">text_items</span> <span class="o">=</span> <span class="p">[]</span>
+            <span class="k">for</span> <span class="n">index</span><span class="p">,</span> <span class="n">location</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">location_list</span><span class="p">):</span>
+                <span class="n">point_index</span> <span class="o">=</span> <span class="n">pyqtgraph</span><span class="o">.</span><span class="n">TextItem</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">index</span> <span class="o">+</span> <span class="mi">1</span><span class="p">),</span> <span class="n">color</span><span class="o">=</span><span class="s2">&quot;b&quot;</span><span class="p">)</span>
+                <span class="c1"># Offset the numbering slightly to be next to the points</span>
+                <span class="n">point_index</span><span class="o">.</span><span class="n">setPos</span><span class="p">(</span><span class="n">location</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">+</span> <span class="mi">10</span><span class="p">,</span> <span class="n">location</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">+</span> <span class="mi">10</span><span class="p">)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">text_items</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">point_index</span><span class="p">)</span>
+                <span class="c1"># Keep track of numbering added to scatterplot to be taken out</span>
+                <span class="n">w</span><span class="o">.</span><span class="n">addItem</span><span class="p">(</span><span class="n">point_index</span><span class="p">)</span>
+
+        <span class="n">image</span> <span class="o">=</span> <span class="n">pyqtgraph</span><span class="o">.</span><span class="n">ImageItem</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">image</span><span class="p">)</span>
+        <span class="n">w</span><span class="o">.</span><span class="n">addItem</span><span class="p">(</span><span class="n">image</span><span class="p">)</span>
+        <span class="n">w</span><span class="o">.</span><span class="n">addItem</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">help_text</span><span class="p">)</span>
+        <span class="c1"># Add points to the plot + image</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">scatterplot</span> <span class="o">=</span> <span class="n">pyqtgraph</span><span class="o">.</span><span class="n">ScatterPlotItem</span><span class="p">(</span>
+            <span class="n">size</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">spot_size</span><span class="p">,</span>
+            <span class="n">brush</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">spot_brush</span><span class="p">,</span>
+            <span class="n">symbol</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">spot_symbol</span><span class="p">,</span>
+            <span class="n">pen</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">spot_pen</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">scatterplot</span><span class="o">.</span><span class="n">addPoints</span><span class="p">(</span><span class="n">pos</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">location_list</span><span class="p">)</span>
+        <span class="n">refresh_point_index</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">counter</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">location_list</span><span class="p">)</span>
+        <span class="n">_display_help_text</span><span class="p">()</span>
+        <span class="n">w</span><span class="o">.</span><span class="n">addItem</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">scatterplot</span><span class="p">)</span>
+
+        <span class="c1"># Given user selected points,</span>
+        <span class="c1"># delete from current list of points and decrement counter.</span>
+        <span class="k">def</span> <span class="nf">_handle_delete_points</span><span class="p">(</span><span class="n">plot</span><span class="p">,</span> <span class="n">points</span><span class="p">):</span>
+            <span class="n">location_selected</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">round_locations</span><span class="p">(</span>
+                <span class="n">points</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">pos</span><span class="p">()[</span><span class="mi">0</span><span class="p">],</span> <span class="n">points</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">pos</span><span class="p">()[</span><span class="mi">1</span><span class="p">]</span>
+            <span class="p">)</span>
+            <span class="k">if</span> <span class="n">location_selected</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">location_list</span><span class="p">:</span>
+                <span class="n">idx</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">location_list</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="n">location_selected</span><span class="p">)</span>
+                <span class="c1"># Delete the point that the user clicked on from the text items array</span>
+                <span class="n">w</span><span class="o">.</span><span class="n">removeItem</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">text_items</span><span class="p">[</span><span class="n">idx</span><span class="p">])</span>
+                <span class="k">del</span> <span class="bp">self</span><span class="o">.</span><span class="n">text_items</span><span class="p">[</span><span class="n">idx</span><span class="p">]</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">location_list</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="n">location_selected</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">scatterplot</span><span class="o">.</span><span class="n">setData</span><span class="p">(</span><span class="n">pos</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">location_list</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">counter</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">location_list</span><span class="p">)</span>
+            <span class="n">refresh_point_index</span><span class="p">()</span>
+            <span class="n">_display_help_text</span><span class="p">()</span>
+
+        <span class="c1"># Delete all selected points, and set counter back to zero.</span>
+        <span class="k">def</span> <span class="nf">_handle_delete_all_points</span><span class="p">():</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">prev_points</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">location_list</span>
+            <span class="c1"># To empty the list, then set counter accordingly</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">location_list</span> <span class="o">=</span> <span class="p">[]</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">counter</span> <span class="o">=</span> <span class="mi">0</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">scatterplot</span><span class="o">.</span><span class="n">setData</span><span class="p">(</span><span class="n">pos</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">location_list</span><span class="p">)</span>
+            <span class="n">_display_help_text</span><span class="p">()</span>
+            <span class="n">refresh_point_index</span><span class="p">()</span>
+
+        <span class="c1"># Given user click event, create a new selected point</span>
+        <span class="k">def</span> <span class="nf">_handle_plot_point</span><span class="p">(</span><span class="n">event</span><span class="p">):</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">failed_image</span><span class="p">():</span>
+                <span class="n">_handle_toggle_fail</span><span class="p">()</span>
+
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">mode</span> <span class="o">==</span> <span class="n">ADD_MODE</span><span class="p">:</span>
+                <span class="n">pos</span> <span class="o">=</span> <span class="n">w</span><span class="o">.</span><span class="n">vb</span><span class="o">.</span><span class="n">mapSceneToView</span><span class="p">(</span><span class="n">event</span><span class="o">.</span><span class="n">scenePos</span><span class="p">())</span>
+                <span class="n">location_selected</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">round_locations</span><span class="p">(</span><span class="n">pos</span><span class="o">.</span><span class="n">x</span><span class="p">(),</span> <span class="n">pos</span><span class="o">.</span><span class="n">y</span><span class="p">())</span>
+                <span class="k">if</span> <span class="n">location_selected</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">location_list</span><span class="p">:</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">location_list</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">location_selected</span><span class="p">)</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">scatterplot</span><span class="o">.</span><span class="n">setData</span><span class="p">(</span><span class="n">pos</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">location_list</span><span class="p">)</span>
+                    <span class="n">point_index</span> <span class="o">=</span> <span class="n">pyqtgraph</span><span class="o">.</span><span class="n">TextItem</span><span class="p">(</span>
+                        <span class="nb">str</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">location_list</span><span class="p">)),</span> <span class="n">color</span><span class="o">=</span><span class="s2">&quot;b&quot;</span>
+                    <span class="p">)</span>
+                    <span class="n">point_index</span><span class="o">.</span><span class="n">setPos</span><span class="p">(</span>
+                        <span class="n">location_selected</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">+</span> <span class="mi">10</span><span class="p">,</span> <span class="n">location_selected</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">+</span> <span class="mi">10</span>
+                    <span class="p">)</span>
+                    <span class="n">w</span><span class="o">.</span><span class="n">addItem</span><span class="p">(</span><span class="n">point_index</span><span class="p">)</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">text_items</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">point_index</span><span class="p">)</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">counter</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">location_list</span><span class="p">)</span>
+                    <span class="n">_display_help_text</span><span class="p">()</span>
+
+        <span class="c1"># Tags this current acquisition as a failed acquisition</span>
+        <span class="k">def</span> <span class="nf">_handle_toggle_fail</span><span class="p">():</span>
+            <span class="c1"># Toggle failed image boolean</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_failed_image</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_failed_image</span> <span class="o">=</span> <span class="kc">False</span>
+                <span class="n">w</span><span class="o">.</span><span class="n">removeItem</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">failed_text</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">_handle_delete_all_points</span><span class="p">()</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_failed_image</span> <span class="o">=</span> <span class="kc">True</span>
+                <span class="n">w</span><span class="o">.</span><span class="n">addItem</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">failed_text</span><span class="p">)</span>
+            <span class="n">_display_help_text</span><span class="p">()</span>
+
+        <span class="c1"># This function works well for undoing the last &quot;fail&quot;</span>
+        <span class="c1"># but does not remember beyond that</span>
+        <span class="k">def</span> <span class="nf">_handle_undo</span><span class="p">():</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">location_list</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">prev_points</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">prev_points</span> <span class="o">=</span> <span class="p">[]</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">counter</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">location_list</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">scatterplot</span><span class="o">.</span><span class="n">setData</span><span class="p">(</span><span class="n">pos</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">location_list</span><span class="p">)</span>
+            <span class="n">_handle_toggle_fail</span><span class="p">()</span>
+
+        <span class="c1"># Handle UI Events</span>
+        <span class="k">def</span> <span class="nf">select_mode</span><span class="p">(</span><span class="n">event</span><span class="p">):</span>
+            <span class="k">if</span> <span class="n">event</span><span class="o">.</span><span class="n">key</span><span class="p">()</span> <span class="o">==</span> <span class="nb">ord</span><span class="p">(</span><span class="n">KEY_DELETE_POINTS</span><span class="p">):</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">mode</span> <span class="o">=</span> <span class="n">DELETE_MODE</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">scatterplot</span><span class="o">.</span><span class="n">sigClicked</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="n">_handle_delete_points</span><span class="p">)</span>
+
+            <span class="k">elif</span> <span class="n">event</span><span class="o">.</span><span class="n">key</span><span class="p">()</span> <span class="o">==</span> <span class="nb">ord</span><span class="p">(</span><span class="n">KEY_ADD_POINTS</span><span class="p">):</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">mode</span> <span class="o">=</span> <span class="n">ADD_MODE</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">scatterplot</span><span class="o">.</span><span class="n">scene</span><span class="p">()</span><span class="o">.</span><span class="n">sigMouseClicked</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="n">_handle_plot_point</span><span class="p">)</span>
+
+            <span class="k">elif</span> <span class="n">event</span><span class="o">.</span><span class="n">key</span><span class="p">()</span> <span class="o">==</span> <span class="nb">ord</span><span class="p">(</span><span class="n">KEY_DELETE_ALL_POINTS</span><span class="p">):</span>
+                <span class="n">_handle_delete_all_points</span><span class="p">()</span>
+
+            <span class="k">elif</span> <span class="n">event</span><span class="o">.</span><span class="n">key</span><span class="p">()</span> <span class="o">==</span> <span class="nb">ord</span><span class="p">(</span><span class="n">KEY_FAIL_ACQUISITION</span><span class="p">):</span>
+                <span class="n">_handle_toggle_fail</span><span class="p">()</span>
+
+            <span class="k">elif</span> <span class="n">event</span><span class="o">.</span><span class="n">key</span><span class="p">()</span> <span class="o">==</span> <span class="nb">ord</span><span class="p">(</span><span class="n">KEY_UNDO</span><span class="p">):</span>
+                <span class="n">_handle_undo</span><span class="p">()</span>
+
+        <span class="n">view</span><span class="o">.</span><span class="n">sigKeyPress</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="n">select_mode</span><span class="p">)</span>
+        <span class="c1"># if sys.flags.interactive != 1 or not hasattr(QtCore, &#39;PYQT_VERSION&#39;):</span>
+        <span class="c1">#     QtGui.QApplication.exec_()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">__window</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">__app</span><span class="o">.</span><span class="n">exec_</span><span class="p">()</span>
+        <span class="c1"># ZEN and pyQTgraph have different coordinate origins</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">location_list</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">flip_coordinates</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">location_list</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="ImageLocationPicker.round_locations"><a class="viewcode-back" href="../../../microscope_automation.samples.html#microscope_automation.samples.interactive_location_picker_pyqtgraph.ImageLocationPicker.round_locations">[docs]</a>    <span class="k">def</span> <span class="nf">round_locations</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">pos_x</span><span class="p">,</span> <span class="n">pos_y</span><span class="p">):</span>
+        <span class="c1"># Rounding all the locations to four decimal point (arbitrary)</span>
+        <span class="c1"># Reason - when deleting the points, we need to find if the point</span>
+        <span class="c1"># selected is in the location list, and the comparison fails</span>
+        <span class="c1"># if they have different number of digits after the decimal points</span>
+        <span class="n">location_selected</span> <span class="o">=</span> <span class="p">(</span><span class="nb">round</span><span class="p">(</span><span class="n">pos_x</span><span class="p">,</span> <span class="mi">4</span><span class="p">),</span> <span class="nb">round</span><span class="p">(</span><span class="n">pos_y</span><span class="p">,</span> <span class="mi">4</span><span class="p">))</span>
+        <span class="k">return</span> <span class="n">location_selected</span></div></div>
+
+
+<span class="c1">################################################################################</span>
+<span class="c1">#</span>
+<span class="c1"># Test functions</span>
+<span class="c1">#</span>
+<span class="c1">################################################################################</span>
+<div class="viewcode-block" id="test_ImageLocationPicker"><a class="viewcode-back" href="../../../microscope_automation.samples.html#microscope_automation.samples.interactive_location_picker_pyqtgraph.test_ImageLocationPicker">[docs]</a><span class="k">def</span> <span class="nf">test_ImageLocationPicker</span><span class="p">(</span><span class="n">prefs</span><span class="p">,</span> <span class="n">image_save_path</span><span class="p">,</span> <span class="n">app</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Test location picker on ZEN blue hardware with slide.</span>
+
+<span class="sd">    Input:</span>
+<span class="sd">     prefs: path to experiment preferences</span>
+<span class="sd">     image_save_path: path to directory to save test images</span>
+<span class="sd">     app: object of class QtGui.QApplication</span>
+
+<span class="sd">    Output:</span>
+<span class="sd">     None</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="c1"># setup microscope</span>
+    <span class="kn">from</span> <span class="nn">.</span> <span class="kn">import</span> <span class="n">setup_samples</span>
+
+    <span class="n">microscope_object</span> <span class="o">=</span> <span class="n">setup_samples</span><span class="o">.</span><span class="n">setup_microscope</span><span class="p">(</span><span class="n">prefs</span><span class="p">)</span>
+
+    <span class="c1"># setup plateholder with slide</span>
+    <span class="n">plate_holder_object</span> <span class="o">=</span> <span class="n">setup_samples</span><span class="o">.</span><span class="n">setup_slide</span><span class="p">(</span>
+        <span class="n">prefs</span><span class="p">,</span> <span class="n">microscope_object</span><span class="o">=</span><span class="n">microscope_object</span>
+    <span class="p">)</span>
+    <span class="c1"># get slide object, we will need object coordinates for reference correction to work</span>
+    <span class="n">slide_object</span> <span class="o">=</span> <span class="nb">next</span><span class="p">(</span><span class="nb">iter</span><span class="p">(</span><span class="n">plate_holder_object</span><span class="o">.</span><span class="n">get_slides</span><span class="p">()</span><span class="o">.</span><span class="n">values</span><span class="p">()))</span>
+
+    <span class="c1"># switch to live mode with 20 x and select position</span>
+    <span class="n">microscope_object</span><span class="o">.</span><span class="n">live_mode</span><span class="p">(</span>
+        <span class="n">camera_id</span><span class="o">=</span><span class="s2">&quot;Camera1 (back)&quot;</span><span class="p">,</span> <span class="n">experiment</span><span class="o">=</span><span class="s2">&quot;Setup_20x&quot;</span><span class="p">,</span> <span class="n">live</span><span class="o">=</span><span class="kc">True</span>
+    <span class="p">)</span>
+    <span class="c1"># set position for next experiments</span>
+    <span class="nb">input</span><span class="p">(</span><span class="s2">&quot;Move to image position&quot;</span><span class="p">)</span>
+    <span class="n">images</span> <span class="o">=</span> <span class="n">slide_object</span><span class="o">.</span><span class="n">acquire_images</span><span class="p">(</span>
+        <span class="s2">&quot;Setup_20x&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;Camera1 (Back)&quot;</span><span class="p">,</span>
+        <span class="n">reference_object</span><span class="o">=</span><span class="n">slide_object</span><span class="o">.</span><span class="n">get_reference_object</span><span class="p">(),</span>
+        <span class="n">file_path</span><span class="o">=</span><span class="n">image_save_path</span> <span class="o">+</span> <span class="s2">&quot;image1.czi&quot;</span><span class="p">,</span>
+        <span class="n">pos_list</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">load</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+        <span class="n">verbose</span><span class="o">=</span><span class="n">verbose</span><span class="p">,</span>
+    <span class="p">)</span>
+
+    <span class="c1"># Find position of new object</span>
+    <span class="n">image</span> <span class="o">=</span> <span class="n">microscope_object</span><span class="o">.</span><span class="n">load_image</span><span class="p">(</span><span class="n">images</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">get_meta</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="n">image_data</span> <span class="o">=</span> <span class="n">image</span><span class="o">.</span><span class="n">get_data</span><span class="p">()</span>
+    <span class="k">if</span> <span class="n">image_data</span><span class="o">.</span><span class="n">ndim</span> <span class="o">==</span> <span class="mi">3</span><span class="p">:</span>
+        <span class="c1"># Remove the channel dimension before calling the location_picker module</span>
+        <span class="c1"># Because the module only deals with the XY dimension.</span>
+        <span class="n">image_data</span> <span class="o">=</span> <span class="n">image_data</span><span class="p">[:,</span> <span class="p">:,</span> <span class="mi">0</span><span class="p">]</span>
+    <span class="n">pre_plotted_locations</span> <span class="o">=</span> <span class="p">[(</span><span class="mi">271</span><span class="p">,</span> <span class="mi">497</span><span class="p">)]</span>
+    <span class="n">interactive_plot</span> <span class="o">=</span> <span class="n">ImageLocationPicker</span><span class="p">(</span><span class="n">image_data</span><span class="p">,</span> <span class="n">pre_plotted_locations</span><span class="p">,</span> <span class="n">app</span><span class="p">)</span>
+    <span class="n">interactive_plot</span><span class="o">.</span><span class="n">plot_points</span><span class="p">(</span><span class="s2">&quot;Well Overview Image&quot;</span><span class="p">)</span>
+    <span class="n">location_list</span> <span class="o">=</span> <span class="n">interactive_plot</span><span class="o">.</span><span class="n">location_list</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Locations clicked = &quot;</span><span class="p">,</span> <span class="n">location_list</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="test_offline"><a class="viewcode-back" href="../../../microscope_automation.samples.html#microscope_automation.samples.interactive_location_picker_pyqtgraph.test_offline">[docs]</a><span class="k">def</span> <span class="nf">test_offline</span><span class="p">():</span>
+    <span class="c1"># pyqt = os.path.dirname(PyQt5.__file__)</span>
+    <span class="c1"># QtGui.QApplication.addLibraryPath(os.path.join(pyqt, &quot;plugins&quot;))</span>
+    <span class="n">app</span> <span class="o">=</span> <span class="n">QtGui</span><span class="o">.</span><span class="n">QApplication</span><span class="p">([])</span>
+    <span class="c1"># Path of test image</span>
+    <span class="n">image_path</span> <span class="o">=</span> <span class="sa">r</span><span class="s2">&quot;D:\Winfried\Automation\TestFiles\Capture 2_XY1580769716_Z0_T0_C0.tif&quot;</span>
+    <span class="n">image</span> <span class="o">=</span> <span class="n">AICSImage</span><span class="p">(</span><span class="n">image_path</span><span class="p">)</span>
+    <span class="n">image_data</span> <span class="o">=</span> <span class="n">image</span><span class="o">.</span><span class="n">data</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">]</span>
+    <span class="n">location_list</span> <span class="o">=</span> <span class="p">[(</span><span class="mf">100.0000</span><span class="p">,</span> <span class="mf">100.0000</span><span class="p">),</span> <span class="p">(</span><span class="mf">300.0000</span><span class="p">,</span> <span class="mf">300.0000</span><span class="p">),</span> <span class="p">(</span><span class="mf">800.0000</span><span class="p">,</span> <span class="mf">800.0000</span><span class="p">)]</span>
+    <span class="n">example</span> <span class="o">=</span> <span class="n">ImageLocationPicker</span><span class="p">(</span><span class="n">image_data</span><span class="p">,</span> <span class="n">location_list</span><span class="p">,</span> <span class="n">app</span><span class="p">)</span>
+    <span class="n">example</span><span class="o">.</span><span class="n">plot_points</span><span class="p">(</span><span class="s2">&quot;Well Overview Image&quot;</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="test_online"><a class="viewcode-back" href="../../../microscope_automation.samples.html#microscope_automation.samples.interactive_location_picker_pyqtgraph.test_online">[docs]</a><span class="k">def</span> <span class="nf">test_online</span><span class="p">():</span>
+    <span class="c1"># import modules used only for testing</span>
+    <span class="kn">import</span> <span class="nn">argparse</span>
+    <span class="kn">from</span> <span class="nn">..get_path</span> <span class="kn">import</span> <span class="n">set_pref_file</span><span class="p">,</span> <span class="n">get_prefs_path</span><span class="p">,</span> <span class="n">Preferences</span>
+    <span class="kn">import</span> <span class="nn">pyqtgraph</span>
+    <span class="kn">from</span> <span class="nn">pyqtgraph.Qt</span> <span class="kn">import</span> <span class="n">QtGui</span>
+
+    <span class="c1"># get path to preferences file</span>
+    <span class="n">arg_parser</span> <span class="o">=</span> <span class="n">argparse</span><span class="o">.</span><span class="n">ArgumentParser</span><span class="p">()</span>
+    <span class="n">arg_parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s2">&quot;-p&quot;</span><span class="p">,</span> <span class="s2">&quot;--preferences&quot;</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s2">&quot;path to the preferences file&quot;</span><span class="p">)</span>
+    <span class="n">args</span> <span class="o">=</span> <span class="n">arg_parser</span><span class="o">.</span><span class="n">parse_args</span><span class="p">()</span>
+    <span class="k">if</span> <span class="n">args</span><span class="o">.</span><span class="n">preferences</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">set_pref_file</span><span class="p">(</span><span class="n">args</span><span class="o">.</span><span class="n">preferences</span><span class="p">)</span>
+
+    <span class="n">prefs</span> <span class="o">=</span> <span class="n">Preferences</span><span class="p">(</span><span class="n">get_prefs_path</span><span class="p">())</span>
+    <span class="n">image_save_path</span> <span class="o">=</span> <span class="s2">&quot;D:</span><span class="se">\\</span><span class="s2">Winfried</span><span class="se">\\</span><span class="s2">Production</span><span class="se">\\</span><span class="s2">testing</span><span class="se">\\</span><span class="s2">&quot;</span>
+    <span class="c1">#     image_save_path = &#39;/Users/winfriedw/Documents/Programming/ResultTestImages&#39;</span>
+
+    <span class="c1"># initialize the pyqt application object here (not in the location picker module)</span>
+    <span class="c1"># as it only needs to be initialized once</span>
+    <span class="n">app</span> <span class="o">=</span> <span class="n">QtGui</span><span class="o">.</span><span class="n">QApplication</span><span class="p">([])</span>
+    <span class="n">test_ImageLocationPicker</span><span class="p">(</span><span class="n">prefs</span><span class="o">=</span><span class="n">prefs</span><span class="p">,</span> <span class="n">image_save_path</span><span class="o">=</span><span class="n">image_save_path</span><span class="p">,</span> <span class="n">app</span><span class="o">=</span><span class="n">app</span><span class="p">)</span>
+    <span class="c1"># Properly close pyqtgraph to avoid exit crash</span>
+    <span class="n">pyqtgraph</span><span class="o">.</span><span class="n">exit</span><span class="p">()</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;After exit pyqtgraph&quot;</span><span class="p">)</span></div>
+
+
+<span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s2">&quot;__main__&quot;</span><span class="p">:</span>
+    <span class="n">test_offline</span><span class="p">()</span>
+    <span class="c1">#    test_online()</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Done with testing&quot;</span><span class="p">)</span>
+</pre></div>
+
+          </div>
+          
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<h1 class="logo"><a href="../../../index.html">Microscope Automation</a></h1>
+
+
+
+
+
+
+
+
+<h3>Navigation</h3>
+<p class="caption"><span class="caption-text">Overview</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../index.html">README</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../installation.html">Installation</a></li>
+</ul>
+<p class="caption"><span class="caption-text">Hardware</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../hardware_components.html">hardware_components</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../hardware_control.html">hardware_control</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../RS232.html">RS232</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../setup_microscope.html">setup_microscope</a></li>
+</ul>
+<p class="caption"><span class="caption-text">Samples</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../correct_background.html">correct_background</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../draw_plate.html">draw_plate</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../find_well_center.html">find_well_center</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../find_cells.html">find_cells</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../interactive_location_picker_pyqtgraph.html">interactive_location_picker_pyqtgraph</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../positions_list.html">positions_list</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../samples.html">samples</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../setup_samples.html">setup_samples</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../tile_images.html">tile_images</a></li>
+</ul>
+<p class="caption"><span class="caption-text">Zeiss Microscopes</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../connect_zen_blue.html">connect_zen_blue</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../connect_zen_black.html">connect_zen_black</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../hardware_control_zeiss.html">hardware_control_zeiss</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../write_zen_tiles_experiment.html">write_zen_tiles_experiment</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../zen_experiment_info.html">zen_experiment_info</a></li>
+</ul>
+<p class="caption"><span class="caption-text">3i Microscopes</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../hardware_control_3i.html">hardware_control_3i</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../connect_slidebook.html">connect_slidebook</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../slidebook_experiment_info.html">slidebook_experiment_info</a></li>
+</ul>
+<p class="caption"><span class="caption-text">General Methods</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../automation_exceptions.html">automation_exceptions</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../automation_messages_form_layout.html">automation_messages_form_layout</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../error_handling.html">error_handling</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../get_path.html">get_path</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../image_AICS.html">image_AICS</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../load_image_czi.html">load_image_czi</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../meta_data_file.html">meta_data_file</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../preferences.html">preferences</a></li>
+</ul>
+<p class="caption"><span class="caption-text">Reference Docs</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../CONTRIBUTING.html">Allen Institute Contribution Agreement</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../LICENSE.html">LICENSE</a></li>
+</ul>
+
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="../../../index.html">Documentation overview</a><ul>
+  <li><a href="../../index.html">Module code</a><ul>
+  <li><a href="../../microscope_automation.html">microscope_automation</a><ul>
+  </ul></li>
+  </ul></li>
+  </ul></li>
+</ul>
+</div>
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../../../search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" />
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script>$('#searchbox').show(0);</script>
+
+
+
+
+
+
+
+
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2020, Allen Institute.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 3.3.1</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.12</a>
+      
+    </div>
+
+    
+
+    
+  </body>
+</html>

@@ -1,0 +1,406 @@
+
+<!DOCTYPE html>
+
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>microscope_automation.zeiss.zen_experiment_info &#8212; Microscope Automation 0.0 documentation</title>
+    <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+    <link rel="stylesheet" href="../../../_static/alabaster.css" type="text/css" />
+    <script id="documentation_options" data-url_root="../../../" src="../../../_static/documentation_options.js"></script>
+    <script src="../../../_static/jquery.js"></script>
+    <script src="../../../_static/underscore.js"></script>
+    <script src="../../../_static/doctools.js"></script>
+    <script src="../../../_static/language_data.js"></script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" />
+   
+  <link rel="stylesheet" href="../../../_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head><body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          
+
+          <div class="body" role="main">
+            
+  <h1>Source code for microscope_automation.zeiss.zen_experiment_info</h1><div class="highlight"><pre>
+<span></span><span class="kn">from</span> <span class="nn">lxml</span> <span class="kn">import</span> <span class="n">etree</span>
+
+<span class="k">try</span><span class="p">:</span>
+    <span class="kn">from</span> <span class="nn">pathlib</span> <span class="kn">import</span> <span class="n">Path</span>
+<span class="k">except</span> <span class="ne">ImportError</span><span class="p">:</span>
+    <span class="kn">from</span> <span class="nn">pathlib2</span> <span class="kn">import</span> <span class="n">Path</span>
+
+<span class="kn">from</span> <span class="nn">..</span> <span class="kn">import</span> <span class="n">preferences</span>
+<span class="kn">import</span> <span class="nn">logging</span>
+
+
+<span class="n">log</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="vm">__name__</span><span class="p">)</span>
+
+
+<div class="viewcode-block" id="ZenExperiment"><a class="viewcode-back" href="../../../zen_experiment_info.html#microscope_automation.zeiss.zen_experiment_info.ZenExperiment">[docs]</a><span class="k">class</span> <span class="nc">ZenExperiment</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+
+    <span class="n">TAG_PATH_TILE_CENTER_XY</span> <span class="o">=</span> <span class="p">(</span>
+        <span class="s2">&quot;/HardwareExperiment/ExperimentBlocks/AcquisitionBlock/SubDimensionSetups/&quot;</span>
+        <span class="s2">&quot;RegionsSetup/SampleHolder/TileRegions/TileRegion/CenterPosition&quot;</span>
+    <span class="p">)</span>
+    <span class="n">TAG_PATH_TILE_CENTER_Z</span> <span class="o">=</span> <span class="p">(</span>
+        <span class="s2">&quot;/HardwareExperiment/ExperimentBlocks/AcquisitionBlock/SubDimensionSetups&quot;</span>
+        <span class="s2">&quot;/RegionsSetup/SampleHolder/TileRegions/TileRegion/Z&quot;</span>
+    <span class="p">)</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">experiment_path</span><span class="p">,</span> <span class="n">experiment_name</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Initializing the experiment class</span>
+
+<span class="sd">        Input:</span>
+<span class="sd">         experiment_name: Name of the experiment as defined in the Zen software</span>
+<span class="sd">         and preference file</span>
+
+<span class="sd">        Output:</span>
+<span class="sd">         prefs: the preference file for the workflow</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">experiment_path</span> <span class="o">=</span> <span class="n">experiment_path</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">experiment_name</span> <span class="o">=</span> <span class="n">experiment_name</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">experiment_exists</span><span class="p">():</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">tree</span> <span class="o">=</span> <span class="n">etree</span><span class="o">.</span><span class="n">parse</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">experiment_path</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">tree</span> <span class="o">=</span> <span class="kc">None</span>
+
+<div class="viewcode-block" id="ZenExperiment.experiment_exists"><a class="viewcode-back" href="../../../zen_experiment_info.html#microscope_automation.zeiss.zen_experiment_info.ZenExperiment.experiment_exists">[docs]</a>    <span class="k">def</span> <span class="nf">experiment_exists</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Function to check if the experiment name provided</span>
+<span class="sd">        in the preference file exists in the Zen software</span>
+
+<span class="sd">        Input:</span>
+<span class="sd">         none</span>
+
+<span class="sd">        Output:</span>
+<span class="sd">         a boolean indicating if the experiment exists or not</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># log.debug(&quot;Experiment path: {}&quot;.format(self.experiment_path))</span>
+        <span class="n">experiment_exists</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">experiment_path</span><span class="p">)</span><span class="o">.</span><span class="n">exists</span><span class="p">()</span>
+        <span class="k">return</span> <span class="n">experiment_exists</span></div>
+
+<div class="viewcode-block" id="ZenExperiment.get_tag_value"><a class="viewcode-back" href="../../../zen_experiment_info.html#microscope_automation.zeiss.zen_experiment_info.ZenExperiment.get_tag_value">[docs]</a>    <span class="k">def</span> <span class="nf">get_tag_value</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">tag_path</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Function to find the value of a tag in the Zen Experiment file.</span>
+
+<span class="sd">        Input:</span>
+<span class="sd">         experiment_name: Name of the experiment file</span>
+
+<span class="sd">        Output:</span>
+<span class="sd">         tag_value: string value of the tag</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">root</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">tree</span><span class="o">.</span><span class="n">getroot</span><span class="p">()</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">tag</span> <span class="o">=</span> <span class="n">root</span><span class="o">.</span><span class="n">xpath</span><span class="p">(</span><span class="n">tag_path</span><span class="p">)</span>
+            <span class="n">tag_value</span> <span class="o">=</span> <span class="n">tag</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">text</span>
+            <span class="k">return</span> <span class="n">tag_value</span>
+        <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">err</span><span class="p">:</span>
+            <span class="n">log</span><span class="o">.</span><span class="n">exception</span><span class="p">(</span><span class="n">err</span><span class="p">)</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Tag path &#39;</span><span class="si">{}</span><span class="s2">&#39; is not valid&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">tag_path</span><span class="p">))</span></div>
+
+<div class="viewcode-block" id="ZenExperiment.update_tag_value"><a class="viewcode-back" href="../../../zen_experiment_info.html#microscope_automation.zeiss.zen_experiment_info.ZenExperiment.update_tag_value">[docs]</a>    <span class="k">def</span> <span class="nf">update_tag_value</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">tag_path</span><span class="p">,</span> <span class="n">new_value</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Function to update the value of a tag in the experiment xml file.</span>
+
+<span class="sd">        Input:</span>
+<span class="sd">         tag_path: Path where the tag is loacted in the xml tree</span>
+
+<span class="sd">         new_value: The value that needs to be assigned to the tag (string)</span>
+
+<span class="sd">        Output:</span>
+<span class="sd">         none</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">root</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">tree</span><span class="o">.</span><span class="n">getroot</span><span class="p">()</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">tag</span> <span class="o">=</span> <span class="n">root</span><span class="o">.</span><span class="n">xpath</span><span class="p">(</span><span class="n">tag_path</span><span class="p">)</span>
+            <span class="n">tag</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">text</span> <span class="o">=</span> <span class="n">new_value</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">tree</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">experiment_path</span><span class="p">)</span>
+        <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">err</span><span class="p">:</span>
+            <span class="n">log</span><span class="o">.</span><span class="n">exception</span><span class="p">(</span><span class="n">err</span><span class="p">)</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                <span class="s2">&quot;Updating tag &#39;</span><span class="si">{}</span><span class="s2">&#39; for experiment </span><span class="si">{}</span><span class="s2"> raised the error: </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
+                    <span class="n">tag_path</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">experiment_path</span><span class="p">,</span> <span class="n">err</span><span class="o">.</span><span class="n">strerror</span>
+                <span class="p">)</span>
+            <span class="p">)</span></div>
+
+<div class="viewcode-block" id="ZenExperiment.is_tile_scan"><a class="viewcode-back" href="../../../zen_experiment_info.html#microscope_automation.zeiss.zen_experiment_info.ZenExperiment.is_tile_scan">[docs]</a>    <span class="k">def</span> <span class="nf">is_tile_scan</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Test if experiment is tile scan.</span>
+
+<span class="sd">        Input:</span>
+<span class="sd">         none</span>
+
+<span class="sd">        Output:</span>
+<span class="sd">         is_tile_scan: True if experiment contains z-stack</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">root</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">tree</span><span class="o">.</span><span class="n">getroot</span><span class="p">()</span>
+        <span class="c1"># retrieve all z-stack setups, use only fist</span>
+        <span class="n">RegionsSetup</span> <span class="o">=</span> <span class="n">root</span><span class="o">.</span><span class="n">findall</span><span class="p">(</span><span class="s2">&quot;.//RegionsSetup&quot;</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="n">is_tile_scan</span> <span class="o">=</span> <span class="n">RegionsSetup</span><span class="o">.</span><span class="n">attrib</span><span class="p">[</span><span class="s2">&quot;IsActivated&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="s2">&quot;true&quot;</span>
+        <span class="k">return</span> <span class="n">is_tile_scan</span></div>
+
+<div class="viewcode-block" id="ZenExperiment.update_tile_positions"><a class="viewcode-back" href="../../../zen_experiment_info.html#microscope_automation.zeiss.zen_experiment_info.ZenExperiment.update_tile_positions">[docs]</a>    <span class="k">def</span> <span class="nf">update_tile_positions</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x_value</span><span class="p">,</span> <span class="n">y_value</span><span class="p">,</span> <span class="n">z_value</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;In the tile function, correct the hard coded values of the tile</span>
+<span class="sd">        region using the values from the automation software</span>
+
+<span class="sd">        Input:</span>
+<span class="sd">         x_value: float (x - coordinate)</span>
+
+<span class="sd">         y_value: float (y - coordinate)</span>
+
+<span class="sd">         z_value: float (z - coordinate)</span>
+
+<span class="sd">        Output:</span>
+<span class="sd">         none</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="n">xy_value</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">x_value</span><span class="p">)</span> <span class="o">+</span> <span class="s2">&quot;,&quot;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">y_value</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">update_tag_value</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">TAG_PATH_TILE_CENTER_XY</span><span class="p">,</span> <span class="n">xy_value</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">update_tag_value</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">TAG_PATH_TILE_CENTER_Z</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="n">z_value</span><span class="p">))</span></div>
+
+<div class="viewcode-block" id="ZenExperiment.get_focus_settings"><a class="viewcode-back" href="../../../zen_experiment_info.html#microscope_automation.zeiss.zen_experiment_info.ZenExperiment.get_focus_settings">[docs]</a>    <span class="k">def</span> <span class="nf">get_focus_settings</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Function to get all the instances of focus settings in the experiment file</span>
+
+<span class="sd">        Input:</span>
+<span class="sd">         none</span>
+
+<span class="sd">        Output:</span>
+<span class="sd">         focus_settings: All instances of focus settings in experiment file</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">root</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">tree</span><span class="o">.</span><span class="n">getroot</span><span class="p">()</span>
+        <span class="c1"># retrieve all focus setups</span>
+        <span class="n">focus_settings</span> <span class="o">=</span> <span class="n">root</span><span class="o">.</span><span class="n">findall</span><span class="p">(</span><span class="s2">&quot;.//FocusSetup&quot;</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">focus_settings</span></div>
+
+<div class="viewcode-block" id="ZenExperiment.get_objective_position"><a class="viewcode-back" href="../../../zen_experiment_info.html#microscope_automation.zeiss.zen_experiment_info.ZenExperiment.get_objective_position">[docs]</a>    <span class="k">def</span> <span class="nf">get_objective_position</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Return position of objective used in experiment.</span>
+<span class="sd">        Method assumes that only one objective is used in experiment.</span>
+
+<span class="sd">        Input:</span>
+<span class="sd">         None</span>
+
+<span class="sd">        Output:</span>
+<span class="sd">         position: integer with position of objective used in experiment</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">root</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">tree</span><span class="o">.</span><span class="n">getroot</span><span class="p">()</span>
+        <span class="c1"># retrieve all objective changers. Use only first</span>
+        <span class="n">objective_changer</span> <span class="o">=</span> <span class="n">root</span><span class="o">.</span><span class="n">findall</span><span class="p">(</span>
+            <span class="s2">&quot;.//ParameterCollection[@Id = &#39;MTBObjectiveChanger&#39;]&quot;</span>
+        <span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="n">position</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">objective_changer</span><span class="o">.</span><span class="n">find</span><span class="p">(</span><span class="s2">&quot;Position&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">text</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">position</span></div>
+
+<div class="viewcode-block" id="ZenExperiment.is_z_stack"><a class="viewcode-back" href="../../../zen_experiment_info.html#microscope_automation.zeiss.zen_experiment_info.ZenExperiment.is_z_stack">[docs]</a>    <span class="k">def</span> <span class="nf">is_z_stack</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Test if experiment is z-stack.</span>
+
+<span class="sd">        Input:</span>
+<span class="sd">         none</span>
+
+<span class="sd">        Output:</span>
+<span class="sd">         is_z_stack: True if experiment contains z-stack</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">root</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">tree</span><span class="o">.</span><span class="n">getroot</span><span class="p">()</span>
+        <span class="c1"># retrieve all z-stack setups, use only first</span>
+        <span class="c1"># TODO:</span>
+        <span class="c1"># I would separate this out into two steps -</span>
+        <span class="c1"># one where you do the findall and another to access the first item.</span>
+        <span class="c1"># That way, you can actually check if the file has any MTBObjectiveChanger</span>
+        <span class="c1"># entries in it and throw an appropriate error if they are non, rather</span>
+        <span class="c1"># than have the findall return an empty list and</span>
+        <span class="c1"># then the [0] access throw an undescriptive IndexError.</span>
+        <span class="c1"># It may be helpful to write a common function for this that</span>
+        <span class="c1"># will take the result of a findall, ensure that there is</span>
+        <span class="c1"># at least one element in it and if not throw a more appropriate exception.</span>
+        <span class="n">ZStackSetup</span> <span class="o">=</span> <span class="n">root</span><span class="o">.</span><span class="n">findall</span><span class="p">(</span><span class="s2">&quot;.//ZStackSetup&quot;</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="n">is_z_stack</span> <span class="o">=</span> <span class="n">ZStackSetup</span><span class="o">.</span><span class="n">attrib</span><span class="p">[</span><span class="s2">&quot;IsActivated&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="s2">&quot;true&quot;</span>
+        <span class="k">return</span> <span class="n">is_z_stack</span></div>
+
+<div class="viewcode-block" id="ZenExperiment.z_stack_range"><a class="viewcode-back" href="../../../zen_experiment_info.html#microscope_automation.zeiss.zen_experiment_info.ZenExperiment.z_stack_range">[docs]</a>    <span class="k">def</span> <span class="nf">z_stack_range</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Return range of first z-stack in experiment.</span>
+<span class="sd">        Returns 0 if z-stack is not activated.</span>
+
+<span class="sd">        Input:</span>
+<span class="sd">         none</span>
+
+<span class="sd">        Output:</span>
+<span class="sd">         z_stack_range: True if experiment contains z-stack</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">is_z_stack</span><span class="p">():</span>
+            <span class="k">return</span> <span class="mi">0</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">root</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">tree</span><span class="o">.</span><span class="n">getroot</span><span class="p">()</span>
+            <span class="c1"># retrieve all z-stack setups, use only fist</span>
+            <span class="n">ZStackSetup</span> <span class="o">=</span> <span class="n">root</span><span class="o">.</span><span class="n">findall</span><span class="p">(</span><span class="s2">&quot;.//ZStackSetup&quot;</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
+            <span class="n">first_postion</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">ZStackSetup</span><span class="o">.</span><span class="n">find</span><span class="p">(</span><span class="s2">&quot;First/Distance/Value&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">text</span><span class="p">)</span>
+            <span class="n">last_postion</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">ZStackSetup</span><span class="o">.</span><span class="n">find</span><span class="p">(</span><span class="s2">&quot;Last/Distance/Value&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">text</span><span class="p">)</span>
+            <span class="n">z_stack_range</span> <span class="o">=</span> <span class="nb">abs</span><span class="p">(</span><span class="n">last_postion</span> <span class="o">-</span> <span class="n">first_postion</span><span class="p">)</span>
+            <span class="k">return</span> <span class="n">z_stack_range</span></div></div>
+
+
+<span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s2">&quot;__main__&quot;</span><span class="p">:</span>
+
+    <span class="c1"># Initializing the object</span>
+    <span class="n">prefs</span> <span class="o">=</span> <span class="n">preferences</span><span class="o">.</span><span class="n">Preferences</span><span class="p">(</span><span class="s2">&quot;../GeneralSettings/preferences_ZSD1_Shailja.yml&quot;</span><span class="p">)</span>
+    <span class="n">experiment_directory</span> <span class="o">=</span> <span class="n">prefs</span><span class="o">.</span><span class="n">get_pref</span><span class="p">(</span><span class="s2">&quot;PathExperiments&quot;</span><span class="p">)</span>
+    <span class="n">experiment_name</span> <span class="o">=</span> <span class="s2">&quot;ScanWell_10x.czexp&quot;</span>
+    <span class="c1"># experiment_path = os.path.normpath(os.path.join(prefs.get_pref(&#39;PathExperiments&#39;),</span>
+    <span class="c1">#                                                 experiment_name))</span>
+    <span class="n">experiment_path</span> <span class="o">=</span> <span class="sa">r</span><span class="s2">&quot;D:</span><span class="se">\\</span><span class="s2">Users\winfriedw\Documents\Carl Zeiss\ZEN\Documents\Experiment Setups/ScanWell_10x.czexp&quot;</span>  <span class="c1"># noqa</span>
+    <span class="n">test_object</span> <span class="o">=</span> <span class="n">ZenExperiment</span><span class="p">(</span><span class="n">experiment_path</span><span class="p">,</span> <span class="n">experiment_name</span><span class="p">)</span>
+
+    <span class="c1"># Test 1 - Experiment exists</span>
+    <span class="c1"># result_test1 = test_object.experiment_exists()</span>
+    <span class="c1"># print(result_test1)</span>
+
+    <span class="c1"># Test 2 - Get Tag Value</span>
+    <span class="c1"># tag_value = test_object.get_tag_value(&#39;/HardwareExperiment/ExperimentBlocks/&#39;</span>
+    <span class="c1"># &#39;AcquisitionBlock/SubDimensionSetups/RegionsSetup/SampleHolder/TileRegions/TileRegion/CenterPosition&#39;)</span>
+    <span class="c1"># Test 3 - Update Tag Value</span>
+    <span class="nb">print</span><span class="p">((</span><span class="s2">&quot;Experiment acquires tile scan: </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">test_object</span><span class="o">.</span><span class="n">is_tile_scan</span><span class="p">())))</span>
+    <span class="n">test_object</span><span class="o">.</span><span class="n">update_tag_value</span><span class="p">(</span>
+        <span class="s2">&quot;/HardwareExperiment/ExperimentBlocks/AcquisitionBlock/SubDimensionSetups&quot;</span>
+        <span class="s2">&quot;/RegionsSetup/SampleHolder/TileRegions/TileRegion/CenterPosition&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;5000,7800&quot;</span><span class="p">,</span>
+    <span class="p">)</span>
+
+    <span class="c1"># Test 4 - Update Tile Positions</span>
+    <span class="c1"># test_object.update_tile_positions(3600, 7600, 4)</span>
+
+    <span class="c1"># Test 5: Get objective name</span>
+    <span class="nb">print</span><span class="p">(</span>
+        <span class="p">(</span>
+            <span class="s2">&quot;Objective position used in experiment: </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
+                <span class="n">test_object</span><span class="o">.</span><span class="n">get_objective_position</span><span class="p">()</span>
+            <span class="p">)</span>
+        <span class="p">)</span>
+    <span class="p">)</span>
+
+    <span class="c1"># Test 6: Return z-stack information</span>
+    <span class="nb">print</span><span class="p">((</span><span class="s2">&quot;Experiment acquires z-stack: </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">test_object</span><span class="o">.</span><span class="n">is_z_stack</span><span class="p">())))</span>
+    <span class="nb">print</span><span class="p">((</span><span class="s2">&quot;Range for z-stack: </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">test_object</span><span class="o">.</span><span class="n">z_stack_range</span><span class="p">())))</span>
+</pre></div>
+
+          </div>
+          
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<h1 class="logo"><a href="../../../index.html">Microscope Automation</a></h1>
+
+
+
+
+
+
+
+
+<h3>Navigation</h3>
+<p class="caption"><span class="caption-text">Overview</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../index.html">README</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../installation.html">Installation</a></li>
+</ul>
+<p class="caption"><span class="caption-text">Hardware</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../hardware_components.html">hardware_components</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../hardware_control.html">hardware_control</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../RS232.html">RS232</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../setup_microscope.html">setup_microscope</a></li>
+</ul>
+<p class="caption"><span class="caption-text">Samples</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../correct_background.html">correct_background</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../draw_plate.html">draw_plate</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../find_well_center.html">find_well_center</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../find_cells.html">find_cells</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../interactive_location_picker_pyqtgraph.html">interactive_location_picker_pyqtgraph</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../positions_list.html">positions_list</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../samples.html">samples</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../setup_samples.html">setup_samples</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../tile_images.html">tile_images</a></li>
+</ul>
+<p class="caption"><span class="caption-text">Zeiss Microscopes</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../connect_zen_blue.html">connect_zen_blue</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../connect_zen_black.html">connect_zen_black</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../hardware_control_zeiss.html">hardware_control_zeiss</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../write_zen_tiles_experiment.html">write_zen_tiles_experiment</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../zen_experiment_info.html">zen_experiment_info</a></li>
+</ul>
+<p class="caption"><span class="caption-text">3i Microscopes</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../hardware_control_3i.html">hardware_control_3i</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../connect_slidebook.html">connect_slidebook</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../slidebook_experiment_info.html">slidebook_experiment_info</a></li>
+</ul>
+<p class="caption"><span class="caption-text">General Methods</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../automation_exceptions.html">automation_exceptions</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../automation_messages_form_layout.html">automation_messages_form_layout</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../error_handling.html">error_handling</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../get_path.html">get_path</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../image_AICS.html">image_AICS</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../load_image_czi.html">load_image_czi</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../meta_data_file.html">meta_data_file</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../preferences.html">preferences</a></li>
+</ul>
+<p class="caption"><span class="caption-text">Reference Docs</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../CONTRIBUTING.html">Allen Institute Contribution Agreement</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../LICENSE.html">LICENSE</a></li>
+</ul>
+
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="../../../index.html">Documentation overview</a><ul>
+  <li><a href="../../index.html">Module code</a><ul>
+  <li><a href="../../microscope_automation.html">microscope_automation</a><ul>
+  </ul></li>
+  </ul></li>
+  </ul></li>
+</ul>
+</div>
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../../../search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" />
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script>$('#searchbox').show(0);</script>
+
+
+
+
+
+
+
+
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2020, Allen Institute.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 3.3.1</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.12</a>
+      
+    </div>
+
+    
+
+    
+  </body>
+</html>
