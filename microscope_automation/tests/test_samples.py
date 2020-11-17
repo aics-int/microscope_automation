@@ -17,7 +17,7 @@ import os
 os.chdir(os.path.dirname(__file__))
 
 # set skip_all_tests = True to focus on single test
-skip_all_tests = True
+skip_all_tests = False
 
 ###############################################################################
 #
