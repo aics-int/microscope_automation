@@ -23,7 +23,7 @@ class PositionWriter(object):
         """
         Initialization
 
-        Inputs:
+        Input:
          zsd: String or integer Id of ZSD used for acquisition
 
          plate: String of integer Id of plate
@@ -103,7 +103,7 @@ class PositionWriter(object):
         """
         Writes coordinates to a dummy.czsh file, and saves it
 
-        Inputs:
+        Input:
          converted: positions to write to the czsh file
 
          dummy: empty (no coordinates) .czsh file to use for writing
@@ -157,8 +157,10 @@ class PositionWriter(object):
     def get_next_pos_name(self, test_mode=False, test_file_names=[]):
         """Find the next available letter label, but dont backfill files.
 
-        Inputs:
-         folder: os.normpath'ed folder containing all positions lists.
+        Input:
+         test_mode: False by default. Runs in test mode if True.
+
+         test_file_names: list of test file names to use if running in test mode
 
         Output:
          label: unused alphabetical label for new positions list
