@@ -4,19 +4,19 @@ Microscope Automation
 
 .. image::
    https://github.com/aics-int/microscope_automation/workflows/Build%20Master/badge.svg
-   :width: 300
+   :height: 50
    :target: https://github.com/aics-int/microscope_automation/actions
    :alt: Build Status
 
 .. image::
    https://github.com/aics-int/microscope_automation/workflows/Documentation/badge.svg
-   :width: 300
+   :height: 50
    :target: https://aics-int.github.io/microscope_automation
    :alt: Documentation
 
 .. image::
    https://codecov.io/gh/aics-int/microscope_automation/branch/master/graph/badge.svg
-   :width: 300
+   :height: 50
    :target: https://codecov.io/gh/aics-int/microscope_automation
    :alt: Code Coverage
 
