@@ -173,7 +173,6 @@ def get_log_file_path(prefs):
     log_file_folder = get_valid_path_from_prefs(prefs, "LogFilePath", search_dir=True)
     log_file_path = os.path.normpath(os.path.join(log_file_folder, file_name))
 
-    print("Folder is: " + log_file_folder)
     # test if folder exists, if not, create folder
     if not os.path.isdir(log_file_folder):
         os.makedirs(log_file_folder)

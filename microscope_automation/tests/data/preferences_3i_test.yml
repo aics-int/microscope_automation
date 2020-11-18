@@ -35,7 +35,7 @@ Workflow: [
            ]
 
 #WorkflowInterrupt: ScanPlate
-RecoverySettingsFilePath: ['data\Production\RecoverySettings', 'data/Production/RecoverySettings']
+RecoverySettingsFilePath: ['data\Production\GeneralSettings\RecoverySettings', 'data/Production/GeneralSettings/RecoverySettings']
 
 #WorkflowContinue: ScanCells
 LogFilePath: ['data\Production\LogFiles', 'data/Production/LogFiles']

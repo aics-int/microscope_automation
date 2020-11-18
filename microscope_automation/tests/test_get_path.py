@@ -7,7 +7,9 @@ Created on Nov 17, 2020
 """
 import os
 import pytest
-from datetime import date
+import time
+import re
+import datetime
 from pathlib import Path
 from microscope_automation.preferences import Preferences
 from microscope_automation import get_path
@@ -17,8 +19,13 @@ os.chdir(os.path.dirname(__file__))
 
 # set skip_all_tests = True to focus on single test
 skip_all_tests = False
-today = date.today()
+
+today = datetime.date.today()
 DATE_STR = str(today.year) + "_" + str(today.month) + "_" + str(today.day)
+time_stamp = time.time()
+TIME_STAMP = datetime.datetime.fromtimestamp(time_stamp).strftime(
+    "%Y-%m-%d_%H-"
+)
 
 
 @pytest.mark.skipif(skip_all_tests, reason="Exclude all tests")
@@ -245,3 +252,28 @@ def test_get_experiment_path(prefs_path, pref_name, dir, expected):
     except Exception as err:
         result = type(err).__name__
     assert result == expected
+
+
+@pytest.mark.skipif(skip_all_tests, reason="Exclude all tests")
+@pytest.mark.parametrize(
+    "prefs_path, expected",
+    [
+        (
+            "data/preferences_3i_test.yml",
+            os.path.join("data", "Production", "GeneralSettings", "RecoverySettings"),
+        ),
+        (
+            "data/preferences_ZSD_test.yml",
+            os.path.join("data", "Production", "GeneralSettings", "RecoverySettings"),
+        ),
+    ],
+)
+def test_get_recovery_settings_path(prefs_path, expected):
+    prefs = Preferences(prefs_path)
+    result = get_path.get_recovery_settings_path(prefs)
+    path0, path1 = os.path.split(result)
+    assert path0 == expected
+    # had to match regex so that seconds and minutes were ignored
+    expression = "Plate_" + TIME_STAMP + "[0-9][0-9]-[0-9][0-9]" + '.pickle'
+    print(expression)
+    assert re.match(expression, path1)
