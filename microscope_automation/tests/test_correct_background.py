@@ -7,6 +7,7 @@ Created on Nov 17, 2020
 """
 import os
 import pytest
+import numpy as np
 from microscope_automation.image_AICS import ImageAICS
 from microscope_automation.samples import correct_background
 
@@ -27,7 +28,7 @@ def select_image(image, test_image_all_black, test_image_all_white,
     elif image == "test_image_illumination_reference":
         image = test_image_illumination_reference
     elif image == "test_image_black_reference":
-        image = test_image_illumination_reference
+        image = test_image_black_reference
     else:
         image = ImageAICS()
 
@@ -56,17 +57,30 @@ def select_image(image, test_image_all_black, test_image_all_white,
              [1, 1, 1, 1, 1],
              [1, 1, 1, 1, 1]]
         ),
+        (
+            "test_image_all_black",
+            "test_image_black_reference",
+            [[1, 1, 1, 0.25, 1],
+             [0.25, 0.25, 0.25, 0.25, 0.25],
+             [0.25, 0.25, 0.25, 0.25, 0.25],
+             [0.25, 0.25, 0.25, 0.25, 0.25],
+             [0.25, 0.25, 0.25, 0.25, 0.25]]
+        ),
     ],
 )
 def test_fixed_pattern_correction(image, black_reference, expected,
-                                  test_image_all_black, test_image_all_white):
+                                  test_image_all_black, test_image_all_white,
+                                  test_image_black_reference):
     image = select_image(image, test_image_all_black, test_image_all_white)
-    black_reference = select_image(black_reference, test_image_all_black,
-                                   test_image_all_white)
+    black_reference = select_image(
+        black_reference,
+        test_image_all_black,
+        test_image_all_white,
+        test_image_black_reference=test_image_black_reference)
 
     result = correct_background.fixed_pattern_correction(image.get_data(),
                                                          black_reference.get_data())
-    print(result)
+
     assert len(result) == len(expected)
     i = 0
     for row in result:
@@ -82,31 +96,31 @@ def test_fixed_pattern_correction(image, black_reference, expected,
             "test_image_all_white",
             "test_image_all_black",
             "test_image_illumination_reference",
-            [[-1, -1, -1, -1, -1],
-             [-1, -1, -1, -1, -1],
-             [-1, -1, -1, -1, -1],
-             [-1, -1, -1, -1, -1],
-             [-1, -1, -1, -1, -1]]
+            [[2, 2, 2, 2, 2],
+             [2, 2, 2, 2, 2],
+             [1, 2, 1, 1, 1.3333333333333333],
+             [1, 2, 1, 1, 1],
+             [2, 2, 2, 2, 2]]
         ),
         (
             "test_image_all_black",
             "test_image_all_white",
             "test_image_illumination_reference",
-            [[1, 1, 1, 1, 1],
-             [1, 1, 1, 1, 1],
-             [1, 1, 1, 1, 1],
-             [1, 1, 1, 1, 1],
-             [1, 1, 1, 1, 1]]
+            [[2, 2, 2, 2, 2],
+             [2, 2, 2, 2, 2],
+             [np.inf, 2, np.inf, np.inf, 4],
+             [np.inf, 2, np.inf, np.inf, np.inf],
+             [2, 2, 2, 2, 2]]
         ),
         (
             "test_image_black_reference",
             "test_image_all_black",
             "test_image_illumination_reference",
-            [[-0.5, -0.5, -0.5, -0.5, -0.5],
-             [-0.5, -0.5, -0.5, -0.5, -0.5],
-             [-0.5, -0.5, -0.5, -0.5, -0.5],
-             [-0.5, -0.5, -0.5, -0.5, -0.5],
-             [-0.5, -0.5, -0.5, -0.5, -0.5]]
+            [[2, 2, 2, 0.5, 2],
+             [0.5, 0.5, 0.5, 0.5, 0.5],
+             [0.25, 0.5, 0.25, 0.25, 0.3333333333333333],
+             [0.25, 0.5, 0.25, 0.25, 0.25],
+             [0.5, 0.5, 0.5, 0.5, 0.5]]
         ),
     ],
 )
@@ -126,9 +140,11 @@ def test_illumination_correction(image, black_reference, illumination_reference,
                                           test_image_illumination_reference,
                                           test_image_black_reference)
 
-    result = correct_background.fixed_pattern_correction(image.get_data(),
-                                                         black_reference.get_data())
-                                                         
+    result = correct_background.illumination_correction(
+        image.get_data(),
+        black_reference.get_data(),
+        illumination_reference.get_data())
+
     assert len(result) == len(expected)
     i = 0
     for row in result:

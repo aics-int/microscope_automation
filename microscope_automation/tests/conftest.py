@@ -63,9 +63,11 @@ def test_image_all_white():
 
 @pytest.fixture
 def test_image_illumination_reference():
-    """A 5x5 all white image of class ImageAICS"""
+    """A 5x5 gray image of class ImageAICS"""
     shape = np.arange(25).reshape(5, 5)
     data = np.ones_like(shape) * 0.5
+    data[2] = [0, 0.5, 0, 0, 0.25]
+    data[3] = [0, 0.5, 0, 0, 0]
     meta = {
         "aics_imageObjectPosX": 1,
         "aics_imageObjectPosY": 0,
@@ -81,9 +83,10 @@ def test_image_illumination_reference():
 
 @pytest.fixture
 def test_image_black_reference():
-    """A 5x5 all white image of class ImageAICS"""
+    """A 5x5 gray image of class ImageAICS"""
     shape = np.arange(25).reshape(5, 5)
     data = np.ones_like(shape) * 0.75
+    data[0] = [0, 0, 0, 0.75, 0]
     meta = {
         "aics_imageObjectPosX": 1,
         "aics_imageObjectPosY": 0,
