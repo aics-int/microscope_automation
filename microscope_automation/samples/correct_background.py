@@ -8,9 +8,7 @@ https://en.wikipedia.org/wiki/Flat-field_correction
 Created on 18 Jan 2017
 
 @author: winfriedw
-"""  # noqa
-import numpy
-import getpass
+"""
 
 
 def fixed_pattern_correction(image, black_reference):
@@ -30,7 +28,6 @@ def fixed_pattern_correction(image, black_reference):
     Output:
      corrected_image: image after correction
     """
-
     corrected_image = image - black_reference
     # correctedImage[correctedImage < 0] = 0
     # This has been removed because I was improperly enforcing a cutoff value for noise.

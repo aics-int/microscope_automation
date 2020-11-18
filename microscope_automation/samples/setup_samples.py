@@ -36,7 +36,7 @@ def get_colony_data(prefs, colony_file):
     Input:
      prefs: preferences with information about colony file
 
-     colonyFile: path to .csv file with colony data.
+     colony_file: path to .csv file with colony data.
 
     Output:
      colonies: pandas frame with content of .csv file
@@ -123,7 +123,7 @@ def filter_colonies(prefs, colonies, well_dict):
      well_dict: list with wells that should be considered. Well names in format 'A1'.
 
     Output:
-     selectedColonies: subset of colonies to be imaged
+     slected_colonies: subset of colonies to be imaged
     """
     # get names of wells to scan
     well_list = well_dict.keys()
