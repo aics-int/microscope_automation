@@ -277,3 +277,221 @@ def test_get_recovery_settings_path(prefs_path, expected):
     expression = "Plate_" + TIME_STAMP + "[0-9][0-9]-[0-9][0-9]" + '.pickle'
     print(expression)
     assert re.match(expression, path1)
+
+
+@pytest.mark.skipif(skip_all_tests, reason="Exclude all tests")
+@pytest.mark.parametrize(
+    "prefs_path, barcode, expected",
+    [
+        (
+            "data/preferences_3i_test.yml",
+            None,
+            os.path.join(DATE_STR, "3iW1-0", "CeligoColonyData"),
+        ),
+        (
+            "data/preferences_ZSD_test.yml",
+            None,
+            os.path.join(DATE_STR, "Zeiss SD 1", "CeligoColonyData"),
+        ),
+        (
+            "data/preferences_ZSD_test.yml",
+            "test_code",
+            os.path.join("test_code", "Zeiss SD 1", "CeligoColonyData"),
+        ),
+    ],
+)
+def test_get_colony_dir_path(prefs_path, barcode, expected):
+    prefs = Preferences(prefs_path)
+    result = get_path.get_colony_dir_path(prefs, barcode)
+    assert result == expected
+
+
+@pytest.mark.skipif(skip_all_tests, reason="Exclude all tests")
+@pytest.mark.parametrize(
+    "prefs_path, pref_name, expected",
+    [
+        (
+            "data/preferences_3i_test.yml",
+            "InitializeMicroscope",
+            "data/PlateSpecifications",
+        ),
+        (
+            "data/preferences_ZSD_test.yml",
+            "InitializeMicroscope",
+            "data/PlateSpecifications",
+        ),
+    ],
+)
+def test_get_colony_remote_dir_path(prefs_path, pref_name, expected):
+    prefs = Preferences(prefs_path).get_pref_as_meta(pref_name)
+    result = get_path.get_colony_remote_dir_path(prefs)
+    assert result == expected
+
+
+@pytest.mark.skipif(skip_all_tests, reason="Exclude all tests")
+@pytest.mark.parametrize(
+    "prefs_path, colony_file, barcode, expected",
+    [
+        (
+            "data/preferences_3i_test.yml",
+            "test.csv",
+            None,
+            os.path.join(DATE_STR, "3iW1-0", "CeligoColonyData", "test.csv"),
+        ),
+        (
+            "data/preferences_ZSD_test.yml",
+            "test.csv",
+            None,
+            os.path.join(DATE_STR, "Zeiss SD 1", "CeligoColonyData", "test.csv"),
+        ),
+        (
+            "data/preferences_ZSD_test.yml",
+            "test.csv",
+            "test_code",
+            os.path.join("test_code", "Zeiss SD 1", "CeligoColonyData", "test.csv"),
+        ),
+        (
+            "data/preferences_ZSD_test.yml",
+            None,
+            "test_code",
+            "TypeError",
+        ),
+    ],
+)
+def test_get_colony_file_path(prefs_path, barcode, colony_file, expected):
+    prefs = Preferences(prefs_path)
+    try:
+        result = get_path.get_colony_file_path(prefs, colony_file, barcode)
+    except Exception as err:
+        result = type(err).__name__
+    assert result == expected
+
+
+@pytest.mark.skipif(skip_all_tests, reason="Exclude all tests")
+@pytest.mark.parametrize(
+    "prefs_path, expected",
+    [
+        (
+            "data/preferences_3i_test.yml",
+            os.path.join("data", "microscopeSpecifications_3iW1-1_dummy.yml")
+        ),
+        (
+            "data/preferences_ZSD_test.yml",
+            os.path.join("data", "microscopeSpecifications_ZSD1_dummy.yml")
+        ),
+    ],
+)
+def test_get_hardware_settings_path(prefs_path, expected):
+    prefs = Preferences(prefs_path)
+    result = get_path.get_hardware_settings_path(prefs)
+    assert result == expected
+
+
+@pytest.mark.skipif(skip_all_tests, reason="Exclude all tests")
+@pytest.mark.parametrize(
+    "prefs_path, barcode, expected",
+    [
+        (
+            "data/preferences_3i_test.yml",
+            None,
+            os.path.join(DATE_STR, "3iW1-0", "References"),
+        ),
+        (
+            "data/preferences_ZSD_test.yml",
+            None,
+            os.path.join(DATE_STR, "Zeiss SD 1", "References"),
+        ),
+        (
+            "data/preferences_ZSD_test.yml",
+            "test_code",
+            os.path.join("test_code", "Zeiss SD 1", "References"),
+        ),
+    ],
+)
+def test_get_references_path(prefs_path, barcode, expected):
+    prefs = Preferences(prefs_path)
+    result = get_path.get_references_path(prefs, barcode)
+    assert result == expected
+
+
+@pytest.mark.skipif(skip_all_tests, reason="Exclude all tests")
+@pytest.mark.parametrize(
+    "prefs_path, sub_dir, barcode, expected",
+    [
+        (
+            "data/preferences_3i_test.yml",
+            None,
+            None,
+            os.path.join(DATE_STR, "3iW1-0"),
+        ),
+        (
+            "data/preferences_3i_test.yml",
+            "test_sub_dir",
+            None,
+            os.path.join(DATE_STR, "3iW1-0", "test_sub_dir"),
+        ),
+        (
+            "data/preferences_ZSD_test.yml",
+            None,
+            None,
+            os.path.join(DATE_STR, "Zeiss SD 1"),
+        ),
+        (
+            "data/preferences_ZSD_test.yml",
+            None,
+            "test_code",
+            os.path.join("test_code", "Zeiss SD 1"),
+        ),
+    ],
+)
+def test_get_images_path(prefs_path, sub_dir, barcode, expected):
+    prefs = Preferences(prefs_path)
+    result = get_path.get_images_path(prefs, sub_dir, barcode)
+    assert result == expected
+
+
+@pytest.mark.skipif(skip_all_tests, reason="Exclude all tests")
+@pytest.mark.parametrize(
+    "prefs_path, expected",
+    [
+        (
+            "data/preferences_3i_test.yml",
+            os.path.join("data", "Production", "GeneralSettings", "Calibration", "")
+        ),
+        (
+            "data/preferences_ZSD_test.yml",
+            os.path.join("data", "Production", "GeneralSettings", "Calibration", "")
+        ),
+    ],
+)
+def test_get_calibration_path(prefs_path, expected):
+    prefs = Preferences(prefs_path)
+    result = get_path.get_calibration_path(prefs)
+    assert result == expected
+
+
+@pytest.mark.skipif(skip_all_tests, reason="Exclude all tests")
+@pytest.mark.parametrize(
+    "prefs_path, barcode, expected",
+    [
+        (
+            "data/preferences_3i_test.yml",
+            None,
+            os.path.join(DATE_STR, "3iW1-0", "WellEdge"),
+        ),
+        (
+            "data/preferences_ZSD_test.yml",
+            None,
+            os.path.join(DATE_STR, "Zeiss SD 1", "WellEdge"),
+        ),
+        (
+            "data/preferences_ZSD_test.yml",
+            "test_code",
+            os.path.join("test_code", "Zeiss SD 1", "WellEdge"),
+        ),
+    ],
+)
+def test_get_well_edge_path(prefs_path, barcode, expected):
+    prefs = Preferences(prefs_path)
+    result = get_path.get_well_edge_path(prefs, barcode)
+    assert result == expected

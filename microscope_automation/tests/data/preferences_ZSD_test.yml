@@ -70,7 +70,7 @@ InitializeMicroscope:
  NumberTrials: 3                                  # How often a user is given the chance to set up the system in a correct way
  SetupFolders: True                               # Setup image folder
  CopyColonyFile: False                            # Copy colony file
- ColonyFileFolder: ['\\allen\aics\microscopy\PRODUCTION\Summary\CeligoDailyScans', '../PlateSpecifications']   # Network folder with colony file
+ ColonyFileFolder: ['\\allen\aics\microscopy\PRODUCTION\Summary\CeligoDailyScans', 'data/PlateSpecifications']   # Network folder with colony file
  ColonyDirPath: *ColonyDirPathRef
  AddColonies: False                               # add colony information from Hamilton to plate
  Hardware: True                                   # Initialize hardware

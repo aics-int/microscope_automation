@@ -264,7 +264,7 @@ def get_colony_dir_path(prefs, barcode=None):
     """
     daily_folder_path = get_daily_folder(prefs, barcode)
 
-    colony_dir_path = prefs.get_pref("colony_dir_path")
+    colony_dir_path = prefs.get_pref("ColonyDirPath")
     if colony_dir_path is None:
         colony_dir_path = ""
 
@@ -284,7 +284,7 @@ def get_colony_remote_dir_path(prefs):
      prefs: Preferences object created from YAML file
 
     Output:
-     colonyRemoteDir: path to log file
+     colony_dir_path: path to log file
     """
     colony_dir_path = get_valid_path_from_prefs(
         prefs, "ColonyFileFolder", search_dir=True
@@ -295,7 +295,7 @@ def get_colony_remote_dir_path(prefs):
     return colony_dir_path
 
 
-def get_colony_file_path(prefs, colony_file):
+def get_colony_file_path(prefs, colony_file, barcode=None):
     """Return path to file with colony information typically produced by
     CellProfiler based on Celigo platescanner data.
 
@@ -304,10 +304,12 @@ def get_colony_file_path(prefs, colony_file):
 
      colony_file: path to .csv file with colony data
 
+     barcode: Use the plate barcode to make the folder
+
     Output:
      colony_file_path: complete path to colony file
     """
-    dir_path = get_colony_dir_path(prefs)
+    dir_path = get_colony_dir_path(prefs, barcode=barcode)
     colony_file_path = os.path.normpath(os.path.join(dir_path, colony_file))
 
     return colony_file_path
@@ -352,7 +354,7 @@ def get_images_path(prefs, sub_dir=None, barcode=None):
     """Return path to directory for images. Create directory if not available
 
     Input:
-     prefs:
+     prefs: Preferences object created from YAML file
 
      sub_dir: Sub-directory for images. Will create folder with this name
 
