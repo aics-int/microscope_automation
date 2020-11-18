@@ -40,6 +40,7 @@ RecoverySettingsFilePath: ['data\Production\GeneralSettings\RecoverySettings', '
 LogFilePath: ['data\Production\LogFiles', 'data/Production/LogFiles']
 
 PathExperiments: ['data\Experiment Setup\', 'data/Experiment Setup/']
+Experiment: WellTile_10x_true.czexp
 
 # Path to specifications for microscope hardware and software
 PathMicroscopeSpecs: ['data\microscopeSpecifications_ZSD1_dummy.yml', 'data/microscopeSpecifications_ZSD1_dummy.yml']

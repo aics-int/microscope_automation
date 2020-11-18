@@ -17,7 +17,7 @@ os.chdir(os.path.dirname(__file__))
 skip_all_tests = False
 
 
-# @pytest.mark.skipif(skip_all_tests, reason="Exclude all tests")
+@pytest.mark.skipif(skip_all_tests, reason="Exclude all tests")
 @pytest.mark.parametrize(
     "prefs_path, expected_plate",
     [
@@ -26,7 +26,6 @@ skip_all_tests = False
     ],
 )
 def test_setup_plate(prefs_path, expected_plate):
-    """Test creation of microscope object"""
     prefs = preferences.Preferences(prefs_path)
     plate_holder = setup.setup_plate(prefs, barcode="test_barcode")
     assert plate_holder.__class__ == samples.PlateHolder
@@ -45,7 +44,6 @@ def test_setup_plate(prefs_path, expected_plate):
     ],
 )
 def test_setup_slide(prefs_path, expected_slide):
-    """Test creation of microscope object"""
     prefs = preferences.Preferences(prefs_path)
     plate_holder = setup.setup_slide(prefs)
     assert plate_holder.__class__ == samples.PlateHolder

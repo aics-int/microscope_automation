@@ -194,7 +194,7 @@ def add_colonies(well_object, colonies, hardware_settings, prefs=None):
      hardware_settings: preferences with description of microscope components,
      here coordinate transformation between colonies and well
 
-     prefs: dictionary with preferences
+     prefs: Preferences object created from YAML file
 
     Output:
      colony_list: list with all colony objects
@@ -257,7 +257,7 @@ def add_barcode(name, well_object, layout, prefs=None):
 
      layout: preferences for plate layout
 
-     prefs: dictionary with preferences
+     prefs: Preferences object created from YAML file
 
     Output:
      none

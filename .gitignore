@@ -53,6 +53,8 @@ coverage.xml
 # Test Outputs
 microscope_automation/tests/2020_*
 microscope_automation/tests/2021_*
+microscope_automation/tests/data/2020_*
+microscope_automation/tests/data/2021_*
 
 # Translations
 *.mo

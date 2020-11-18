@@ -3942,21 +3942,22 @@ class Well(ImagingSystem):
 
     def get_tile_positions_list(self, prefs, tile_type="Well", verbose=True):
         """Get positions for tiles in absolute coordinates.
+        Other classes have additional tile_objects (e.g. ColonySize).
 
         Input:
-         prefs: dictionary with preferences for tiling
+         prefs: Preferences object with preferences for tiling
 
          tile_type: type of tiling.  Possible options:
           'None': do not tile
+
           'Fixed': use fixed number of tiles
+
           'Well': use enough tiles to cover one well
 
          verbose: print debugging information
 
         Output:
          tile_position_list: list with absolute positions for tiling
-
-         Other classes have additional tile_objects (e.g. ColonySize)
         """
         # retrieve common tiling parameters, than adjust them for wells if necessary
         try:
