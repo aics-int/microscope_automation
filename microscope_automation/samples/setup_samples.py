@@ -247,7 +247,7 @@ def add_colonies(well_object, colonies, hardware_settings, prefs=None):
 ###########################################################################
 
 
-def add_barcode(name, well_object, layout, prefs=None):
+def add_barcode(name, well_object, layout):
     """Add barcode to well.
 
     Input:
@@ -256,8 +256,6 @@ def add_barcode(name, well_object, layout, prefs=None):
      well_object: instance of Well class from module samples
 
      layout: preferences for plate layout
-
-     prefs: Preferences object created from YAML file
 
     Output:
      none

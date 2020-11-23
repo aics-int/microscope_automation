@@ -6,7 +6,7 @@ Created on Nov 16, 2020
 """
 
 import pytest
-import microscope_automation.preferences as preferences
+from microscope_automation.preferences import Preferences
 from microscope_automation.samples import samples
 import microscope_automation.samples.setup_samples as setup
 import os
@@ -26,7 +26,7 @@ skip_all_tests = False
     ],
 )
 def test_setup_plate(prefs_path, expected_plate):
-    prefs = preferences.Preferences(prefs_path)
+    prefs = Preferences(prefs_path)
     plate_holder = setup.setup_plate(prefs, barcode="test_barcode")
     assert plate_holder.__class__ == samples.PlateHolder
     plate = list(plate_holder.plates.values())[0]
@@ -44,7 +44,7 @@ def test_setup_plate(prefs_path, expected_plate):
     ],
 )
 def test_setup_slide(prefs_path, expected_slide):
-    prefs = preferences.Preferences(prefs_path)
+    prefs = Preferences(prefs_path)
     plate_holder = setup.setup_slide(prefs)
     assert plate_holder.__class__ == samples.PlateHolder
     slide = list(plate_holder.slides.values())[0]
@@ -52,12 +52,17 @@ def test_setup_slide(prefs_path, expected_slide):
     assert slide.get_name() == expected_slide
 
 
-# @pytest.mark.skipif(skip_all_tests, reason="Exclude all tests")
-# @pytest.mark.parametrize(
-#     "prefs_path",
-#     [("data/preferences_ZSD_test.yml"), ("data/preferences_3i_test.yml")],
-# )
-# def test_add_barcode(prefs_path, helpers):
-#     prefs = preferences.Preferences(prefs_path)
-#     well = helpers.create_sample_object("well")
-#     setup.add_barcode("test_barcode", well, layout, prefs=prefs)
+@pytest.mark.skipif(skip_all_tests, reason="Exclude all tests")
+@pytest.mark.parametrize(
+    "name, layout_path",
+    [
+        ("test_barcode", "data/PlateSpecifications/PlateLayout.yml"),
+    ],
+)
+def test_add_barcode(name, layout_path, helpers):
+    layout = Preferences(layout_path)
+    well = helpers.create_sample_object("well")
+    setup.add_barcode(name, well, layout)
+    barcode = list(well.samples.values())[0]
+    assert barcode.__class__ == samples.Barcode
+    assert barcode.get_name() == name
