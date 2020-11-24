@@ -167,7 +167,7 @@ def filter_colonies(prefs, colonies, well_dict):
         # find all colonies within well
         wellSelect = filteredColonies.Well == well
         coloniesInWell = filteredColonies.loc[wellSelect]
-        if coloniesInWell.shape[0] > numberImages:
+        if coloniesInWell.shape[0] >= numberImages:
             selected_colonies = selected_colonies.append(
                 coloniesInWell.sample(numberImages)
             )
@@ -180,7 +180,7 @@ def filter_colonies(prefs, colonies, well_dict):
 ###########################################################################
 
 
-def add_colonies(well_object, colonies, hardware_settings, prefs=None):
+def add_colonies(well_object, colonies, hardware_settings):
     """Add colonies from Celigo scan to well.
 
     Input:
@@ -192,15 +192,13 @@ def add_colonies(well_object, colonies, hardware_settings, prefs=None):
      hardware_settings: preferences with description of microscope components,
      here coordinate transformation between colonies and well
 
-     prefs: Preferences object created from YAML file
-
     Output:
      colony_list: list with all colony objects
     """
     # select all colonies that are located within well
     well = well_object.name
 
-    wellData = colonies["Well"] == well
+    well_data = colonies["Well"] == well
 
     # get calibration options for colonies
     x_flip = int(hardware_settings.get_pref("xFlipColony"))
@@ -212,7 +210,7 @@ def add_colonies(well_object, colonies, hardware_settings, prefs=None):
 
     # List with all colonies to be imaged
     colony_list = []
-    for colony in colonies[wellData].itertuples():
+    for colony in colonies[well_data].itertuples():
         center = (colony.Center_X, colony.Center_Y, 0)
         ellipse = (colony.ColonyMajorAxis, colony.ColonyMinorAxis, colony.Orientation)
         colony_name = well + "_" + str(colony.ColonyNumber).zfill(4)
@@ -229,11 +227,10 @@ def add_colonies(well_object, colonies, hardware_settings, prefs=None):
             x_correction=x_correction,
             y_correction=y_correction,
             z_correction=z_correction,
-            prefs=prefs,
         )
 
         # add additional meta data
-        colony_object.set_cell_line(colony.cell_line)
+        colony_object.set_cell_line(colony.CellLine)
         colony_object.set_clone(colony.CloneID)
         colony_object.add_meta(colony._asdict())
         colony_list.append(colony_object)
