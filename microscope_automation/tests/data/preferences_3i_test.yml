@@ -121,7 +121,50 @@ Koehler:
   Repetition: False                                 # Reset wait status after each repetition
  Blocking: False                                  # open modal dialog in case of error (has no effect in this experiment module)
 
- # Settings to setup objectives (find offset in x, y, and z between objectives
+# Settings for colonies
+AddColonies:
+ FunctionName: none                               # Name of function in Python code in module microscopeAutomation that will process this experiment
+ NextName: ColonyPreScan                          # name of next experiment. Objects selected during this experiment will be added to the next one.
+ ColonyDirPath: *ColonyDirPathRef
+ FileName: 'PipelineData_.*'                      # Regular expression to preselect file
+ # include only colonies from wells listed below in analysis
+ # this is a dictornary of dictionaries in the form {'Well': maxPositions}
+ # Wells: {'C4': 1, 'C5': 1, 'C6': 1, 'C7': 1, 'C8': 1,
+  # 'D4': 1, 'D5': 1, 'D6': 1, 'D7': 1, 'D8': 1,
+  # 'E4': 5, 'E5': 5, 'E6': 5, 'E7': 5, 'E8': 5,
+  # 'F4': 5, 'F5': 5, 'F6': 5, 'F7': 5, 'F8': 5}
+ Wells: {'D4': 2, 'D5': 2}
+ # Columns from colonies file to include in analysis
+ # Dictionary in the form {'original-name-in-file': 'new-name-inside-software'}
+ ColonyColumns: {'PlateID': 'PlateID',
+  'contents': 'Contents',
+  'CellLine': 'CellLine',
+  'clone_id': 'CloneID',
+  'PlateLayout_well_type': 'Type',
+  'PlateLayout_dyes_applied': 'Dye',
+  'Celigo_Colony_AreaShape_Orientation': 'Orientation',
+  'Celigo_Colony_Math_Colony_Area_um2': 'Area',
+  'Celigo_Colony_Math_Colony_LocationRelativeToCenter_um_X': 'Center_X',
+  'Celigo_Colony_Math_Colony_LocationRelativeToCenter_um_Y': 'Center_Y',
+  'Celigo_Colony_Math_Colony_MajorAxisLength_um': 'ColonyMajorAxis',
+  'Celigo_Colony_Math_Colony_MinorAxisLength_um': 'ColonyMinorAxis',
+  'Celigo_Colony_ObjectNumber': 'ColonyNumber',
+  'Celigo_Image_ImageNumber': 'ImageNumber',
+  'Celigo_Image_Metadata_WellRow': 'WellRow',
+  'Celigo_Image_Metadata_WellColumn': 'WellColumn',
+  'Celigo_Well_Math_Well_Location_um_X': 'WellCenter_ImageCoordinates_X',
+  'Celigo_Well_Math_Well_Location_um_Y': 'WellCenter_ImageCoordinates_Y',
+  'Celigo_Well_Math_Well_MajorAxisLength_um': 'WellMajorAxis',
+  'Celigo_Well_Math_Well_MinorAxisLength_um': 'WellMinorAxis'}
+
+ MinAreaColonies: 1                           # scan only colonies that are larger than MinAreaColonies based on Celigo measurements in mum^2
+ MaxAreaColonies: 10000000                    # scan only colonies that are smaller than MinAreaColonies based on Celigo measurements in mum^2
+ MaxDistanceToCenter: 10000                   # scan only colonies that are within a circle around the well center with radius MaxDistanceToCenter based on Celigo measurements in mum
+ MinCountPerWell: 1                           # minimum number of colonies in a give well before filtering
+ MaxCountPerWell: 500                         # maximum number of colonies in a give well before filtering
+ MaxColoniesScanColonies: 300                 # maximum number of colonies to visit during experiment. If more colonies where found, select random subset
+
+# Settings to setup objectives (find offset in x, y, and z between objectives
 ObjectiveOffsets:
  FunctionName: set_objective_offset               # Name of function in Python code in module microscopeAutomation that will process this experiment
  Verbose: False                                   # print debug messages?

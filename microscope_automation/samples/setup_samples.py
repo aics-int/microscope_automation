@@ -20,7 +20,7 @@ from . import samples
 # create logger
 import logging
 
-logger = logging.getLogger("microscopeAutomation")
+logger = logging.getLogger("microscope_automation")
 
 
 ###########################################################################
@@ -43,7 +43,7 @@ def get_colony_data(prefs, colony_file):
     """
     # setup logging
     logger = logging.getLogger(  # noqa
-        "microscopeAutomation.setupAutomation.get_colony_data"
+        "microscope_automation.samples.setup_samples.get_colony_data"
     )
 
     ##############################
@@ -60,22 +60,20 @@ def get_colony_data(prefs, colony_file):
     # Use plateID list to be able to expand to multiple plates
     plate_id_list = list(colonies_all.loc[:, "PlateID"].unique())
 
-    selectedPlateIDList = [
+    selected_plate_id_list = [
         message.pull_down_select_dialog(
             plate_id_list,
-            (
-                "Please select barcode of " "plate on microscope.\n",
-                "947 is a good example.",
-            ),
+            ("Please select barcode of plate on microscope.\n"
+             "947 is a good example."),
         )
     ]
-    plateSelector = colonies_all.loc[:, "PlateID"].isin(selectedPlateIDList)
+    plate_selector = colonies_all.loc[:, "PlateID"].isin(selected_plate_id_list)
 
     # select columns as defined in preferences.yml file
     # and rename to software internal names
-    colonyColumns = prefs.get_pref("ColonyColumns")
-    colonies = colonies_all.loc[plateSelector, colonyColumns.keys()]
-    colonies.rename(columns=colonyColumns, inplace=True)
+    colony_columns = prefs.get_pref("ColonyColumns")
+    colonies = colonies_all.loc[plate_selector, colony_columns.keys()]
+    colonies.rename(columns=colony_columns, inplace=True)
 
     # get information about colonies to image
     print("summary statistics about all colonies on plate ", plate_id_list)
