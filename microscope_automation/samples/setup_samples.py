@@ -313,7 +313,7 @@ def setup_plate(prefs, colony_file=None, microscope_object=None, barcode=None):
     if colony_file is not None:
         # load file with colony data and filter colonies that should be imaged
         # get subset of preferences for colony scanning
-        add_colonies_preferences = prefs.get_pref_as_meta()("AddColonies")
+        add_colonies_preferences = prefs.get_pref_as_meta("AddColonies")
 
         # calculate correction factor for wells
         colonies_path = get_colony_file_path(add_colonies_preferences, colony_file)
@@ -323,7 +323,7 @@ def setup_plate(prefs, colony_file=None, microscope_object=None, barcode=None):
         wells_definitions = add_colonies_preferences.get_pref("Wells")
 
         colonies = filter_colonies(
-            add_colonies_preferences, colonies, wellDict=wells_definitions
+            add_colonies_preferences, colonies, well_dict=wells_definitions
         )
 
         # get barcode from colonies and attach to plate
@@ -487,7 +487,7 @@ def setup_plate(prefs, colony_file=None, microscope_object=None, barcode=None):
     # update well diameter based on platescanner reads stored in colonies file
     if mean_diameter is not None:
         [
-            well_obj.set_set_diameter(mean_diameter)
+            well_obj.set_assigned_diameter(mean_diameter)
             for well_name, well_obj in plate_object.get_wells().items()
         ]
 
@@ -499,7 +499,7 @@ def setup_plate(prefs, colony_file=None, microscope_object=None, barcode=None):
     # add colonies to wells
     if colony_file is not None:
         wellsColoniesList = [
-            add_colonies(well_obj, colonies, specifications, add_colonies_preferences)
+            add_colonies(well_obj, colonies, specifications)
             for well_name, well_obj in plate_object.get_wells().items()
         ]
 

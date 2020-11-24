@@ -40,22 +40,28 @@ def add_colonies_input():
     return result
 
 
+@patch("microscope_automation.automation_messages_form_layout.pull_down_select_dialog")
 @pytest.mark.skipif(skip_all_tests, reason="Exclude all tests")
 @pytest.mark.parametrize(
-    "prefs_path, expected_plate",
+    "prefs_path, colony_file, expected_plate, expected_name",
     [
-        ("data/preferences_ZSD_test.yml", "96-well"),
-        ("data/preferences_3i_test.yml", "96-well"),
+        ("data/preferences_ZSD_test.yml", None, "96-well", ["test_barcode"]),
+        ("data/preferences_ZSD_special_colony_path.yml",
+         "PipelineData_Celigo.csv", "96-well", [3500000938]),
+        ("data/preferences_3i_test.yml", None, "96-well", ["test_barcode"]),
     ],
 )
-def test_setup_plate(prefs_path, expected_plate):
+def test_setup_plate(mock_pull_down, prefs_path, colony_file,
+                     expected_plate, expected_name):
+    mock_pull_down.return_value = "3500000938"
     prefs = Preferences(prefs_path)
-    plate_holder = setup.setup_plate(prefs, barcode="test_barcode")
+    plate_holder = setup.setup_plate(prefs, colony_file=colony_file,
+                                     barcode="test_barcode")
     assert plate_holder.__class__ == samples.PlateHolder
     plate = list(plate_holder.plates.values())[0]
     assert plate.__class__ == samples.Plate
     assert plate.get_name() == expected_plate
-    assert list(plate_holder.plates.keys()) == ["test_barcode"]
+    assert list(plate_holder.plates.keys()) == expected_name
 
 
 @pytest.mark.skipif(skip_all_tests, reason="Exclude all tests")
