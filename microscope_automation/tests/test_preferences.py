@@ -19,10 +19,7 @@ skip_all_tests = False
 @pytest.mark.skipif(skip_all_tests, reason="Exclude all tests")
 @pytest.mark.parametrize(
     "prefs_path, expected",
-    [
-        ("data/preferences_ZSD_test.yml", None),
-        ("data/preferences_3i_test.yml", None)
-    ],
+    [("data/preferences_ZSD_test.yml", None), ("data/preferences_3i_test.yml", None)],
 )
 def test_print_prefs(prefs_path, expected):
     prefs = Preferences(prefs_path)
@@ -35,10 +32,14 @@ def test_print_prefs(prefs_path, expected):
 @pytest.mark.parametrize(
     "prefs_path, parent_prefs_path",
     [
-        ("data/microscopeSpecifications_ZSD1_dummy.yml",
-         "data/preferences_ZSD_test.yml"),
-        ("data/microscopeSpecifications_3iW1-1_dummy.yml",
-         "data/preferences_3i_test.yml")
+        (
+            "data/microscopeSpecifications_ZSD1_dummy.yml",
+            "data/preferences_ZSD_test.yml",
+        ),
+        (
+            "data/microscopeSpecifications_3iW1-1_dummy.yml",
+            "data/preferences_3i_test.yml",
+        ),
     ],
 )
 def test_get_parent_prefs(prefs_path, parent_prefs_path):
@@ -56,13 +57,24 @@ def test_get_parent_prefs(prefs_path, parent_prefs_path):
     [
         ("data/preferences_ZSD_test.yml", "InvalidPref", None, None),
         ("data/preferences_ZSD_test.yml", "MetaDataPath", None, "MetaData.csv"),
-        ("data/preferences_ZSD_test.yml", "MetaDataPath",
-         ["MetaData.pdf", "MetaData.txt"], "MetaData.txt"),
-        ("data/preferences_ZSD_test.yml", "LogFilePath",
-         ['data\\Production\\LogFiles', 'data/Production/LogFiles'],
-         'data/Production/LogFiles'),
-        ("data/preferences_ZSD_test.yml", "MetaDataPath",
-         ["MetaData.pdf", "MetaData.txt", "MetaData.csv"], "MetaData.csv")
+        (
+            "data/preferences_ZSD_test.yml",
+            "MetaDataPath",
+            ["MetaData.pdf", "MetaData.txt"],
+            "MetaData.txt",
+        ),
+        (
+            "data/preferences_ZSD_test.yml",
+            "LogFilePath",
+            ["data\\Production\\LogFiles", "data/Production/LogFiles"],
+            "data/Production/LogFiles",
+        ),
+        (
+            "data/preferences_ZSD_test.yml",
+            "MetaDataPath",
+            ["MetaData.pdf", "MetaData.txt", "MetaData.csv"],
+            "MetaData.csv",
+        ),
     ],
 )
 def test_get_prefs(mock_pull_down, prefs_path, name, valid_values, expected):
@@ -81,7 +93,7 @@ def test_get_prefs(mock_pull_down, prefs_path, name, valid_values, expected):
     [
         ("data/preferences_ZSD_test.yml", "InvalidPref", type(None)),
         ("data/preferences_ZSD_test.yml", "AddColonies", Preferences),
-        ("data/preferences_3i_test.yml", "AddColonies", Preferences)
+        ("data/preferences_3i_test.yml", "AddColonies", Preferences),
     ],
 )
 def test_get_pref_as_meta(prefs_path, name, expected):
@@ -96,8 +108,8 @@ def test_get_pref_as_meta(prefs_path, name, expected):
 @pytest.mark.parametrize(
     "prefs_path, default, name, val_to_set",
     [
-        ("data/preferences_ZSD_test.yml", None, "NewPref", 'New Value'),
-        ("data/preferences_ZSD_test.yml", "csv", "MetaDataFormat", "pdf")
+        ("data/preferences_ZSD_test.yml", None, "NewPref", "New Value"),
+        ("data/preferences_ZSD_test.yml", "csv", "MetaDataFormat", "pdf"),
     ],
 )
 def test_set_pref(prefs_path, default, name, val_to_set):

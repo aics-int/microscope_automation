@@ -63,8 +63,10 @@ def get_colony_data(prefs, colony_file):
     selected_plate_id_list = [
         message.pull_down_select_dialog(
             plate_id_list,
-            ("Please select barcode of plate on microscope.\n"
-             "947 is a good example."),
+            (
+                "Please select barcode of plate on microscope.\n"
+                "947 is a good example."
+            ),
         )
     ]
     plate_selector = colonies_all.loc[:, "PlateID"].isin(selected_plate_id_list)

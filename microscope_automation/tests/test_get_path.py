@@ -23,9 +23,7 @@ skip_all_tests = False
 today = datetime.date.today()
 DATE_STR = str(today.year) + "_" + str(today.month) + "_" + str(today.day)
 time_stamp = time.time()
-TIME_STAMP = datetime.datetime.fromtimestamp(time_stamp).strftime(
-    "%Y-%m-%d_%H-"
-)
+TIME_STAMP = datetime.datetime.fromtimestamp(time_stamp).strftime("%Y-%m-%d_%H-")
 
 
 @pytest.mark.skipif(skip_all_tests, reason="Exclude all tests")
@@ -94,7 +92,7 @@ def test_get_valid_path_from_prefs(prefs_path, key, search_dir, validate, expect
         (
             "data",
             ["1234", "new_folder"],
-            ["data" + os.path.sep + "1234", "data" + os.path.sep + "new_folder"]
+            ["data" + os.path.sep + "1234", "data" + os.path.sep + "new_folder"],
         ),
     ],
 )
@@ -112,7 +110,7 @@ def test_set_up_subfolders(parent_folder_path, subfolder, expected):
         (
             "data/preferences_ZSD_test.yml",
             "test_code",
-            os.path.join("test_code", "Zeiss SD 1")
+            os.path.join("test_code", "Zeiss SD 1"),
         ),
     ],
 )
@@ -225,19 +223,19 @@ def test_get_meta_data_path(prefs_path, barcode, expected):
             "data/preferences_3i_test.yml",
             "ScanPlate",
             False,
-            os.path.join("data", "SlideBook 6.0", "test_communication.exp.prefs")
+            os.path.join("data", "SlideBook 6.0", "test_communication.exp.prefs"),
         ),
         (
             "data/preferences_3i_test.yml",
             None,
             True,
-            os.path.join("data", "SlideBook 6.0")
+            os.path.join("data", "SlideBook 6.0"),
         ),
         (
             "data/preferences_ZSD_test.yml",
             None,
             False,
-            os.path.join("data", "Experiment Setup", "WellTile_10x_true.czexp")
+            os.path.join("data", "Experiment Setup", "WellTile_10x_true.czexp"),
         ),
     ],
 )
@@ -274,7 +272,7 @@ def test_get_recovery_settings_path(prefs_path, expected):
     path0, path1 = os.path.split(result)
     assert path0 == expected
     # had to match regex so that seconds and minutes were ignored
-    expression = "Plate_" + TIME_STAMP + "[0-9][0-9]-[0-9][0-9]" + '.pickle'
+    expression = "Plate_" + TIME_STAMP + "[0-9][0-9]-[0-9][0-9]" + ".pickle"
     print(expression)
     assert re.match(expression, path1)
 
@@ -373,11 +371,11 @@ def test_get_colony_file_path(prefs_path, barcode, colony_file, expected):
     [
         (
             "data/preferences_3i_test.yml",
-            os.path.join("data", "microscopeSpecifications_3iW1-1_dummy.yml")
+            os.path.join("data", "microscopeSpecifications_3iW1-1_dummy.yml"),
         ),
         (
             "data/preferences_ZSD_test.yml",
-            os.path.join("data", "microscopeSpecifications_ZSD1_dummy.yml")
+            os.path.join("data", "microscopeSpecifications_ZSD1_dummy.yml"),
         ),
     ],
 )
@@ -456,11 +454,11 @@ def test_get_images_path(prefs_path, sub_dir, barcode, expected):
     [
         (
             "data/preferences_3i_test.yml",
-            os.path.join("data", "Production", "GeneralSettings", "Calibration", "")
+            os.path.join("data", "Production", "GeneralSettings", "Calibration", ""),
         ),
         (
             "data/preferences_ZSD_test.yml",
-            os.path.join("data", "Production", "GeneralSettings", "Calibration", "")
+            os.path.join("data", "Production", "GeneralSettings", "Calibration", ""),
         ),
     ],
 )
