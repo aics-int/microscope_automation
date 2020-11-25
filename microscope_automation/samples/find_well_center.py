@@ -36,7 +36,7 @@ def show_hist(image):
     width = 0.7 * (bins[1] - bins[0])
     center = (bins[:-1] + bins[1:]) / 2
 
-    fig, axes = plt.subplots(nRows=1, nCols=2)
+    fig, axes = plt.subplots(nrows=1, ncols=2)
     axes[0].imshow(image)
     axes[1].bar(center, hist, align="center", width=width)
     plt.show()
@@ -44,8 +44,12 @@ def show_hist(image):
 
 def show_debug_image(image):
     """Show ImageAICS when in debug mode.
-    Input: ImageAICS
-    Return: none
+
+    Input:
+     image: ImageAICS object to display if debug mode is turned on
+
+    Return:
+     none
     """
     if debug:
         plt.imshow(image)

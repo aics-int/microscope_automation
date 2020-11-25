@@ -1,6 +1,4 @@
 from aicsimageio import AICSImage
-import matplotlib.pyplot as plt
-from .image_AICS import ImageAICS
 
 
 class LoadImageCzi:
