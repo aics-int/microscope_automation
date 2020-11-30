@@ -1,6 +1,6 @@
 """
 Created on Jun 7, 2016
-Part of microscopeAutomation
+Part of microscope_automation
 Will read and return values for different configuration files
 
 @author: winfriedw
@@ -9,7 +9,7 @@ import yaml
 import logging
 
 # create logger
-module_logger = logging.getLogger("microscopeAutomation")
+module_logger = logging.getLogger("microscope_automation")
 
 
 class Preferences:
@@ -31,7 +31,7 @@ class Preferences:
          Object of class preferences
         """
         # setup logging
-        self.logger = logging.getLogger("microscopeAutomation.MetaData.preferences")
+        self.logger = logging.getLogger("microscope_automation.preferences.Preferences")
 
         # check for valid input
         # We should add checking for valid filename etc.
@@ -135,18 +135,3 @@ class Preferences:
         self.prefs[name] = value
 
     # TODO: Add capacity to save preferences
-
-
-if __name__ == "__main__":
-    pref_path = "../GeneralSettings/preferences.yml"
-    meta = Preferences(pref_path)
-    print(meta.get_pref("PathMicroscopeSpecs"))
-    print(meta.get_pref("ExperimentsScanBackground"))
-
-    meta_object = meta.get_pref_as_meta("ScanColonies")
-    print(meta_object.get_pref("Execute"))
-    print(meta_object.get_parent_prefs())
-    print(meta_object.get_pref("PathDailyFolder"))
-    print(meta_object.get_pref("Tile", valid_values=["None", "Fixed", "Size"]))
-    print(meta_object.get_pref("Tile", valid_values=["ThrowError"]))
-    print("Done")

@@ -15,13 +15,12 @@ import math
 from ..preferences import Preferences
 from .. import automation_messages_form_layout as message
 from ..get_path import get_hardware_settings_path, get_colony_file_path
-from ..hardware.setup_microscope import setup_microscope
 from . import samples
 
 # create logger
 import logging
 
-logger = logging.getLogger("microscopeAutomation")
+logger = logging.getLogger("microscope_automation")
 
 
 ###########################################################################
@@ -36,14 +35,15 @@ def get_colony_data(prefs, colony_file):
 
     Input:
      prefs: preferences with information about colony file
-     colonyFile: path to .csv file with colony data.
+
+     colony_file: path to .csv file with colony data.
 
     Output:
      colonies: pandas frame with content of .csv file
     """
     # setup logging
     logger = logging.getLogger(  # noqa
-        "microscopeAutomation.setupAutomation.get_colony_data"
+        "microscope_automation.samples.setup_samples.get_colony_data"
     )
 
     ##############################
@@ -60,22 +60,22 @@ def get_colony_data(prefs, colony_file):
     # Use plateID list to be able to expand to multiple plates
     plate_id_list = list(colonies_all.loc[:, "PlateID"].unique())
 
-    selectedPlateIDList = [
+    selected_plate_id_list = [
         message.pull_down_select_dialog(
             plate_id_list,
             (
-                "Please select barcode of " "plate on microscope.\n",
-                "947 is a good example.",
+                "Please select barcode of plate on microscope.\n"
+                "947 is a good example."
             ),
         )
     ]
-    plateSelector = colonies_all.loc[:, "PlateID"].isin(selectedPlateIDList)
+    plate_selector = colonies_all.loc[:, "PlateID"].isin(selected_plate_id_list)
 
     # select columns as defined in preferences.yml file
     # and rename to software internal names
-    colonyColumns = prefs.get_pref("ColonyColumns")
-    colonies = colonies_all.loc[plateSelector, colonyColumns.keys()]
-    colonies.rename(columns=colonyColumns, inplace=True)
+    colony_columns = prefs.get_pref("ColonyColumns")
+    colonies = colonies_all.loc[plate_selector, colony_columns.keys()]
+    colonies.rename(columns=colony_columns, inplace=True)
 
     # get information about colonies to image
     print("summary statistics about all colonies on plate ", plate_id_list)
@@ -123,7 +123,7 @@ def filter_colonies(prefs, colonies, well_dict):
      well_dict: list with wells that should be considered. Well names in format 'A1'.
 
     Output:
-     selectedColonies: subset of colonies to be imaged
+     slected_colonies: subset of colonies to be imaged
     """
     # get names of wells to scan
     well_list = well_dict.keys()
@@ -169,7 +169,7 @@ def filter_colonies(prefs, colonies, well_dict):
         # find all colonies within well
         wellSelect = filteredColonies.Well == well
         coloniesInWell = filteredColonies.loc[wellSelect]
-        if coloniesInWell.shape[0] > numberImages:
+        if coloniesInWell.shape[0] >= numberImages:
             selected_colonies = selected_colonies.append(
                 coloniesInWell.sample(numberImages)
             )
@@ -182,7 +182,7 @@ def filter_colonies(prefs, colonies, well_dict):
 ###########################################################################
 
 
-def add_colonies(well_object, colonies, hardware_settings, prefs=None):
+def add_colonies(well_object, colonies, hardware_settings):
     """Add colonies from Celigo scan to well.
 
     Input:
@@ -194,15 +194,13 @@ def add_colonies(well_object, colonies, hardware_settings, prefs=None):
      hardware_settings: preferences with description of microscope components,
      here coordinate transformation between colonies and well
 
-     prefs: dictionary with preferences
-
     Output:
      colony_list: list with all colony objects
     """
     # select all colonies that are located within well
     well = well_object.name
 
-    wellData = colonies["Well"] == well
+    well_data = colonies["Well"] == well
 
     # get calibration options for colonies
     x_flip = int(hardware_settings.get_pref("xFlipColony"))
@@ -214,7 +212,7 @@ def add_colonies(well_object, colonies, hardware_settings, prefs=None):
 
     # List with all colonies to be imaged
     colony_list = []
-    for colony in colonies[wellData].itertuples():
+    for colony in colonies[well_data].itertuples():
         center = (colony.Center_X, colony.Center_Y, 0)
         ellipse = (colony.ColonyMajorAxis, colony.ColonyMinorAxis, colony.Orientation)
         colony_name = well + "_" + str(colony.ColonyNumber).zfill(4)
@@ -231,11 +229,10 @@ def add_colonies(well_object, colonies, hardware_settings, prefs=None):
             x_correction=x_correction,
             y_correction=y_correction,
             z_correction=z_correction,
-            prefs=prefs,
         )
 
         # add additional meta data
-        colony_object.set_cell_line(colony.cell_line)
+        colony_object.set_cell_line(colony.CellLine)
         colony_object.set_clone(colony.CloneID)
         colony_object.add_meta(colony._asdict())
         colony_list.append(colony_object)
@@ -247,7 +244,7 @@ def add_colonies(well_object, colonies, hardware_settings, prefs=None):
 ###########################################################################
 
 
-def add_barcode(name, well_object, layout, prefs=None):
+def add_barcode(name, well_object, layout):
     """Add barcode to well.
 
     Input:
@@ -256,8 +253,6 @@ def add_barcode(name, well_object, layout, prefs=None):
      well_object: instance of Well class from module samples
 
      layout: preferences for plate layout
-
-     prefs: dictionary with preferences
 
     Output:
      none
@@ -320,7 +315,7 @@ def setup_plate(prefs, colony_file=None, microscope_object=None, barcode=None):
     if colony_file is not None:
         # load file with colony data and filter colonies that should be imaged
         # get subset of preferences for colony scanning
-        add_colonies_preferences = prefs.get_pref_as_meta()("AddColonies")
+        add_colonies_preferences = prefs.get_pref_as_meta("AddColonies")
 
         # calculate correction factor for wells
         colonies_path = get_colony_file_path(add_colonies_preferences, colony_file)
@@ -330,7 +325,7 @@ def setup_plate(prefs, colony_file=None, microscope_object=None, barcode=None):
         wells_definitions = add_colonies_preferences.get_pref("Wells")
 
         colonies = filter_colonies(
-            add_colonies_preferences, colonies, wellDict=wells_definitions
+            add_colonies_preferences, colonies, well_dict=wells_definitions
         )
 
         # get barcode from colonies and attach to plate
@@ -408,7 +403,7 @@ def setup_plate(prefs, colony_file=None, microscope_object=None, barcode=None):
             y_correction=pump.get_pref("yCorrection"),
             z_correction=pump.get_pref("zCorrection"),
         )
-        plate_holder_object.immersionDeliverySystem = immersion_delivery_object
+        plate_holder_object.immersion_delivery_system = immersion_delivery_object
 
     # create Plate as part of PlateHolder and add it to PlateHolder
     # get description for plate dimensions and coordinate system from microscopeSpecifications.yml  # noqa
@@ -494,7 +489,7 @@ def setup_plate(prefs, colony_file=None, microscope_object=None, barcode=None):
     # update well diameter based on platescanner reads stored in colonies file
     if mean_diameter is not None:
         [
-            well_obj.set_set_diameter(mean_diameter)
+            well_obj.set_assigned_diameter(mean_diameter)
             for well_name, well_obj in plate_object.get_wells().items()
         ]
 
@@ -506,7 +501,7 @@ def setup_plate(prefs, colony_file=None, microscope_object=None, barcode=None):
     # add colonies to wells
     if colony_file is not None:
         wellsColoniesList = [
-            add_colonies(well_obj, colonies, specifications, add_colonies_preferences)
+            add_colonies(well_obj, colonies, specifications)
             for well_name, well_obj in plate_object.get_wells().items()
         ]
 
@@ -552,138 +547,59 @@ def setup_slide(prefs, microscope_object=None):
      plate_holder_object: object that contains one slide.
     """
     # get description for microscope components
-    pathhardware_settings = get_hardware_settings_path(prefs)
-    hardware_settings = Preferences(pathhardware_settings)
-
-    # create plate holder and connect it to microscope
-    stageID = hardware_settings.get_pref("PlateHolderStageID")
-    focusID = hardware_settings.get_pref("PlateHolderFocusID")
-    autoFocusID = hardware_settings.get_pref("PlateHolderAutoFocusID")
-    objective_changer_id = hardware_settings.get_pref("PlateHolderObjectiveChangerID")
-    safetyID = hardware_settings.get_pref("SlideSafetyID")
+    path_hardware_settings = get_hardware_settings_path(prefs)
+    hardware_settings = Preferences(path_hardware_settings)
 
     # Read settings for coordinate system of slide relative to stage (plate holder)
     # from microscopeSpecifications.yml file
-    name = hardware_settings.get_pref("PlateHolder")
-    center = [
-        float(hardware_settings.get_pref("xCenterPlateHolder")),
-        float(hardware_settings.get_pref("yCenterPlateHolder")),
-        float(hardware_settings.get_pref("zCenterPlateHolder")),
-    ]
-    x_flip = int(hardware_settings.get_pref("xFlipPlateHolder"))
-    y_flip = int(hardware_settings.get_pref("yFlipPlateHolder"))
-    z_flip = int(hardware_settings.get_pref("zFlipPlateHolder"))
-    x_correction = float(hardware_settings.get_pref("xCorrectionPlateHolder"))
-    y_correction = float(hardware_settings.get_pref("yCorrectionPlateHolder"))
-    z_correction = float(hardware_settings.get_pref("zCorrectionPlateHolder"))
-    x_safe_position = float(hardware_settings.get_pref("xSafePositionPlateHolder"))
-    y_safe_position = float(hardware_settings.get_pref("ySafePositionPlateHolder"))
-    z_safe_position = hardware_settings.get_pref("zSafePositionPlateHolder")
-
+    plate_holder = hardware_settings.get_pref_as_meta("PlateHolder")
     plate_holder_object = samples.PlateHolder(
-        name=name,
+        name=plate_holder.get_pref("Name"),
         microscope_object=microscope_object,
-        stage_id=stageID,
-        focus_id=focusID,
-        auto_focus_id=autoFocusID,
-        objective_changer_id=objective_changer_id,
-        safety_id=safetyID,
-        center=center,
-        x_flip=x_flip,
-        y_flip=y_flip,
-        z_flip=z_flip,
-        x_correction=x_correction,
-        y_correction=y_correction,
-        z_correction=z_correction,
-        x_safe_position=x_safe_position,
-        y_safe_position=y_safe_position,
-        z_safe_position=z_safe_position,
+        stage_id=plate_holder.get_pref("StageID"),
+        focus_id=plate_holder.get_pref("FocusID"),
+        auto_focus_id=plate_holder.get_pref("AutoFocusID"),
+        objective_changer_id=plate_holder.get_pref("ObjectiveChangerID"),
+        safety_id=plate_holder.get_pref("SafetyID"),
+        center=[
+            plate_holder.get_pref("xCenter"),
+            plate_holder.get_pref("yCenter"),
+            plate_holder.get_pref("zCenter"),
+        ],
+        x_flip=plate_holder.get_pref("xFlip"),
+        y_flip=plate_holder.get_pref("yFlip"),
+        z_flip=plate_holder.get_pref("zFlip"),
+        x_correction=plate_holder.get_pref("xCorrection"),
+        y_correction=plate_holder.get_pref("yCorrection"),
+        z_correction=plate_holder.get_pref("zCorrection"),
+        x_safe_position=plate_holder.get_pref("xSafePosition"),
+        y_safe_position=plate_holder.get_pref("ySafePosition"),
+        z_safe_position=plate_holder.get_pref("zSafePosition"),
     )
 
     # create slide of class Sample as part of PlateHolder
     # and add it to PlateHolder get description for plate dimensions
     # and coordinate system from microscopeSpecifications.yml
-    slide_name = hardware_settings.get_pref("Slide")
-    center = [
-        float(hardware_settings.get_pref("xCenterSlide")),
-        float(hardware_settings.get_pref("yCenterSlide")),
-        float(hardware_settings.get_pref("zCenterSlide")),
-    ]
-    x_flip = int(hardware_settings.get_pref("xFlipSlide"))
-    y_flip = int(hardware_settings.get_pref("yFlipSlide"))
-    z_flip = int(hardware_settings.get_pref("zFlipSlide"))
-    x_correction = float(hardware_settings.get_pref("xCorrectionSlide"))
-    y_correction = float(hardware_settings.get_pref("yCorrectionSlide"))
-    z_correction = float(hardware_settings.get_pref("zCorrectionSlide"))
-
+    slide = hardware_settings.get_pref_as_meta("Slide")
     slide_object = samples.Slide(
-        name=slide_name,
+        name=slide.get_pref("Name"),
         plate_holder_object=plate_holder_object,
-        center=center,
-        x_flip=x_flip,
-        y_flip=y_flip,
-        z_flip=z_flip,
-        x_correction=x_correction,
-        y_correction=y_correction,
-        z_correction=z_correction,
+        center=[
+            slide.get_pref("xCenter"),
+            slide.get_pref("yCenter"),
+            slide.get_pref("zCenter"),
+        ],
+        x_flip=slide.get_pref("xFlip"),
+        y_flip=slide.get_pref("yFlip"),
+        z_flip=slide.get_pref("zFlip"),
+        x_correction=slide.get_pref("xCorrection"),
+        y_correction=slide.get_pref("yCorrection"),
+        z_correction=slide.get_pref("zCorrection"),
     )
+
     reference_object = samples.Slide(
         name="Reference", plate_holder_object=slide_object, center=[0, 0, 0]
     )
     slide_object.set_reference_object(reference_object)
-    plate_holder_object.add_slides({slide_name: slide_object})
+    plate_holder_object.add_slides({slide.get_pref("Name"): slide_object})
     return plate_holder_object
-
-
-###########################################################################
-#
-# Test functions
-#
-############################################################################
-
-if __name__ == "__main__":
-    # get all information about experiment
-
-    try:
-        # location of preferences file on Mac
-        prefsFile = "../GeneralSettings/preferences.yml"
-        dirPath = "/Users/winfriedw/Documents/Programming/ResultTestImages/"
-        barcode = "3500000077"
-        colonyFile = "PipelineData_Celigo.csv"
-
-        colonyPath = "../PlateSpecifications/PipelineData_Celigo.csv"
-        # test function setup_microscope
-        prefs = Preferences(prefsFile)
-    except Exception:
-        # location of preferences file on Zeiss SD 1
-        prefsFile = "D:\\Winfried\\Production\\GeneralSettings\\preferences_ZSD3_drugScreen_Winfried.yml"  # noqa
-        dirPath = "D:\\Winfried\\Production\\"
-        barcode = "3500000093"
-        colonyFile = "3500000860_ColonyDATA.csv"
-        colonyPath = "D:\\Winfried\\Production\\Daily\\2017_5_10\\PlateSpecifications\\3500000860_ColonyDATA.csv"  # noqa
-
-        # test function setup_microscope
-        prefs = Preferences(prefsFile)
-
-    microscope_object = setup_microscope(prefs)
-    print("Microscope(Object) created")
-    print(microscope_object)
-
-    # test function find_colon_file
-    #     colonyPrefs = prefs.get_pref_as_meta('AddColonies')
-    #     colonies=get_colony_data(colonyPrefs, colonyPath)
-    #     print 'Colony file loaded'
-    #     print colonies.head()
-    #     print '_______________________________________________'
-
-    #     # test function setup_plate
-    #     plate_holder_object=setup_plate(prefs, colonyFile, microscope_object)
-    #     print plate_holder_object
-    #     print 'Plate holder with plate, wells and colonies created'
-    #     print 'Done'
-
-    # test function slide
-    plate_holder_object = setup_slide(prefs, microscope_object)
-    print(plate_holder_object)
-    print("Plate holder with slide created")
-    print("Done")

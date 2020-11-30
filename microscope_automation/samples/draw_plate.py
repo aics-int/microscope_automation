@@ -12,8 +12,6 @@ import matplotlib.pyplot as plt
 import matplotlib.patches as mpatches
 import string
 
-from ..preferences import Preferences
-
 
 def draw_label(x=0, y=0, text="Hallo World!", align="center"):
     label = plt.text(x, y, text, ha=align, va="center", family="sans-serif", size=20)
@@ -183,19 +181,3 @@ def draw_plate(n_col=12, n_row=8, pitch=9, diameter=6.94, prefs=None):
         plt.axis("off")
 
     plt.show()
-
-
-if __name__ == "__main__":
-    # location of preferences file with plate layout
-    prefs_file = "/Users/winfriedw/Documents/Eclipse/Mars_011816/microscopeAutomation/src/PlateLayout_short.yml"  # noqa
-
-    # draw plate without preferences
-    draw_plate(n_col=4, n_row=3, pitch=26, diameter=22.05)
-
-    # draw plate with preferences
-    prefs = Preferences(prefs_file)
-    n_row = prefs.get_pref("Rows")
-    n_col = prefs.get_pref("Columns")
-    pitch = prefs.get_pref("Pitch")
-    diameter = prefs.get_pref("Diameter")
-    draw_plate(n_col, n_row, pitch, diameter, prefs)

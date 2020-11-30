@@ -61,6 +61,45 @@ def test_image_all_white():
     return ImageAICS(data=data, meta=meta)
 
 
+@pytest.fixture
+def test_image_illumination_reference():
+    """A 5x5 gray image of class ImageAICS"""
+    shape = np.arange(25).reshape(5, 5)
+    data = np.ones_like(shape) * 0.5
+    data[2] = [0, 0.5, 0, 0, 0.25]
+    data[3] = [0, 0.5, 0, 0, 0]
+    meta = {
+        "aics_imageObjectPosX": 1,
+        "aics_imageObjectPosY": 0,
+        "aics_imageObjectPosZ": 0.0,
+        "aics_imageAbsPosX": 1,
+        "aics_imageAbsPosY": 0,
+        "aics_imageAbsPosZ(driftCorrected)": 0.0,
+        "Type": int,
+    }
+
+    return ImageAICS(data=data, meta=meta)
+
+
+@pytest.fixture
+def test_image_black_reference():
+    """A 5x5 gray image of class ImageAICS"""
+    shape = np.arange(25).reshape(5, 5)
+    data = np.ones_like(shape) * 0.75
+    data[0] = [0, 0, 0, 0.75, 0]
+    meta = {
+        "aics_imageObjectPosX": 1,
+        "aics_imageObjectPosY": 0,
+        "aics_imageObjectPosZ": 0.0,
+        "aics_imageAbsPosX": 1,
+        "aics_imageAbsPosY": 0,
+        "aics_imageAbsPosZ(driftCorrected)": 0.0,
+        "Type": int,
+    }
+
+    return ImageAICS(data=data, meta=meta)
+
+
 class Helpers:
     @staticmethod
     def setup_local_microscope(prefs_path):

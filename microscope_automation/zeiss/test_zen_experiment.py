@@ -71,13 +71,3 @@ def test_FocusSetup(experiment_object, verbose=True):
                 )
 
     return is_valid
-
-
-if __name__ == "__main__":
-    experiment_path = r"D:\\Users\winfriedw\Documents\Carl Zeiss\ZEN\Documents\Experiment Setups\ScanWell_100x.czexp"  # noqa
-    experiment = "ScanWell_100x.czexp"
-    verbose = True
-    from . import hardware_control
-
-    experiment_object = hardware_control.Experiment(experiment_path, experiment)
-    print((test_FocusSetup(experiment_object, verbose)))

@@ -23,9 +23,10 @@ try:
     os.environ["QT_API"] = "pyqt5"
     from PyQt5 import QtGui
 except ImportError:
-    from PyQt4 import QtGui
+    from PyQt4 import QtGui  # noqa
 
     os.environ["QT_API"] = "pyqt"
+
 # from PySide import QtGui
 from formlayout import fedit
 from os import listdir
@@ -437,17 +438,3 @@ def stop_script(message_text=None, allow_continue=False):
         print("Operation Aborted")
         # cleanup after image displaying
         os._exit(1)
-
-
-if __name__ == "__main__":
-    from interactive_location_picker_pyqtgraph import ImageLocationPicker
-    import numpy as np
-    import pyqtgraph
-
-    image = np.zeros((50, 50))
-    app = QtGui.QApplication([])
-    input("Continue")
-    ImageLocationPicker(image, app=app).plot_points("Test")
-    input("Continue")
-    print(error_message("Test error message"))
-    pyqtgraph.exit()

@@ -1,12 +1,10 @@
 from lxml import etree
+import logging
 
 try:
     from pathlib import Path
 except ImportError:
     from pathlib2 import Path
-
-from .. import preferences
-import logging
 
 
 log = logging.getLogger(__name__)
@@ -207,46 +205,3 @@ class ZenExperiment(object):
             last_postion = float(ZStackSetup.find("Last/Distance/Value").text)
             z_stack_range = abs(last_postion - first_postion)
             return z_stack_range
-
-
-if __name__ == "__main__":
-
-    # Initializing the object
-    prefs = preferences.Preferences("../GeneralSettings/preferences_ZSD1_Shailja.yml")
-    experiment_directory = prefs.get_pref("PathExperiments")
-    experiment_name = "ScanWell_10x.czexp"
-    # experiment_path = os.path.normpath(os.path.join(prefs.get_pref('PathExperiments'),
-    #                                                 experiment_name))
-    experiment_path = r"D:\\Users\winfriedw\Documents\Carl Zeiss\ZEN\Documents\Experiment Setups/ScanWell_10x.czexp"  # noqa
-    test_object = ZenExperiment(experiment_path, experiment_name)
-
-    # Test 1 - Experiment exists
-    # result_test1 = test_object.experiment_exists()
-    # print(result_test1)
-
-    # Test 2 - Get Tag Value
-    # tag_value = test_object.get_tag_value('/HardwareExperiment/ExperimentBlocks/'
-    # 'AcquisitionBlock/SubDimensionSetups/RegionsSetup/SampleHolder/TileRegions/TileRegion/CenterPosition')
-    # Test 3 - Update Tag Value
-    print(("Experiment acquires tile scan: {}".format(test_object.is_tile_scan())))
-    test_object.update_tag_value(
-        "/HardwareExperiment/ExperimentBlocks/AcquisitionBlock/SubDimensionSetups"
-        "/RegionsSetup/SampleHolder/TileRegions/TileRegion/CenterPosition",
-        "5000,7800",
-    )
-
-    # Test 4 - Update Tile Positions
-    # test_object.update_tile_positions(3600, 7600, 4)
-
-    # Test 5: Get objective name
-    print(
-        (
-            "Objective position used in experiment: {}".format(
-                test_object.get_objective_position()
-            )
-        )
-    )
-
-    # Test 6: Return z-stack information
-    print(("Experiment acquires z-stack: {}".format(test_object.is_z_stack())))
-    print(("Range for z-stack: {}".format(test_object.z_stack_range())))

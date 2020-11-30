@@ -8,7 +8,6 @@ Created on Jul 11, 2016
 """
 
 import matplotlib.pyplot as plt
-from skimage import data
 from tifffile import imsave
 import os
 
@@ -190,36 +189,18 @@ class ImageAICS:
         fig.canvas.set_window_title(title)
         # display only the first slice for multidimensional images
         if self.data.ndim == 2:
-            imageSlice = self.data
+            image_slice = self.data
         elif self.data.ndim == 3:
-            imageSlice = self.data[:, :, channel]
+            image_slice = self.data[:, :, channel]
         elif self.data.ndim == 4:
-            imageSlice = self.data[:, :, channel, z]
+            image_slice = self.data[:, :, channel, z]
         elif self.data.ndim == 5:
-            imageSlice = self.data[:, :, channel, z, t]
+            image_slice = self.data[:, :, channel, z, t]
         else:
             logger.error("ImageAICS.show does not support these image dimensions")
-        axes[0].imshow(imageSlice, aspect="equal", animated=True, cmap="gray")
+        axes[0].imshow(image_slice, aspect="equal", animated=True, cmap="gray")
         i = len(self.meta) - 1
         for key, val in self.meta.items():
             axes[1].text(0, i, key + str(val))
             i -= 1
         plt.show()
-
-
-if __name__ == "__main__":
-    # test class ImageAICS
-
-    # create test data
-    data = data.hubble_deep_field()
-    meta = {"ImageAICS source": "skimage", "Size": data.shape, "aics_barcode": 1234}
-
-    # create image object and test
-    im = ImageAICS(data, meta)
-    print(im.meta)
-    template = ["#aics_barcode", "_", ".czi"]
-    print(im.create_file_name(template))
-    template = ("d:/", ["#aics_barcode", "_", ".czi"])
-    print(im.create_file_name(template))
-
-#     im.show(title='Test')

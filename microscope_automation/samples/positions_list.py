@@ -258,34 +258,3 @@ class CreateTilePositions(object):
         y_pos = [xyz[1] for xyz in pos_list]
         plt.plot(x_pos, y_pos, "bo")
         plt.show()
-
-
-if __name__ == "__main__":
-    tileList = CreateTilePositions(tile_type="None", tile_size=(2, 3))
-    print("Tile size: {}".format(tileList.get_tile_size()))
-
-    # for tile_type in ['ellipse']:
-    for tile_type in VALID_TILE_TYPE:
-        tileList.set_tile_type(tile_type)
-        for tile_number in [(10, 10), (20, 20), (3, 30), (10, 4)]:
-            for degrees in [0, 45, 90, -45]:
-                tileList.set_field_rotation(degrees)
-                tileList.set_tile_number(tile_number)
-                print(
-                    "Tile list for tile type {} with no center and {} tiles: {}".format(
-                        tileList.get_tile_type(),
-                        tileList.get_tile_number(),
-                        tileList.get_pos_list(),
-                    )
-                )
-                tileList.show()
-                center = (5, 10, 15)
-                print(
-                    "Tile list for tile type {} with center {} and {} tiles: {}".format(
-                        tileList.get_tile_type(),
-                        center,
-                        tileList.get_tile_number(),
-                        tileList.get_pos_list(center),
-                    )
-                )
-                tileList.show(center)

@@ -363,7 +363,7 @@ def test_offline():
 def test_online():
     # import modules used only for testing
     import argparse
-    from ..get_path import set_pref_file, get_prefs_path, Preferences
+    from ..preferences import Preferences
     import pyqtgraph
     from pyqtgraph.Qt import QtGui
 
@@ -372,9 +372,10 @@ def test_online():
     arg_parser.add_argument("-p", "--preferences", help="path to the preferences file")
     args = arg_parser.parse_args()
     if args.preferences is not None:
-        set_pref_file(args.preferences)
+        prefs = Preferences(args.preferences)
+    else:
+        prefs = None
 
-    prefs = Preferences(get_prefs_path())
     image_save_path = "D:\\Winfried\\Production\\testing\\"
     #     image_save_path = '/Users/winfriedw/Documents/Programming/ResultTestImages'
 
@@ -385,9 +386,3 @@ def test_online():
     # Properly close pyqtgraph to avoid exit crash
     pyqtgraph.exit()
     print("After exit pyqtgraph")
-
-
-if __name__ == "__main__":
-    test_offline()
-    #    test_online()
-    print("Done with testing")

@@ -1545,16 +1545,3 @@ def test_connect_zen_blue(
         print("Test macro with parameters")
         m.run_macro(macro_name, macro_parms)
     return success
-
-
-if __name__ == "__main__":
-
-    # test = ['execute_experiment', 'test_definite_focus',
-    #         'test_definite_focus_interactive', 'snap_image', 'live_mode',
-    #         'get_all_objectives', 'get_objective_information',
-    #         'trigger_pump', 'test_focus', 'save_image', 'test_stage', 'test_macro']
-    test = ["test_macro"]
-    if test_connect_zen_blue(test=test):
-        print("Tests performed successful: ", test)
-    else:
-        print("Test stopped without  success")

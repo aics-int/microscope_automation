@@ -35,7 +35,7 @@ Workflow: [
            ]
 
 #WorkflowInterrupt: ScanPlate
-RecoverySettingsFilePath: ['data\Production\RecoverySettings', 'data/Production/RecoverySettings']
+RecoverySettingsFilePath: ['data\Production\GeneralSettings\RecoverySettings', 'data/Production/GeneralSettings/RecoverySettings']
 
 #WorkflowContinue: ScanCells
 LogFilePath: ['data\Production\LogFiles', 'data/Production/LogFiles']
@@ -71,7 +71,7 @@ InitializeMicroscope:
  NumberTrials: 3                                  # How often a user is given the chance to set up the system in a correct way
  SetupFolders: True                               # Setup image folder
  CopyColonyFile: False                            # Copy colony file
- ColonyFileFolder: ['\\allen\aics\microscopy\PRODUCTION\Summary\CeligoDailyScans', '../PlateSpecifications']   # Network folder with colony file
+ ColonyFileFolder: ['\\allen\aics\microscopy\PRODUCTION\Summary\CeligoDailyScans', 'data/PlateSpecifications']   # Network folder with colony file
  ColonyDirPath: *ColonyDirPathRef
  AddColonies: False                               # add colony information from Hamilton to plate
  Hardware: True                                   # Initialize hardware
@@ -121,7 +121,50 @@ Koehler:
   Repetition: False                                 # Reset wait status after each repetition
  Blocking: False                                  # open modal dialog in case of error (has no effect in this experiment module)
 
- # Settings to setup objectives (find offset in x, y, and z between objectives
+# Settings for colonies
+AddColonies:
+ FunctionName: none                               # Name of function in Python code in module microscopeAutomation that will process this experiment
+ NextName: ColonyPreScan                          # name of next experiment. Objects selected during this experiment will be added to the next one.
+ ColonyDirPath: *ColonyDirPathRef
+ FileName: 'PipelineData_.*'                      # Regular expression to preselect file
+ # include only colonies from wells listed below in analysis
+ # this is a dictornary of dictionaries in the form {'Well': maxPositions}
+ # Wells: {'C4': 1, 'C5': 1, 'C6': 1, 'C7': 1, 'C8': 1,
+  # 'D4': 1, 'D5': 1, 'D6': 1, 'D7': 1, 'D8': 1,
+  # 'E4': 5, 'E5': 5, 'E6': 5, 'E7': 5, 'E8': 5,
+  # 'F4': 5, 'F5': 5, 'F6': 5, 'F7': 5, 'F8': 5}
+ Wells: {'D4': 2, 'D5': 2}
+ # Columns from colonies file to include in analysis
+ # Dictionary in the form {'original-name-in-file': 'new-name-inside-software'}
+ ColonyColumns: {'PlateID': 'PlateID',
+  'contents': 'Contents',
+  'CellLine': 'CellLine',
+  'clone_id': 'CloneID',
+  'PlateLayout_well_type': 'Type',
+  'PlateLayout_dyes_applied': 'Dye',
+  'Celigo_Colony_AreaShape_Orientation': 'Orientation',
+  'Celigo_Colony_Math_Colony_Area_um2': 'Area',
+  'Celigo_Colony_Math_Colony_LocationRelativeToCenter_um_X': 'Center_X',
+  'Celigo_Colony_Math_Colony_LocationRelativeToCenter_um_Y': 'Center_Y',
+  'Celigo_Colony_Math_Colony_MajorAxisLength_um': 'ColonyMajorAxis',
+  'Celigo_Colony_Math_Colony_MinorAxisLength_um': 'ColonyMinorAxis',
+  'Celigo_Colony_ObjectNumber': 'ColonyNumber',
+  'Celigo_Image_ImageNumber': 'ImageNumber',
+  'Celigo_Image_Metadata_WellRow': 'WellRow',
+  'Celigo_Image_Metadata_WellColumn': 'WellColumn',
+  'Celigo_Well_Math_Well_Location_um_X': 'WellCenter_ImageCoordinates_X',
+  'Celigo_Well_Math_Well_Location_um_Y': 'WellCenter_ImageCoordinates_Y',
+  'Celigo_Well_Math_Well_MajorAxisLength_um': 'WellMajorAxis',
+  'Celigo_Well_Math_Well_MinorAxisLength_um': 'WellMinorAxis'}
+
+ MinAreaColonies: 1                           # scan only colonies that are larger than MinAreaColonies based on Celigo measurements in mum^2
+ MaxAreaColonies: 10000000                    # scan only colonies that are smaller than MinAreaColonies based on Celigo measurements in mum^2
+ MaxDistanceToCenter: 10000                   # scan only colonies that are within a circle around the well center with radius MaxDistanceToCenter based on Celigo measurements in mum
+ MinCountPerWell: 1                           # minimum number of colonies in a give well before filtering
+ MaxCountPerWell: 500                         # maximum number of colonies in a give well before filtering
+ MaxColoniesScanColonies: 300                 # maximum number of colonies to visit during experiment. If more colonies where found, select random subset
+
+# Settings to setup objectives (find offset in x, y, and z between objectives
 ObjectiveOffsets:
  FunctionName: set_objective_offset               # Name of function in Python code in module microscopeAutomation that will process this experiment
  Verbose: False                                   # print debug messages?
@@ -209,6 +252,7 @@ ScanPlate:
  #Wells: &Wells [B2, C2, D2, E2, F2, G2, B3, C3, D3, E3, F3, G3, B4, C4, D4, E4, F4, G4, B5, C5, D5, E5, F5, G5, B6, C6, D6, E6, F6, G6, B7, C7, D7, E7, F7, G7, B8, C8, D8, E8, F8, G8, B9, C9, D9, E9, F9, G9, B10, C10, D10, E10, F10, G10, B11, C11, D11, E11, F11, G11]
  #Wells: &Wells [C2, F2, C11, F11]
  Wells: &Wells [C2]
+ PathExperiments: ['data\SlideBook 6.0\', 'data/SlideBook 6.0/']
  Experiment: test_communication.exp.prefs
  Camera: Camera1 (back)
  Folder: 10XwellScan                               # images of colonies will be stored within this folder

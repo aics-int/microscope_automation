@@ -1,5 +1,5 @@
 """
-Test creation of microscope and sample objects
+Test creation of microscope
 Created on May 20, 2020
 
 @author: winfriedw

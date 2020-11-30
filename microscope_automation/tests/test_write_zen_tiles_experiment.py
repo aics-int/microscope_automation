@@ -2,11 +2,6 @@ import os
 import microscope_automation.zeiss.write_zen_tiles_experiment as write_zen
 
 os.chdir(os.path.dirname(__file__))
-
-
-os.chdir(os.path.dirname(__file__))
-
-
 testclass = write_zen.PositionWriter(zsd="testZsd", plate=1234, production_path="data")
 
 
@@ -63,7 +58,20 @@ def test_write():
     # was convert_to_stage_coords called?
     assert len(converted_list) != 0
 
-    # Test by reading tree again and checking values.
+    # Test by attempting to write with empty dummy file, so error is expected.
+    try:
+        testclass.write(
+            converted_list,
+            dummy="data"
+            + os.path.sep
+            + "1234"
+            + os.path.sep
+            + "testZsd"
+            + os.path.sep
+            + "positions_output_a.czsh",
+        )
+    except Exception as err:
+        assert type(err).__name__ == "ParseError"
 
 
 def test_get_next_pos_name():

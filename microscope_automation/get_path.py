@@ -11,18 +11,13 @@ from datetime import date
 import os
 from pathlib import Path
 
-# import modules that are part of package MicroscopeAutomation
-# module to read preference files
-from .preferences import Preferences
-
-pref_path = None
-
 
 def add_suffix(file_path, suffix):
     """Add suffix to end of file name.
 
     Input:
      file_path: path to file name
+
      suffix: suffix to put between end of filename and file extension
 
     Output:
@@ -33,25 +28,11 @@ def add_suffix(file_path, suffix):
     return new_file_path
 
 
-# TODO: This should be an object
-def set_pref_file(prefs):
-    """Set the preferences file location for the application during runtime
-
-    Input:
-     prefs: file location
-
-    Output:
-     none
-    """
-    global pref_path
-    pref_path = prefs
-
-
 def get_valid_path_from_prefs(prefs, key, search_dir=True, validate=False):
     """Read list of paths from prefs and return first valid match.
 
     Input:
-     prefs:  Dictionary with preferences
+     prefs: Preferences object created from YAML file
 
      key: key for pathlist in preferences.yml
 
@@ -90,32 +71,35 @@ def get_valid_path_from_prefs(prefs, key, search_dir=True, validate=False):
 
 
 def set_up_subfolders(parent_folder_path, subfolder):
-    """
-    Set the Subfolders for imaging folder - eg. TapeOnly and Failed QC
+    """Set the Subfolders for imaging folder - e.g. TapeOnly and Failed QC
 
     Input:
      parent_folder_path: Image Folder Path
+
      subfolder: folder to create, can be list of multiple folders
 
     Output:
-     sub_folder_path: full path of subfolder
+     subfolders: list of full path of subfolders created
     """
     if not isinstance(subfolder, list):
-        subfolder = list(subfolder)
+        subfolder = [subfolder]
 
+    subfolders = []
     for folder in subfolder:
         sub_folder_path = os.path.normpath(os.path.join(parent_folder_path, folder))
         # test if folder exists, if not, create folder
         if not os.path.isdir(sub_folder_path):
             os.makedirs(sub_folder_path)
-    return sub_folder_path
+
+        subfolders.append(sub_folder_path)
+    return subfolders
 
 
 def get_daily_folder(prefs, barcode=None):
     """Find folder for daily settings and results. Create folder if not existing.
 
     Input:
-     prefs: Dictionary with preferences
+     prefs: Preferences object created from YAML file
 
      barcode: Use the plate barcode to make the folder
 
@@ -178,10 +162,10 @@ def get_log_file_path(prefs):
     """Return path to log file.
 
     Input:
-     prefs: Dictionary with preferences
+     prefs: Preferences object created from YAML file
 
     Output:
-     logFile: path to log file
+     log_file_path: path to log file
     """
     # get today's date and construct folder name
     today = date.today()
@@ -199,7 +183,7 @@ def get_meta_data_path(prefs, barcode=None):
     """Return path for meta data.
 
     Input:
-     prefs: Dictionary with preferences
+     prefs: Preferences object created from YAML file
 
      barcode: Use the plate barcode to make the folder
 
@@ -221,10 +205,10 @@ def get_experiment_path(prefs, dir=False):
     """Return path to experiment.
 
     Input:
-     prefs: Dictionary with preferences
+     prefs: Preferences object created from YAML file
 
-     dir: if true return path to experiments directory, otherwise to experiment file
-     default: False
+     dir: if true return path to experiments directory, otherwise to experiment file.
+     Default: False
 
     Output:
      experiment_path: path to experiment
@@ -246,23 +230,11 @@ def get_experiment_path(prefs, dir=False):
     return experiment_path
 
 
-def get_prefs_path():
-    """Return path to preferences file.
-
-    Input:
-     none
-
-    Output:
-     prefsFile: path to preferences file
-    """
-    return pref_path
-
-
 def get_recovery_settings_path(prefs):
     """Returns the file path to save the pickled dictionary after interruption
 
     Input:
-     prefs: Dictionary with preferences
+     prefs: Preferences object created from YAML file
 
     Output:
      file_path: path to recovery settings
@@ -283,7 +255,7 @@ def get_colony_dir_path(prefs, barcode=None):
     """Return path to directory with .csv file with colony positions and features.
 
     Input:
-     prefs: Dictionary with preferences
+     prefs: Preferences object created from YAML file
 
      barcode: Use the plate barcode to make the folder
 
@@ -292,7 +264,7 @@ def get_colony_dir_path(prefs, barcode=None):
     """
     daily_folder_path = get_daily_folder(prefs, barcode)
 
-    colony_dir_path = prefs.get_pref("colony_dir_path")
+    colony_dir_path = prefs.get_pref("ColonyDirPath")
     if colony_dir_path is None:
         colony_dir_path = ""
 
@@ -309,10 +281,10 @@ def get_colony_remote_dir_path(prefs):
     and features on network.
 
     Input:
-     prefs: Dictionary with preferences
+     prefs: Preferences object created from YAML file
 
     Output:
-     colonyRemoteDir: path to log file
+     colony_dir_path: path to log file
     """
     colony_dir_path = get_valid_path_from_prefs(
         prefs, "ColonyFileFolder", search_dir=True
@@ -323,19 +295,21 @@ def get_colony_remote_dir_path(prefs):
     return colony_dir_path
 
 
-def get_colony_file_path(prefs, colony_file):
+def get_colony_file_path(prefs, colony_file, barcode=None):
     """Return path to file with colony information typically produced by
     CellProfiler based on Celigo platescanner data.
 
     Input:
-     prefs: Dictionary with preferences
+     prefs: Preferences object created from YAML file
 
      colony_file: path to .csv file with colony data
+
+     barcode: Use the plate barcode to make the folder
 
     Output:
      colony_file_path: complete path to colony file
     """
-    dir_path = get_colony_dir_path(prefs)
+    dir_path = get_colony_dir_path(prefs, barcode=barcode)
     colony_file_path = os.path.normpath(os.path.join(dir_path, colony_file))
 
     return colony_file_path
@@ -345,7 +319,7 @@ def get_hardware_settings_path(prefs):
     """Return path to .yml file with microscope specifications from preferences file.
 
     Input:
-     prefs: Dictionary with preferences
+     prefs: Preferences object created from YAML file
 
     Output:
      hardwarePath: path to layout file
@@ -359,7 +333,7 @@ def get_references_path(prefs, barcode=None):
     """Return path to directory for reference images. Create directory if not available
 
     Input:
-     prefs: Dictionary with preferences
+     prefs: Preferences object created from YAML file
 
      barcode: Use the plate barcode to make the folder
 
@@ -380,6 +354,8 @@ def get_images_path(prefs, sub_dir=None, barcode=None):
     """Return path to directory for images. Create directory if not available
 
     Input:
+     prefs: Preferences object created from YAML file
+
      sub_dir: Sub-directory for images. Will create folder with this name
 
      barcode: Use the plate barcode to make the folder
@@ -403,7 +379,7 @@ def get_calibration_path(prefs):
     """Return path to calibration information e.g. blackreference images
 
     Input:
-     prefs: dictionary with preferences
+     prefs: Preferences object created from YAML file
 
     Output:
      calibration_path: path to calibration directory
@@ -419,7 +395,7 @@ def get_well_edge_path(prefs, barcode=None):
     Used to determine the well's center.
 
     Input:
-     prefs: dictionary with preferences
+     prefs: Preferences object created from YAML file
 
     Output:
      well_edge_path: path to calibration directory
@@ -428,19 +404,3 @@ def get_well_edge_path(prefs, barcode=None):
     relative_path = prefs.get_pref("WellEdgeDirPath")
     well_edge_path = os.path.join(daily_folder_path, relative_path)
     return well_edge_path
-
-
-if __name__ == "__main__":
-    prefs_path = get_prefs_path()
-    print(prefs_path)
-    prefs = Preferences(prefs_path)
-
-    print(get_daily_folder(prefs))
-    print(get_log_file_path(prefs))
-    print(get_colony_dir_path(prefs))
-    #     print get_plate_layout_path(prefs)
-    print(get_hardware_settings_path(prefs))
-    print(get_references_path(prefs))
-    images_path = get_images_path(prefs)
-    print(images_path)
-    print(add_suffix(images_path + "image.czi", suffix="top"))
