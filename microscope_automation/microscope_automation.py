@@ -5,7 +5,6 @@ Created on Jun 9, 2016
 @author: winfriedw
 """
 
-# import libraries
 # store all images as numpy arrays
 import numpy
 import math
@@ -13,7 +12,7 @@ import math
 import sys
 # use shutil for file manipulations
 import shutil
-# use logging, setup will happen in module errorHandling
+# use logging, setup will happen in module error_handling
 import logging
 import argparse
 import string
@@ -22,46 +21,25 @@ import copy
 from collections import OrderedDict
 from matplotlib.pyplot import imsave
 
-# import external modules written for MicroscopeAutomation
-
-try:
-    from microscope_automation import preferences
-    from microscope_automation import automationMessagesFormLayout as message
-    # from readBarcode import read_barcode
-    from microscope_automation import errorHandling
-    from microscope_automation import setupAutomation
-    from microscope_automation.getPath import *
-    from microscope_automation import samples
-    from microscope_automation import hardware
-    from microscope_automation.metaDataFile import meta_data_file
-    from microscope_automation.automationExceptions import StopCollectingError, HardwareError, AutomationError
-    from microscope_automation.softwareState import State
-    from microscope_automation.experimentInfo import ZenExperiment
-    from microscope_automation.findPositions import create_output_objects_from_parent_object, convert_location_list
-    from microscope_automation.writeZENTilesExperiment import save_position_list
-
-except:
-    import preferences
-    import automationMessagesFormLayout as message
-    # from readBarcode import read_barcode
-    import errorHandling
-    import setupAutomation
-    from getPath import *
-    import samples
-    import hardware
-    from metaDataFile import meta_data_file
-    from automationExceptions import StopCollectingError, HardwareError, AutomationError
-    from softwareState import State
-    from experimentInfo import ZenExperiment
-    from findPositions import create_output_objects_from_parent_object, convert_location_list
-    from writeZENTilesExperiment import save_position_list
-from well_segmentation_refined import WellSegmentation
+from microscope_automation import preferences
+from microscope_automation import automation_messages_form_layout as message
+from microscope_automation.hardware import setup_microscope
+from microscope_automation.samples.setup_samples import setup_plate
+from microscope_automation.get_path import *
+from microscope_automation.samples import samples
+from microscope_automation.hardware import hardware_components
+from microscope_automation.meta_data_file import MetaDataFile
+from microscope_automation.automation_exceptions import StopCollectingError, HardwareError, AutomationError
+from microscope_automation.softwareState import State
+from microscope_automation.find_positions import create_output_objects_from_parent_object, convert_location_list
+from microscope_automation.zeiss.write_zen_tiles_experiment import save_position_list
+from microscope_automation.image_AICS import ImageAICS
+from microscope_automation.samples.well_segmentation_refined import WellSegmentation
 
 import pickle
 import pyqtgraph
 from pyqtgraph.Qt import QtGui
 from aicsimageio import AICSImage
-from imageAICS import ImageAICS
 import csv
 
 import tkinter as tk
@@ -553,7 +531,7 @@ class MicroscopeAutomation(object):
                                                       verbose=verbose)
 
                 for key, value in microscope_object.microscope_components_OrderedDict.items():
-                    if isinstance(value, hardware.AutoFocus):
+                    if isinstance(value, hardware_components.AutoFocus):
                         self.state.reference_object = value.get_focus_reference_obj()
                         # Autosave
                         self.state.save_state()
@@ -633,7 +611,7 @@ class MicroscopeAutomation(object):
             plateObject.update_z_zero_pos = plateObject.get_pos_from_abs_pos(verbose=verbose)
 
             for key, value in plateHolderObject.microscope.microscope_components_OrderedDict.items():
-                if isinstance(value, hardware.AutoFocus):
+                if isinstance(value, hardware_components.AutoFocus):
                     self.state.reference_object = value.get_focus_reference_obj()
                     # Autosave
                     self.state.save_state()
@@ -1146,7 +1124,7 @@ class MicroscopeAutomation(object):
         pickle_dict["next_object_dict"] = all_objects_dict
         # Pickle the reference object - needed for continuation
         for key, value in plateObject.container.microscope.microscope_components_OrderedDict.items():
-            if isinstance(value, hardware.AutoFocus):
+            if isinstance(value, hardware_components.AutoFocus):
                 pickle_dict["reference_object"] = value.get_focus_reference_obj()
                 self.state.reference_object = value.get_focus_reference_obj()
                 # Autosave
@@ -1306,7 +1284,7 @@ class MicroscopeAutomation(object):
         pickle_dict["next_object_dict"] = all_objects_dict
         # pickle the reference object - needed for continuation
         for key, value in plateHolderObject.microscope.microscope_components_OrderedDict.items():
-            if isinstance(value, hardware.AutoFocus):
+            if isinstance(value, hardware_components.AutoFocus):
                 pickle_dict["reference_object"] = value.get_focus_reference_obj()
                 self.state.reference_object = value.get_focus_reference_obj()
                 # Autosave
@@ -1342,7 +1320,7 @@ class MicroscopeAutomation(object):
         y_obj_offset = 0
         component_dict = plateHolderObject.microscope.microscope_components_OrderedDict
         for component_name, component in component_dict.iteritems():
-            if isinstance(component, hardware.ObjectiveChanger):
+            if isinstance(component, hardware_components.ObjectiveChanger):
                 objective_changer = component
                 break
         for objective, information in objective_changer.objective_information.iteritems():
@@ -1588,7 +1566,7 @@ class MicroscopeAutomation(object):
 
         # Update the reference object
         for key, value in plateHolderObject.microscope.microscope_components_OrderedDict.items():
-            if isinstance(value, hardware.AutoFocus):
+            if isinstance(value, hardware_components.AutoFocus):
                 self.state.reference_object = value.get_focus_reference_obj()
                 # Autosave
                 self.state.save_state()
@@ -1609,7 +1587,7 @@ class MicroscopeAutomation(object):
         # Check if the experiment is actually needed (for example, segmentation doesn't need a Zen experiment)
         if experiment_name != 'NoExperiment':
             experiment_path = get_experiment_path(imaging_settings)
-            zen_experiment = hardware.Experiment(experiment_path, experiment_name, microscope_object)
+            zen_experiment = hardware_components.Experiment(experiment_path, experiment_name, microscope_object)
             # Check if experiment exists in Zen blue
             # Give the user 2 tries to add the experiment in zen
             valid_experiment = zen_experiment.validate_experiment()
@@ -1664,7 +1642,7 @@ class MicroscopeAutomation(object):
         logger.info('automation protocol started')
 
         # setup microscope
-        microscopeObject = setupAutomation.setup_microscope(self.prefs)
+        microscopeObject = setup_microscope.setup_microscope(self.prefs)
 
         # get list of experiments to perform on given plate
         workflow = self.prefs.getPref('Workflow')
@@ -1724,7 +1702,7 @@ class MicroscopeAutomation(object):
             (next_objects_dict, reference_object, last_experiment_objects, hardware_status_dict) = self.state.recover_objects(file_path)
             # Set up the reference object
             for key, value in microscopeObject.microscope_components_OrderedDict.items():
-                if isinstance(value, hardware.AutoFocus):
+                if isinstance(value, hardware_components.AutoFocus):
                     reference_object.microscope = microscopeObject
                     reference_object.container.microscope = microscopeObject
                     value.set_focus_reference_obj(reference_object)
@@ -1758,7 +1736,7 @@ class MicroscopeAutomation(object):
             workflow.remove(experiment[0])
             self.state.workflow_pos.append('AddColonies')
 
-        plateHolderObject = setupAutomation.setup_plate(self.prefs, colonyFile, microscopeObject)
+        plateHolderObject = setup_plate(self.prefs, colonyFile, microscopeObject)
 
         # Set up the Daily folder with plate barcode
         # Currently only one plate supported so barcode is extracted from that
@@ -1793,7 +1771,7 @@ class MicroscopeAutomation(object):
         # set-up meta data file object
         metaDataFilePath = get_meta_data_path(self.prefs)
         metaDataFormat = self.prefs.getPref('MetaDataFormat')
-        metaDataFileObject = meta_data_file(metaDataFilePath, metaDataFormat)
+        metaDataFileObject = MetaDataFile(metaDataFilePath, metaDataFormat)
         plateHolderObject.add_meta_data_file(metaDataFileObject)
 
         # cycle through all plates
