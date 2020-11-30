@@ -1,5 +1,6 @@
 from lxml import etree
 import logging
+
 try:
     from pathlib import Path
 except ImportError:

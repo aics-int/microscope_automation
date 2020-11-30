@@ -24,6 +24,7 @@ try:
     from PyQt5 import QtGui
 except ImportError:
     from PyQt4 import QtGui  # noqa
+
     os.environ["QT_API"] = "pyqt"
 
 # from PySide import QtGui
