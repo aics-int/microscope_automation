@@ -42,7 +42,6 @@
 <span class="sd">&quot;&quot;&quot;</span>
 
 <span class="kn">import</span> <span class="nn">matplotlib.pyplot</span> <span class="k">as</span> <span class="nn">plt</span>
-<span class="kn">from</span> <span class="nn">skimage</span> <span class="kn">import</span> <span class="n">data</span>
 <span class="kn">from</span> <span class="nn">tifffile</span> <span class="kn">import</span> <span class="n">imsave</span>
 <span class="kn">import</span> <span class="nn">os</span>
 
@@ -224,39 +223,21 @@
         <span class="n">fig</span><span class="o">.</span><span class="n">canvas</span><span class="o">.</span><span class="n">set_window_title</span><span class="p">(</span><span class="n">title</span><span class="p">)</span>
         <span class="c1"># display only the first slice for multidimensional images</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">ndim</span> <span class="o">==</span> <span class="mi">2</span><span class="p">:</span>
-            <span class="n">imageSlice</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">data</span>
+            <span class="n">image_slice</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">data</span>
         <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">ndim</span> <span class="o">==</span> <span class="mi">3</span><span class="p">:</span>
-            <span class="n">imageSlice</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="p">[:,</span> <span class="p">:,</span> <span class="n">channel</span><span class="p">]</span>
+            <span class="n">image_slice</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="p">[:,</span> <span class="p">:,</span> <span class="n">channel</span><span class="p">]</span>
         <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">ndim</span> <span class="o">==</span> <span class="mi">4</span><span class="p">:</span>
-            <span class="n">imageSlice</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="p">[:,</span> <span class="p">:,</span> <span class="n">channel</span><span class="p">,</span> <span class="n">z</span><span class="p">]</span>
+            <span class="n">image_slice</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="p">[:,</span> <span class="p">:,</span> <span class="n">channel</span><span class="p">,</span> <span class="n">z</span><span class="p">]</span>
         <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">ndim</span> <span class="o">==</span> <span class="mi">5</span><span class="p">:</span>
-            <span class="n">imageSlice</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="p">[:,</span> <span class="p">:,</span> <span class="n">channel</span><span class="p">,</span> <span class="n">z</span><span class="p">,</span> <span class="n">t</span><span class="p">]</span>
+            <span class="n">image_slice</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="p">[:,</span> <span class="p">:,</span> <span class="n">channel</span><span class="p">,</span> <span class="n">z</span><span class="p">,</span> <span class="n">t</span><span class="p">]</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="s2">&quot;ImageAICS.show does not support these image dimensions&quot;</span><span class="p">)</span>
-        <span class="n">axes</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">imshow</span><span class="p">(</span><span class="n">imageSlice</span><span class="p">,</span> <span class="n">aspect</span><span class="o">=</span><span class="s2">&quot;equal&quot;</span><span class="p">,</span> <span class="n">animated</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">cmap</span><span class="o">=</span><span class="s2">&quot;gray&quot;</span><span class="p">)</span>
+        <span class="n">axes</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">imshow</span><span class="p">(</span><span class="n">image_slice</span><span class="p">,</span> <span class="n">aspect</span><span class="o">=</span><span class="s2">&quot;equal&quot;</span><span class="p">,</span> <span class="n">animated</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">cmap</span><span class="o">=</span><span class="s2">&quot;gray&quot;</span><span class="p">)</span>
         <span class="n">i</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">meta</span><span class="p">)</span> <span class="o">-</span> <span class="mi">1</span>
         <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">val</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">meta</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
             <span class="n">axes</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">text</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">i</span><span class="p">,</span> <span class="n">key</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">val</span><span class="p">))</span>
             <span class="n">i</span> <span class="o">-=</span> <span class="mi">1</span>
         <span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span></div></div>
-
-
-<span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s2">&quot;__main__&quot;</span><span class="p">:</span>
-    <span class="c1"># test class ImageAICS</span>
-
-    <span class="c1"># create test data</span>
-    <span class="n">data</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">hubble_deep_field</span><span class="p">()</span>
-    <span class="n">meta</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;ImageAICS source&quot;</span><span class="p">:</span> <span class="s2">&quot;skimage&quot;</span><span class="p">,</span> <span class="s2">&quot;Size&quot;</span><span class="p">:</span> <span class="n">data</span><span class="o">.</span><span class="n">shape</span><span class="p">,</span> <span class="s2">&quot;aics_barcode&quot;</span><span class="p">:</span> <span class="mi">1234</span><span class="p">}</span>
-
-    <span class="c1"># create image object and test</span>
-    <span class="n">im</span> <span class="o">=</span> <span class="n">ImageAICS</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">meta</span><span class="p">)</span>
-    <span class="nb">print</span><span class="p">(</span><span class="n">im</span><span class="o">.</span><span class="n">meta</span><span class="p">)</span>
-    <span class="n">template</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;#aics_barcode&quot;</span><span class="p">,</span> <span class="s2">&quot;_&quot;</span><span class="p">,</span> <span class="s2">&quot;.czi&quot;</span><span class="p">]</span>
-    <span class="nb">print</span><span class="p">(</span><span class="n">im</span><span class="o">.</span><span class="n">create_file_name</span><span class="p">(</span><span class="n">template</span><span class="p">))</span>
-    <span class="n">template</span> <span class="o">=</span> <span class="p">(</span><span class="s2">&quot;d:/&quot;</span><span class="p">,</span> <span class="p">[</span><span class="s2">&quot;#aics_barcode&quot;</span><span class="p">,</span> <span class="s2">&quot;_&quot;</span><span class="p">,</span> <span class="s2">&quot;.czi&quot;</span><span class="p">])</span>
-    <span class="nb">print</span><span class="p">(</span><span class="n">im</span><span class="o">.</span><span class="n">create_file_name</span><span class="p">(</span><span class="n">template</span><span class="p">))</span>
-
-<span class="c1">#     im.show(title=&#39;Test&#39;)</span>
 </pre></div>
 
           </div>

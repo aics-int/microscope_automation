@@ -46,9 +46,9 @@
 <dt id="microscope_automation.samples.setup_samples.get_colony_data">
 <code class="sig-prename descclassname">microscope_automation.samples.setup_samples.</code><code class="sig-name descname">get_colony_data</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">prefs</span></em>, <em class="sig-param"><span class="n">colony_file</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/microscope_automation/samples/setup_samples.html#get_colony_data"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#microscope_automation.samples.setup_samples.get_colony_data" title="Permalink to this definition">¶</a></dt>
 <dd><p>Get data and positions of colonies.</p>
-<dl class="simple">
-<dt>Input:</dt><dd><p>prefs: preferences with information about colony file
-colonyFile: path to .csv file with colony data.</p>
+<dl>
+<dt>Input:</dt><dd><p>prefs: preferences with information about colony file</p>
+<p>colony_file: path to .csv file with colony data.</p>
 </dd>
 <dt>Output:</dt><dd><p>colonies: pandas frame with content of .csv file</p>
 </dd>
@@ -64,14 +64,14 @@ colonyFile: path to .csv file with colony data.</p>
 <p>colonies: table with colony data</p>
 <p>well_dict: list with wells that should be considered. Well names in format ‘A1’.</p>
 </dd>
-<dt>Output:</dt><dd><p>selectedColonies: subset of colonies to be imaged</p>
+<dt>Output:</dt><dd><p>slected_colonies: subset of colonies to be imaged</p>
 </dd>
 </dl>
 </dd></dl>
 
 <dl class="py function">
 <dt id="microscope_automation.samples.setup_samples.add_colonies">
-<code class="sig-prename descclassname">microscope_automation.samples.setup_samples.</code><code class="sig-name descname">add_colonies</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">well_object</span></em>, <em class="sig-param"><span class="n">colonies</span></em>, <em class="sig-param"><span class="n">hardware_settings</span></em>, <em class="sig-param"><span class="n">prefs</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/microscope_automation/samples/setup_samples.html#add_colonies"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#microscope_automation.samples.setup_samples.add_colonies" title="Permalink to this definition">¶</a></dt>
+<code class="sig-prename descclassname">microscope_automation.samples.setup_samples.</code><code class="sig-name descname">add_colonies</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">well_object</span></em>, <em class="sig-param"><span class="n">colonies</span></em>, <em class="sig-param"><span class="n">hardware_settings</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/microscope_automation/samples/setup_samples.html#add_colonies"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#microscope_automation.samples.setup_samples.add_colonies" title="Permalink to this definition">¶</a></dt>
 <dd><p>Add colonies from Celigo scan to well.</p>
 <dl>
 <dt>Input:</dt><dd><p>well_object: instance of well_object from module samples</p>
@@ -79,7 +79,6 @@ colonyFile: path to .csv file with colony data.</p>
 This information was extracted with CellProfiler from plate-scanner images.</p>
 <p>hardware_settings: preferences with description of microscope components,
 here coordinate transformation between colonies and well</p>
-<p>prefs: dictionary with preferences</p>
 </dd>
 <dt>Output:</dt><dd><p>colony_list: list with all colony objects</p>
 </dd>
@@ -88,13 +87,12 @@ here coordinate transformation between colonies and well</p>
 
 <dl class="py function">
 <dt id="microscope_automation.samples.setup_samples.add_barcode">
-<code class="sig-prename descclassname">microscope_automation.samples.setup_samples.</code><code class="sig-name descname">add_barcode</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">name</span></em>, <em class="sig-param"><span class="n">well_object</span></em>, <em class="sig-param"><span class="n">layout</span></em>, <em class="sig-param"><span class="n">prefs</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/microscope_automation/samples/setup_samples.html#add_barcode"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#microscope_automation.samples.setup_samples.add_barcode" title="Permalink to this definition">¶</a></dt>
+<code class="sig-prename descclassname">microscope_automation.samples.setup_samples.</code><code class="sig-name descname">add_barcode</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">name</span></em>, <em class="sig-param"><span class="n">well_object</span></em>, <em class="sig-param"><span class="n">layout</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/microscope_automation/samples/setup_samples.html#add_barcode"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#microscope_automation.samples.setup_samples.add_barcode" title="Permalink to this definition">¶</a></dt>
 <dd><p>Add barcode to well.</p>
 <dl>
 <dt>Input:</dt><dd><p>name: string with name for barcode</p>
 <p>well_object: instance of Well class from module samples</p>
 <p>layout: preferences for plate layout</p>
-<p>prefs: dictionary with preferences</p>
 </dd>
 <dt>Output:</dt><dd><p>none</p>
 </dd>

@@ -33,14 +33,12 @@
             
   <h1>Source code for microscope_automation.zeiss.zen_experiment_info</h1><div class="highlight"><pre>
 <span></span><span class="kn">from</span> <span class="nn">lxml</span> <span class="kn">import</span> <span class="n">etree</span>
+<span class="kn">import</span> <span class="nn">logging</span>
 
 <span class="k">try</span><span class="p">:</span>
     <span class="kn">from</span> <span class="nn">pathlib</span> <span class="kn">import</span> <span class="n">Path</span>
 <span class="k">except</span> <span class="ne">ImportError</span><span class="p">:</span>
     <span class="kn">from</span> <span class="nn">pathlib2</span> <span class="kn">import</span> <span class="n">Path</span>
-
-<span class="kn">from</span> <span class="nn">..</span> <span class="kn">import</span> <span class="n">preferences</span>
-<span class="kn">import</span> <span class="nn">logging</span>
 
 
 <span class="n">log</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="vm">__name__</span><span class="p">)</span>
@@ -241,49 +239,6 @@
             <span class="n">last_postion</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">ZStackSetup</span><span class="o">.</span><span class="n">find</span><span class="p">(</span><span class="s2">&quot;Last/Distance/Value&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">text</span><span class="p">)</span>
             <span class="n">z_stack_range</span> <span class="o">=</span> <span class="nb">abs</span><span class="p">(</span><span class="n">last_postion</span> <span class="o">-</span> <span class="n">first_postion</span><span class="p">)</span>
             <span class="k">return</span> <span class="n">z_stack_range</span></div></div>
-
-
-<span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s2">&quot;__main__&quot;</span><span class="p">:</span>
-
-    <span class="c1"># Initializing the object</span>
-    <span class="n">prefs</span> <span class="o">=</span> <span class="n">preferences</span><span class="o">.</span><span class="n">Preferences</span><span class="p">(</span><span class="s2">&quot;../GeneralSettings/preferences_ZSD1_Shailja.yml&quot;</span><span class="p">)</span>
-    <span class="n">experiment_directory</span> <span class="o">=</span> <span class="n">prefs</span><span class="o">.</span><span class="n">get_pref</span><span class="p">(</span><span class="s2">&quot;PathExperiments&quot;</span><span class="p">)</span>
-    <span class="n">experiment_name</span> <span class="o">=</span> <span class="s2">&quot;ScanWell_10x.czexp&quot;</span>
-    <span class="c1"># experiment_path = os.path.normpath(os.path.join(prefs.get_pref(&#39;PathExperiments&#39;),</span>
-    <span class="c1">#                                                 experiment_name))</span>
-    <span class="n">experiment_path</span> <span class="o">=</span> <span class="sa">r</span><span class="s2">&quot;D:</span><span class="se">\\</span><span class="s2">Users\winfriedw\Documents\Carl Zeiss\ZEN\Documents\Experiment Setups/ScanWell_10x.czexp&quot;</span>  <span class="c1"># noqa</span>
-    <span class="n">test_object</span> <span class="o">=</span> <span class="n">ZenExperiment</span><span class="p">(</span><span class="n">experiment_path</span><span class="p">,</span> <span class="n">experiment_name</span><span class="p">)</span>
-
-    <span class="c1"># Test 1 - Experiment exists</span>
-    <span class="c1"># result_test1 = test_object.experiment_exists()</span>
-    <span class="c1"># print(result_test1)</span>
-
-    <span class="c1"># Test 2 - Get Tag Value</span>
-    <span class="c1"># tag_value = test_object.get_tag_value(&#39;/HardwareExperiment/ExperimentBlocks/&#39;</span>
-    <span class="c1"># &#39;AcquisitionBlock/SubDimensionSetups/RegionsSetup/SampleHolder/TileRegions/TileRegion/CenterPosition&#39;)</span>
-    <span class="c1"># Test 3 - Update Tag Value</span>
-    <span class="nb">print</span><span class="p">((</span><span class="s2">&quot;Experiment acquires tile scan: </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">test_object</span><span class="o">.</span><span class="n">is_tile_scan</span><span class="p">())))</span>
-    <span class="n">test_object</span><span class="o">.</span><span class="n">update_tag_value</span><span class="p">(</span>
-        <span class="s2">&quot;/HardwareExperiment/ExperimentBlocks/AcquisitionBlock/SubDimensionSetups&quot;</span>
-        <span class="s2">&quot;/RegionsSetup/SampleHolder/TileRegions/TileRegion/CenterPosition&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;5000,7800&quot;</span><span class="p">,</span>
-    <span class="p">)</span>
-
-    <span class="c1"># Test 4 - Update Tile Positions</span>
-    <span class="c1"># test_object.update_tile_positions(3600, 7600, 4)</span>
-
-    <span class="c1"># Test 5: Get objective name</span>
-    <span class="nb">print</span><span class="p">(</span>
-        <span class="p">(</span>
-            <span class="s2">&quot;Objective position used in experiment: </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
-                <span class="n">test_object</span><span class="o">.</span><span class="n">get_objective_position</span><span class="p">()</span>
-            <span class="p">)</span>
-        <span class="p">)</span>
-    <span class="p">)</span>
-
-    <span class="c1"># Test 6: Return z-stack information</span>
-    <span class="nb">print</span><span class="p">((</span><span class="s2">&quot;Experiment acquires z-stack: </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">test_object</span><span class="o">.</span><span class="n">is_z_stack</span><span class="p">())))</span>
-    <span class="nb">print</span><span class="p">((</span><span class="s2">&quot;Range for z-stack: </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">test_object</span><span class="o">.</span><span class="n">z_stack_range</span><span class="p">())))</span>
 </pre></div>
 
           </div>

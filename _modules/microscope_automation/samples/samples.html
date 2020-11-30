@@ -3976,21 +3976,22 @@
 
 <div class="viewcode-block" id="Well.get_tile_positions_list"><a class="viewcode-back" href="../../../samples.html#microscope_automation.samples.samples.Well.get_tile_positions_list">[docs]</a>    <span class="k">def</span> <span class="nf">get_tile_positions_list</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">prefs</span><span class="p">,</span> <span class="n">tile_type</span><span class="o">=</span><span class="s2">&quot;Well&quot;</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Get positions for tiles in absolute coordinates.</span>
+<span class="sd">        Other classes have additional tile_objects (e.g. ColonySize).</span>
 
 <span class="sd">        Input:</span>
-<span class="sd">         prefs: dictionary with preferences for tiling</span>
+<span class="sd">         prefs: Preferences object with preferences for tiling</span>
 
 <span class="sd">         tile_type: type of tiling.  Possible options:</span>
 <span class="sd">          &#39;None&#39;: do not tile</span>
+
 <span class="sd">          &#39;Fixed&#39;: use fixed number of tiles</span>
+
 <span class="sd">          &#39;Well&#39;: use enough tiles to cover one well</span>
 
 <span class="sd">         verbose: print debugging information</span>
 
 <span class="sd">        Output:</span>
 <span class="sd">         tile_position_list: list with absolute positions for tiling</span>
-
-<span class="sd">         Other classes have additional tile_objects (e.g. ColonySize)</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="c1"># retrieve common tiling parameters, than adjust them for wells if necessary</span>
         <span class="k">try</span><span class="p">:</span>

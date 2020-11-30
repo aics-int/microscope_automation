@@ -98,25 +98,6 @@
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">stop_pump</span><span class="p">()</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">ser</span><span class="o">.</span><span class="n">close</span><span class="p">()</span></div></div>
-
-
-<span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s2">&quot;__main__&quot;</span><span class="p">:</span>
-    <span class="kn">import</span> <span class="nn">time</span>
-
-    <span class="c1"># connect to pump through RS232</span>
-    <span class="n">pump</span> <span class="o">=</span> <span class="n">Braintree</span><span class="p">(</span><span class="n">port</span><span class="o">=</span><span class="s2">&quot;COM1&quot;</span><span class="p">,</span> <span class="n">baudrate</span><span class="o">=</span><span class="mi">19200</span><span class="p">)</span>
-
-    <span class="c1"># activate pump</span>
-    <span class="n">pump</span><span class="o">.</span><span class="n">start_pump</span><span class="p">()</span>
-
-    <span class="c1"># continue pumping for 5s</span>
-    <span class="n">time</span><span class="o">.</span><span class="n">sleep</span><span class="p">(</span><span class="mi">5</span><span class="p">)</span>
-
-    <span class="c1"># stop pump</span>
-    <span class="n">pump</span><span class="o">.</span><span class="n">stop_pump</span><span class="p">()</span>
-
-    <span class="c1"># close connection</span>
-    <span class="n">pump</span><span class="o">.</span><span class="n">close_connection</span><span class="p">()</span>
 </pre></div>
 
           </div>

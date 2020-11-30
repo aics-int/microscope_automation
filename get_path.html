@@ -47,23 +47,11 @@ functions to return path for settings, logfile, and data.</p>
 <dt id="microscope_automation.get_path.add_suffix">
 <code class="sig-prename descclassname">microscope_automation.get_path.</code><code class="sig-name descname">add_suffix</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">file_path</span></em>, <em class="sig-param"><span class="n">suffix</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/microscope_automation/get_path.html#add_suffix"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#microscope_automation.get_path.add_suffix" title="Permalink to this definition">¶</a></dt>
 <dd><p>Add suffix to end of file name.</p>
-<dl class="simple">
-<dt>Input:</dt><dd><p>file_path: path to file name
-suffix: suffix to put between end of filename and file extension</p>
+<dl>
+<dt>Input:</dt><dd><p>file_path: path to file name</p>
+<p>suffix: suffix to put between end of filename and file extension</p>
 </dd>
 <dt>Output:</dt><dd><p>new_file_path: file_path with suffix</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py function">
-<dt id="microscope_automation.get_path.set_pref_file">
-<code class="sig-prename descclassname">microscope_automation.get_path.</code><code class="sig-name descname">set_pref_file</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">prefs</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/microscope_automation/get_path.html#set_pref_file"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#microscope_automation.get_path.set_pref_file" title="Permalink to this definition">¶</a></dt>
-<dd><p>Set the preferences file location for the application during runtime</p>
-<dl class="simple">
-<dt>Input:</dt><dd><p>prefs: file location</p>
-</dd>
-<dt>Output:</dt><dd><p>none</p>
 </dd>
 </dl>
 </dd></dl>
@@ -73,7 +61,7 @@ suffix: suffix to put between end of filename and file extension</p>
 <code class="sig-prename descclassname">microscope_automation.get_path.</code><code class="sig-name descname">get_valid_path_from_prefs</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">prefs</span></em>, <em class="sig-param"><span class="n">key</span></em>, <em class="sig-param"><span class="n">search_dir</span><span class="o">=</span><span class="default_value">True</span></em>, <em class="sig-param"><span class="n">validate</span><span class="o">=</span><span class="default_value">False</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/microscope_automation/get_path.html#get_valid_path_from_prefs"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#microscope_automation.get_path.get_valid_path_from_prefs" title="Permalink to this definition">¶</a></dt>
 <dd><p>Read list of paths from prefs and return first valid match.</p>
 <dl>
-<dt>Input:</dt><dd><p>prefs:  Dictionary with preferences</p>
+<dt>Input:</dt><dd><p>prefs: Preferences object created from YAML file</p>
 <p>key: key for pathlist in preferences.yml</p>
 <p>search_dir: if True search for directory, otherwise for file</p>
 </dd>
@@ -85,12 +73,12 @@ suffix: suffix to put between end of filename and file extension</p>
 <dl class="py function">
 <dt id="microscope_automation.get_path.set_up_subfolders">
 <code class="sig-prename descclassname">microscope_automation.get_path.</code><code class="sig-name descname">set_up_subfolders</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">parent_folder_path</span></em>, <em class="sig-param"><span class="n">subfolder</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/microscope_automation/get_path.html#set_up_subfolders"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#microscope_automation.get_path.set_up_subfolders" title="Permalink to this definition">¶</a></dt>
-<dd><p>Set the Subfolders for imaging folder - eg. TapeOnly and Failed QC</p>
-<dl class="simple">
-<dt>Input:</dt><dd><p>parent_folder_path: Image Folder Path
-subfolder: folder to create, can be list of multiple folders</p>
+<dd><p>Set the Subfolders for imaging folder - e.g. TapeOnly and Failed QC</p>
+<dl>
+<dt>Input:</dt><dd><p>parent_folder_path: Image Folder Path</p>
+<p>subfolder: folder to create, can be list of multiple folders</p>
 </dd>
-<dt>Output:</dt><dd><p>sub_folder_path: full path of subfolder</p>
+<dt>Output:</dt><dd><p>subfolders: list of full path of subfolders created</p>
 </dd>
 </dl>
 </dd></dl>
@@ -100,7 +88,7 @@ subfolder: folder to create, can be list of multiple folders</p>
 <code class="sig-prename descclassname">microscope_automation.get_path.</code><code class="sig-name descname">get_daily_folder</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">prefs</span></em>, <em class="sig-param"><span class="n">barcode</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/microscope_automation/get_path.html#get_daily_folder"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#microscope_automation.get_path.get_daily_folder" title="Permalink to this definition">¶</a></dt>
 <dd><p>Find folder for daily settings and results. Create folder if not existing.</p>
 <dl>
-<dt>Input:</dt><dd><p>prefs: Dictionary with preferences</p>
+<dt>Input:</dt><dd><p>prefs: Preferences object created from YAML file</p>
 <p>barcode: Use the plate barcode to make the folder</p>
 </dd>
 <dt>Output:</dt><dd><p>daily_path: path to daily folder. No ‘/’ at end.</p>
@@ -127,9 +115,9 @@ all the positions are stored after segmentation.</p>
 <code class="sig-prename descclassname">microscope_automation.get_path.</code><code class="sig-name descname">get_log_file_path</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">prefs</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/microscope_automation/get_path.html#get_log_file_path"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#microscope_automation.get_path.get_log_file_path" title="Permalink to this definition">¶</a></dt>
 <dd><p>Return path to log file.</p>
 <dl class="simple">
-<dt>Input:</dt><dd><p>prefs: Dictionary with preferences</p>
+<dt>Input:</dt><dd><p>prefs: Preferences object created from YAML file</p>
 </dd>
-<dt>Output:</dt><dd><p>logFile: path to log file</p>
+<dt>Output:</dt><dd><p>log_file_path: path to log file</p>
 </dd>
 </dl>
 </dd></dl>
@@ -139,7 +127,7 @@ all the positions are stored after segmentation.</p>
 <code class="sig-prename descclassname">microscope_automation.get_path.</code><code class="sig-name descname">get_meta_data_path</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">prefs</span></em>, <em class="sig-param"><span class="n">barcode</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/microscope_automation/get_path.html#get_meta_data_path"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#microscope_automation.get_path.get_meta_data_path" title="Permalink to this definition">¶</a></dt>
 <dd><p>Return path for meta data.</p>
 <dl>
-<dt>Input:</dt><dd><p>prefs: Dictionary with preferences</p>
+<dt>Input:</dt><dd><p>prefs: Preferences object created from YAML file</p>
 <p>barcode: Use the plate barcode to make the folder</p>
 </dd>
 <dt>Output:</dt><dd><p>meta_data_file: path to log file</p>
@@ -152,23 +140,11 @@ all the positions are stored after segmentation.</p>
 <code class="sig-prename descclassname">microscope_automation.get_path.</code><code class="sig-name descname">get_experiment_path</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">prefs</span></em>, <em class="sig-param"><span class="n">dir</span><span class="o">=</span><span class="default_value">False</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/microscope_automation/get_path.html#get_experiment_path"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#microscope_automation.get_path.get_experiment_path" title="Permalink to this definition">¶</a></dt>
 <dd><p>Return path to experiment.</p>
 <dl>
-<dt>Input:</dt><dd><p>prefs: Dictionary with preferences</p>
-<p>dir: if true return path to experiments directory, otherwise to experiment file
-default: False</p>
+<dt>Input:</dt><dd><p>prefs: Preferences object created from YAML file</p>
+<p>dir: if true return path to experiments directory, otherwise to experiment file.
+Default: False</p>
 </dd>
 <dt>Output:</dt><dd><p>experiment_path: path to experiment</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py function">
-<dt id="microscope_automation.get_path.get_prefs_path">
-<code class="sig-prename descclassname">microscope_automation.get_path.</code><code class="sig-name descname">get_prefs_path</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/microscope_automation/get_path.html#get_prefs_path"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#microscope_automation.get_path.get_prefs_path" title="Permalink to this definition">¶</a></dt>
-<dd><p>Return path to preferences file.</p>
-<dl class="simple">
-<dt>Input:</dt><dd><p>none</p>
-</dd>
-<dt>Output:</dt><dd><p>prefsFile: path to preferences file</p>
 </dd>
 </dl>
 </dd></dl>
@@ -178,7 +154,7 @@ default: False</p>
 <code class="sig-prename descclassname">microscope_automation.get_path.</code><code class="sig-name descname">get_recovery_settings_path</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">prefs</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/microscope_automation/get_path.html#get_recovery_settings_path"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#microscope_automation.get_path.get_recovery_settings_path" title="Permalink to this definition">¶</a></dt>
 <dd><p>Returns the file path to save the pickled dictionary after interruption</p>
 <dl class="simple">
-<dt>Input:</dt><dd><p>prefs: Dictionary with preferences</p>
+<dt>Input:</dt><dd><p>prefs: Preferences object created from YAML file</p>
 </dd>
 <dt>Output:</dt><dd><p>file_path: path to recovery settings</p>
 </dd>
@@ -190,7 +166,7 @@ default: False</p>
 <code class="sig-prename descclassname">microscope_automation.get_path.</code><code class="sig-name descname">get_colony_dir_path</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">prefs</span></em>, <em class="sig-param"><span class="n">barcode</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/microscope_automation/get_path.html#get_colony_dir_path"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#microscope_automation.get_path.get_colony_dir_path" title="Permalink to this definition">¶</a></dt>
 <dd><p>Return path to directory with .csv file with colony positions and features.</p>
 <dl>
-<dt>Input:</dt><dd><p>prefs: Dictionary with preferences</p>
+<dt>Input:</dt><dd><p>prefs: Preferences object created from YAML file</p>
 <p>barcode: Use the plate barcode to make the folder</p>
 </dd>
 <dt>Output:</dt><dd><p>colonyDir: path to log file</p>
@@ -204,21 +180,22 @@ default: False</p>
 <dd><p>Return path to directory with .csv file with colony positions
 and features on network.</p>
 <dl class="simple">
-<dt>Input:</dt><dd><p>prefs: Dictionary with preferences</p>
+<dt>Input:</dt><dd><p>prefs: Preferences object created from YAML file</p>
 </dd>
-<dt>Output:</dt><dd><p>colonyRemoteDir: path to log file</p>
+<dt>Output:</dt><dd><p>colony_dir_path: path to log file</p>
 </dd>
 </dl>
 </dd></dl>
 
 <dl class="py function">
 <dt id="microscope_automation.get_path.get_colony_file_path">
-<code class="sig-prename descclassname">microscope_automation.get_path.</code><code class="sig-name descname">get_colony_file_path</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">prefs</span></em>, <em class="sig-param"><span class="n">colony_file</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/microscope_automation/get_path.html#get_colony_file_path"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#microscope_automation.get_path.get_colony_file_path" title="Permalink to this definition">¶</a></dt>
+<code class="sig-prename descclassname">microscope_automation.get_path.</code><code class="sig-name descname">get_colony_file_path</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">prefs</span></em>, <em class="sig-param"><span class="n">colony_file</span></em>, <em class="sig-param"><span class="n">barcode</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/microscope_automation/get_path.html#get_colony_file_path"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#microscope_automation.get_path.get_colony_file_path" title="Permalink to this definition">¶</a></dt>
 <dd><p>Return path to file with colony information typically produced by
 CellProfiler based on Celigo platescanner data.</p>
 <dl>
-<dt>Input:</dt><dd><p>prefs: Dictionary with preferences</p>
+<dt>Input:</dt><dd><p>prefs: Preferences object created from YAML file</p>
 <p>colony_file: path to .csv file with colony data</p>
+<p>barcode: Use the plate barcode to make the folder</p>
 </dd>
 <dt>Output:</dt><dd><p>colony_file_path: complete path to colony file</p>
 </dd>
@@ -230,7 +207,7 @@ CellProfiler based on Celigo platescanner data.</p>
 <code class="sig-prename descclassname">microscope_automation.get_path.</code><code class="sig-name descname">get_hardware_settings_path</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">prefs</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/microscope_automation/get_path.html#get_hardware_settings_path"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#microscope_automation.get_path.get_hardware_settings_path" title="Permalink to this definition">¶</a></dt>
 <dd><p>Return path to .yml file with microscope specifications from preferences file.</p>
 <dl class="simple">
-<dt>Input:</dt><dd><p>prefs: Dictionary with preferences</p>
+<dt>Input:</dt><dd><p>prefs: Preferences object created from YAML file</p>
 </dd>
 <dt>Output:</dt><dd><p>hardwarePath: path to layout file</p>
 </dd>
@@ -242,7 +219,7 @@ CellProfiler based on Celigo platescanner data.</p>
 <code class="sig-prename descclassname">microscope_automation.get_path.</code><code class="sig-name descname">get_references_path</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">prefs</span></em>, <em class="sig-param"><span class="n">barcode</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/microscope_automation/get_path.html#get_references_path"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#microscope_automation.get_path.get_references_path" title="Permalink to this definition">¶</a></dt>
 <dd><p>Return path to directory for reference images. Create directory if not available</p>
 <dl>
-<dt>Input:</dt><dd><p>prefs: Dictionary with preferences</p>
+<dt>Input:</dt><dd><p>prefs: Preferences object created from YAML file</p>
 <p>barcode: Use the plate barcode to make the folder</p>
 </dd>
 <dt>Output:</dt><dd><p>references_path: path to directory for reference images for specific well</p>
@@ -255,7 +232,8 @@ CellProfiler based on Celigo platescanner data.</p>
 <code class="sig-prename descclassname">microscope_automation.get_path.</code><code class="sig-name descname">get_images_path</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">prefs</span></em>, <em class="sig-param"><span class="n">sub_dir</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">barcode</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/microscope_automation/get_path.html#get_images_path"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#microscope_automation.get_path.get_images_path" title="Permalink to this definition">¶</a></dt>
 <dd><p>Return path to directory for images. Create directory if not available</p>
 <dl>
-<dt>Input:</dt><dd><p>sub_dir: Sub-directory for images. Will create folder with this name</p>
+<dt>Input:</dt><dd><p>prefs: Preferences object created from YAML file</p>
+<p>sub_dir: Sub-directory for images. Will create folder with this name</p>
 <p>barcode: Use the plate barcode to make the folder</p>
 </dd>
 <dt>Output:</dt><dd><p>references_path: path to directory for reference images for specific well</p>
@@ -268,7 +246,7 @@ CellProfiler based on Celigo platescanner data.</p>
 <code class="sig-prename descclassname">microscope_automation.get_path.</code><code class="sig-name descname">get_calibration_path</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">prefs</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/microscope_automation/get_path.html#get_calibration_path"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#microscope_automation.get_path.get_calibration_path" title="Permalink to this definition">¶</a></dt>
 <dd><p>Return path to calibration information e.g. blackreference images</p>
 <dl class="simple">
-<dt>Input:</dt><dd><p>prefs: dictionary with preferences</p>
+<dt>Input:</dt><dd><p>prefs: Preferences object created from YAML file</p>
 </dd>
 <dt>Output:</dt><dd><p>calibration_path: path to calibration directory</p>
 </dd>

@@ -397,7 +397,7 @@
 <div class="viewcode-block" id="test_online"><a class="viewcode-back" href="../../../microscope_automation.samples.html#microscope_automation.samples.interactive_location_picker_pyqtgraph.test_online">[docs]</a><span class="k">def</span> <span class="nf">test_online</span><span class="p">():</span>
     <span class="c1"># import modules used only for testing</span>
     <span class="kn">import</span> <span class="nn">argparse</span>
-    <span class="kn">from</span> <span class="nn">..get_path</span> <span class="kn">import</span> <span class="n">set_pref_file</span><span class="p">,</span> <span class="n">get_prefs_path</span><span class="p">,</span> <span class="n">Preferences</span>
+    <span class="kn">from</span> <span class="nn">..preferences</span> <span class="kn">import</span> <span class="n">Preferences</span>
     <span class="kn">import</span> <span class="nn">pyqtgraph</span>
     <span class="kn">from</span> <span class="nn">pyqtgraph.Qt</span> <span class="kn">import</span> <span class="n">QtGui</span>
 
@@ -406,9 +406,10 @@
     <span class="n">arg_parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s2">&quot;-p&quot;</span><span class="p">,</span> <span class="s2">&quot;--preferences&quot;</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s2">&quot;path to the preferences file&quot;</span><span class="p">)</span>
     <span class="n">args</span> <span class="o">=</span> <span class="n">arg_parser</span><span class="o">.</span><span class="n">parse_args</span><span class="p">()</span>
     <span class="k">if</span> <span class="n">args</span><span class="o">.</span><span class="n">preferences</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-        <span class="n">set_pref_file</span><span class="p">(</span><span class="n">args</span><span class="o">.</span><span class="n">preferences</span><span class="p">)</span>
+        <span class="n">prefs</span> <span class="o">=</span> <span class="n">Preferences</span><span class="p">(</span><span class="n">args</span><span class="o">.</span><span class="n">preferences</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">prefs</span> <span class="o">=</span> <span class="kc">None</span>
 
-    <span class="n">prefs</span> <span class="o">=</span> <span class="n">Preferences</span><span class="p">(</span><span class="n">get_prefs_path</span><span class="p">())</span>
     <span class="n">image_save_path</span> <span class="o">=</span> <span class="s2">&quot;D:</span><span class="se">\\</span><span class="s2">Winfried</span><span class="se">\\</span><span class="s2">Production</span><span class="se">\\</span><span class="s2">testing</span><span class="se">\\</span><span class="s2">&quot;</span>
     <span class="c1">#     image_save_path = &#39;/Users/winfriedw/Documents/Programming/ResultTestImages&#39;</span>
 
@@ -419,12 +420,6 @@
     <span class="c1"># Properly close pyqtgraph to avoid exit crash</span>
     <span class="n">pyqtgraph</span><span class="o">.</span><span class="n">exit</span><span class="p">()</span>
     <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;After exit pyqtgraph&quot;</span><span class="p">)</span></div>
-
-
-<span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s2">&quot;__main__&quot;</span><span class="p">:</span>
-    <span class="n">test_offline</span><span class="p">()</span>
-    <span class="c1">#    test_online()</span>
-    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Done with testing&quot;</span><span class="p">)</span>
 </pre></div>
 
           </div>

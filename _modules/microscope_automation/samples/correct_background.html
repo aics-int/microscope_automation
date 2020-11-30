@@ -42,9 +42,7 @@
 <span class="sd">Created on 18 Jan 2017</span>
 
 <span class="sd">@author: winfriedw</span>
-<span class="sd">&quot;&quot;&quot;</span>  <span class="c1"># noqa</span>
-<span class="kn">import</span> <span class="nn">numpy</span>
-<span class="kn">import</span> <span class="nn">getpass</span>
+<span class="sd">&quot;&quot;&quot;</span>
 
 
 <div class="viewcode-block" id="fixed_pattern_correction"><a class="viewcode-back" href="../../../microscope_automation.samples.html#microscope_automation.samples.correct_background.fixed_pattern_correction">[docs]</a><span class="k">def</span> <span class="nf">fixed_pattern_correction</span><span class="p">(</span><span class="n">image</span><span class="p">,</span> <span class="n">black_reference</span><span class="p">):</span>
@@ -64,7 +62,6 @@
 <span class="sd">    Output:</span>
 <span class="sd">     corrected_image: image after correction</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-
     <span class="n">corrected_image</span> <span class="o">=</span> <span class="n">image</span> <span class="o">-</span> <span class="n">black_reference</span>
     <span class="c1"># correctedImage[correctedImage &lt; 0] = 0</span>
     <span class="c1"># This has been removed because I was improperly enforcing a cutoff value for noise.</span>
@@ -94,120 +91,6 @@
     <span class="n">corrected_image</span> <span class="o">=</span> <span class="n">pattern_corrected_image</span> <span class="o">/</span> <span class="n">pattern_corrected_illumination_reference</span>
     <span class="c1"># correctedImage *= 65535 # prepare for conversion into uint8</span>
     <span class="k">return</span> <span class="n">corrected_image</span></div>
-
-
-<span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s2">&quot;__main__&quot;</span><span class="p">:</span>
-    <span class="c1"># import libraries used for testing only</span>
-    <span class="kn">import</span> <span class="nn">sys</span>
-    <span class="kn">import</span> <span class="nn">matplotlib.pyplot</span> <span class="k">as</span> <span class="nn">plt</span>
-    <span class="kn">from</span> <span class="nn">skimage</span> <span class="kn">import</span> <span class="n">io</span>
-    <span class="kn">import</span> <span class="nn">load_image_czi</span>
-
-    <span class="c1"># define path to test images</span>
-    <span class="k">if</span> <span class="n">sys</span><span class="o">.</span><span class="n">platform</span> <span class="o">==</span> <span class="s2">&quot;darwin&quot;</span><span class="p">:</span>
-        <span class="n">imagePath</span> <span class="o">=</span> <span class="s2">&quot;/Users/winfriedw/Documents/ImageProcessing/2017_1_17/Colonies/D5_0001_x0_y0_z0.czi&quot;</span>  <span class="c1"># noqa</span>
-        <span class="n">black_reference_path</span> <span class="o">=</span> <span class="s2">&quot;//Users/winfriedw/Documents/ImageProcessing/2017_1_17/References/BlackReferenceTransmitted10x.czi&quot;</span>  <span class="c1"># noqa</span>
-        <span class="n">illumination_reference_path</span> <span class="o">=</span> <span class="s2">&quot;//Users/winfriedw/Documents/ImageProcessing/2017_1_17/References/BackgroundTransmitted_10x_mean.tif&quot;</span>  <span class="c1"># noqa</span>
-        <span class="n">output_original</span> <span class="o">=</span> <span class="p">(</span>
-            <span class="s2">&quot;//Users/winfriedw/Documents/ImageProcessing/original.tif&quot;</span>  <span class="c1"># noqa</span>
-        <span class="p">)</span>
-        <span class="n">output_black_correction</span> <span class="o">=</span> <span class="p">(</span>
-            <span class="s2">&quot;//Users/winfriedw/Documents/ImageProcessing/blackCorrection.tif&quot;</span>  <span class="c1"># noqa</span>
-        <span class="p">)</span>
-        <span class="n">output_illumination_correction</span> <span class="o">=</span> <span class="s2">&quot;//Users/winfriedw/Documents/ImageProcessing/illuminationCorrection.tif&quot;</span>  <span class="c1"># noqa</span>
-    <span class="k">elif</span> <span class="n">getpass</span><span class="o">.</span><span class="n">getuser</span><span class="p">()</span> <span class="o">==</span> <span class="s2">&quot;mattb&quot;</span><span class="p">:</span>
-        <span class="n">imagePath</span> <span class="o">=</span> <span class="s2">&quot;/home/mattb/git/microscopeautomation/data/test_data_matthew/2017_2_16/Colonies/D7_0010_x0.0_y0.0_z0.czi&quot;</span>  <span class="c1"># noqa</span>
-        <span class="n">black_reference_path</span> <span class="o">=</span> <span class="s2">&quot;/home/mattb/git/microscopeautomation/data/test_data_matthew/2017_2_16/References/BlackReferenceTransmitted10x.czi&quot;</span>  <span class="c1"># noqa</span>
-        <span class="n">illumination_reference_path</span> <span class="o">=</span> <span class="s2">&quot;/home/mattb/git/microscopeautomation/data/test_data_matthew/2017_2_16/References/BackgroundTransmitted_10x_mean.tif&quot;</span>  <span class="c1"># noqa</span>
-        <span class="n">output_original</span> <span class="o">=</span> <span class="s2">&quot;/home/mattb/git/microscopeautomation/data/test_data_matthew/background_test/original.tif&quot;</span>  <span class="c1"># noqa</span>
-        <span class="n">output_black_correction</span> <span class="o">=</span> <span class="s2">&quot;/home/mattb/git/microscopeautomation/data/test_data_matthew/background_test/blackCorrection.tif&quot;</span>  <span class="c1"># noqa</span>
-        <span class="n">output_illumination_correction</span> <span class="o">=</span> <span class="s2">&quot;/home/mattb/git/microscopeautomation/data/test_data_matthew/background_test/illuminationCorrection.tif&quot;</span>  <span class="c1"># noqa</span>
-    <span class="k">else</span><span class="p">:</span>
-        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Not implemented&quot;</span><span class="p">)</span>
-        <span class="n">exit</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
-
-    <span class="c1"># create LoadImage object to read Zeiss . czi images</span>
-    <span class="n">image</span> <span class="o">=</span> <span class="n">load_image_czi</span><span class="o">.</span><span class="n">ImageAICS</span><span class="p">(</span><span class="n">meta</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;aics_filePath&quot;</span><span class="p">:</span> <span class="n">imagePath</span><span class="p">})</span>
-    <span class="n">black_reference</span> <span class="o">=</span> <span class="n">load_image_czi</span><span class="o">.</span><span class="n">ImageAICS</span><span class="p">(</span>
-        <span class="n">meta</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;aics_filePath&quot;</span><span class="p">:</span> <span class="n">black_reference_path</span><span class="p">}</span>
-    <span class="p">)</span>
-
-    <span class="n">rz</span> <span class="o">=</span> <span class="n">load_image_czi</span><span class="o">.</span><span class="n">LoadImageCzi</span><span class="p">()</span>
-    <span class="n">image</span> <span class="o">=</span> <span class="n">rz</span><span class="o">.</span><span class="n">load_image</span><span class="p">(</span><span class="n">image</span><span class="p">,</span> <span class="n">get_meta</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span><span class="o">.</span><span class="n">get_data</span><span class="p">()[:,</span> <span class="p">:,</span> <span class="mi">0</span><span class="p">]</span>
-    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;image (min, max)&quot;</span><span class="p">,</span> <span class="n">image</span><span class="o">.</span><span class="n">min</span><span class="p">(),</span> <span class="n">image</span><span class="o">.</span><span class="n">max</span><span class="p">())</span>
-    <span class="c1"># imgScaled = np.int8((image-image.min())/(image.max()-image.min())*255)</span>
-    <span class="n">img_scaled</span> <span class="o">=</span> <span class="p">((</span><span class="n">image</span> <span class="o">-</span> <span class="n">image</span><span class="o">.</span><span class="n">min</span><span class="p">())</span> <span class="o">/</span> <span class="p">(</span><span class="n">image</span><span class="o">.</span><span class="n">max</span><span class="p">()</span> <span class="o">-</span> <span class="n">image</span><span class="o">.</span><span class="n">min</span><span class="p">())</span> <span class="o">*</span> <span class="mi">255</span><span class="p">)</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span>
-        <span class="n">dtype</span><span class="o">=</span><span class="n">numpy</span><span class="o">.</span><span class="n">uint8</span>
-    <span class="p">)</span>
-    <span class="n">plt</span><span class="o">.</span><span class="n">imshow</span><span class="p">(</span><span class="n">img_scaled</span><span class="p">,</span> <span class="n">cmap</span><span class="o">=</span><span class="s2">&quot;Greys&quot;</span><span class="p">)</span>
-    <span class="n">plt</span><span class="o">.</span><span class="n">title</span><span class="p">(</span><span class="s2">&quot;Image&quot;</span><span class="p">)</span>
-    <span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
-    <span class="n">io</span><span class="o">.</span><span class="n">imsave</span><span class="p">(</span><span class="n">output_original</span><span class="p">,</span> <span class="n">img_scaled</span><span class="p">)</span>
-
-    <span class="n">black_reference</span> <span class="o">=</span> <span class="n">rz</span><span class="o">.</span><span class="n">load_image</span><span class="p">(</span><span class="n">black_reference</span><span class="p">,</span> <span class="n">get_meta</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span><span class="o">.</span><span class="n">get_data</span><span class="p">()</span>
-    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;black_reference (min, max)&quot;</span><span class="p">,</span> <span class="n">black_reference</span><span class="o">.</span><span class="n">min</span><span class="p">(),</span> <span class="n">black_reference</span><span class="o">.</span><span class="n">max</span><span class="p">())</span>
-    <span class="c1"># imgScaled = np.int8((black_reference-black_reference.min())/(black_reference.max()-black_reference.min())*255)  # noqa</span>
-    <span class="n">imgScaled</span> <span class="o">=</span> <span class="p">(</span>
-        <span class="p">(</span>
-            <span class="p">(</span><span class="n">black_reference</span> <span class="o">-</span> <span class="n">black_reference</span><span class="o">.</span><span class="n">min</span><span class="p">())</span>
-            <span class="o">/</span> <span class="p">(</span><span class="n">black_reference</span><span class="o">.</span><span class="n">max</span><span class="p">()</span> <span class="o">-</span> <span class="n">black_reference</span><span class="o">.</span><span class="n">min</span><span class="p">())</span>
-            <span class="o">*</span> <span class="mi">255</span>
-        <span class="p">)</span>
-    <span class="p">)</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="n">dtype</span><span class="o">=</span><span class="n">numpy</span><span class="o">.</span><span class="n">uint8</span><span class="p">)</span>
-    <span class="n">plt</span><span class="o">.</span><span class="n">imshow</span><span class="p">(</span><span class="n">imgScaled</span><span class="p">,</span> <span class="n">cmap</span><span class="o">=</span><span class="s2">&quot;Greys&quot;</span><span class="p">)</span>
-    <span class="n">plt</span><span class="o">.</span><span class="n">title</span><span class="p">(</span><span class="s2">&quot;Black Reference&quot;</span><span class="p">)</span>
-    <span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
-
-    <span class="c1"># kill virtual machine</span>
-    <span class="n">rz</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
-
-    <span class="c1"># read tiff images</span>
-    <span class="n">illumination_reference</span> <span class="o">=</span> <span class="n">io</span><span class="o">.</span><span class="n">imread</span><span class="p">(</span><span class="n">illumination_reference_path</span><span class="p">)</span>
-    <span class="n">plt</span><span class="o">.</span><span class="n">imshow</span><span class="p">(</span><span class="n">illumination_reference</span><span class="p">,</span> <span class="n">cmap</span><span class="o">=</span><span class="s2">&quot;Greys&quot;</span><span class="p">)</span>
-    <span class="n">plt</span><span class="o">.</span><span class="n">title</span><span class="p">(</span><span class="s2">&quot;Illumination Reference&quot;</span><span class="p">)</span>
-    <span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
-
-    <span class="c1"># correct fixed pattern noise</span>
-    <span class="n">testPatternCorrection</span> <span class="o">=</span> <span class="kc">False</span>
-    <span class="k">if</span> <span class="n">testPatternCorrection</span><span class="p">:</span>
-        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Test fixed pattern correction&quot;</span><span class="p">)</span>
-        <span class="n">patternCorrectedImage</span> <span class="o">=</span> <span class="n">fixed_pattern_correction</span><span class="p">(</span><span class="n">image</span><span class="p">,</span> <span class="n">black_reference</span><span class="p">)</span>
-        <span class="c1"># imgScaled = np.int8((patternCorrectedImage-patternCorrectedImage.min())/(patternCorrectedImage.max()-patternCorrectedImage.min())*255)  # noqa</span>
-        <span class="n">imgScaled</span> <span class="o">=</span> <span class="p">(</span>
-            <span class="p">(</span>
-                <span class="p">(</span><span class="n">patternCorrectedImage</span> <span class="o">-</span> <span class="n">patternCorrectedImage</span><span class="o">.</span><span class="n">min</span><span class="p">())</span>
-                <span class="o">/</span> <span class="p">(</span><span class="n">patternCorrectedImage</span><span class="o">.</span><span class="n">max</span><span class="p">()</span> <span class="o">-</span> <span class="n">patternCorrectedImage</span><span class="o">.</span><span class="n">min</span><span class="p">())</span>
-                <span class="o">*</span> <span class="mi">255</span>
-            <span class="p">)</span>
-        <span class="p">)</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="n">dtype</span><span class="o">=</span><span class="n">numpy</span><span class="o">.</span><span class="n">uint8</span><span class="p">)</span>
-        <span class="n">plt</span><span class="o">.</span><span class="n">imshow</span><span class="p">(</span><span class="n">imgScaled</span><span class="p">,</span> <span class="n">cmap</span><span class="o">=</span><span class="s2">&quot;Greys&quot;</span><span class="p">)</span>
-        <span class="n">plt</span><span class="o">.</span><span class="n">title</span><span class="p">(</span><span class="s2">&quot;Fixed Pattern Corrected Image&quot;</span><span class="p">)</span>
-        <span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
-        <span class="n">io</span><span class="o">.</span><span class="n">imsave</span><span class="p">(</span><span class="n">output_black_correction</span><span class="p">,</span> <span class="n">imgScaled</span><span class="p">)</span>
-
-    <span class="c1"># correct uneven illumination</span>
-    <span class="n">test_illumination_correction</span> <span class="o">=</span> <span class="kc">True</span>
-    <span class="k">if</span> <span class="n">test_illumination_correction</span><span class="p">:</span>
-        <span class="n">illumination_corrected_image</span> <span class="o">=</span> <span class="n">illumination_correction</span><span class="p">(</span>
-            <span class="n">image</span><span class="p">,</span> <span class="n">black_reference</span><span class="p">,</span> <span class="n">illumination_reference</span>
-        <span class="p">)</span>
-        <span class="c1"># imgScaled = np.int8((illuminationCorrectedImage-illuminationCorrectedImage.min())/(illuminationCorrectedImage.max()-illuminationCorrectedImage.min())*255)  # noqa</span>
-        <span class="n">img_scaled</span> <span class="o">=</span> <span class="p">(</span>
-            <span class="p">(</span>
-                <span class="p">(</span><span class="n">illumination_corrected_image</span> <span class="o">-</span> <span class="n">illumination_corrected_image</span><span class="o">.</span><span class="n">min</span><span class="p">())</span>
-                <span class="o">/</span> <span class="p">(</span>
-                    <span class="n">illumination_corrected_image</span><span class="o">.</span><span class="n">max</span><span class="p">()</span>
-                    <span class="o">-</span> <span class="n">illumination_corrected_image</span><span class="o">.</span><span class="n">min</span><span class="p">()</span>
-                <span class="p">)</span>
-                <span class="o">*</span> <span class="mi">255</span>
-            <span class="p">)</span>
-        <span class="p">)</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="n">dtype</span><span class="o">=</span><span class="n">numpy</span><span class="o">.</span><span class="n">uint8</span><span class="p">)</span>
-        <span class="n">plt</span><span class="o">.</span><span class="n">imshow</span><span class="p">(</span><span class="n">img_scaled</span><span class="p">,</span> <span class="n">cmap</span><span class="o">=</span><span class="s2">&quot;Greys&quot;</span><span class="p">)</span>
-        <span class="n">plt</span><span class="o">.</span><span class="n">title</span><span class="p">(</span><span class="s2">&quot;Illumination Corrected Image&quot;</span><span class="p">)</span>
-        <span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
-        <span class="n">io</span><span class="o">.</span><span class="n">imsave</span><span class="p">(</span><span class="n">output_illumination_correction</span><span class="p">,</span> <span class="n">img_scaled</span><span class="p">)</span>
-
-    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Test correct_background done&quot;</span><span class="p">)</span>
 </pre></div>
 
           </div>

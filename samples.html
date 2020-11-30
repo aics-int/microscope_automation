@@ -1883,19 +1883,19 @@ At this moment {‘Sample’, ‘Barcode’, ‘Colony’} are supported</p>
 <dl class="py method">
 <dt id="microscope_automation.samples.samples.Well.get_tile_positions_list">
 <code class="sig-name descname">get_tile_positions_list</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">prefs</span></em>, <em class="sig-param"><span class="n">tile_type</span><span class="o">=</span><span class="default_value">'Well'</span></em>, <em class="sig-param"><span class="n">verbose</span><span class="o">=</span><span class="default_value">True</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/microscope_automation/samples/samples.html#Well.get_tile_positions_list"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#microscope_automation.samples.samples.Well.get_tile_positions_list" title="Permalink to this definition">¶</a></dt>
-<dd><p>Get positions for tiles in absolute coordinates.</p>
+<dd><p>Get positions for tiles in absolute coordinates.
+Other classes have additional tile_objects (e.g. ColonySize).</p>
 <dl>
-<dt>Input:</dt><dd><p>prefs: dictionary with preferences for tiling</p>
-<dl class="simple">
-<dt>tile_type: type of tiling.  Possible options:</dt><dd><p>‘None’: do not tile
-‘Fixed’: use fixed number of tiles
-‘Well’: use enough tiles to cover one well</p>
+<dt>Input:</dt><dd><p>prefs: Preferences object with preferences for tiling</p>
+<dl>
+<dt>tile_type: type of tiling.  Possible options:</dt><dd><p>‘None’: do not tile</p>
+<p>‘Fixed’: use fixed number of tiles</p>
+<p>‘Well’: use enough tiles to cover one well</p>
 </dd>
 </dl>
 <p>verbose: print debugging information</p>
 </dd>
 <dt>Output:</dt><dd><p>tile_position_list: list with absolute positions for tiling</p>
-<p>Other classes have additional tile_objects (e.g. ColonySize)</p>
 </dd>
 </dl>
 </dd></dl>

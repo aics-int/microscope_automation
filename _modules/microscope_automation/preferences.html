@@ -34,7 +34,7 @@
   <h1>Source code for microscope_automation.preferences</h1><div class="highlight"><pre>
 <span></span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">Created on Jun 7, 2016</span>
-<span class="sd">Part of microscopeAutomation</span>
+<span class="sd">Part of microscope_automation</span>
 <span class="sd">Will read and return values for different configuration files</span>
 
 <span class="sd">@author: winfriedw</span>
@@ -43,7 +43,7 @@
 <span class="kn">import</span> <span class="nn">logging</span>
 
 <span class="c1"># create logger</span>
-<span class="n">module_logger</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="s2">&quot;microscopeAutomation&quot;</span><span class="p">)</span>
+<span class="n">module_logger</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="s2">&quot;microscope_automation&quot;</span><span class="p">)</span>
 
 
 <div class="viewcode-block" id="Preferences"><a class="viewcode-back" href="../../preferences.html#microscope_automation.preferences.Preferences">[docs]</a><span class="k">class</span> <span class="nc">Preferences</span><span class="p">:</span>
@@ -65,7 +65,7 @@
 <span class="sd">         Object of class preferences</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="c1"># setup logging</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">logger</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="s2">&quot;microscopeAutomation.MetaData.preferences&quot;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">logger</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="s2">&quot;microscope_automation.preferences.Preferences&quot;</span><span class="p">)</span>
 
         <span class="c1"># check for valid input</span>
         <span class="c1"># We should add checking for valid filename etc.</span>
@@ -169,21 +169,6 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">prefs</span><span class="p">[</span><span class="n">name</span><span class="p">]</span> <span class="o">=</span> <span class="n">value</span></div></div>
 
     <span class="c1"># TODO: Add capacity to save preferences</span>
-
-
-<span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s2">&quot;__main__&quot;</span><span class="p">:</span>
-    <span class="n">pref_path</span> <span class="o">=</span> <span class="s2">&quot;../GeneralSettings/preferences.yml&quot;</span>
-    <span class="n">meta</span> <span class="o">=</span> <span class="n">Preferences</span><span class="p">(</span><span class="n">pref_path</span><span class="p">)</span>
-    <span class="nb">print</span><span class="p">(</span><span class="n">meta</span><span class="o">.</span><span class="n">get_pref</span><span class="p">(</span><span class="s2">&quot;PathMicroscopeSpecs&quot;</span><span class="p">))</span>
-    <span class="nb">print</span><span class="p">(</span><span class="n">meta</span><span class="o">.</span><span class="n">get_pref</span><span class="p">(</span><span class="s2">&quot;ExperimentsScanBackground&quot;</span><span class="p">))</span>
-
-    <span class="n">meta_object</span> <span class="o">=</span> <span class="n">meta</span><span class="o">.</span><span class="n">get_pref_as_meta</span><span class="p">(</span><span class="s2">&quot;ScanColonies&quot;</span><span class="p">)</span>
-    <span class="nb">print</span><span class="p">(</span><span class="n">meta_object</span><span class="o">.</span><span class="n">get_pref</span><span class="p">(</span><span class="s2">&quot;Execute&quot;</span><span class="p">))</span>
-    <span class="nb">print</span><span class="p">(</span><span class="n">meta_object</span><span class="o">.</span><span class="n">get_parent_prefs</span><span class="p">())</span>
-    <span class="nb">print</span><span class="p">(</span><span class="n">meta_object</span><span class="o">.</span><span class="n">get_pref</span><span class="p">(</span><span class="s2">&quot;PathDailyFolder&quot;</span><span class="p">))</span>
-    <span class="nb">print</span><span class="p">(</span><span class="n">meta_object</span><span class="o">.</span><span class="n">get_pref</span><span class="p">(</span><span class="s2">&quot;Tile&quot;</span><span class="p">,</span> <span class="n">valid_values</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;None&quot;</span><span class="p">,</span> <span class="s2">&quot;Fixed&quot;</span><span class="p">,</span> <span class="s2">&quot;Size&quot;</span><span class="p">]))</span>
-    <span class="nb">print</span><span class="p">(</span><span class="n">meta_object</span><span class="o">.</span><span class="n">get_pref</span><span class="p">(</span><span class="s2">&quot;Tile&quot;</span><span class="p">,</span> <span class="n">valid_values</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;ThrowError&quot;</span><span class="p">]))</span>
-    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Done&quot;</span><span class="p">)</span>
 </pre></div>
 
           </div>

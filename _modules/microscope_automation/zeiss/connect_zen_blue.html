@@ -1579,19 +1579,6 @@
         <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Test macro with parameters&quot;</span><span class="p">)</span>
         <span class="n">m</span><span class="o">.</span><span class="n">run_macro</span><span class="p">(</span><span class="n">macro_name</span><span class="p">,</span> <span class="n">macro_parms</span><span class="p">)</span>
     <span class="k">return</span> <span class="n">success</span></div>
-
-
-<span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s2">&quot;__main__&quot;</span><span class="p">:</span>
-
-    <span class="c1"># test = [&#39;execute_experiment&#39;, &#39;test_definite_focus&#39;,</span>
-    <span class="c1">#         &#39;test_definite_focus_interactive&#39;, &#39;snap_image&#39;, &#39;live_mode&#39;,</span>
-    <span class="c1">#         &#39;get_all_objectives&#39;, &#39;get_objective_information&#39;,</span>
-    <span class="c1">#         &#39;trigger_pump&#39;, &#39;test_focus&#39;, &#39;save_image&#39;, &#39;test_stage&#39;, &#39;test_macro&#39;]</span>
-    <span class="n">test</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;test_macro&quot;</span><span class="p">]</span>
-    <span class="k">if</span> <span class="n">test_connect_zen_blue</span><span class="p">(</span><span class="n">test</span><span class="o">=</span><span class="n">test</span><span class="p">):</span>
-        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Tests performed successful: &quot;</span><span class="p">,</span> <span class="n">test</span><span class="p">)</span>
-    <span class="k">else</span><span class="p">:</span>
-        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Test stopped without  success&quot;</span><span class="p">)</span>
 </pre></div>
 
           </div>

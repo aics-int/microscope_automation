@@ -1475,8 +1475,9 @@ from center of well positions</p>
 <dt id="microscope_automation.zeiss.write_zen_tiles_experiment.PositionWriter.get_next_pos_name">
 <code class="sig-name descname">get_next_pos_name</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">test_mode</span><span class="o">=</span><span class="default_value">False</span></em>, <em class="sig-param"><span class="n">test_file_names</span><span class="o">=</span><span class="default_value">[]</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/microscope_automation/zeiss/write_zen_tiles_experiment.html#PositionWriter.get_next_pos_name"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#microscope_automation.zeiss.write_zen_tiles_experiment.PositionWriter.get_next_pos_name" title="Permalink to this definition">¶</a></dt>
 <dd><p>Find the next available letter label, but dont backfill files.</p>
-<dl class="simple">
-<dt>Inputs:</dt><dd><p>folder: os.normpath’ed folder containing all positions lists.</p>
+<dl>
+<dt>Input:</dt><dd><p>test_mode: False by default. Runs in test mode if True.</p>
+<p>test_file_names: list of test file names to use if running in test mode</p>
 </dd>
 <dt>Output:</dt><dd><p>label: unused alphabetical label for new positions list</p>
 </dd>
@@ -1498,7 +1499,7 @@ from center of well positions</p>
 <code class="sig-name descname">write</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">converted</span><span class="o">=</span><span class="default_value">[]</span></em>, <em class="sig-param"><span class="n">dummy</span><span class="o">=</span><span class="default_value">''</span></em>, <em class="sig-param"><span class="n">name_czsh</span><span class="o">=</span><span class="default_value">'positions_output.czsh'</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/microscope_automation/zeiss/write_zen_tiles_experiment.html#PositionWriter.write"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#microscope_automation.zeiss.write_zen_tiles_experiment.PositionWriter.write" title="Permalink to this definition">¶</a></dt>
 <dd><p>Writes coordinates to a dummy.czsh file, and saves it</p>
 <dl>
-<dt>Inputs:</dt><dd><p>converted: positions to write to the czsh file</p>
+<dt>Input:</dt><dd><p>converted: positions to write to the czsh file</p>
 <p>dummy: empty (no coordinates) .czsh file to use for writing</p>
 <p>name_czsh: name to save written .czsh file as</p>
 </dd>

@@ -46,8 +46,6 @@
 <span class="kn">import</span> <span class="nn">matplotlib.patches</span> <span class="k">as</span> <span class="nn">mpatches</span>
 <span class="kn">import</span> <span class="nn">string</span>
 
-<span class="kn">from</span> <span class="nn">..preferences</span> <span class="kn">import</span> <span class="n">Preferences</span>
-
 
 <div class="viewcode-block" id="draw_label"><a class="viewcode-back" href="../../../microscope_automation.samples.html#microscope_automation.samples.draw_plate.draw_label">[docs]</a><span class="k">def</span> <span class="nf">draw_label</span><span class="p">(</span><span class="n">x</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">y</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">text</span><span class="o">=</span><span class="s2">&quot;Hallo World!&quot;</span><span class="p">,</span> <span class="n">align</span><span class="o">=</span><span class="s2">&quot;center&quot;</span><span class="p">):</span>
     <span class="n">label</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">text</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">text</span><span class="p">,</span> <span class="n">ha</span><span class="o">=</span><span class="n">align</span><span class="p">,</span> <span class="n">va</span><span class="o">=</span><span class="s2">&quot;center&quot;</span><span class="p">,</span> <span class="n">family</span><span class="o">=</span><span class="s2">&quot;sans-serif&quot;</span><span class="p">,</span> <span class="n">size</span><span class="o">=</span><span class="mi">20</span><span class="p">)</span>
@@ -217,22 +215,6 @@
         <span class="n">plt</span><span class="o">.</span><span class="n">axis</span><span class="p">(</span><span class="s2">&quot;off&quot;</span><span class="p">)</span>
 
     <span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span></div>
-
-
-<span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s2">&quot;__main__&quot;</span><span class="p">:</span>
-    <span class="c1"># location of preferences file with plate layout</span>
-    <span class="n">prefs_file</span> <span class="o">=</span> <span class="s2">&quot;/Users/winfriedw/Documents/Eclipse/Mars_011816/microscopeAutomation/src/PlateLayout_short.yml&quot;</span>  <span class="c1"># noqa</span>
-
-    <span class="c1"># draw plate without preferences</span>
-    <span class="n">draw_plate</span><span class="p">(</span><span class="n">n_col</span><span class="o">=</span><span class="mi">4</span><span class="p">,</span> <span class="n">n_row</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span> <span class="n">pitch</span><span class="o">=</span><span class="mi">26</span><span class="p">,</span> <span class="n">diameter</span><span class="o">=</span><span class="mf">22.05</span><span class="p">)</span>
-
-    <span class="c1"># draw plate with preferences</span>
-    <span class="n">prefs</span> <span class="o">=</span> <span class="n">Preferences</span><span class="p">(</span><span class="n">prefs_file</span><span class="p">)</span>
-    <span class="n">n_row</span> <span class="o">=</span> <span class="n">prefs</span><span class="o">.</span><span class="n">get_pref</span><span class="p">(</span><span class="s2">&quot;Rows&quot;</span><span class="p">)</span>
-    <span class="n">n_col</span> <span class="o">=</span> <span class="n">prefs</span><span class="o">.</span><span class="n">get_pref</span><span class="p">(</span><span class="s2">&quot;Columns&quot;</span><span class="p">)</span>
-    <span class="n">pitch</span> <span class="o">=</span> <span class="n">prefs</span><span class="o">.</span><span class="n">get_pref</span><span class="p">(</span><span class="s2">&quot;Pitch&quot;</span><span class="p">)</span>
-    <span class="n">diameter</span> <span class="o">=</span> <span class="n">prefs</span><span class="o">.</span><span class="n">get_pref</span><span class="p">(</span><span class="s2">&quot;Diameter&quot;</span><span class="p">)</span>
-    <span class="n">draw_plate</span><span class="p">(</span><span class="n">n_col</span><span class="p">,</span> <span class="n">n_row</span><span class="p">,</span> <span class="n">pitch</span><span class="p">,</span> <span class="n">diameter</span><span class="p">,</span> <span class="n">prefs</span><span class="p">)</span>
 </pre></div>
 
           </div>

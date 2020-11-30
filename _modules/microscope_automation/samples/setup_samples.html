@@ -49,13 +49,12 @@
 <span class="kn">from</span> <span class="nn">..preferences</span> <span class="kn">import</span> <span class="n">Preferences</span>
 <span class="kn">from</span> <span class="nn">..</span> <span class="kn">import</span> <span class="n">automation_messages_form_layout</span> <span class="k">as</span> <span class="n">message</span>
 <span class="kn">from</span> <span class="nn">..get_path</span> <span class="kn">import</span> <span class="n">get_hardware_settings_path</span><span class="p">,</span> <span class="n">get_colony_file_path</span>
-<span class="kn">from</span> <span class="nn">..hardware.setup_microscope</span> <span class="kn">import</span> <span class="n">setup_microscope</span>
 <span class="kn">from</span> <span class="nn">.</span> <span class="kn">import</span> <span class="n">samples</span>
 
 <span class="c1"># create logger</span>
 <span class="kn">import</span> <span class="nn">logging</span>
 
-<span class="n">logger</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="s2">&quot;microscopeAutomation&quot;</span><span class="p">)</span>
+<span class="n">logger</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="s2">&quot;microscope_automation&quot;</span><span class="p">)</span>
 
 
 <span class="c1">###########################################################################</span>
@@ -70,14 +69,15 @@
 
 <span class="sd">    Input:</span>
 <span class="sd">     prefs: preferences with information about colony file</span>
-<span class="sd">     colonyFile: path to .csv file with colony data.</span>
+
+<span class="sd">     colony_file: path to .csv file with colony data.</span>
 
 <span class="sd">    Output:</span>
 <span class="sd">     colonies: pandas frame with content of .csv file</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="c1"># setup logging</span>
     <span class="n">logger</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span>  <span class="c1"># noqa</span>
-        <span class="s2">&quot;microscopeAutomation.setupAutomation.get_colony_data&quot;</span>
+        <span class="s2">&quot;microscope_automation.samples.setup_samples.get_colony_data&quot;</span>
     <span class="p">)</span>
 
     <span class="c1">##############################</span>
@@ -94,22 +94,22 @@
     <span class="c1"># Use plateID list to be able to expand to multiple plates</span>
     <span class="n">plate_id_list</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">colonies_all</span><span class="o">.</span><span class="n">loc</span><span class="p">[:,</span> <span class="s2">&quot;PlateID&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">unique</span><span class="p">())</span>
 
-    <span class="n">selectedPlateIDList</span> <span class="o">=</span> <span class="p">[</span>
+    <span class="n">selected_plate_id_list</span> <span class="o">=</span> <span class="p">[</span>
         <span class="n">message</span><span class="o">.</span><span class="n">pull_down_select_dialog</span><span class="p">(</span>
             <span class="n">plate_id_list</span><span class="p">,</span>
             <span class="p">(</span>
-                <span class="s2">&quot;Please select barcode of &quot;</span> <span class="s2">&quot;plate on microscope.</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;947 is a good example.&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;Please select barcode of plate on microscope.</span><span class="se">\n</span><span class="s2">&quot;</span>
+                <span class="s2">&quot;947 is a good example.&quot;</span>
             <span class="p">),</span>
         <span class="p">)</span>
     <span class="p">]</span>
-    <span class="n">plateSelector</span> <span class="o">=</span> <span class="n">colonies_all</span><span class="o">.</span><span class="n">loc</span><span class="p">[:,</span> <span class="s2">&quot;PlateID&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">isin</span><span class="p">(</span><span class="n">selectedPlateIDList</span><span class="p">)</span>
+    <span class="n">plate_selector</span> <span class="o">=</span> <span class="n">colonies_all</span><span class="o">.</span><span class="n">loc</span><span class="p">[:,</span> <span class="s2">&quot;PlateID&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">isin</span><span class="p">(</span><span class="n">selected_plate_id_list</span><span class="p">)</span>
 
     <span class="c1"># select columns as defined in preferences.yml file</span>
     <span class="c1"># and rename to software internal names</span>
-    <span class="n">colonyColumns</span> <span class="o">=</span> <span class="n">prefs</span><span class="o">.</span><span class="n">get_pref</span><span class="p">(</span><span class="s2">&quot;ColonyColumns&quot;</span><span class="p">)</span>
-    <span class="n">colonies</span> <span class="o">=</span> <span class="n">colonies_all</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">plateSelector</span><span class="p">,</span> <span class="n">colonyColumns</span><span class="o">.</span><span class="n">keys</span><span class="p">()]</span>
-    <span class="n">colonies</span><span class="o">.</span><span class="n">rename</span><span class="p">(</span><span class="n">columns</span><span class="o">=</span><span class="n">colonyColumns</span><span class="p">,</span> <span class="n">inplace</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="n">colony_columns</span> <span class="o">=</span> <span class="n">prefs</span><span class="o">.</span><span class="n">get_pref</span><span class="p">(</span><span class="s2">&quot;ColonyColumns&quot;</span><span class="p">)</span>
+    <span class="n">colonies</span> <span class="o">=</span> <span class="n">colonies_all</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">plate_selector</span><span class="p">,</span> <span class="n">colony_columns</span><span class="o">.</span><span class="n">keys</span><span class="p">()]</span>
+    <span class="n">colonies</span><span class="o">.</span><span class="n">rename</span><span class="p">(</span><span class="n">columns</span><span class="o">=</span><span class="n">colony_columns</span><span class="p">,</span> <span class="n">inplace</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 
     <span class="c1"># get information about colonies to image</span>
     <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;summary statistics about all colonies on plate &quot;</span><span class="p">,</span> <span class="n">plate_id_list</span><span class="p">)</span>
@@ -157,7 +157,7 @@
 <span class="sd">     well_dict: list with wells that should be considered. Well names in format &#39;A1&#39;.</span>
 
 <span class="sd">    Output:</span>
-<span class="sd">     selectedColonies: subset of colonies to be imaged</span>
+<span class="sd">     slected_colonies: subset of colonies to be imaged</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="c1"># get names of wells to scan</span>
     <span class="n">well_list</span> <span class="o">=</span> <span class="n">well_dict</span><span class="o">.</span><span class="n">keys</span><span class="p">()</span>
@@ -203,7 +203,7 @@
         <span class="c1"># find all colonies within well</span>
         <span class="n">wellSelect</span> <span class="o">=</span> <span class="n">filteredColonies</span><span class="o">.</span><span class="n">Well</span> <span class="o">==</span> <span class="n">well</span>
         <span class="n">coloniesInWell</span> <span class="o">=</span> <span class="n">filteredColonies</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">wellSelect</span><span class="p">]</span>
-        <span class="k">if</span> <span class="n">coloniesInWell</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">&gt;</span> <span class="n">numberImages</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">coloniesInWell</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">&gt;=</span> <span class="n">numberImages</span><span class="p">:</span>
             <span class="n">selected_colonies</span> <span class="o">=</span> <span class="n">selected_colonies</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
                 <span class="n">coloniesInWell</span><span class="o">.</span><span class="n">sample</span><span class="p">(</span><span class="n">numberImages</span><span class="p">)</span>
             <span class="p">)</span>
@@ -216,7 +216,7 @@
 <span class="c1">###########################################################################</span>
 
 
-<div class="viewcode-block" id="add_colonies"><a class="viewcode-back" href="../../../setup_samples.html#microscope_automation.samples.setup_samples.add_colonies">[docs]</a><span class="k">def</span> <span class="nf">add_colonies</span><span class="p">(</span><span class="n">well_object</span><span class="p">,</span> <span class="n">colonies</span><span class="p">,</span> <span class="n">hardware_settings</span><span class="p">,</span> <span class="n">prefs</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<div class="viewcode-block" id="add_colonies"><a class="viewcode-back" href="../../../setup_samples.html#microscope_automation.samples.setup_samples.add_colonies">[docs]</a><span class="k">def</span> <span class="nf">add_colonies</span><span class="p">(</span><span class="n">well_object</span><span class="p">,</span> <span class="n">colonies</span><span class="p">,</span> <span class="n">hardware_settings</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;Add colonies from Celigo scan to well.</span>
 
 <span class="sd">    Input:</span>
@@ -228,15 +228,13 @@
 <span class="sd">     hardware_settings: preferences with description of microscope components,</span>
 <span class="sd">     here coordinate transformation between colonies and well</span>
 
-<span class="sd">     prefs: dictionary with preferences</span>
-
 <span class="sd">    Output:</span>
 <span class="sd">     colony_list: list with all colony objects</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="c1"># select all colonies that are located within well</span>
     <span class="n">well</span> <span class="o">=</span> <span class="n">well_object</span><span class="o">.</span><span class="n">name</span>
 
-    <span class="n">wellData</span> <span class="o">=</span> <span class="n">colonies</span><span class="p">[</span><span class="s2">&quot;Well&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="n">well</span>
+    <span class="n">well_data</span> <span class="o">=</span> <span class="n">colonies</span><span class="p">[</span><span class="s2">&quot;Well&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="n">well</span>
 
     <span class="c1"># get calibration options for colonies</span>
     <span class="n">x_flip</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">hardware_settings</span><span class="o">.</span><span class="n">get_pref</span><span class="p">(</span><span class="s2">&quot;xFlipColony&quot;</span><span class="p">))</span>
@@ -248,7 +246,7 @@
 
     <span class="c1"># List with all colonies to be imaged</span>
     <span class="n">colony_list</span> <span class="o">=</span> <span class="p">[]</span>
-    <span class="k">for</span> <span class="n">colony</span> <span class="ow">in</span> <span class="n">colonies</span><span class="p">[</span><span class="n">wellData</span><span class="p">]</span><span class="o">.</span><span class="n">itertuples</span><span class="p">():</span>
+    <span class="k">for</span> <span class="n">colony</span> <span class="ow">in</span> <span class="n">colonies</span><span class="p">[</span><span class="n">well_data</span><span class="p">]</span><span class="o">.</span><span class="n">itertuples</span><span class="p">():</span>
         <span class="n">center</span> <span class="o">=</span> <span class="p">(</span><span class="n">colony</span><span class="o">.</span><span class="n">Center_X</span><span class="p">,</span> <span class="n">colony</span><span class="o">.</span><span class="n">Center_Y</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
         <span class="n">ellipse</span> <span class="o">=</span> <span class="p">(</span><span class="n">colony</span><span class="o">.</span><span class="n">ColonyMajorAxis</span><span class="p">,</span> <span class="n">colony</span><span class="o">.</span><span class="n">ColonyMinorAxis</span><span class="p">,</span> <span class="n">colony</span><span class="o">.</span><span class="n">Orientation</span><span class="p">)</span>
         <span class="n">colony_name</span> <span class="o">=</span> <span class="n">well</span> <span class="o">+</span> <span class="s2">&quot;_&quot;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">colony</span><span class="o">.</span><span class="n">ColonyNumber</span><span class="p">)</span><span class="o">.</span><span class="n">zfill</span><span class="p">(</span><span class="mi">4</span><span class="p">)</span>
@@ -265,11 +263,10 @@
             <span class="n">x_correction</span><span class="o">=</span><span class="n">x_correction</span><span class="p">,</span>
             <span class="n">y_correction</span><span class="o">=</span><span class="n">y_correction</span><span class="p">,</span>
             <span class="n">z_correction</span><span class="o">=</span><span class="n">z_correction</span><span class="p">,</span>
-            <span class="n">prefs</span><span class="o">=</span><span class="n">prefs</span><span class="p">,</span>
         <span class="p">)</span>
 
         <span class="c1"># add additional meta data</span>
-        <span class="n">colony_object</span><span class="o">.</span><span class="n">set_cell_line</span><span class="p">(</span><span class="n">colony</span><span class="o">.</span><span class="n">cell_line</span><span class="p">)</span>
+        <span class="n">colony_object</span><span class="o">.</span><span class="n">set_cell_line</span><span class="p">(</span><span class="n">colony</span><span class="o">.</span><span class="n">CellLine</span><span class="p">)</span>
         <span class="n">colony_object</span><span class="o">.</span><span class="n">set_clone</span><span class="p">(</span><span class="n">colony</span><span class="o">.</span><span class="n">CloneID</span><span class="p">)</span>
         <span class="n">colony_object</span><span class="o">.</span><span class="n">add_meta</span><span class="p">(</span><span class="n">colony</span><span class="o">.</span><span class="n">_asdict</span><span class="p">())</span>
         <span class="n">colony_list</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">colony_object</span><span class="p">)</span>
@@ -281,7 +278,7 @@
 <span class="c1">###########################################################################</span>
 
 
-<div class="viewcode-block" id="add_barcode"><a class="viewcode-back" href="../../../setup_samples.html#microscope_automation.samples.setup_samples.add_barcode">[docs]</a><span class="k">def</span> <span class="nf">add_barcode</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">well_object</span><span class="p">,</span> <span class="n">layout</span><span class="p">,</span> <span class="n">prefs</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<div class="viewcode-block" id="add_barcode"><a class="viewcode-back" href="../../../setup_samples.html#microscope_automation.samples.setup_samples.add_barcode">[docs]</a><span class="k">def</span> <span class="nf">add_barcode</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">well_object</span><span class="p">,</span> <span class="n">layout</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;Add barcode to well.</span>
 
 <span class="sd">    Input:</span>
@@ -290,8 +287,6 @@
 <span class="sd">     well_object: instance of Well class from module samples</span>
 
 <span class="sd">     layout: preferences for plate layout</span>
-
-<span class="sd">     prefs: dictionary with preferences</span>
 
 <span class="sd">    Output:</span>
 <span class="sd">     none</span>
@@ -354,7 +349,7 @@
     <span class="k">if</span> <span class="n">colony_file</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
         <span class="c1"># load file with colony data and filter colonies that should be imaged</span>
         <span class="c1"># get subset of preferences for colony scanning</span>
-        <span class="n">add_colonies_preferences</span> <span class="o">=</span> <span class="n">prefs</span><span class="o">.</span><span class="n">get_pref_as_meta</span><span class="p">()(</span><span class="s2">&quot;AddColonies&quot;</span><span class="p">)</span>
+        <span class="n">add_colonies_preferences</span> <span class="o">=</span> <span class="n">prefs</span><span class="o">.</span><span class="n">get_pref_as_meta</span><span class="p">(</span><span class="s2">&quot;AddColonies&quot;</span><span class="p">)</span>
 
         <span class="c1"># calculate correction factor for wells</span>
         <span class="n">colonies_path</span> <span class="o">=</span> <span class="n">get_colony_file_path</span><span class="p">(</span><span class="n">add_colonies_preferences</span><span class="p">,</span> <span class="n">colony_file</span><span class="p">)</span>
@@ -364,7 +359,7 @@
         <span class="n">wells_definitions</span> <span class="o">=</span> <span class="n">add_colonies_preferences</span><span class="o">.</span><span class="n">get_pref</span><span class="p">(</span><span class="s2">&quot;Wells&quot;</span><span class="p">)</span>
 
         <span class="n">colonies</span> <span class="o">=</span> <span class="n">filter_colonies</span><span class="p">(</span>
-            <span class="n">add_colonies_preferences</span><span class="p">,</span> <span class="n">colonies</span><span class="p">,</span> <span class="n">wellDict</span><span class="o">=</span><span class="n">wells_definitions</span>
+            <span class="n">add_colonies_preferences</span><span class="p">,</span> <span class="n">colonies</span><span class="p">,</span> <span class="n">well_dict</span><span class="o">=</span><span class="n">wells_definitions</span>
         <span class="p">)</span>
 
         <span class="c1"># get barcode from colonies and attach to plate</span>
@@ -442,7 +437,7 @@
             <span class="n">y_correction</span><span class="o">=</span><span class="n">pump</span><span class="o">.</span><span class="n">get_pref</span><span class="p">(</span><span class="s2">&quot;yCorrection&quot;</span><span class="p">),</span>
             <span class="n">z_correction</span><span class="o">=</span><span class="n">pump</span><span class="o">.</span><span class="n">get_pref</span><span class="p">(</span><span class="s2">&quot;zCorrection&quot;</span><span class="p">),</span>
         <span class="p">)</span>
-        <span class="n">plate_holder_object</span><span class="o">.</span><span class="n">immersionDeliverySystem</span> <span class="o">=</span> <span class="n">immersion_delivery_object</span>
+        <span class="n">plate_holder_object</span><span class="o">.</span><span class="n">immersion_delivery_system</span> <span class="o">=</span> <span class="n">immersion_delivery_object</span>
 
     <span class="c1"># create Plate as part of PlateHolder and add it to PlateHolder</span>
     <span class="c1"># get description for plate dimensions and coordinate system from microscopeSpecifications.yml  # noqa</span>
@@ -528,7 +523,7 @@
     <span class="c1"># update well diameter based on platescanner reads stored in colonies file</span>
     <span class="k">if</span> <span class="n">mean_diameter</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
         <span class="p">[</span>
-            <span class="n">well_obj</span><span class="o">.</span><span class="n">set_set_diameter</span><span class="p">(</span><span class="n">mean_diameter</span><span class="p">)</span>
+            <span class="n">well_obj</span><span class="o">.</span><span class="n">set_assigned_diameter</span><span class="p">(</span><span class="n">mean_diameter</span><span class="p">)</span>
             <span class="k">for</span> <span class="n">well_name</span><span class="p">,</span> <span class="n">well_obj</span> <span class="ow">in</span> <span class="n">plate_object</span><span class="o">.</span><span class="n">get_wells</span><span class="p">()</span><span class="o">.</span><span class="n">items</span><span class="p">()</span>
         <span class="p">]</span>
 
@@ -540,7 +535,7 @@
     <span class="c1"># add colonies to wells</span>
     <span class="k">if</span> <span class="n">colony_file</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
         <span class="n">wellsColoniesList</span> <span class="o">=</span> <span class="p">[</span>
-            <span class="n">add_colonies</span><span class="p">(</span><span class="n">well_obj</span><span class="p">,</span> <span class="n">colonies</span><span class="p">,</span> <span class="n">specifications</span><span class="p">,</span> <span class="n">add_colonies_preferences</span><span class="p">)</span>
+            <span class="n">add_colonies</span><span class="p">(</span><span class="n">well_obj</span><span class="p">,</span> <span class="n">colonies</span><span class="p">,</span> <span class="n">specifications</span><span class="p">)</span>
             <span class="k">for</span> <span class="n">well_name</span><span class="p">,</span> <span class="n">well_obj</span> <span class="ow">in</span> <span class="n">plate_object</span><span class="o">.</span><span class="n">get_wells</span><span class="p">()</span><span class="o">.</span><span class="n">items</span><span class="p">()</span>
         <span class="p">]</span>
 
@@ -586,141 +581,62 @@
 <span class="sd">     plate_holder_object: object that contains one slide.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="c1"># get description for microscope components</span>
-    <span class="n">pathhardware_settings</span> <span class="o">=</span> <span class="n">get_hardware_settings_path</span><span class="p">(</span><span class="n">prefs</span><span class="p">)</span>
-    <span class="n">hardware_settings</span> <span class="o">=</span> <span class="n">Preferences</span><span class="p">(</span><span class="n">pathhardware_settings</span><span class="p">)</span>
-
-    <span class="c1"># create plate holder and connect it to microscope</span>
-    <span class="n">stageID</span> <span class="o">=</span> <span class="n">hardware_settings</span><span class="o">.</span><span class="n">get_pref</span><span class="p">(</span><span class="s2">&quot;PlateHolderStageID&quot;</span><span class="p">)</span>
-    <span class="n">focusID</span> <span class="o">=</span> <span class="n">hardware_settings</span><span class="o">.</span><span class="n">get_pref</span><span class="p">(</span><span class="s2">&quot;PlateHolderFocusID&quot;</span><span class="p">)</span>
-    <span class="n">autoFocusID</span> <span class="o">=</span> <span class="n">hardware_settings</span><span class="o">.</span><span class="n">get_pref</span><span class="p">(</span><span class="s2">&quot;PlateHolderAutoFocusID&quot;</span><span class="p">)</span>
-    <span class="n">objective_changer_id</span> <span class="o">=</span> <span class="n">hardware_settings</span><span class="o">.</span><span class="n">get_pref</span><span class="p">(</span><span class="s2">&quot;PlateHolderObjectiveChangerID&quot;</span><span class="p">)</span>
-    <span class="n">safetyID</span> <span class="o">=</span> <span class="n">hardware_settings</span><span class="o">.</span><span class="n">get_pref</span><span class="p">(</span><span class="s2">&quot;SlideSafetyID&quot;</span><span class="p">)</span>
+    <span class="n">path_hardware_settings</span> <span class="o">=</span> <span class="n">get_hardware_settings_path</span><span class="p">(</span><span class="n">prefs</span><span class="p">)</span>
+    <span class="n">hardware_settings</span> <span class="o">=</span> <span class="n">Preferences</span><span class="p">(</span><span class="n">path_hardware_settings</span><span class="p">)</span>
 
     <span class="c1"># Read settings for coordinate system of slide relative to stage (plate holder)</span>
     <span class="c1"># from microscopeSpecifications.yml file</span>
-    <span class="n">name</span> <span class="o">=</span> <span class="n">hardware_settings</span><span class="o">.</span><span class="n">get_pref</span><span class="p">(</span><span class="s2">&quot;PlateHolder&quot;</span><span class="p">)</span>
-    <span class="n">center</span> <span class="o">=</span> <span class="p">[</span>
-        <span class="nb">float</span><span class="p">(</span><span class="n">hardware_settings</span><span class="o">.</span><span class="n">get_pref</span><span class="p">(</span><span class="s2">&quot;xCenterPlateHolder&quot;</span><span class="p">)),</span>
-        <span class="nb">float</span><span class="p">(</span><span class="n">hardware_settings</span><span class="o">.</span><span class="n">get_pref</span><span class="p">(</span><span class="s2">&quot;yCenterPlateHolder&quot;</span><span class="p">)),</span>
-        <span class="nb">float</span><span class="p">(</span><span class="n">hardware_settings</span><span class="o">.</span><span class="n">get_pref</span><span class="p">(</span><span class="s2">&quot;zCenterPlateHolder&quot;</span><span class="p">)),</span>
-    <span class="p">]</span>
-    <span class="n">x_flip</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">hardware_settings</span><span class="o">.</span><span class="n">get_pref</span><span class="p">(</span><span class="s2">&quot;xFlipPlateHolder&quot;</span><span class="p">))</span>
-    <span class="n">y_flip</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">hardware_settings</span><span class="o">.</span><span class="n">get_pref</span><span class="p">(</span><span class="s2">&quot;yFlipPlateHolder&quot;</span><span class="p">))</span>
-    <span class="n">z_flip</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">hardware_settings</span><span class="o">.</span><span class="n">get_pref</span><span class="p">(</span><span class="s2">&quot;zFlipPlateHolder&quot;</span><span class="p">))</span>
-    <span class="n">x_correction</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">hardware_settings</span><span class="o">.</span><span class="n">get_pref</span><span class="p">(</span><span class="s2">&quot;xCorrectionPlateHolder&quot;</span><span class="p">))</span>
-    <span class="n">y_correction</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">hardware_settings</span><span class="o">.</span><span class="n">get_pref</span><span class="p">(</span><span class="s2">&quot;yCorrectionPlateHolder&quot;</span><span class="p">))</span>
-    <span class="n">z_correction</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">hardware_settings</span><span class="o">.</span><span class="n">get_pref</span><span class="p">(</span><span class="s2">&quot;zCorrectionPlateHolder&quot;</span><span class="p">))</span>
-    <span class="n">x_safe_position</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">hardware_settings</span><span class="o">.</span><span class="n">get_pref</span><span class="p">(</span><span class="s2">&quot;xSafePositionPlateHolder&quot;</span><span class="p">))</span>
-    <span class="n">y_safe_position</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">hardware_settings</span><span class="o">.</span><span class="n">get_pref</span><span class="p">(</span><span class="s2">&quot;ySafePositionPlateHolder&quot;</span><span class="p">))</span>
-    <span class="n">z_safe_position</span> <span class="o">=</span> <span class="n">hardware_settings</span><span class="o">.</span><span class="n">get_pref</span><span class="p">(</span><span class="s2">&quot;zSafePositionPlateHolder&quot;</span><span class="p">)</span>
-
+    <span class="n">plate_holder</span> <span class="o">=</span> <span class="n">hardware_settings</span><span class="o">.</span><span class="n">get_pref_as_meta</span><span class="p">(</span><span class="s2">&quot;PlateHolder&quot;</span><span class="p">)</span>
     <span class="n">plate_holder_object</span> <span class="o">=</span> <span class="n">samples</span><span class="o">.</span><span class="n">PlateHolder</span><span class="p">(</span>
-        <span class="n">name</span><span class="o">=</span><span class="n">name</span><span class="p">,</span>
+        <span class="n">name</span><span class="o">=</span><span class="n">plate_holder</span><span class="o">.</span><span class="n">get_pref</span><span class="p">(</span><span class="s2">&quot;Name&quot;</span><span class="p">),</span>
         <span class="n">microscope_object</span><span class="o">=</span><span class="n">microscope_object</span><span class="p">,</span>
-        <span class="n">stage_id</span><span class="o">=</span><span class="n">stageID</span><span class="p">,</span>
-        <span class="n">focus_id</span><span class="o">=</span><span class="n">focusID</span><span class="p">,</span>
-        <span class="n">auto_focus_id</span><span class="o">=</span><span class="n">autoFocusID</span><span class="p">,</span>
-        <span class="n">objective_changer_id</span><span class="o">=</span><span class="n">objective_changer_id</span><span class="p">,</span>
-        <span class="n">safety_id</span><span class="o">=</span><span class="n">safetyID</span><span class="p">,</span>
-        <span class="n">center</span><span class="o">=</span><span class="n">center</span><span class="p">,</span>
-        <span class="n">x_flip</span><span class="o">=</span><span class="n">x_flip</span><span class="p">,</span>
-        <span class="n">y_flip</span><span class="o">=</span><span class="n">y_flip</span><span class="p">,</span>
-        <span class="n">z_flip</span><span class="o">=</span><span class="n">z_flip</span><span class="p">,</span>
-        <span class="n">x_correction</span><span class="o">=</span><span class="n">x_correction</span><span class="p">,</span>
-        <span class="n">y_correction</span><span class="o">=</span><span class="n">y_correction</span><span class="p">,</span>
-        <span class="n">z_correction</span><span class="o">=</span><span class="n">z_correction</span><span class="p">,</span>
-        <span class="n">x_safe_position</span><span class="o">=</span><span class="n">x_safe_position</span><span class="p">,</span>
-        <span class="n">y_safe_position</span><span class="o">=</span><span class="n">y_safe_position</span><span class="p">,</span>
-        <span class="n">z_safe_position</span><span class="o">=</span><span class="n">z_safe_position</span><span class="p">,</span>
+        <span class="n">stage_id</span><span class="o">=</span><span class="n">plate_holder</span><span class="o">.</span><span class="n">get_pref</span><span class="p">(</span><span class="s2">&quot;StageID&quot;</span><span class="p">),</span>
+        <span class="n">focus_id</span><span class="o">=</span><span class="n">plate_holder</span><span class="o">.</span><span class="n">get_pref</span><span class="p">(</span><span class="s2">&quot;FocusID&quot;</span><span class="p">),</span>
+        <span class="n">auto_focus_id</span><span class="o">=</span><span class="n">plate_holder</span><span class="o">.</span><span class="n">get_pref</span><span class="p">(</span><span class="s2">&quot;AutoFocusID&quot;</span><span class="p">),</span>
+        <span class="n">objective_changer_id</span><span class="o">=</span><span class="n">plate_holder</span><span class="o">.</span><span class="n">get_pref</span><span class="p">(</span><span class="s2">&quot;ObjectiveChangerID&quot;</span><span class="p">),</span>
+        <span class="n">safety_id</span><span class="o">=</span><span class="n">plate_holder</span><span class="o">.</span><span class="n">get_pref</span><span class="p">(</span><span class="s2">&quot;SafetyID&quot;</span><span class="p">),</span>
+        <span class="n">center</span><span class="o">=</span><span class="p">[</span>
+            <span class="n">plate_holder</span><span class="o">.</span><span class="n">get_pref</span><span class="p">(</span><span class="s2">&quot;xCenter&quot;</span><span class="p">),</span>
+            <span class="n">plate_holder</span><span class="o">.</span><span class="n">get_pref</span><span class="p">(</span><span class="s2">&quot;yCenter&quot;</span><span class="p">),</span>
+            <span class="n">plate_holder</span><span class="o">.</span><span class="n">get_pref</span><span class="p">(</span><span class="s2">&quot;zCenter&quot;</span><span class="p">),</span>
+        <span class="p">],</span>
+        <span class="n">x_flip</span><span class="o">=</span><span class="n">plate_holder</span><span class="o">.</span><span class="n">get_pref</span><span class="p">(</span><span class="s2">&quot;xFlip&quot;</span><span class="p">),</span>
+        <span class="n">y_flip</span><span class="o">=</span><span class="n">plate_holder</span><span class="o">.</span><span class="n">get_pref</span><span class="p">(</span><span class="s2">&quot;yFlip&quot;</span><span class="p">),</span>
+        <span class="n">z_flip</span><span class="o">=</span><span class="n">plate_holder</span><span class="o">.</span><span class="n">get_pref</span><span class="p">(</span><span class="s2">&quot;zFlip&quot;</span><span class="p">),</span>
+        <span class="n">x_correction</span><span class="o">=</span><span class="n">plate_holder</span><span class="o">.</span><span class="n">get_pref</span><span class="p">(</span><span class="s2">&quot;xCorrection&quot;</span><span class="p">),</span>
+        <span class="n">y_correction</span><span class="o">=</span><span class="n">plate_holder</span><span class="o">.</span><span class="n">get_pref</span><span class="p">(</span><span class="s2">&quot;yCorrection&quot;</span><span class="p">),</span>
+        <span class="n">z_correction</span><span class="o">=</span><span class="n">plate_holder</span><span class="o">.</span><span class="n">get_pref</span><span class="p">(</span><span class="s2">&quot;zCorrection&quot;</span><span class="p">),</span>
+        <span class="n">x_safe_position</span><span class="o">=</span><span class="n">plate_holder</span><span class="o">.</span><span class="n">get_pref</span><span class="p">(</span><span class="s2">&quot;xSafePosition&quot;</span><span class="p">),</span>
+        <span class="n">y_safe_position</span><span class="o">=</span><span class="n">plate_holder</span><span class="o">.</span><span class="n">get_pref</span><span class="p">(</span><span class="s2">&quot;ySafePosition&quot;</span><span class="p">),</span>
+        <span class="n">z_safe_position</span><span class="o">=</span><span class="n">plate_holder</span><span class="o">.</span><span class="n">get_pref</span><span class="p">(</span><span class="s2">&quot;zSafePosition&quot;</span><span class="p">),</span>
     <span class="p">)</span>
 
     <span class="c1"># create slide of class Sample as part of PlateHolder</span>
     <span class="c1"># and add it to PlateHolder get description for plate dimensions</span>
     <span class="c1"># and coordinate system from microscopeSpecifications.yml</span>
-    <span class="n">slide_name</span> <span class="o">=</span> <span class="n">hardware_settings</span><span class="o">.</span><span class="n">get_pref</span><span class="p">(</span><span class="s2">&quot;Slide&quot;</span><span class="p">)</span>
-    <span class="n">center</span> <span class="o">=</span> <span class="p">[</span>
-        <span class="nb">float</span><span class="p">(</span><span class="n">hardware_settings</span><span class="o">.</span><span class="n">get_pref</span><span class="p">(</span><span class="s2">&quot;xCenterSlide&quot;</span><span class="p">)),</span>
-        <span class="nb">float</span><span class="p">(</span><span class="n">hardware_settings</span><span class="o">.</span><span class="n">get_pref</span><span class="p">(</span><span class="s2">&quot;yCenterSlide&quot;</span><span class="p">)),</span>
-        <span class="nb">float</span><span class="p">(</span><span class="n">hardware_settings</span><span class="o">.</span><span class="n">get_pref</span><span class="p">(</span><span class="s2">&quot;zCenterSlide&quot;</span><span class="p">)),</span>
-    <span class="p">]</span>
-    <span class="n">x_flip</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">hardware_settings</span><span class="o">.</span><span class="n">get_pref</span><span class="p">(</span><span class="s2">&quot;xFlipSlide&quot;</span><span class="p">))</span>
-    <span class="n">y_flip</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">hardware_settings</span><span class="o">.</span><span class="n">get_pref</span><span class="p">(</span><span class="s2">&quot;yFlipSlide&quot;</span><span class="p">))</span>
-    <span class="n">z_flip</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">hardware_settings</span><span class="o">.</span><span class="n">get_pref</span><span class="p">(</span><span class="s2">&quot;zFlipSlide&quot;</span><span class="p">))</span>
-    <span class="n">x_correction</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">hardware_settings</span><span class="o">.</span><span class="n">get_pref</span><span class="p">(</span><span class="s2">&quot;xCorrectionSlide&quot;</span><span class="p">))</span>
-    <span class="n">y_correction</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">hardware_settings</span><span class="o">.</span><span class="n">get_pref</span><span class="p">(</span><span class="s2">&quot;yCorrectionSlide&quot;</span><span class="p">))</span>
-    <span class="n">z_correction</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">hardware_settings</span><span class="o">.</span><span class="n">get_pref</span><span class="p">(</span><span class="s2">&quot;zCorrectionSlide&quot;</span><span class="p">))</span>
-
+    <span class="n">slide</span> <span class="o">=</span> <span class="n">hardware_settings</span><span class="o">.</span><span class="n">get_pref_as_meta</span><span class="p">(</span><span class="s2">&quot;Slide&quot;</span><span class="p">)</span>
     <span class="n">slide_object</span> <span class="o">=</span> <span class="n">samples</span><span class="o">.</span><span class="n">Slide</span><span class="p">(</span>
-        <span class="n">name</span><span class="o">=</span><span class="n">slide_name</span><span class="p">,</span>
+        <span class="n">name</span><span class="o">=</span><span class="n">slide</span><span class="o">.</span><span class="n">get_pref</span><span class="p">(</span><span class="s2">&quot;Name&quot;</span><span class="p">),</span>
         <span class="n">plate_holder_object</span><span class="o">=</span><span class="n">plate_holder_object</span><span class="p">,</span>
-        <span class="n">center</span><span class="o">=</span><span class="n">center</span><span class="p">,</span>
-        <span class="n">x_flip</span><span class="o">=</span><span class="n">x_flip</span><span class="p">,</span>
-        <span class="n">y_flip</span><span class="o">=</span><span class="n">y_flip</span><span class="p">,</span>
-        <span class="n">z_flip</span><span class="o">=</span><span class="n">z_flip</span><span class="p">,</span>
-        <span class="n">x_correction</span><span class="o">=</span><span class="n">x_correction</span><span class="p">,</span>
-        <span class="n">y_correction</span><span class="o">=</span><span class="n">y_correction</span><span class="p">,</span>
-        <span class="n">z_correction</span><span class="o">=</span><span class="n">z_correction</span><span class="p">,</span>
+        <span class="n">center</span><span class="o">=</span><span class="p">[</span>
+            <span class="n">slide</span><span class="o">.</span><span class="n">get_pref</span><span class="p">(</span><span class="s2">&quot;xCenter&quot;</span><span class="p">),</span>
+            <span class="n">slide</span><span class="o">.</span><span class="n">get_pref</span><span class="p">(</span><span class="s2">&quot;yCenter&quot;</span><span class="p">),</span>
+            <span class="n">slide</span><span class="o">.</span><span class="n">get_pref</span><span class="p">(</span><span class="s2">&quot;zCenter&quot;</span><span class="p">),</span>
+        <span class="p">],</span>
+        <span class="n">x_flip</span><span class="o">=</span><span class="n">slide</span><span class="o">.</span><span class="n">get_pref</span><span class="p">(</span><span class="s2">&quot;xFlip&quot;</span><span class="p">),</span>
+        <span class="n">y_flip</span><span class="o">=</span><span class="n">slide</span><span class="o">.</span><span class="n">get_pref</span><span class="p">(</span><span class="s2">&quot;yFlip&quot;</span><span class="p">),</span>
+        <span class="n">z_flip</span><span class="o">=</span><span class="n">slide</span><span class="o">.</span><span class="n">get_pref</span><span class="p">(</span><span class="s2">&quot;zFlip&quot;</span><span class="p">),</span>
+        <span class="n">x_correction</span><span class="o">=</span><span class="n">slide</span><span class="o">.</span><span class="n">get_pref</span><span class="p">(</span><span class="s2">&quot;xCorrection&quot;</span><span class="p">),</span>
+        <span class="n">y_correction</span><span class="o">=</span><span class="n">slide</span><span class="o">.</span><span class="n">get_pref</span><span class="p">(</span><span class="s2">&quot;yCorrection&quot;</span><span class="p">),</span>
+        <span class="n">z_correction</span><span class="o">=</span><span class="n">slide</span><span class="o">.</span><span class="n">get_pref</span><span class="p">(</span><span class="s2">&quot;zCorrection&quot;</span><span class="p">),</span>
     <span class="p">)</span>
+
     <span class="n">reference_object</span> <span class="o">=</span> <span class="n">samples</span><span class="o">.</span><span class="n">Slide</span><span class="p">(</span>
         <span class="n">name</span><span class="o">=</span><span class="s2">&quot;Reference&quot;</span><span class="p">,</span> <span class="n">plate_holder_object</span><span class="o">=</span><span class="n">slide_object</span><span class="p">,</span> <span class="n">center</span><span class="o">=</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">]</span>
     <span class="p">)</span>
     <span class="n">slide_object</span><span class="o">.</span><span class="n">set_reference_object</span><span class="p">(</span><span class="n">reference_object</span><span class="p">)</span>
-    <span class="n">plate_holder_object</span><span class="o">.</span><span class="n">add_slides</span><span class="p">({</span><span class="n">slide_name</span><span class="p">:</span> <span class="n">slide_object</span><span class="p">})</span>
+    <span class="n">plate_holder_object</span><span class="o">.</span><span class="n">add_slides</span><span class="p">({</span><span class="n">slide</span><span class="o">.</span><span class="n">get_pref</span><span class="p">(</span><span class="s2">&quot;Name&quot;</span><span class="p">):</span> <span class="n">slide_object</span><span class="p">})</span>
     <span class="k">return</span> <span class="n">plate_holder_object</span></div>
-
-
-<span class="c1">###########################################################################</span>
-<span class="c1">#</span>
-<span class="c1"># Test functions</span>
-<span class="c1">#</span>
-<span class="c1">############################################################################</span>
-
-<span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s2">&quot;__main__&quot;</span><span class="p">:</span>
-    <span class="c1"># get all information about experiment</span>
-
-    <span class="k">try</span><span class="p">:</span>
-        <span class="c1"># location of preferences file on Mac</span>
-        <span class="n">prefsFile</span> <span class="o">=</span> <span class="s2">&quot;../GeneralSettings/preferences.yml&quot;</span>
-        <span class="n">dirPath</span> <span class="o">=</span> <span class="s2">&quot;/Users/winfriedw/Documents/Programming/ResultTestImages/&quot;</span>
-        <span class="n">barcode</span> <span class="o">=</span> <span class="s2">&quot;3500000077&quot;</span>
-        <span class="n">colonyFile</span> <span class="o">=</span> <span class="s2">&quot;PipelineData_Celigo.csv&quot;</span>
-
-        <span class="n">colonyPath</span> <span class="o">=</span> <span class="s2">&quot;../PlateSpecifications/PipelineData_Celigo.csv&quot;</span>
-        <span class="c1"># test function setup_microscope</span>
-        <span class="n">prefs</span> <span class="o">=</span> <span class="n">Preferences</span><span class="p">(</span><span class="n">prefsFile</span><span class="p">)</span>
-    <span class="k">except</span> <span class="ne">Exception</span><span class="p">:</span>
-        <span class="c1"># location of preferences file on Zeiss SD 1</span>
-        <span class="n">prefsFile</span> <span class="o">=</span> <span class="s2">&quot;D:</span><span class="se">\\</span><span class="s2">Winfried</span><span class="se">\\</span><span class="s2">Production</span><span class="se">\\</span><span class="s2">GeneralSettings</span><span class="se">\\</span><span class="s2">preferences_ZSD3_drugScreen_Winfried.yml&quot;</span>  <span class="c1"># noqa</span>
-        <span class="n">dirPath</span> <span class="o">=</span> <span class="s2">&quot;D:</span><span class="se">\\</span><span class="s2">Winfried</span><span class="se">\\</span><span class="s2">Production</span><span class="se">\\</span><span class="s2">&quot;</span>
-        <span class="n">barcode</span> <span class="o">=</span> <span class="s2">&quot;3500000093&quot;</span>
-        <span class="n">colonyFile</span> <span class="o">=</span> <span class="s2">&quot;3500000860_ColonyDATA.csv&quot;</span>
-        <span class="n">colonyPath</span> <span class="o">=</span> <span class="s2">&quot;D:</span><span class="se">\\</span><span class="s2">Winfried</span><span class="se">\\</span><span class="s2">Production</span><span class="se">\\</span><span class="s2">Daily</span><span class="se">\\</span><span class="s2">2017_5_10</span><span class="se">\\</span><span class="s2">PlateSpecifications</span><span class="se">\\</span><span class="s2">3500000860_ColonyDATA.csv&quot;</span>  <span class="c1"># noqa</span>
-
-        <span class="c1"># test function setup_microscope</span>
-        <span class="n">prefs</span> <span class="o">=</span> <span class="n">Preferences</span><span class="p">(</span><span class="n">prefsFile</span><span class="p">)</span>
-
-    <span class="n">microscope_object</span> <span class="o">=</span> <span class="n">setup_microscope</span><span class="p">(</span><span class="n">prefs</span><span class="p">)</span>
-    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Microscope(Object) created&quot;</span><span class="p">)</span>
-    <span class="nb">print</span><span class="p">(</span><span class="n">microscope_object</span><span class="p">)</span>
-
-    <span class="c1"># test function find_colon_file</span>
-    <span class="c1">#     colonyPrefs = prefs.get_pref_as_meta(&#39;AddColonies&#39;)</span>
-    <span class="c1">#     colonies=get_colony_data(colonyPrefs, colonyPath)</span>
-    <span class="c1">#     print &#39;Colony file loaded&#39;</span>
-    <span class="c1">#     print colonies.head()</span>
-    <span class="c1">#     print &#39;_______________________________________________&#39;</span>
-
-    <span class="c1">#     # test function setup_plate</span>
-    <span class="c1">#     plate_holder_object=setup_plate(prefs, colonyFile, microscope_object)</span>
-    <span class="c1">#     print plate_holder_object</span>
-    <span class="c1">#     print &#39;Plate holder with plate, wells and colonies created&#39;</span>
-    <span class="c1">#     print &#39;Done&#39;</span>
-
-    <span class="c1"># test function slide</span>
-    <span class="n">plate_holder_object</span> <span class="o">=</span> <span class="n">setup_slide</span><span class="p">(</span><span class="n">prefs</span><span class="p">,</span> <span class="n">microscope_object</span><span class="p">)</span>
-    <span class="nb">print</span><span class="p">(</span><span class="n">plate_holder_object</span><span class="p">)</span>
-    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Plate holder with slide created&quot;</span><span class="p">)</span>
-    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Done&quot;</span><span class="p">)</span>
 </pre></div>
 
           </div>

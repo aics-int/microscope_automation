@@ -33,8 +33,6 @@
             
   <h1>Source code for microscope_automation.load_image_czi</h1><div class="highlight"><pre>
 <span></span><span class="kn">from</span> <span class="nn">aicsimageio</span> <span class="kn">import</span> <span class="n">AICSImage</span>
-<span class="kn">import</span> <span class="nn">matplotlib.pyplot</span> <span class="k">as</span> <span class="nn">plt</span>
-<span class="kn">from</span> <span class="nn">.image_AICS</span> <span class="kn">import</span> <span class="n">ImageAICS</span>
 
 
 <div class="viewcode-block" id="LoadImageCzi"><a class="viewcode-back" href="../../microscope_automation.html#microscope_automation.load_image_czi.LoadImageCzi">[docs]</a><span class="k">class</span> <span class="nc">LoadImageCzi</span><span class="p">:</span>
@@ -88,17 +86,6 @@
             <span class="n">meta</span><span class="p">[</span><span class="s2">&quot;Type&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">dtype</span>
             <span class="n">image</span><span class="o">.</span><span class="n">add_meta</span><span class="p">(</span><span class="n">meta</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">image</span></div></div>
-
-
-<span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s2">&quot;__main__&quot;</span><span class="p">:</span>
-    <span class="n">meta_data</span> <span class="o">=</span> <span class="p">{</span>
-        <span class="s2">&quot;aics_filePath&quot;</span><span class="p">:</span> <span class="sa">r</span><span class="s2">&quot;D:\Winfried\Eclipse_workspace_012419\microscopeautomation\data\B10_0002_00.czi&quot;</span>  <span class="c1"># noqa</span>
-    <span class="p">}</span>
-    <span class="n">image</span> <span class="o">=</span> <span class="n">ImageAICS</span><span class="p">(</span><span class="n">meta</span><span class="o">=</span><span class="n">meta_data</span><span class="p">)</span>
-    <span class="n">rz</span> <span class="o">=</span> <span class="n">LoadImageCzi</span><span class="p">()</span>
-    <span class="n">image</span> <span class="o">=</span> <span class="n">rz</span><span class="o">.</span><span class="n">load_image</span><span class="p">(</span><span class="n">image</span><span class="p">,</span> <span class="kc">True</span><span class="p">)</span>
-    <span class="n">plt</span><span class="o">.</span><span class="n">imshow</span><span class="p">(</span><span class="n">image</span><span class="o">.</span><span class="n">get_data</span><span class="p">())</span>
-    <span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
 </pre></div>
 
           </div>

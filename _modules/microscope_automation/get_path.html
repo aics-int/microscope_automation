@@ -45,18 +45,13 @@
 <span class="kn">import</span> <span class="nn">os</span>
 <span class="kn">from</span> <span class="nn">pathlib</span> <span class="kn">import</span> <span class="n">Path</span>
 
-<span class="c1"># import modules that are part of package MicroscopeAutomation</span>
-<span class="c1"># module to read preference files</span>
-<span class="kn">from</span> <span class="nn">.preferences</span> <span class="kn">import</span> <span class="n">Preferences</span>
-
-<span class="n">pref_path</span> <span class="o">=</span> <span class="kc">None</span>
-
 
 <div class="viewcode-block" id="add_suffix"><a class="viewcode-back" href="../../microscope_automation.html#microscope_automation.get_path.add_suffix">[docs]</a><span class="k">def</span> <span class="nf">add_suffix</span><span class="p">(</span><span class="n">file_path</span><span class="p">,</span> <span class="n">suffix</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;Add suffix to end of file name.</span>
 
 <span class="sd">    Input:</span>
 <span class="sd">     file_path: path to file name</span>
+
 <span class="sd">     suffix: suffix to put between end of filename and file extension</span>
 
 <span class="sd">    Output:</span>
@@ -67,25 +62,11 @@
     <span class="k">return</span> <span class="n">new_file_path</span></div>
 
 
-<span class="c1"># TODO: This should be an object</span>
-<div class="viewcode-block" id="set_pref_file"><a class="viewcode-back" href="../../microscope_automation.html#microscope_automation.get_path.set_pref_file">[docs]</a><span class="k">def</span> <span class="nf">set_pref_file</span><span class="p">(</span><span class="n">prefs</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;Set the preferences file location for the application during runtime</span>
-
-<span class="sd">    Input:</span>
-<span class="sd">     prefs: file location</span>
-
-<span class="sd">    Output:</span>
-<span class="sd">     none</span>
-<span class="sd">    &quot;&quot;&quot;</span>
-    <span class="k">global</span> <span class="n">pref_path</span>
-    <span class="n">pref_path</span> <span class="o">=</span> <span class="n">prefs</span></div>
-
-
 <div class="viewcode-block" id="get_valid_path_from_prefs"><a class="viewcode-back" href="../../microscope_automation.html#microscope_automation.get_path.get_valid_path_from_prefs">[docs]</a><span class="k">def</span> <span class="nf">get_valid_path_from_prefs</span><span class="p">(</span><span class="n">prefs</span><span class="p">,</span> <span class="n">key</span><span class="p">,</span> <span class="n">search_dir</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">validate</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;Read list of paths from prefs and return first valid match.</span>
 
 <span class="sd">    Input:</span>
-<span class="sd">     prefs:  Dictionary with preferences</span>
+<span class="sd">     prefs: Preferences object created from YAML file</span>
 
 <span class="sd">     key: key for pathlist in preferences.yml</span>
 
@@ -124,32 +105,35 @@
 
 
 <div class="viewcode-block" id="set_up_subfolders"><a class="viewcode-back" href="../../microscope_automation.html#microscope_automation.get_path.set_up_subfolders">[docs]</a><span class="k">def</span> <span class="nf">set_up_subfolders</span><span class="p">(</span><span class="n">parent_folder_path</span><span class="p">,</span> <span class="n">subfolder</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Set the Subfolders for imaging folder - eg. TapeOnly and Failed QC</span>
+    <span class="sd">&quot;&quot;&quot;Set the Subfolders for imaging folder - e.g. TapeOnly and Failed QC</span>
 
 <span class="sd">    Input:</span>
 <span class="sd">     parent_folder_path: Image Folder Path</span>
+
 <span class="sd">     subfolder: folder to create, can be list of multiple folders</span>
 
 <span class="sd">    Output:</span>
-<span class="sd">     sub_folder_path: full path of subfolder</span>
+<span class="sd">     subfolders: list of full path of subfolders created</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">subfolder</span><span class="p">,</span> <span class="nb">list</span><span class="p">):</span>
-        <span class="n">subfolder</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">subfolder</span><span class="p">)</span>
+        <span class="n">subfolder</span> <span class="o">=</span> <span class="p">[</span><span class="n">subfolder</span><span class="p">]</span>
 
+    <span class="n">subfolders</span> <span class="o">=</span> <span class="p">[]</span>
     <span class="k">for</span> <span class="n">folder</span> <span class="ow">in</span> <span class="n">subfolder</span><span class="p">:</span>
         <span class="n">sub_folder_path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">normpath</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">parent_folder_path</span><span class="p">,</span> <span class="n">folder</span><span class="p">))</span>
         <span class="c1"># test if folder exists, if not, create folder</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">isdir</span><span class="p">(</span><span class="n">sub_folder_path</span><span class="p">):</span>
             <span class="n">os</span><span class="o">.</span><span class="n">makedirs</span><span class="p">(</span><span class="n">sub_folder_path</span><span class="p">)</span>
-    <span class="k">return</span> <span class="n">sub_folder_path</span></div>
+
+        <span class="n">subfolders</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">sub_folder_path</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">subfolders</span></div>
 
 
 <div class="viewcode-block" id="get_daily_folder"><a class="viewcode-back" href="../../microscope_automation.html#microscope_automation.get_path.get_daily_folder">[docs]</a><span class="k">def</span> <span class="nf">get_daily_folder</span><span class="p">(</span><span class="n">prefs</span><span class="p">,</span> <span class="n">barcode</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;Find folder for daily settings and results. Create folder if not existing.</span>
 
 <span class="sd">    Input:</span>
-<span class="sd">     prefs: Dictionary with preferences</span>
+<span class="sd">     prefs: Preferences object created from YAML file</span>
 
 <span class="sd">     barcode: Use the plate barcode to make the folder</span>
 
@@ -212,10 +196,10 @@
     <span class="sd">&quot;&quot;&quot;Return path to log file.</span>
 
 <span class="sd">    Input:</span>
-<span class="sd">     prefs: Dictionary with preferences</span>
+<span class="sd">     prefs: Preferences object created from YAML file</span>
 
 <span class="sd">    Output:</span>
-<span class="sd">     logFile: path to log file</span>
+<span class="sd">     log_file_path: path to log file</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="c1"># get today&#39;s date and construct folder name</span>
     <span class="n">today</span> <span class="o">=</span> <span class="n">date</span><span class="o">.</span><span class="n">today</span><span class="p">()</span>
@@ -233,7 +217,7 @@
     <span class="sd">&quot;&quot;&quot;Return path for meta data.</span>
 
 <span class="sd">    Input:</span>
-<span class="sd">     prefs: Dictionary with preferences</span>
+<span class="sd">     prefs: Preferences object created from YAML file</span>
 
 <span class="sd">     barcode: Use the plate barcode to make the folder</span>
 
@@ -255,10 +239,10 @@
     <span class="sd">&quot;&quot;&quot;Return path to experiment.</span>
 
 <span class="sd">    Input:</span>
-<span class="sd">     prefs: Dictionary with preferences</span>
+<span class="sd">     prefs: Preferences object created from YAML file</span>
 
-<span class="sd">     dir: if true return path to experiments directory, otherwise to experiment file</span>
-<span class="sd">     default: False</span>
+<span class="sd">     dir: if true return path to experiments directory, otherwise to experiment file.</span>
+<span class="sd">     Default: False</span>
 
 <span class="sd">    Output:</span>
 <span class="sd">     experiment_path: path to experiment</span>
@@ -280,23 +264,11 @@
     <span class="k">return</span> <span class="n">experiment_path</span></div>
 
 
-<div class="viewcode-block" id="get_prefs_path"><a class="viewcode-back" href="../../microscope_automation.html#microscope_automation.get_path.get_prefs_path">[docs]</a><span class="k">def</span> <span class="nf">get_prefs_path</span><span class="p">():</span>
-    <span class="sd">&quot;&quot;&quot;Return path to preferences file.</span>
-
-<span class="sd">    Input:</span>
-<span class="sd">     none</span>
-
-<span class="sd">    Output:</span>
-<span class="sd">     prefsFile: path to preferences file</span>
-<span class="sd">    &quot;&quot;&quot;</span>
-    <span class="k">return</span> <span class="n">pref_path</span></div>
-
-
 <div class="viewcode-block" id="get_recovery_settings_path"><a class="viewcode-back" href="../../microscope_automation.html#microscope_automation.get_path.get_recovery_settings_path">[docs]</a><span class="k">def</span> <span class="nf">get_recovery_settings_path</span><span class="p">(</span><span class="n">prefs</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;Returns the file path to save the pickled dictionary after interruption</span>
 
 <span class="sd">    Input:</span>
-<span class="sd">     prefs: Dictionary with preferences</span>
+<span class="sd">     prefs: Preferences object created from YAML file</span>
 
 <span class="sd">    Output:</span>
 <span class="sd">     file_path: path to recovery settings</span>
@@ -317,7 +289,7 @@
     <span class="sd">&quot;&quot;&quot;Return path to directory with .csv file with colony positions and features.</span>
 
 <span class="sd">    Input:</span>
-<span class="sd">     prefs: Dictionary with preferences</span>
+<span class="sd">     prefs: Preferences object created from YAML file</span>
 
 <span class="sd">     barcode: Use the plate barcode to make the folder</span>
 
@@ -326,7 +298,7 @@
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">daily_folder_path</span> <span class="o">=</span> <span class="n">get_daily_folder</span><span class="p">(</span><span class="n">prefs</span><span class="p">,</span> <span class="n">barcode</span><span class="p">)</span>
 
-    <span class="n">colony_dir_path</span> <span class="o">=</span> <span class="n">prefs</span><span class="o">.</span><span class="n">get_pref</span><span class="p">(</span><span class="s2">&quot;colony_dir_path&quot;</span><span class="p">)</span>
+    <span class="n">colony_dir_path</span> <span class="o">=</span> <span class="n">prefs</span><span class="o">.</span><span class="n">get_pref</span><span class="p">(</span><span class="s2">&quot;ColonyDirPath&quot;</span><span class="p">)</span>
     <span class="k">if</span> <span class="n">colony_dir_path</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
         <span class="n">colony_dir_path</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span>
 
@@ -343,10 +315,10 @@
 <span class="sd">    and features on network.</span>
 
 <span class="sd">    Input:</span>
-<span class="sd">     prefs: Dictionary with preferences</span>
+<span class="sd">     prefs: Preferences object created from YAML file</span>
 
 <span class="sd">    Output:</span>
-<span class="sd">     colonyRemoteDir: path to log file</span>
+<span class="sd">     colony_dir_path: path to log file</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">colony_dir_path</span> <span class="o">=</span> <span class="n">get_valid_path_from_prefs</span><span class="p">(</span>
         <span class="n">prefs</span><span class="p">,</span> <span class="s2">&quot;ColonyFileFolder&quot;</span><span class="p">,</span> <span class="n">search_dir</span><span class="o">=</span><span class="kc">True</span>
@@ -357,19 +329,21 @@
     <span class="k">return</span> <span class="n">colony_dir_path</span></div>
 
 
-<div class="viewcode-block" id="get_colony_file_path"><a class="viewcode-back" href="../../microscope_automation.html#microscope_automation.get_path.get_colony_file_path">[docs]</a><span class="k">def</span> <span class="nf">get_colony_file_path</span><span class="p">(</span><span class="n">prefs</span><span class="p">,</span> <span class="n">colony_file</span><span class="p">):</span>
+<div class="viewcode-block" id="get_colony_file_path"><a class="viewcode-back" href="../../microscope_automation.html#microscope_automation.get_path.get_colony_file_path">[docs]</a><span class="k">def</span> <span class="nf">get_colony_file_path</span><span class="p">(</span><span class="n">prefs</span><span class="p">,</span> <span class="n">colony_file</span><span class="p">,</span> <span class="n">barcode</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;Return path to file with colony information typically produced by</span>
 <span class="sd">    CellProfiler based on Celigo platescanner data.</span>
 
 <span class="sd">    Input:</span>
-<span class="sd">     prefs: Dictionary with preferences</span>
+<span class="sd">     prefs: Preferences object created from YAML file</span>
 
 <span class="sd">     colony_file: path to .csv file with colony data</span>
+
+<span class="sd">     barcode: Use the plate barcode to make the folder</span>
 
 <span class="sd">    Output:</span>
 <span class="sd">     colony_file_path: complete path to colony file</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="n">dir_path</span> <span class="o">=</span> <span class="n">get_colony_dir_path</span><span class="p">(</span><span class="n">prefs</span><span class="p">)</span>
+    <span class="n">dir_path</span> <span class="o">=</span> <span class="n">get_colony_dir_path</span><span class="p">(</span><span class="n">prefs</span><span class="p">,</span> <span class="n">barcode</span><span class="o">=</span><span class="n">barcode</span><span class="p">)</span>
     <span class="n">colony_file_path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">normpath</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">dir_path</span><span class="p">,</span> <span class="n">colony_file</span><span class="p">))</span>
 
     <span class="k">return</span> <span class="n">colony_file_path</span></div>
@@ -379,7 +353,7 @@
     <span class="sd">&quot;&quot;&quot;Return path to .yml file with microscope specifications from preferences file.</span>
 
 <span class="sd">    Input:</span>
-<span class="sd">     prefs: Dictionary with preferences</span>
+<span class="sd">     prefs: Preferences object created from YAML file</span>
 
 <span class="sd">    Output:</span>
 <span class="sd">     hardwarePath: path to layout file</span>
@@ -393,7 +367,7 @@
     <span class="sd">&quot;&quot;&quot;Return path to directory for reference images. Create directory if not available</span>
 
 <span class="sd">    Input:</span>
-<span class="sd">     prefs: Dictionary with preferences</span>
+<span class="sd">     prefs: Preferences object created from YAML file</span>
 
 <span class="sd">     barcode: Use the plate barcode to make the folder</span>
 
@@ -414,6 +388,8 @@
     <span class="sd">&quot;&quot;&quot;Return path to directory for images. Create directory if not available</span>
 
 <span class="sd">    Input:</span>
+<span class="sd">     prefs: Preferences object created from YAML file</span>
+
 <span class="sd">     sub_dir: Sub-directory for images. Will create folder with this name</span>
 
 <span class="sd">     barcode: Use the plate barcode to make the folder</span>
@@ -437,7 +413,7 @@
     <span class="sd">&quot;&quot;&quot;Return path to calibration information e.g. blackreference images</span>
 
 <span class="sd">    Input:</span>
-<span class="sd">     prefs: dictionary with preferences</span>
+<span class="sd">     prefs: Preferences object created from YAML file</span>
 
 <span class="sd">    Output:</span>
 <span class="sd">     calibration_path: path to calibration directory</span>
@@ -453,7 +429,7 @@
 <span class="sd">    Used to determine the well&#39;s center.</span>
 
 <span class="sd">    Input:</span>
-<span class="sd">     prefs: dictionary with preferences</span>
+<span class="sd">     prefs: Preferences object created from YAML file</span>
 
 <span class="sd">    Output:</span>
 <span class="sd">     well_edge_path: path to calibration directory</span>
@@ -462,22 +438,6 @@
     <span class="n">relative_path</span> <span class="o">=</span> <span class="n">prefs</span><span class="o">.</span><span class="n">get_pref</span><span class="p">(</span><span class="s2">&quot;WellEdgeDirPath&quot;</span><span class="p">)</span>
     <span class="n">well_edge_path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">daily_folder_path</span><span class="p">,</span> <span class="n">relative_path</span><span class="p">)</span>
     <span class="k">return</span> <span class="n">well_edge_path</span></div>
-
-
-<span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s2">&quot;__main__&quot;</span><span class="p">:</span>
-    <span class="n">prefs_path</span> <span class="o">=</span> <span class="n">get_prefs_path</span><span class="p">()</span>
-    <span class="nb">print</span><span class="p">(</span><span class="n">prefs_path</span><span class="p">)</span>
-    <span class="n">prefs</span> <span class="o">=</span> <span class="n">Preferences</span><span class="p">(</span><span class="n">prefs_path</span><span class="p">)</span>
-
-    <span class="nb">print</span><span class="p">(</span><span class="n">get_daily_folder</span><span class="p">(</span><span class="n">prefs</span><span class="p">))</span>
-    <span class="nb">print</span><span class="p">(</span><span class="n">get_log_file_path</span><span class="p">(</span><span class="n">prefs</span><span class="p">))</span>
-    <span class="nb">print</span><span class="p">(</span><span class="n">get_colony_dir_path</span><span class="p">(</span><span class="n">prefs</span><span class="p">))</span>
-    <span class="c1">#     print get_plate_layout_path(prefs)</span>
-    <span class="nb">print</span><span class="p">(</span><span class="n">get_hardware_settings_path</span><span class="p">(</span><span class="n">prefs</span><span class="p">))</span>
-    <span class="nb">print</span><span class="p">(</span><span class="n">get_references_path</span><span class="p">(</span><span class="n">prefs</span><span class="p">))</span>
-    <span class="n">images_path</span> <span class="o">=</span> <span class="n">get_images_path</span><span class="p">(</span><span class="n">prefs</span><span class="p">)</span>
-    <span class="nb">print</span><span class="p">(</span><span class="n">images_path</span><span class="p">)</span>
-    <span class="nb">print</span><span class="p">(</span><span class="n">add_suffix</span><span class="p">(</span><span class="n">images_path</span> <span class="o">+</span> <span class="s2">&quot;image.czi&quot;</span><span class="p">,</span> <span class="n">suffix</span><span class="o">=</span><span class="s2">&quot;top&quot;</span><span class="p">))</span>
 </pre></div>
 
           </div>

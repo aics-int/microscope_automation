@@ -57,7 +57,7 @@
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Initialization</span>
 
-<span class="sd">        Inputs:</span>
+<span class="sd">        Input:</span>
 <span class="sd">         zsd: String or integer Id of ZSD used for acquisition</span>
 
 <span class="sd">         plate: String of integer Id of plate</span>
@@ -137,7 +137,7 @@
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Writes coordinates to a dummy.czsh file, and saves it</span>
 
-<span class="sd">        Inputs:</span>
+<span class="sd">        Input:</span>
 <span class="sd">         converted: positions to write to the czsh file</span>
 
 <span class="sd">         dummy: empty (no coordinates) .czsh file to use for writing</span>
@@ -191,8 +191,10 @@
 <div class="viewcode-block" id="PositionWriter.get_next_pos_name"><a class="viewcode-back" href="../../../write_zen_tiles_experiment.html#microscope_automation.zeiss.write_zen_tiles_experiment.PositionWriter.get_next_pos_name">[docs]</a>    <span class="k">def</span> <span class="nf">get_next_pos_name</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">test_mode</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">test_file_names</span><span class="o">=</span><span class="p">[]):</span>
         <span class="sd">&quot;&quot;&quot;Find the next available letter label, but dont backfill files.</span>
 
-<span class="sd">        Inputs:</span>
-<span class="sd">         folder: os.normpath&#39;ed folder containing all positions lists.</span>
+<span class="sd">        Input:</span>
+<span class="sd">         test_mode: False by default. Runs in test mode if True.</span>
+
+<span class="sd">         test_file_names: list of test file names to use if running in test mode</span>
 
 <span class="sd">        Output:</span>
 <span class="sd">         label: unused alphabetical label for new positions list</span>

@@ -225,42 +225,6 @@
         <span class="n">hstack_list</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">hstack</span><span class="p">(</span><span class="n">img_y</span><span class="p">))</span>
     <span class="n">vstack</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">vstack</span><span class="p">(</span><span class="n">hstack_list</span><span class="p">)</span>
     <span class="k">return</span> <span class="p">[</span><span class="n">ImageAICS</span><span class="p">(</span><span class="n">data</span><span class="o">=</span><span class="n">vstack</span><span class="p">,</span> <span class="n">meta</span><span class="o">=</span><span class="n">tile_metadata</span><span class="p">),</span> <span class="n">x_border_list</span><span class="p">,</span> <span class="n">y_border_list</span><span class="p">]</span>
-
-
-<span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s2">&quot;__main__&quot;</span><span class="p">:</span>
-    <span class="n">meta</span> <span class="o">=</span> <span class="p">{</span>
-        <span class="s2">&quot;aics_SizeX&quot;</span><span class="p">:</span> <span class="mi">5</span><span class="p">,</span>
-        <span class="s2">&quot;aics_SizeY&quot;</span><span class="p">:</span> <span class="mi">5</span><span class="p">,</span>
-        <span class="s2">&quot;aics_imageObjectPosX&quot;</span><span class="p">:</span> <span class="o">-</span><span class="mi">1</span><span class="p">,</span>
-        <span class="s2">&quot;aics_imageObjectPosY&quot;</span><span class="p">:</span> <span class="o">-</span><span class="mi">1</span><span class="p">,</span>
-        <span class="s2">&quot;aics_imageObjectPosZ&quot;</span><span class="p">:</span> <span class="mf">0.0</span><span class="p">,</span>
-    <span class="p">}</span>
-    <span class="c1"># fill image list with numpy arrays of different values</span>
-    <span class="n">img_data_list</span> <span class="o">=</span> <span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">full</span><span class="p">((</span><span class="mi">5</span><span class="p">,</span> <span class="mi">5</span><span class="p">),</span> <span class="n">i</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">int</span><span class="p">)</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">9</span><span class="p">)]</span>
-    <span class="n">meta_list</span> <span class="o">=</span> <span class="p">[</span><span class="n">meta</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">9</span><span class="p">)]</span>
-    <span class="c1"># for j in range(9):</span>
-    <span class="c1"># set positions</span>
-    <span class="n">meta_list</span><span class="p">[</span><span class="mi">1</span><span class="p">][</span><span class="s2">&quot;aics_imageObjectPosX&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="mi">0</span>
-    <span class="n">meta_list</span><span class="p">[</span><span class="mi">2</span><span class="p">][</span><span class="s2">&quot;aics_imageObjectPosX&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="mi">1</span>
-    <span class="n">meta_list</span><span class="p">[</span><span class="mi">3</span><span class="p">][</span><span class="s2">&quot;aics_imageObjectPosY&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="mi">0</span>
-    <span class="n">meta_list</span><span class="p">[</span><span class="mi">4</span><span class="p">][</span><span class="s2">&quot;aics_imageObjectPosX&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="mi">0</span>
-    <span class="n">meta_list</span><span class="p">[</span><span class="mi">4</span><span class="p">][</span><span class="s2">&quot;aics_imageObjectPosY&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="mi">0</span>
-    <span class="n">meta_list</span><span class="p">[</span><span class="mi">5</span><span class="p">][</span><span class="s2">&quot;aics_imageObjectPosX&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="mi">1</span>
-    <span class="n">meta_list</span><span class="p">[</span><span class="mi">5</span><span class="p">][</span><span class="s2">&quot;aics_imageObjectPosY&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="mi">0</span>
-    <span class="n">meta_list</span><span class="p">[</span><span class="mi">6</span><span class="p">][</span><span class="s2">&quot;aics_imageObjectPosY&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="mi">1</span>
-    <span class="n">meta_list</span><span class="p">[</span><span class="mi">7</span><span class="p">][</span><span class="s2">&quot;aics_imageObjectPosX&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="mi">0</span>
-    <span class="n">meta_list</span><span class="p">[</span><span class="mi">7</span><span class="p">][</span><span class="s2">&quot;aics_imageObjectPosY&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="mi">1</span>
-    <span class="n">meta_list</span><span class="p">[</span><span class="mi">8</span><span class="p">][</span><span class="s2">&quot;aics_imageObjectPosX&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="mi">1</span>
-    <span class="n">meta_list</span><span class="p">[</span><span class="mi">8</span><span class="p">][</span><span class="s2">&quot;aics_imageObjectPosY&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="mi">1</span>
-    <span class="c1"># meta_list = list(reversed(meta_list))</span>
-    <span class="n">img_list</span> <span class="o">=</span> <span class="p">[</span><span class="n">ImageAICS</span><span class="p">(</span><span class="n">data</span><span class="o">=</span><span class="n">img_data_list</span><span class="p">[</span><span class="n">i</span><span class="p">],</span> <span class="n">meta</span><span class="o">=</span><span class="n">meta_list</span><span class="p">[</span><span class="n">i</span><span class="p">])</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">9</span><span class="p">)]</span>
-    <span class="c1"># img_list = [ImageAICS(data=img_data_list[i], meta=meta_list[i]) for i in [0, 1, 3, 4]]  # noqa</span>
-    <span class="k">for</span> <span class="n">item</span> <span class="ow">in</span> <span class="n">meta_list</span><span class="p">:</span>
-        <span class="nb">print</span><span class="p">(</span><span class="n">item</span><span class="p">)</span>
-    <span class="nb">print</span><span class="p">(</span><span class="n">_tile_hard_rectangle</span><span class="p">(</span><span class="n">img_list</span><span class="p">,</span> <span class="p">{})</span><span class="o">.</span><span class="n">get_data</span><span class="p">())</span>
-    <span class="c1"># print(tile_images(img_list).get_data())</span>
-
-    <span class="n">exit</span><span class="p">()</span>
 </pre></div>
 
           </div>
