@@ -1,12 +1,9 @@
 from lxml import etree
-
+import logging
 try:
     from pathlib import Path
 except ImportError:
     from pathlib2 import Path
-
-from .. import preferences
-import logging
 
 
 log = logging.getLogger(__name__)

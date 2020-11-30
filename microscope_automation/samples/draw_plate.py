@@ -12,8 +12,6 @@ import matplotlib.pyplot as plt
 import matplotlib.patches as mpatches
 import string
 
-from ..preferences import Preferences
-
 
 def draw_label(x=0, y=0, text="Hallo World!", align="center"):
     label = plt.text(x, y, text, ha=align, va="center", family="sans-serif", size=20)
