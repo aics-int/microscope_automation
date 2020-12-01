@@ -3207,6 +3207,130 @@ consists of plate holder and slide.</p>
 </dd></dl>
 
 </div>
+<div class="section" id="module-microscope_automation.samples.well_segmentation_refined">
+<span id="microscope-automation-samples-well-segmentation-refined-module"></span><h2>microscope_automation.samples.well_segmentation_refined module<a class="headerlink" href="#module-microscope_automation.samples.well_segmentation_refined" title="Permalink to this headline">¶</a></h2>
+<dl class="py class">
+<dt id="microscope_automation.samples.well_segmentation_refined.WellSegmentation">
+<em class="property">class </em><code class="sig-prename descclassname">microscope_automation.samples.well_segmentation_refined.</code><code class="sig-name descname">WellSegmentation</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">image_data</span></em>, <em class="sig-param"><span class="n">colony_filters_dict</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">mode</span><span class="o">=</span><span class="default_value">'A'</span></em>, <em class="sig-param"><span class="n">canny_sigma</span><span class="o">=</span><span class="default_value">0.01</span></em>, <em class="sig-param"><span class="n">canny_low_threshold</span><span class="o">=</span><span class="default_value">0.025</span></em>, <em class="sig-param"><span class="n">remove_small_holes_area_threshold</span><span class="o">=</span><span class="default_value">1000</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/microscope_automation/samples/well_segmentation_refined.html#WellSegmentation"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#microscope_automation.samples.well_segmentation_refined.WellSegmentation" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.9)"><code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></a></p>
+<dl class="py method">
+<dt id="microscope_automation.samples.well_segmentation_refined.WellSegmentation.create_circular_mask">
+<code class="sig-name descname">create_circular_mask</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">center</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">radius</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/microscope_automation/samples/well_segmentation_refined.html#WellSegmentation.create_circular_mask"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#microscope_automation.samples.well_segmentation_refined.WellSegmentation.create_circular_mask" title="Permalink to this definition">¶</a></dt>
+<dd><p>To create a circular mask over an image, masking out edges of a well</p>
+<dl>
+<dt>Input:</dt><dd><p>center: user-defined center of circular mask</p>
+<p>radius: radius of circular mask</p>
+</dd>
+<dt>Output:</dt><dd><p>mask: a mask with masked-out area being 0, and in-mask area being 1</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="microscope_automation.samples.well_segmentation_refined.WellSegmentation.downscale_filter_dictionary">
+<code class="sig-name descname">downscale_filter_dictionary</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">colony_filters_dict</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/microscope_automation/samples/well_segmentation_refined.html#WellSegmentation.downscale_filter_dictionary"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#microscope_automation.samples.well_segmentation_refined.WellSegmentation.downscale_filter_dictionary" title="Permalink to this definition">¶</a></dt>
+<dd><p>To downscale filters from original image to processing image scale</p>
+<dl class="simple">
+<dt>Input:</dt><dd><p>colony_filters_dict: dictionary of filters with
+colony_filters_dict[‘distFromCenter’][0] as distance from center
+and colony_filters_dict[‘distFromCenter’][1] as number of positions</p>
+</dd>
+<dt>Output:</dt><dd><p>colony_filters_dict_corrected: corrected colony filteres dictionary
+with downscaling factor</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="microscope_automation.samples.well_segmentation_refined.WellSegmentation.filter_small_objects">
+<code class="sig-name descname">filter_small_objects</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">bw_img</span></em>, <em class="sig-param"><span class="n">area</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/microscope_automation/samples/well_segmentation_refined.html#WellSegmentation.filter_small_objects"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#microscope_automation.samples.well_segmentation_refined.WellSegmentation.filter_small_objects" title="Permalink to this definition">¶</a></dt>
+<dd><p>To filter small objects from image</p>
+<dl>
+<dt>Input:</dt><dd><p>bw_img: A binary image with objects</p>
+<p>area: Objects smaller than this area will be filtered out</p>
+</dd>
+<dt>Output:</dt><dd><p>int_img: binary image with objects smaller than specified area be filtered out</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="microscope_automation.samples.well_segmentation_refined.WellSegmentation.find_positions">
+<code class="sig-name descname">find_positions</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/microscope_automation/samples/well_segmentation_refined.html#WellSegmentation.find_positions"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#microscope_automation.samples.well_segmentation_refined.WellSegmentation.find_positions" title="Permalink to this definition">¶</a></dt>
+<dd><p>To find a position in a colony that passes the size filter,
+and is positioned 40% from the edge of colony, maximum in distance map
+that indicates preferred smoothness in region,
+and is close to the center of the well for good imaging practice.</p>
+<dl class="simple">
+<dt>Input:</dt><dd><p>none</p>
+</dd>
+<dt>Output:</dt><dd><p>none</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="microscope_automation.samples.well_segmentation_refined.WellSegmentation.point_locations">
+<em class="property">property </em><code class="sig-name descname">point_locations</code><a class="headerlink" href="#microscope_automation.samples.well_segmentation_refined.WellSegmentation.point_locations" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt id="microscope_automation.samples.well_segmentation_refined.WellSegmentation.preprocessing_image">
+<code class="sig-name descname">preprocessing_image</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/microscope_automation/samples/well_segmentation_refined.html#WellSegmentation.preprocessing_image"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#microscope_automation.samples.well_segmentation_refined.WellSegmentation.preprocessing_image" title="Permalink to this definition">¶</a></dt>
+<dd><p>To pre-process input image with correction for uneven illumination
+and rescaling intensity to enhance contrast</p>
+<dl class="simple">
+<dt>Input:</dt><dd><p>none</p>
+</dd>
+<dt>Output:</dt><dd><p>img_rescale_2: rescaled image ready for segmentation</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="microscope_automation.samples.well_segmentation_refined.WellSegmentation.process_colonies">
+<code class="sig-name descname">process_colonies</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">binary_colony_mask</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/microscope_automation/samples/well_segmentation_refined.html#WellSegmentation.process_colonies"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#microscope_automation.samples.well_segmentation_refined.WellSegmentation.process_colonies" title="Permalink to this definition">¶</a></dt>
+<dd><p>To partition binary colony mask into separate, distinct,
+labelled colonies using distance map to find markers of colonies
+and separate connected colonies with watershed segmentation.</p>
+<dl class="simple">
+<dt>Input:</dt><dd><p>binary_colony_mask: A binary image of colonies(1) and background (0)</p>
+</dd>
+<dt>Output:</dt><dd><p>none</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="microscope_automation.samples.well_segmentation_refined.WellSegmentation.segment_and_find_positions">
+<code class="sig-name descname">segment_and_find_positions</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/microscope_automation/samples/well_segmentation_refined.html#WellSegmentation.segment_and_find_positions"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#microscope_automation.samples.well_segmentation_refined.WellSegmentation.segment_and_find_positions" title="Permalink to this definition">¶</a></dt>
+<dd><p>Function segments out the colonies, applies filters,
+and finds the smooth points based on the mode</p>
+<dl class="simple">
+<dt>Input:</dt><dd><p>none</p>
+</dd>
+<dt>Output:</dt><dd><p>none</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="microscope_automation.samples.well_segmentation_refined.WellSegmentation.segment_colonies">
+<code class="sig-name descname">segment_colonies</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">rescaled_image</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/microscope_automation/samples/well_segmentation_refined.html#WellSegmentation.segment_colonies"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#microscope_automation.samples.well_segmentation_refined.WellSegmentation.segment_colonies" title="Permalink to this definition">¶</a></dt>
+<dd><p>To segment colonies from grayscale image using edge detection method
+to approximate location of colony edges
+and watershed segmentation to fill in the colonies</p>
+<dl class="simple">
+<dt>Input:</dt><dd><p>rescaled_image: The rescaled image from preprocessing with enhanced contrast</p>
+</dd>
+<dt>Output:</dt><dd><p>binary_colony_mask: binary image of mask of colonies(1) and background(0)</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+</div>
 <div class="section" id="module-microscope_automation.samples">
 <span id="module-contents"></span><h2>Module contents<a class="headerlink" href="#module-microscope_automation.samples" title="Permalink to this headline">¶</a></h2>
 <p>Samples package for Microscope Automation.</p>

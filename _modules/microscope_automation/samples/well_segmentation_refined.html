@@ -1,0 +1,619 @@
+
+<!DOCTYPE html>
+
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>microscope_automation.samples.well_segmentation_refined &#8212; Microscope Automation 0.0 documentation</title>
+    <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+    <link rel="stylesheet" href="../../../_static/alabaster.css" type="text/css" />
+    <script id="documentation_options" data-url_root="../../../" src="../../../_static/documentation_options.js"></script>
+    <script src="../../../_static/jquery.js"></script>
+    <script src="../../../_static/underscore.js"></script>
+    <script src="../../../_static/doctools.js"></script>
+    <script src="../../../_static/language_data.js"></script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" />
+   
+  <link rel="stylesheet" href="../../../_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head><body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          
+
+          <div class="body" role="main">
+            
+  <h1>Source code for microscope_automation.samples.well_segmentation_refined</h1><div class="highlight"><pre>
+<span></span><span class="kn">import</span> <span class="nn">math</span>
+<span class="kn">from</span> <span class="nn">matplotlib.pyplot</span> <span class="kn">import</span> <span class="n">rcParams</span>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">from</span> <span class="nn">scipy</span> <span class="kn">import</span> <span class="n">ndimage</span><span class="p">,</span> <span class="n">signal</span>
+<span class="kn">from</span> <span class="nn">skimage</span> <span class="kn">import</span> <span class="n">exposure</span><span class="p">,</span> <span class="n">feature</span><span class="p">,</span> <span class="n">morphology</span><span class="p">,</span> <span class="n">transform</span><span class="p">,</span> <span class="n">filters</span><span class="p">,</span> <span class="n">measure</span>
+
+<span class="n">DOWNSCALING_FACTOR</span> <span class="o">=</span> <span class="mi">4</span>
+<span class="n">rcParams</span><span class="p">[</span><span class="s2">&quot;figure.figsize&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="mi">15</span><span class="p">,</span> <span class="mi">12</span>
+
+
+<div class="viewcode-block" id="WellSegmentation"><a class="viewcode-back" href="../../../microscope_automation.samples.html#microscope_automation.samples.well_segmentation_refined.WellSegmentation">[docs]</a><span class="k">class</span> <span class="nc">WellSegmentation</span><span class="p">:</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">image_data</span><span class="p">,</span>
+        <span class="n">colony_filters_dict</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">mode</span><span class="o">=</span><span class="s2">&quot;A&quot;</span><span class="p">,</span>
+        <span class="n">canny_sigma</span><span class="o">=</span><span class="mf">0.01</span><span class="p">,</span>
+        <span class="n">canny_low_threshold</span><span class="o">=</span><span class="mf">0.025</span><span class="p">,</span>
+        <span class="n">remove_small_holes_area_threshold</span><span class="o">=</span><span class="mi">1000</span><span class="p">,</span>
+    <span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Input:</span>
+<span class="sd">         image_data =  numpy image data Image to be segmented (Well or colony)</span>
+
+<span class="sd">         filters_dict = dictionary of filters to be applied {filter_name: filter_values}</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_point_locations</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">segmented_colonies</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="c1"># Downscale the colony dictionary</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">colony_filters_dict</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">downscale_filter_dictionary</span><span class="p">(</span><span class="n">colony_filters_dict</span><span class="p">)</span>
+        <span class="c1"># Downsize the image</span>
+        <span class="n">xdim</span> <span class="o">=</span> <span class="n">image_data</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="n">ydim</span> <span class="o">=</span> <span class="n">image_data</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">downsized_image</span> <span class="o">=</span> <span class="n">transform</span><span class="o">.</span><span class="n">resize</span><span class="p">(</span>
+            <span class="n">image_data</span><span class="p">,</span>
+            <span class="p">(</span><span class="nb">int</span><span class="p">(</span><span class="n">xdim</span> <span class="o">/</span> <span class="n">DOWNSCALING_FACTOR</span><span class="p">),</span> <span class="nb">int</span><span class="p">(</span><span class="n">ydim</span> <span class="o">/</span> <span class="n">DOWNSCALING_FACTOR</span><span class="p">)),</span>
+            <span class="n">mode</span><span class="o">=</span><span class="s2">&quot;constant&quot;</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">height</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">width</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">downsized_image</span><span class="o">.</span><span class="n">shape</span><span class="p">[:</span><span class="mi">2</span><span class="p">]</span>
+
+<div class="viewcode-block" id="WellSegmentation.downscale_filter_dictionary"><a class="viewcode-back" href="../../../microscope_automation.samples.html#microscope_automation.samples.well_segmentation_refined.WellSegmentation.downscale_filter_dictionary">[docs]</a>    <span class="k">def</span> <span class="nf">downscale_filter_dictionary</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">colony_filters_dict</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;To downscale filters from original image to processing image scale</span>
+
+<span class="sd">        Input:</span>
+<span class="sd">         colony_filters_dict: dictionary of filters with</span>
+<span class="sd">         colony_filters_dict[&#39;distFromCenter&#39;][0] as distance from center</span>
+<span class="sd">         and colony_filters_dict[&#39;distFromCenter&#39;][1] as number of positions</span>
+
+<span class="sd">        Output:</span>
+<span class="sd">         colony_filters_dict_corrected: corrected colony filteres dictionary</span>
+<span class="sd">         with downscaling factor</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">colony_filters_dict_corrected</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="n">colony_filters_dict_corrected</span><span class="p">[</span><span class="s2">&quot;distFromCenter&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span>
+            <span class="n">colony_filters_dict</span><span class="p">[</span><span class="s2">&quot;distFromCenter&quot;</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span> <span class="o">/</span> <span class="n">DOWNSCALING_FACTOR</span><span class="p">,</span>
+            <span class="n">colony_filters_dict</span><span class="p">[</span><span class="s2">&quot;distFromCenter&quot;</span><span class="p">][</span><span class="mi">1</span><span class="p">],</span>
+        <span class="p">]</span>
+        <span class="n">colony_filters_dict_corrected</span><span class="p">[</span><span class="s2">&quot;minArea&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">value</span> <span class="ow">in</span> <span class="n">colony_filters_dict</span><span class="p">[</span><span class="s2">&quot;minArea&quot;</span><span class="p">]:</span>
+            <span class="n">colony_filters_dict_corrected</span><span class="p">[</span><span class="s2">&quot;minArea&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+                <span class="n">value</span> <span class="o">/</span> <span class="p">(</span><span class="n">DOWNSCALING_FACTOR</span> <span class="o">**</span> <span class="mi">2</span><span class="p">)</span>
+            <span class="p">)</span>
+        <span class="k">return</span> <span class="n">colony_filters_dict_corrected</span></div>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">point_locations</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_point_locations</span>
+
+<div class="viewcode-block" id="WellSegmentation.segment_and_find_positions"><a class="viewcode-back" href="../../../microscope_automation.samples.html#microscope_automation.samples.well_segmentation_refined.WellSegmentation.segment_and_find_positions">[docs]</a>    <span class="k">def</span> <span class="nf">segment_and_find_positions</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Function segments out the colonies, applies filters,</span>
+<span class="sd">        and finds the smooth points based on the mode</span>
+
+<span class="sd">        Input:</span>
+<span class="sd">         none</span>
+
+<span class="sd">        Output:</span>
+<span class="sd">         none</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">rescaled_image</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">preprocessing_image</span><span class="p">()</span>
+        <span class="n">binary_colony_mask</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">segment_colonies</span><span class="p">(</span><span class="n">rescaled_image</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">process_colonies</span><span class="p">(</span><span class="n">binary_colony_mask</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">find_positions</span><span class="p">()</span></div>
+
+<div class="viewcode-block" id="WellSegmentation.preprocessing_image"><a class="viewcode-back" href="../../../microscope_automation.samples.html#microscope_automation.samples.well_segmentation_refined.WellSegmentation.preprocessing_image">[docs]</a>    <span class="k">def</span> <span class="nf">preprocessing_image</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;To pre-process input image with correction for uneven illumination</span>
+<span class="sd">        and rescaling intensity to enhance contrast</span>
+
+<span class="sd">        Input:</span>
+<span class="sd">         none</span>
+
+<span class="sd">        Output:</span>
+<span class="sd">         img_rescale_2: rescaled image ready for segmentation</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="n">rescaled_image</span> <span class="o">=</span> <span class="n">exposure</span><span class="o">.</span><span class="n">rescale_intensity</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">downsized_image</span><span class="p">)</span>
+        <span class="c1"># Correct for uneven illumination in a well</span>
+        <span class="n">blur</span> <span class="o">=</span> <span class="n">filters</span><span class="o">.</span><span class="n">gaussian</span><span class="p">(</span><span class="n">rescaled_image</span><span class="p">,</span> <span class="n">sigma</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">preserve_range</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        <span class="n">correction</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">downsized_image</span> <span class="o">-</span> <span class="n">blur</span>
+        <span class="c1"># To mask out edges of well and only process colonies from center of well</span>
+        <span class="n">mask</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">create_circular_mask</span><span class="p">(</span><span class="n">radius</span><span class="o">=</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">height</span> <span class="o">/</span> <span class="mf">2.1</span><span class="p">)</span> <span class="o">-</span> <span class="mf">5.0</span><span class="p">)</span>
+        <span class="n">masked_image</span> <span class="o">=</span> <span class="n">correction</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+        <span class="n">masked_image</span><span class="p">[</span><span class="o">~</span><span class="n">mask</span><span class="p">]</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="c1"># Smooth and rescale image to enhance contrast</span>
+        <span class="c1"># before filtering to 5th and 95th percentile of pixel intensity</span>
+        <span class="n">p5</span><span class="p">,</span> <span class="n">p95</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">percentile</span><span class="p">(</span><span class="n">masked_image</span><span class="p">,</span> <span class="p">(</span><span class="mi">5</span><span class="p">,</span> <span class="mi">95</span><span class="p">))</span>
+        <span class="n">img_rescale</span> <span class="o">=</span> <span class="n">exposure</span><span class="o">.</span><span class="n">rescale_intensity</span><span class="p">(</span><span class="n">masked_image</span><span class="p">,</span> <span class="n">in_range</span><span class="o">=</span><span class="p">(</span><span class="n">p5</span><span class="p">,</span> <span class="n">p95</span><span class="p">))</span>
+        <span class="n">gaussian</span> <span class="o">=</span> <span class="n">filters</span><span class="o">.</span><span class="n">gaussian</span><span class="p">(</span><span class="n">img_rescale</span><span class="p">,</span> <span class="n">sigma</span><span class="o">=</span><span class="mf">0.5</span><span class="p">,</span> <span class="n">preserve_range</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        <span class="n">p5</span><span class="p">,</span> <span class="n">p95</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">percentile</span><span class="p">(</span><span class="n">gaussian</span><span class="p">,</span> <span class="p">(</span><span class="mi">5</span><span class="p">,</span> <span class="mi">95</span><span class="p">))</span>
+        <span class="n">img_rescale_2</span> <span class="o">=</span> <span class="n">exposure</span><span class="o">.</span><span class="n">rescale_intensity</span><span class="p">(</span><span class="n">gaussian</span><span class="p">,</span> <span class="n">in_range</span><span class="o">=</span><span class="p">(</span><span class="n">p5</span><span class="p">,</span> <span class="n">p95</span><span class="p">))</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Completed image-preprocessing&quot;</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">img_rescale_2</span></div>
+
+<div class="viewcode-block" id="WellSegmentation.segment_colonies"><a class="viewcode-back" href="../../../microscope_automation.samples.html#microscope_automation.samples.well_segmentation_refined.WellSegmentation.segment_colonies">[docs]</a>    <span class="k">def</span> <span class="nf">segment_colonies</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">rescaled_image</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;To segment colonies from grayscale image using edge detection method</span>
+<span class="sd">        to approximate location of colony edges</span>
+<span class="sd">        and watershed segmentation to fill in the colonies</span>
+
+<span class="sd">        Input:</span>
+<span class="sd">         rescaled_image: The rescaled image from preprocessing with enhanced contrast</span>
+
+<span class="sd">        Output:</span>
+<span class="sd">         binary_colony_mask: binary image of mask of colonies(1) and background(0)</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># Create the cell colony outline for watershed</span>
+        <span class="c1"># Apply sobel filter to highlight edges</span>
+        <span class="n">sobel_0</span> <span class="o">=</span> <span class="n">filters</span><span class="o">.</span><span class="n">sobel</span><span class="p">(</span><span class="n">rescaled_image</span><span class="p">)</span>
+        <span class="c1"># Smooth out sobel edges to highlight</span>
+        <span class="n">gaussian_sobel</span> <span class="o">=</span> <span class="n">filters</span><span class="o">.</span><span class="n">gaussian</span><span class="p">(</span><span class="n">sobel_0</span><span class="p">,</span> <span class="n">sigma</span><span class="o">=</span><span class="mi">5</span><span class="p">,</span> <span class="n">preserve_range</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        <span class="c1"># Apply sobel filter on smoothed image to highlight edge of a cell colony</span>
+        <span class="n">sobel</span> <span class="o">=</span> <span class="n">filters</span><span class="o">.</span><span class="n">sobel</span><span class="p">(</span><span class="n">gaussian_sobel</span><span class="p">)</span>
+        <span class="c1"># Set threshold of edges of colony</span>
+        <span class="n">contours_test</span> <span class="o">=</span> <span class="n">sobel</span>
+        <span class="n">countour_cutoff</span> <span class="o">=</span> <span class="mf">0.015</span>
+        <span class="n">contours_test</span><span class="p">[</span><span class="n">contours_test</span> <span class="o">&gt;=</span> <span class="n">countour_cutoff</span><span class="p">]</span> <span class="o">=</span> <span class="mi">1</span>
+        <span class="n">contours_test</span><span class="p">[</span><span class="n">contours_test</span> <span class="o">&lt;</span> <span class="n">countour_cutoff</span><span class="p">]</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="c1"># Apply a mask to remove edge of the well</span>
+        <span class="n">mask_2</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">create_circular_mask</span><span class="p">(</span><span class="n">radius</span><span class="o">=</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">height</span> <span class="o">/</span> <span class="mf">2.1</span><span class="p">)</span> <span class="o">-</span> <span class="mf">20.0</span><span class="p">)</span>
+        <span class="n">contours_masked</span> <span class="o">=</span> <span class="n">contours_test</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+        <span class="n">contours_masked</span><span class="p">[</span><span class="o">~</span><span class="n">mask_2</span><span class="p">]</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="c1"># Adjust morphology of edge of a cell colony to reach &#39;closing&#39;</span>
+        <span class="n">filtered</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">filter_small_objects</span><span class="p">(</span><span class="n">contours_masked</span><span class="p">,</span> <span class="mi">300</span><span class="p">)</span>
+        <span class="n">erosion</span> <span class="o">=</span> <span class="n">morphology</span><span class="o">.</span><span class="n">erosion</span><span class="p">(</span><span class="n">filtered</span><span class="p">,</span> <span class="n">morphology</span><span class="o">.</span><span class="n">diamond</span><span class="p">(</span><span class="mi">3</span><span class="p">))</span>
+        <span class="n">closing</span> <span class="o">=</span> <span class="n">morphology</span><span class="o">.</span><span class="n">binary_closing</span><span class="p">(</span><span class="n">erosion</span><span class="p">,</span> <span class="n">selem</span><span class="o">=</span><span class="n">morphology</span><span class="o">.</span><span class="n">diamond</span><span class="p">(</span><span class="mi">5</span><span class="p">))</span>
+        <span class="n">remove</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">filter_small_objects</span><span class="p">(</span><span class="n">closing</span><span class="p">,</span> <span class="mi">300</span><span class="p">)</span>
+        <span class="n">colony_edge</span> <span class="o">=</span> <span class="n">morphology</span><span class="o">.</span><span class="n">binary_closing</span><span class="p">(</span><span class="n">remove</span><span class="p">,</span> <span class="n">selem</span><span class="o">=</span><span class="n">morphology</span><span class="o">.</span><span class="n">disk</span><span class="p">(</span><span class="mi">5</span><span class="p">))</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Created colony edges for binary colony mask&quot;</span><span class="p">)</span>
+
+        <span class="c1"># Create cell colony markers for watershed</span>
+        <span class="c1"># Compute intensity profile from gaussian_sobel</span>
+        <span class="n">frq</span><span class="p">,</span> <span class="n">bin_edges</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">histogram</span><span class="p">(</span><span class="n">gaussian_sobel</span><span class="p">,</span> <span class="n">bins</span><span class="o">=</span><span class="mi">64</span><span class="p">)</span>
+        <span class="c1"># Create markers for watershed</span>
+        <span class="n">mask_sobel</span> <span class="o">=</span> <span class="n">gaussian_sobel</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+        <span class="n">mask_sobel</span><span class="p">[</span><span class="o">~</span><span class="n">mask_2</span><span class="p">]</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="c1"># Identify peaks in intensity profile to separate background from true signal</span>
+        <span class="c1"># with limiting the distance between two peaks be 10 or more</span>
+        <span class="n">peaks</span><span class="p">,</span> <span class="n">dictionary</span> <span class="o">=</span> <span class="n">signal</span><span class="o">.</span><span class="n">find_peaks</span><span class="p">(</span><span class="n">frq</span><span class="p">,</span> <span class="n">distance</span><span class="o">=</span><span class="mi">5</span><span class="p">)</span>
+
+        <span class="c1"># Calculate background (peak to the left)</span>
+        <span class="c1"># and signal (peak to the right) thresholds</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">peaks</span><span class="p">)</span> <span class="o">&gt;=</span> <span class="mi">2</span><span class="p">:</span>
+            <span class="c1"># Find the two highest peaks that reference to background or signal</span>
+            <span class="n">order</span> <span class="o">=</span> <span class="n">frq</span><span class="p">[</span><span class="n">peaks</span><span class="p">]</span><span class="o">.</span><span class="n">argsort</span><span class="p">()</span>
+            <span class="n">ranks</span> <span class="o">=</span> <span class="n">order</span><span class="o">.</span><span class="n">argsort</span><span class="p">()</span>
+            <span class="n">highest_peak</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">ranks</span> <span class="o">==</span> <span class="n">np</span><span class="o">.</span><span class="n">amax</span><span class="p">(</span><span class="n">ranks</span><span class="p">))</span>
+            <span class="n">second_peak</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">ranks</span> <span class="o">==</span> <span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">amax</span><span class="p">(</span><span class="n">ranks</span><span class="p">)</span> <span class="o">-</span> <span class="mi">1</span><span class="p">))</span>
+            <span class="n">diff</span> <span class="o">=</span> <span class="n">math</span><span class="o">.</span><span class="n">fabs</span><span class="p">(</span>
+                <span class="n">bin_edges</span><span class="p">[</span><span class="n">peaks</span><span class="p">[</span><span class="n">second_peak</span><span class="p">[</span><span class="mi">0</span><span class="p">]]][</span><span class="mi">0</span><span class="p">]</span>
+                <span class="o">-</span> <span class="n">bin_edges</span><span class="p">[</span><span class="n">peaks</span><span class="p">[</span><span class="n">highest_peak</span><span class="p">[</span><span class="mi">0</span><span class="p">]]][</span><span class="mi">0</span><span class="p">]</span>
+            <span class="p">)</span>
+            <span class="k">if</span> <span class="n">peaks</span><span class="p">[</span><span class="n">highest_peak</span><span class="p">[</span><span class="mi">0</span><span class="p">]]</span> <span class="o">&lt;</span> <span class="n">peaks</span><span class="p">[</span><span class="n">second_peak</span><span class="p">[</span><span class="mi">0</span><span class="p">]]:</span>
+                <span class="n">sig_peak</span> <span class="o">=</span> <span class="n">bin_edges</span><span class="p">[</span><span class="n">peaks</span><span class="p">[</span><span class="n">second_peak</span><span class="p">[</span><span class="mi">0</span><span class="p">]]]</span> <span class="o">-</span> <span class="n">diff</span> <span class="o">*</span> <span class="mf">0.5</span>
+                <span class="n">back_peak</span> <span class="o">=</span> <span class="n">bin_edges</span><span class="p">[</span><span class="n">peaks</span><span class="p">[</span><span class="n">highest_peak</span><span class="p">[</span><span class="mi">0</span><span class="p">]]]</span> <span class="o">+</span> <span class="n">diff</span> <span class="o">*</span> <span class="mf">0.15</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">sig_peak</span> <span class="o">=</span> <span class="n">bin_edges</span><span class="p">[</span><span class="n">peaks</span><span class="p">[</span><span class="n">highest_peak</span><span class="p">[</span><span class="mi">0</span><span class="p">]]]</span> <span class="o">-</span> <span class="n">diff</span> <span class="o">*</span> <span class="mf">0.5</span>
+                <span class="n">back_peak</span> <span class="o">=</span> <span class="n">bin_edges</span><span class="p">[</span><span class="n">peaks</span><span class="p">[</span><span class="n">second_peak</span><span class="p">[</span><span class="mi">0</span><span class="p">]]]</span> <span class="o">+</span> <span class="n">diff</span> <span class="o">*</span> <span class="mf">0.15</span>
+        <span class="k">elif</span> <span class="nb">len</span><span class="p">(</span><span class="n">peaks</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+            <span class="n">back_peak</span> <span class="o">=</span> <span class="n">bin_edges</span><span class="p">[</span><span class="n">peaks</span><span class="p">[</span><span class="mi">0</span><span class="p">]]</span> <span class="o">*</span> <span class="mf">0.9</span>
+            <span class="n">sig_peak</span> <span class="o">=</span> <span class="n">bin_edges</span><span class="p">[</span><span class="n">peaks</span><span class="p">[</span><span class="n">second_peak</span><span class="p">[</span><span class="mi">0</span><span class="p">]]]</span> <span class="o">*</span> <span class="mi">3</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">back_peak</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">mask_sobel</span><span class="p">)</span> <span class="o">*</span> <span class="mf">0.5</span>
+            <span class="n">sig_peak</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">mask_sobel</span><span class="p">)</span> <span class="o">*</span> <span class="mi">3</span>
+
+        <span class="c1"># Apply thresholds to markers</span>
+        <span class="n">markers</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros_like</span><span class="p">(</span><span class="n">mask_sobel</span><span class="p">)</span>
+        <span class="n">markers</span><span class="p">[</span><span class="n">mask_sobel</span> <span class="o">&lt;</span> <span class="n">back_peak</span><span class="p">]</span> <span class="o">=</span> <span class="mi">1</span>
+        <span class="n">markers</span><span class="p">[</span><span class="n">mask_sobel</span> <span class="o">&gt;</span> <span class="n">sig_peak</span><span class="p">]</span> <span class="o">=</span> <span class="mi">2</span>
+        <span class="c1"># Adjust morphology of markers</span>
+        <span class="n">objects</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">markers</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span>
+        <span class="n">objects</span><span class="p">[</span><span class="n">markers</span> <span class="o">==</span> <span class="mi">2</span><span class="p">]</span> <span class="o">=</span> <span class="mi">1</span>
+        <span class="n">erode_objects</span> <span class="o">=</span> <span class="n">morphology</span><span class="o">.</span><span class="n">erosion</span><span class="p">(</span><span class="n">objects</span><span class="p">,</span> <span class="n">morphology</span><span class="o">.</span><span class="n">disk</span><span class="p">(</span><span class="mi">3</span><span class="p">))</span>
+        <span class="n">remove_small</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">filter_small_objects</span><span class="p">(</span><span class="n">erode_objects</span><span class="p">,</span> <span class="n">area</span><span class="o">=</span><span class="mi">500</span><span class="p">)</span>
+        <span class="n">erode_objects</span> <span class="o">=</span> <span class="n">morphology</span><span class="o">.</span><span class="n">erosion</span><span class="p">(</span><span class="n">remove_small</span><span class="p">,</span> <span class="n">morphology</span><span class="o">.</span><span class="n">disk</span><span class="p">(</span><span class="mi">5</span><span class="p">))</span>
+        <span class="c1"># Difference between objects and erode_objects could be holes in a colony</span>
+        <span class="c1"># that should be set as &#39;0&#39;, neither background(1) or colony(2)</span>
+        <span class="n">diff</span> <span class="o">=</span> <span class="n">objects</span> <span class="o">-</span> <span class="n">erode_objects</span>
+        <span class="n">markers</span><span class="p">[</span><span class="n">diff</span> <span class="o">==</span> <span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Created markers for binary colony mask&quot;</span><span class="p">)</span>
+
+        <span class="c1"># --------------------------------------------------------------------------</span>
+        <span class="c1"># Apply watershed segmentation</span>
+        <span class="n">segmentation</span> <span class="o">=</span> <span class="n">morphology</span><span class="o">.</span><span class="n">watershed</span><span class="p">(</span><span class="n">colony_edge</span><span class="p">,</span> <span class="n">markers</span><span class="p">)</span>
+        <span class="n">segmentation</span><span class="p">[</span><span class="n">segmentation</span> <span class="o">==</span> <span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="mf">0.0</span>
+        <span class="n">segmentation</span><span class="p">[</span><span class="n">segmentation</span> <span class="o">==</span> <span class="mi">2</span><span class="p">]</span> <span class="o">=</span> <span class="mf">1.0</span>
+
+        <span class="c1"># Adjust morphology of cell colonies segmented</span>
+        <span class="n">binary_colony_mask</span> <span class="o">=</span> <span class="n">morphology</span><span class="o">.</span><span class="n">erosion</span><span class="p">(</span><span class="n">segmentation</span><span class="p">,</span> <span class="n">morphology</span><span class="o">.</span><span class="n">disk</span><span class="p">(</span><span class="mi">5</span><span class="p">))</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Completed creating binary colony mask&quot;</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">binary_colony_mask</span></div>
+
+<div class="viewcode-block" id="WellSegmentation.process_colonies"><a class="viewcode-back" href="../../../microscope_automation.samples.html#microscope_automation.samples.well_segmentation_refined.WellSegmentation.process_colonies">[docs]</a>    <span class="k">def</span> <span class="nf">process_colonies</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">binary_colony_mask</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;To partition binary colony mask into separate, distinct,</span>
+<span class="sd">        labelled colonies using distance map to find markers of colonies</span>
+<span class="sd">        and separate connected colonies with watershed segmentation.</span>
+
+<span class="sd">        Input:</span>
+<span class="sd">         binary_colony_mask: A binary image of colonies(1) and background (0)</span>
+
+<span class="sd">        Output:</span>
+<span class="sd">         none</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># --------------------------------------------------------------------------</span>
+        <span class="c1"># Colony partition</span>
+        <span class="c1"># Create distance map and &#39;cut&#39; weak bondings between separating colonies</span>
+        <span class="n">erode</span> <span class="o">=</span> <span class="n">morphology</span><span class="o">.</span><span class="n">erosion</span><span class="p">(</span><span class="n">binary_colony_mask</span><span class="p">,</span> <span class="n">morphology</span><span class="o">.</span><span class="n">disk</span><span class="p">(</span><span class="mi">20</span><span class="p">))</span>
+        <span class="n">distance_map</span> <span class="o">=</span> <span class="n">ndimage</span><span class="o">.</span><span class="n">morphology</span><span class="o">.</span><span class="n">distance_transform_edt</span><span class="p">(</span><span class="n">erode</span><span class="p">)</span>
+        <span class="n">distance_map</span><span class="p">[</span><span class="n">distance_map</span> <span class="o">&lt;</span> <span class="mi">10</span><span class="p">]</span> <span class="o">=</span> <span class="mi">0</span>
+
+        <span class="c1"># Create distance map for all colonies</span>
+        <span class="n">distance_map_max</span> <span class="o">=</span> <span class="n">ndimage</span><span class="o">.</span><span class="n">morphology</span><span class="o">.</span><span class="n">distance_transform_edt</span><span class="p">(</span><span class="n">binary_colony_mask</span><span class="p">)</span>
+
+        <span class="c1"># Identify local maximum from filtered distance map and</span>
+        <span class="c1"># use maximum as markers for watershed. This method will</span>
+        <span class="c1"># identify centers of big colonies</span>
+        <span class="n">local_maxi</span> <span class="o">=</span> <span class="n">feature</span><span class="o">.</span><span class="n">peak_local_max</span><span class="p">(</span>
+            <span class="n">distance_map</span><span class="p">,</span> <span class="n">indices</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">footprint</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">ones</span><span class="p">((</span><span class="mi">200</span><span class="p">,</span> <span class="mi">200</span><span class="p">))</span>
+        <span class="p">)</span>
+        <span class="n">dilate_maxi</span> <span class="o">=</span> <span class="n">morphology</span><span class="o">.</span><span class="n">dilation</span><span class="p">(</span><span class="n">local_maxi</span><span class="p">,</span> <span class="n">selem</span><span class="o">=</span><span class="n">morphology</span><span class="o">.</span><span class="n">disk</span><span class="p">(</span><span class="mi">10</span><span class="p">))</span>
+
+        <span class="n">dis_obj</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">distance_map</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span>
+        <span class="n">dis_obj</span><span class="p">[</span><span class="n">distance_map</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="mi">1</span>
+        <span class="n">dilate_dis_obj</span> <span class="o">=</span> <span class="n">morphology</span><span class="o">.</span><span class="n">dilation</span><span class="p">(</span><span class="n">dis_obj</span><span class="p">,</span> <span class="n">selem</span><span class="o">=</span><span class="n">morphology</span><span class="o">.</span><span class="n">disk</span><span class="p">(</span><span class="mi">10</span><span class="p">))</span>
+        <span class="n">lab_dis_obj</span> <span class="o">=</span> <span class="n">measure</span><span class="o">.</span><span class="n">label</span><span class="p">(</span><span class="n">dilate_dis_obj</span><span class="p">)</span>
+
+        <span class="n">union_obj</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">unique</span><span class="p">(</span>
+            <span class="n">lab_dis_obj</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">where</span><span class="p">((</span><span class="n">dilate_maxi</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">)</span> <span class="o">&amp;</span> <span class="p">(</span><span class="n">lab_dis_obj</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">))]</span>
+        <span class="p">)</span>
+        <span class="n">obj_to_add</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">obj</span> <span class="ow">in</span> <span class="n">np</span><span class="o">.</span><span class="n">unique</span><span class="p">(</span><span class="n">lab_dis_obj</span><span class="p">):</span>
+            <span class="k">if</span> <span class="p">(</span><span class="n">obj</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">union_obj</span><span class="p">)</span> <span class="o">&amp;</span> <span class="p">(</span><span class="n">obj</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">):</span>
+                <span class="n">obj_to_add</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">obj</span><span class="p">)</span>
+                <span class="n">dilate_maxi</span><span class="p">[</span><span class="n">lab_dis_obj</span> <span class="o">==</span> <span class="n">obj</span><span class="p">]</span> <span class="o">=</span> <span class="mi">1</span>
+
+        <span class="c1"># As overall colony segmentation was not able to separate colonies</span>
+        <span class="c1"># that are close to each other and tend to merge neighboring colonies,</span>
+        <span class="c1"># a secondary filter is applied to the distance map</span>
+        <span class="c1"># to pick up signals from small colonies to find center of</span>
+        <span class="c1"># small colonies and add to markers for watershed</span>
+        <span class="n">filter_max</span> <span class="o">=</span> <span class="n">distance_map_max</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+        <span class="n">filter_max</span><span class="p">[</span><span class="n">filter_max</span> <span class="o">&lt;</span> <span class="mi">10</span><span class="p">]</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="n">filter_max</span><span class="p">[</span><span class="n">filter_max</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="mi">1</span>
+
+        <span class="n">remove_small</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">filter_small_objects</span><span class="p">(</span><span class="n">filter_max</span><span class="p">,</span> <span class="n">area</span><span class="o">=</span><span class="mi">2500</span><span class="p">)</span>
+        <span class="n">small_obj</span> <span class="o">=</span> <span class="n">filter_max</span> <span class="o">-</span> <span class="n">remove_small</span>
+        <span class="n">final_small</span> <span class="o">=</span> <span class="n">morphology</span><span class="o">.</span><span class="n">dilation</span><span class="p">(</span><span class="n">small_obj</span><span class="p">,</span> <span class="n">selem</span><span class="o">=</span><span class="n">morphology</span><span class="o">.</span><span class="n">disk</span><span class="p">(</span><span class="mi">5</span><span class="p">))</span>
+
+        <span class="c1"># Merge markers from big and small colonies</span>
+        <span class="n">total</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">logical_or</span><span class="p">(</span><span class="n">dilate_maxi</span><span class="p">,</span> <span class="n">final_small</span><span class="p">)</span>
+        <span class="n">markers</span> <span class="o">=</span> <span class="n">measure</span><span class="o">.</span><span class="n">label</span><span class="p">(</span><span class="n">total</span><span class="p">)</span>
+        <span class="c1"># Apply watershed segmentation</span>
+        <span class="n">labelled_colonies</span> <span class="o">=</span> <span class="n">morphology</span><span class="o">.</span><span class="n">watershed</span><span class="p">(</span>
+            <span class="o">-</span><span class="n">distance_map_max</span><span class="p">,</span> <span class="n">markers</span><span class="p">,</span> <span class="n">mask</span><span class="o">=</span><span class="n">binary_colony_mask</span>
+        <span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Identified and labelled separate colonies from binary colony mask&quot;</span><span class="p">)</span>
+
+        <span class="c1"># Partition big colonies into few smaller ones</span>
+        <span class="n">sizes</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">bincount</span><span class="p">(</span><span class="n">labelled_colonies</span><span class="o">.</span><span class="n">ravel</span><span class="p">())</span>
+        <span class="c1"># Set minimum colony size to be split</span>
+        <span class="n">big_obj_to_split</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">sizes</span><span class="p">)):</span>
+            <span class="k">if</span> <span class="n">sizes</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">&gt;</span> <span class="mi">90000</span><span class="p">:</span>
+                <span class="n">big_obj_to_split</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">i</span><span class="p">)</span>
+
+        <span class="n">mask</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">labelled_colonies</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">obj</span> <span class="ow">in</span> <span class="n">big_obj_to_split</span><span class="p">:</span>
+            <span class="n">mask</span><span class="p">[</span><span class="n">labelled_colonies</span> <span class="o">==</span> <span class="n">obj</span><span class="p">]</span> <span class="o">=</span> <span class="mi">1</span>
+        <span class="c1"># Apply distance mapping to the large colony and try to separate the colony</span>
+        <span class="c1"># by finding peaks in the distance map</span>
+        <span class="n">dis_map</span> <span class="o">=</span> <span class="n">ndimage</span><span class="o">.</span><span class="n">morphology</span><span class="o">.</span><span class="n">distance_transform_edt</span><span class="p">(</span><span class="n">mask</span><span class="p">)</span>
+        <span class="n">local_maxi</span> <span class="o">=</span> <span class="n">feature</span><span class="o">.</span><span class="n">peak_local_max</span><span class="p">(</span>
+            <span class="n">dis_map</span><span class="p">,</span> <span class="n">indices</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">footprint</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">ones</span><span class="p">((</span><span class="mi">100</span><span class="p">,</span> <span class="mi">100</span><span class="p">))</span>
+        <span class="p">)</span>
+        <span class="n">dilate</span> <span class="o">=</span> <span class="n">morphology</span><span class="o">.</span><span class="n">dilation</span><span class="p">(</span><span class="n">local_maxi</span><span class="p">,</span> <span class="n">selem</span><span class="o">=</span><span class="n">morphology</span><span class="o">.</span><span class="n">disk</span><span class="p">(</span><span class="mi">10</span><span class="p">))</span>
+        <span class="n">seed</span> <span class="o">=</span> <span class="n">measure</span><span class="o">.</span><span class="n">label</span><span class="p">(</span><span class="n">dilate</span><span class="p">)</span>
+        <span class="c1"># Apply watershed segmentation on the colony with new seeds to partition</span>
+        <span class="n">split</span> <span class="o">=</span> <span class="n">morphology</span><span class="o">.</span><span class="n">watershed</span><span class="p">(</span><span class="o">-</span><span class="n">dis_map</span><span class="p">,</span> <span class="n">seed</span><span class="p">,</span> <span class="n">mask</span><span class="o">=</span><span class="n">mask</span><span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Partitioned big colonies to smaller colonies&quot;</span><span class="p">)</span>
+
+        <span class="c1"># Adjust labeling with new partitioned colonies</span>
+        <span class="k">for</span> <span class="n">obj</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">unique</span><span class="p">(</span><span class="n">split</span><span class="p">))):</span>
+            <span class="n">labelled_colonies</span><span class="p">[</span><span class="n">split</span> <span class="o">==</span> <span class="n">obj</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">max</span><span class="p">(</span><span class="n">labelled_colonies</span><span class="p">)</span> <span class="o">+</span> <span class="mi">1</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">segmented_colonies</span> <span class="o">=</span> <span class="n">labelled_colonies</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Done Segmenting colonies&quot;</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="WellSegmentation.find_positions"><a class="viewcode-back" href="../../../microscope_automation.samples.html#microscope_automation.samples.well_segmentation_refined.WellSegmentation.find_positions">[docs]</a>    <span class="k">def</span> <span class="nf">find_positions</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;To find a position in a colony that passes the size filter,</span>
+<span class="sd">        and is positioned 40% from the edge of colony, maximum in distance map</span>
+<span class="sd">        that indicates preferred smoothness in region,</span>
+<span class="sd">        and is close to the center of the well for good imaging practice.</span>
+
+<span class="sd">        Input:</span>
+<span class="sd">         none</span>
+
+<span class="sd">        Output:</span>
+<span class="sd">         none</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># Filter colony by size</span>
+        <span class="n">min_area</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">colony_filters_dict</span><span class="p">[</span><span class="s2">&quot;minArea&quot;</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span>
+        <span class="c1"># Calculating the sizes of the object</span>
+        <span class="n">sizes</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">bincount</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">segmented_colonies</span><span class="o">.</span><span class="n">ravel</span><span class="p">())</span>
+        <span class="c1"># Remove background size</span>
+        <span class="n">sizes_colony</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">delete</span><span class="p">(</span><span class="n">sizes</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
+
+        <span class="c1"># Selecting objects above a certain size threshold</span>
+        <span class="n">size_mask</span> <span class="o">=</span> <span class="n">sizes_colony</span> <span class="o">&gt;</span> <span class="n">min_area</span>
+        <span class="n">obj_number_keep</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">size_mask</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="n">num_colonies_final</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">colony_filters_dict</span><span class="p">[</span><span class="s2">&quot;distFromCenter&quot;</span><span class="p">][</span><span class="mi">1</span><span class="p">]</span>
+
+        <span class="n">filtered</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">segmented_colonies</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span>
+
+        <span class="c1"># TODO  - Test for 0 position</span>
+        <span class="c1"># If there is equal or less # colonies segmented than wanted,</span>
+        <span class="c1"># use all colonies for picking positions</span>
+        <span class="c1"># If there is less # colonies segmented than wanted,</span>
+        <span class="c1"># flag user that colonies are small in the well</span>
+        <span class="c1"># and use the largest colonies to generate positions</span>
+        <span class="c1"># If there are more colonies segmented than wanted, use the largest</span>
+        <span class="c1"># wanted+2 colonies (+2 gives the flexibility later to pick positions</span>
+        <span class="c1"># that are from a slightly smaller colony but closer to well center)</span>
+
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">obj_number_keep</span><span class="p">)</span> <span class="o">&lt;=</span> <span class="n">num_colonies_final</span><span class="p">:</span>
+            <span class="k">for</span> <span class="n">obj</span> <span class="ow">in</span> <span class="n">obj_number_keep</span><span class="p">:</span>
+                <span class="n">filtered</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">segmented_colonies</span> <span class="o">==</span> <span class="n">obj</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)]</span> <span class="o">=</span> <span class="n">obj</span> <span class="o">+</span> <span class="mi">1</span>
+            <span class="n">num_objs</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">obj_number_keep</span><span class="p">)</span>
+            <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">obj_number_keep</span><span class="p">)</span> <span class="o">&lt;</span> <span class="n">num_colonies_final</span><span class="p">:</span>
+                <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;small colonies in this well&quot;</span><span class="p">)</span>
+                <span class="c1"># Get colonies of largest size</span>
+                <span class="n">desc_rank</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">argsort</span><span class="p">(</span><span class="o">-</span><span class="n">sizes_colony</span><span class="p">)</span>
+                <span class="n">size_index</span> <span class="o">=</span> <span class="n">desc_rank</span><span class="p">[:</span><span class="n">num_colonies_final</span><span class="p">]</span>
+                <span class="n">num_obj</span> <span class="o">=</span> <span class="mi">1</span>
+                <span class="k">for</span> <span class="n">obj</span> <span class="ow">in</span> <span class="n">size_index</span><span class="p">:</span>
+                    <span class="n">filtered</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">segmented_colonies</span> <span class="o">==</span> <span class="n">obj</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)]</span> <span class="o">=</span> <span class="n">num_obj</span>
+                    <span class="n">num_obj</span> <span class="o">+=</span> <span class="mi">1</span>
+                <span class="n">num_objs</span> <span class="o">=</span> <span class="n">num_obj</span> <span class="o">-</span> <span class="mi">1</span>
+
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">desc_rank</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">argsort</span><span class="p">(</span><span class="o">-</span><span class="n">sizes_colony</span><span class="p">)</span>
+            <span class="n">size_index</span> <span class="o">=</span> <span class="n">desc_rank</span><span class="p">[:</span> <span class="p">(</span><span class="n">num_colonies_final</span> <span class="o">+</span> <span class="mi">2</span><span class="p">)]</span>
+            <span class="n">num_obj</span> <span class="o">=</span> <span class="mi">1</span>
+            <span class="k">for</span> <span class="n">obj</span> <span class="ow">in</span> <span class="n">size_index</span><span class="p">:</span>
+                <span class="n">filtered</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">segmented_colonies</span> <span class="o">==</span> <span class="n">obj</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)]</span> <span class="o">=</span> <span class="n">num_obj</span>
+                <span class="n">num_obj</span> <span class="o">+=</span> <span class="mi">1</span>
+            <span class="n">num_objs</span> <span class="o">=</span> <span class="n">num_obj</span> <span class="o">-</span> <span class="mi">1</span>
+
+        <span class="n">filtered_colonies</span> <span class="o">=</span> <span class="n">measure</span><span class="o">.</span><span class="n">label</span><span class="p">(</span><span class="n">filtered</span><span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Filtered colonies according to size&quot;</span><span class="p">)</span>
+        <span class="c1"># Select 1 position per colony and populate the point location</span>
+        <span class="c1"># in original-sized image in [point_locations]</span>
+        <span class="c1"># with distance map</span>
+        <span class="n">smoothed_well</span> <span class="o">=</span> <span class="n">ndimage</span><span class="o">.</span><span class="n">gaussian_filter</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">downsized_image</span><span class="p">,</span> <span class="mf">0.35</span><span class="p">)</span>
+        <span class="n">distance</span> <span class="o">=</span> <span class="n">ndimage</span><span class="o">.</span><span class="n">distance_transform_edt</span><span class="p">(</span><span class="n">filtered_colonies</span><span class="p">)</span>
+
+        <span class="n">point_locations</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">obj</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="n">num_objs</span> <span class="o">+</span> <span class="mi">1</span><span class="p">):</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;On object </span><span class="si">{}</span><span class="s2"> of </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">obj</span><span class="p">,</span> <span class="n">num_objs</span><span class="p">))</span>
+            <span class="n">mask</span> <span class="o">=</span> <span class="n">filtered_colonies</span> <span class="o">==</span> <span class="n">obj</span>
+            <span class="n">dist_mask</span> <span class="o">=</span> <span class="n">distance</span> <span class="o">*</span> <span class="n">mask</span>
+            <span class="c1"># for each colony, find the maximum distance from the two fold distance map.</span>
+            <span class="c1"># The edge is at 0% and the center of the colony is at 100%</span>
+            <span class="n">d_max</span> <span class="o">=</span> <span class="n">dist_mask</span><span class="o">.</span><span class="n">max</span><span class="p">()</span>
+            <span class="c1"># Getting the points which is at least 40% away from the edge</span>
+            <span class="n">top_percent</span> <span class="o">=</span> <span class="n">dist_mask</span> <span class="o">&gt;</span> <span class="p">(</span><span class="n">d_max</span> <span class="o">*</span> <span class="mf">0.30</span><span class="p">)</span>
+            <span class="n">colony_mask</span> <span class="o">=</span> <span class="n">smoothed_well</span> <span class="o">*</span> <span class="n">top_percent</span>
+            <span class="n">colony_edges</span> <span class="o">=</span> <span class="n">feature</span><span class="o">.</span><span class="n">canny</span><span class="p">(</span><span class="n">colony_mask</span><span class="p">,</span> <span class="n">sigma</span><span class="o">=</span><span class="mf">0.1</span><span class="p">)</span>
+            <span class="c1"># applying the second distance transform</span>
+            <span class="c1"># to find the smoothest point in the correct region</span>
+            <span class="n">inner_edges</span> <span class="o">=</span> <span class="n">ndimage</span><span class="o">.</span><span class="n">distance_transform_edt</span><span class="p">(</span><span class="o">~</span><span class="n">colony_edges</span> <span class="o">*</span> <span class="n">top_percent</span><span class="p">)</span>
+            <span class="n">smooth_point</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">inner_edges</span> <span class="o">==</span> <span class="n">inner_edges</span><span class="o">.</span><span class="n">max</span><span class="p">())</span>
+            <span class="n">smooth_point</span> <span class="o">=</span> <span class="p">(</span><span class="n">smooth_point</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="mi">0</span><span class="p">],</span> <span class="n">smooth_point</span><span class="p">[</span><span class="mi">1</span><span class="p">][</span><span class="mi">0</span><span class="p">])</span>
+            <span class="n">smooth_point_corrected</span> <span class="o">=</span> <span class="p">(</span>
+                <span class="n">smooth_point</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">*</span> <span class="n">DOWNSCALING_FACTOR</span><span class="p">,</span>
+                <span class="n">smooth_point</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">*</span> <span class="n">DOWNSCALING_FACTOR</span><span class="p">,</span>
+            <span class="p">)</span>
+            <span class="n">point_locations</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">smooth_point_corrected</span><span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Calculated point distances from center of well&quot;</span><span class="p">)</span>
+        <span class="c1"># Filter top point locations that are closest to the center of the well</span>
+        <span class="n">center_well_y</span> <span class="o">=</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">height</span> <span class="o">/</span> <span class="mi">2</span><span class="p">)</span> <span class="o">*</span> <span class="n">DOWNSCALING_FACTOR</span>
+        <span class="n">center_well_x</span> <span class="o">=</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">width</span> <span class="o">/</span> <span class="mi">2</span><span class="p">)</span> <span class="o">*</span> <span class="n">DOWNSCALING_FACTOR</span>
+        <span class="n">diff_center</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">location</span> <span class="ow">in</span> <span class="n">point_locations</span><span class="p">:</span>
+            <span class="n">y</span> <span class="o">=</span> <span class="n">location</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+            <span class="n">x</span> <span class="o">=</span> <span class="n">location</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+            <span class="c1"># Calculate distance of point from center</span>
+            <span class="n">diff</span> <span class="o">=</span> <span class="n">math</span><span class="o">.</span><span class="n">sqrt</span><span class="p">((</span><span class="n">x</span> <span class="o">-</span> <span class="n">center_well_x</span><span class="p">)</span> <span class="o">**</span> <span class="mi">2</span> <span class="o">+</span> <span class="p">(</span><span class="n">y</span> <span class="o">-</span> <span class="n">center_well_y</span><span class="p">)</span> <span class="o">**</span> <span class="mi">2</span><span class="p">)</span>
+            <span class="n">diff_center</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">diff</span><span class="p">)</span>
+        <span class="c1"># Rank the distance of point from center</span>
+        <span class="n">rank</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">argsort</span><span class="p">(</span><span class="n">diff_center</span><span class="p">)</span>
+        <span class="c1"># Select the # points wanted with points closest to the center</span>
+        <span class="n">rank_index</span> <span class="o">=</span> <span class="n">rank</span><span class="p">[:</span><span class="n">num_colonies_final</span><span class="p">]</span>
+        <span class="k">for</span> <span class="n">point</span> <span class="ow">in</span> <span class="n">rank_index</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">point_locations</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">point_locations</span><span class="p">[</span><span class="n">point</span><span class="p">])</span>
+        <span class="nb">print</span><span class="p">(</span>
+            <span class="s2">&quot;Ranked and picked &quot;</span>
+            <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">num_colonies_final</span><span class="p">)</span>
+            <span class="o">+</span> <span class="s2">&quot; points closest to center of well&quot;</span>
+        <span class="p">)</span></div>
+
+<div class="viewcode-block" id="WellSegmentation.create_circular_mask"><a class="viewcode-back" href="../../../microscope_automation.samples.html#microscope_automation.samples.well_segmentation_refined.WellSegmentation.create_circular_mask">[docs]</a>    <span class="k">def</span> <span class="nf">create_circular_mask</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">center</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">radius</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;To create a circular mask over an image, masking out edges of a well</span>
+
+<span class="sd">        Input:</span>
+<span class="sd">         center: user-defined center of circular mask</span>
+
+<span class="sd">         radius: radius of circular mask</span>
+
+<span class="sd">        Output:</span>
+<span class="sd">         mask: a mask with masked-out area being 0, and in-mask area being 1</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">center</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>  <span class="c1"># use the middle of the image</span>
+            <span class="n">center</span> <span class="o">=</span> <span class="p">[</span><span class="nb">int</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">width</span> <span class="o">/</span> <span class="mi">2</span><span class="p">),</span> <span class="nb">int</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">height</span> <span class="o">/</span> <span class="mi">2</span><span class="p">)]</span>
+        <span class="k">if</span> <span class="n">radius</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>  <span class="c1"># use smallest distance between the center and image walls</span>
+            <span class="n">radius</span> <span class="o">=</span> <span class="nb">min</span><span class="p">(</span>
+                <span class="n">center</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">center</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="bp">self</span><span class="o">.</span><span class="n">width</span> <span class="o">-</span> <span class="n">center</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="bp">self</span><span class="o">.</span><span class="n">height</span> <span class="o">-</span> <span class="n">center</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+            <span class="p">)</span>
+
+        <span class="n">Y</span><span class="p">,</span> <span class="n">X</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">ogrid</span><span class="p">[:</span> <span class="bp">self</span><span class="o">.</span><span class="n">height</span><span class="p">,</span> <span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">width</span><span class="p">]</span>
+        <span class="n">dist_from_center</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">((</span><span class="n">X</span> <span class="o">-</span> <span class="n">center</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span> <span class="o">**</span> <span class="mi">2</span> <span class="o">+</span> <span class="p">(</span><span class="n">Y</span> <span class="o">-</span> <span class="n">center</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span> <span class="o">**</span> <span class="mi">2</span><span class="p">)</span>
+
+        <span class="n">mask</span> <span class="o">=</span> <span class="n">dist_from_center</span> <span class="o">&lt;=</span> <span class="n">radius</span>
+        <span class="k">return</span> <span class="n">mask</span></div>
+
+<div class="viewcode-block" id="WellSegmentation.filter_small_objects"><a class="viewcode-back" href="../../../microscope_automation.samples.html#microscope_automation.samples.well_segmentation_refined.WellSegmentation.filter_small_objects">[docs]</a>    <span class="k">def</span> <span class="nf">filter_small_objects</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">bw_img</span><span class="p">,</span> <span class="n">area</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;To filter small objects from image</span>
+
+<span class="sd">        Input:</span>
+<span class="sd">         bw_img: A binary image with objects</span>
+
+<span class="sd">         area: Objects smaller than this area will be filtered out</span>
+
+<span class="sd">        Output:</span>
+<span class="sd">         int_img: binary image with objects smaller than specified area be filtered out</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">label_objects</span><span class="p">,</span> <span class="n">nb_labels</span> <span class="o">=</span> <span class="n">ndimage</span><span class="o">.</span><span class="n">label</span><span class="p">(</span><span class="n">bw_img</span><span class="p">)</span>
+        <span class="n">sizes</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">bincount</span><span class="p">(</span><span class="n">label_objects</span><span class="o">.</span><span class="n">ravel</span><span class="p">())</span>
+        <span class="c1"># max_area = max(sizes)</span>
+        <span class="c1"># Selecting objects above a certain size threshold</span>
+        <span class="c1"># size_mask = (sizes &gt; area) &amp; (sizes &lt; max_area)</span>
+        <span class="n">size_mask</span> <span class="o">=</span> <span class="n">sizes</span> <span class="o">&gt;</span> <span class="n">area</span>
+        <span class="n">size_mask</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="n">filtered</span> <span class="o">=</span> <span class="n">label_objects</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+        <span class="n">filtered_image</span> <span class="o">=</span> <span class="n">size_mask</span><span class="p">[</span><span class="n">filtered</span><span class="p">]</span>
+
+        <span class="n">int_img</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">filtered_image</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span>
+        <span class="n">int_img</span><span class="p">[</span><span class="n">filtered_image</span><span class="p">]</span> <span class="o">=</span> <span class="mi">1</span>
+        <span class="n">int_img</span> <span class="o">=</span> <span class="n">int_img</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">int</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">int_img</span></div></div>
+</pre></div>
+
+          </div>
+          
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<h1 class="logo"><a href="../../../index.html">Microscope Automation</a></h1>
+
+
+
+
+
+
+
+
+<h3>Navigation</h3>
+<p class="caption"><span class="caption-text">Overview</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../index.html">README</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../installation.html">Installation</a></li>
+</ul>
+<p class="caption"><span class="caption-text">Hardware</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../hardware_components.html">hardware_components</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../hardware_control.html">hardware_control</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../RS232.html">RS232</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../setup_microscope.html">setup_microscope</a></li>
+</ul>
+<p class="caption"><span class="caption-text">Samples</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../correct_background.html">correct_background</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../draw_plate.html">draw_plate</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../find_well_center.html">find_well_center</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../find_cells.html">find_cells</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../interactive_location_picker_pyqtgraph.html">interactive_location_picker_pyqtgraph</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../positions_list.html">positions_list</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../samples.html">samples</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../setup_samples.html">setup_samples</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../tile_images.html">tile_images</a></li>
+</ul>
+<p class="caption"><span class="caption-text">Zeiss Microscopes</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../connect_zen_blue.html">connect_zen_blue</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../connect_zen_black.html">connect_zen_black</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../hardware_control_zeiss.html">hardware_control_zeiss</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../write_zen_tiles_experiment.html">write_zen_tiles_experiment</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../zen_experiment_info.html">zen_experiment_info</a></li>
+</ul>
+<p class="caption"><span class="caption-text">3i Microscopes</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../hardware_control_3i.html">hardware_control_3i</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../connect_slidebook.html">connect_slidebook</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../slidebook_experiment_info.html">slidebook_experiment_info</a></li>
+</ul>
+<p class="caption"><span class="caption-text">General Methods</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../automation_exceptions.html">automation_exceptions</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../automation_messages_form_layout.html">automation_messages_form_layout</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../error_handling.html">error_handling</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../get_path.html">get_path</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../image_AICS.html">image_AICS</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../load_image_czi.html">load_image_czi</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../meta_data_file.html">meta_data_file</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../preferences.html">preferences</a></li>
+</ul>
+<p class="caption"><span class="caption-text">Reference Docs</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../CONTRIBUTING.html">Allen Institute Contribution Agreement</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../LICENSE.html">LICENSE</a></li>
+</ul>
+
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="../../../index.html">Documentation overview</a><ul>
+  <li><a href="../../index.html">Module code</a><ul>
+  <li><a href="../../microscope_automation.html">microscope_automation</a><ul>
+  </ul></li>
+  </ul></li>
+  </ul></li>
+</ul>
+</div>
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../../../search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" />
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script>$('#searchbox').show(0);</script>
+
+
+
+
+
+
+
+
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2020, Allen Institute.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 3.3.1</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.12</a>
+      
+    </div>
+
+    
+
+    
+  </body>
+</html>

@@ -76,6 +76,14 @@ microscope\_automation.samples.tile\_images module
    :undoc-members:
    :show-inheritance:
 
+microscope\_automation.samples.well\_segmentation\_refined module
+-----------------------------------------------------------------
+
+.. automodule:: microscope_automation.samples.well_segmentation_refined
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
 Module contents
 ---------------
 

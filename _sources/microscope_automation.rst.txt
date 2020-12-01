@@ -39,6 +39,14 @@ microscope\_automation.error\_handling module
    :undoc-members:
    :show-inheritance:
 
+microscope\_automation.find\_positions module
+---------------------------------------------
+
+.. automodule:: microscope_automation.find_positions
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
 microscope\_automation.get\_path module
 ---------------------------------------
 
@@ -71,10 +79,26 @@ microscope\_automation.meta\_data\_file module
    :undoc-members:
    :show-inheritance:
 
+microscope\_automation.microscope\_automation module
+----------------------------------------------------
+
+.. automodule:: microscope_automation.microscope_automation
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
 microscope\_automation.preferences module
 -----------------------------------------
 
 .. automodule:: microscope_automation.preferences
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+microscope\_automation.software\_state module
+---------------------------------------------
+
+.. automodule:: microscope_automation.software_state
    :members:
    :undoc-members:
    :show-inheritance:
