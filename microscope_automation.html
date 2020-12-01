@@ -56,8 +56,10 @@
 <li class="toctree-l2"><a class="reference internal" href="microscope_automation.samples.html#module-microscope_automation.samples.interactive_location_picker_pyqtgraph">microscope_automation.samples.interactive_location_picker_pyqtgraph module</a></li>
 <li class="toctree-l2"><a class="reference internal" href="microscope_automation.samples.html#module-microscope_automation.samples.positions_list">microscope_automation.samples.positions_list module</a></li>
 <li class="toctree-l2"><a class="reference internal" href="microscope_automation.samples.html#module-microscope_automation.samples.samples">microscope_automation.samples.samples module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="microscope_automation.samples.html#module-microscope_automation.samples.segmentation_filters">microscope_automation.samples.segmentation_filters module</a></li>
 <li class="toctree-l2"><a class="reference internal" href="microscope_automation.samples.html#module-microscope_automation.samples.setup_samples">microscope_automation.samples.setup_samples module</a></li>
 <li class="toctree-l2"><a class="reference internal" href="microscope_automation.samples.html#module-microscope_automation.samples.tile_images">microscope_automation.samples.tile_images module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="microscope_automation.samples.html#module-microscope_automation.samples.well_overview_segmentation">microscope_automation.samples.well_overview_segmentation module</a></li>
 <li class="toctree-l2"><a class="reference internal" href="microscope_automation.samples.html#module-microscope_automation.samples.well_segmentation_refined">microscope_automation.samples.well_segmentation_refined module</a></li>
 <li class="toctree-l2"><a class="reference internal" href="microscope_automation.samples.html#module-microscope_automation.samples">Module contents</a></li>
 </ul>
@@ -727,8 +729,174 @@ Created on Jul 31, 2016</p>
 </dd></dl>
 
 </div>
-<div class="section" id="microscope-automation-find-positions-module">
-<h2>microscope_automation.find_positions module<a class="headerlink" href="#microscope-automation-find-positions-module" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="module-microscope_automation.find_positions">
+<span id="microscope-automation-find-positions-module"></span><h2>microscope_automation.find_positions module<a class="headerlink" href="#module-microscope_automation.find_positions" title="Permalink to this headline">¶</a></h2>
+<p>Created on Aug 23, 2018</p>
+<p>Tools to find positions for imaging
+&#64;author: winfriedw</p>
+<dl class="py function">
+<dt id="microscope_automation.find_positions.convert_location_list">
+<code class="sig-prename descclassname">microscope_automation.find_positions.</code><code class="sig-name descname">convert_location_list</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">location_list</span></em>, <em class="sig-param"><span class="n">image</span></em>, <em class="sig-param"><span class="n">image_type</span><span class="o">=</span><span class="default_value">'czi'</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/microscope_automation/find_positions.html#convert_location_list"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#microscope_automation.find_positions.convert_location_list" title="Permalink to this definition">¶</a></dt>
+<dd><p>Function to convert the coordinates to microns
+and relative to the center of the image.
+First all the locations are converted to microns using the pixel size of the image.
+Then the locations are converted so that they are relative
+to the center of the image instead of the bottom right corner.
+This calculation is done using the size of image.</p>
+<dl>
+<dt>Input:</dt><dd><p>location_list: list of coordinates</p>
+<p>image: imageAICS object with all the meta data</p>
+<p>image_type: tiff or czi: both have different units for physical pixel size</p>
+</dd>
+<dt>Output:</dt><dd><p>location_list_relative_to_zero: corrected location list</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt id="microscope_automation.find_positions.copy_image_position">
+<code class="sig-prename descclassname">microscope_automation.find_positions.</code><code class="sig-name descname">copy_image_position</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">sample_object</span></em>, <em class="sig-param"><span class="n">output_class</span></em>, <em class="sig-param"><span class="n">image</span></em>, <em class="sig-param"><span class="n">offset</span><span class="o">=</span><span class="default_value">(0, 0, 0)</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/microscope_automation/find_positions.html#copy_image_position"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#microscope_automation.find_positions.copy_image_position" title="Permalink to this definition">¶</a></dt>
+<dd><p>Create new object with zero position relative to center of image.</p>
+<dl>
+<dt>Input:</dt><dd><p>sample_object: object that is searched</p>
+<p>output_class: string with name of class of new created output object</p>
+<p>image: image of class imageAICS</p>
+<dl class="simple">
+<dt>offset: offset in um relative to center of image as (x, y, z)</dt><dd><p>Default: (0, 0, 0) (center of image)</p>
+</dd>
+</dl>
+</dd>
+<dt>Output:</dt><dd><p>new_object: object of class output_class</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt id="microscope_automation.find_positions.copy_zero_position">
+<code class="sig-prename descclassname">microscope_automation.find_positions.</code><code class="sig-name descname">copy_zero_position</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">sample_object</span></em>, <em class="sig-param"><span class="n">output_class</span></em>, <em class="sig-param"><span class="n">image</span></em>, <em class="sig-param"><span class="n">z_center_background</span><span class="o">=</span><span class="default_value">0</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/microscope_automation/find_positions.html#copy_zero_position"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#microscope_automation.find_positions.copy_zero_position" title="Permalink to this definition">¶</a></dt>
+<dd><p>Create new object with identical zero position.</p>
+<dl>
+<dt>Input:</dt><dd><p>sampleObject: object that is searched</p>
+<p>output_class: string with name of class of new created output object</p>
+<p>image: image of class imageAICS searched</p>
+<p>z_center_background: center of background in the z direction</p>
+</dd>
+<dt>Output:</dt><dd><p>new_objects: list with objects of class output_class</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt id="microscope_automation.find_positions.create_output_objects_from_parent_object">
+<code class="sig-prename descclassname">microscope_automation.find_positions.</code><code class="sig-name descname">create_output_objects_from_parent_object</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">find_type</span></em>, <em class="sig-param"><span class="n">sample_object</span></em>, <em class="sig-param"><span class="n">imaging_settings</span></em>, <em class="sig-param"><span class="n">image</span></em>, <em class="sig-param"><span class="n">output_class</span></em>, <em class="sig-param"><span class="n">app</span></em>, <em class="sig-param"><span class="n">offset</span><span class="o">=</span><span class="default_value">(0, 0, 0)</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/microscope_automation/find_positions.html#create_output_objects_from_parent_object"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#microscope_automation.find_positions.create_output_objects_from_parent_object" title="Permalink to this definition">¶</a></dt>
+<dd><p>This function has methods to create output objects (cells, colonies, background)
+from the parent object(Well, colony)</p>
+<dl>
+<dt>Input:</dt><dd><dl class="simple">
+<dt>find_type: string with name of search algorithm. Possible values:</dt><dd><p>‘copy_zero_position’: keep position
+‘copy_image_position’: use center of image as object zero position
+‘CenterMassCellProfiler’ : find cells using cell profiler
+‘TwofoldDistanceMap’ : find cells in a colony using two fold distance map
+‘Interactive’: select position interactively
+‘InteractiveDistanceMap’: shows recommended positions (by segmentation)
+&amp; can select them interactively</p>
+</dd>
+</dl>
+<p>sample_object: object that is searched</p>
+<p>imaging_settings: settings from preferences file</p>
+<p>image: image of class imageAICS searched</p>
+<p>output_class: class of new created output object</p>
+<p>app: object of class QtGui.QApplication</p>
+<dl class="simple">
+<dt>offset: offset in um relative to center of image as (x, y, z)</dt><dd><p>Default: (0, 0, 0) (center of image)</p>
+</dd>
+</dl>
+</dd>
+<dt>Output:</dt><dd><p>[new_objects, new_objects_dict]: [list with objects of class output_class,
+dictionary with name and objects]</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt id="microscope_automation.find_positions.find_interactive_distance_map">
+<code class="sig-prename descclassname">microscope_automation.find_positions.</code><code class="sig-name descname">find_interactive_distance_map</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">sample_object</span></em>, <em class="sig-param"><span class="n">output_class</span></em>, <em class="sig-param"><span class="n">image</span></em>, <em class="sig-param"><span class="n">segmentation_settings</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">app</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/microscope_automation/find_positions.html#find_interactive_distance_map"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#microscope_automation.find_positions.find_interactive_distance_map" title="Permalink to this definition">¶</a></dt>
+<dd><p>Create new object with zero position based on interactive selection.</p>
+<dl>
+<dt>Input:</dt><dd><p>sampleObject: object that is searched</p>
+<p>output_class: string with name of class of new created output object</p>
+<p>image: image of class imageAICS</p>
+<p>segmentation_settings: settings from preferences file</p>
+<p>app: object of class QtGui.QApplication</p>
+</dd>
+<dt>Output:</dt><dd><p>[new_objects, new_objects_dict]: [list with objects of class output_class,
+dictionary with name and objects]</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt id="microscope_automation.find_positions.find_interactive_position">
+<code class="sig-prename descclassname">microscope_automation.find_positions.</code><code class="sig-name descname">find_interactive_position</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">sample_object</span></em>, <em class="sig-param"><span class="n">output_class</span></em>, <em class="sig-param"><span class="n">image</span></em>, <em class="sig-param"><span class="n">app</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/microscope_automation/find_positions.html#find_interactive_position"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#microscope_automation.find_positions.find_interactive_position" title="Permalink to this definition">¶</a></dt>
+<dd><p>Create new object with zero position based on interactive selection.</p>
+<dl>
+<dt>Input:</dt><dd><p>sample_object: object that is searched</p>
+<p>output_class: string with name of class of new created output object</p>
+<p>image: image of class imageAICS</p>
+<p>app: object of class QtGui.QApplication</p>
+</dd>
+<dt>Output:</dt><dd><p>new_objects: list with objects of class output_class</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt id="microscope_automation.find_positions.get_single_slice">
+<code class="sig-prename descclassname">microscope_automation.find_positions.</code><code class="sig-name descname">get_single_slice</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">image</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/microscope_automation/find_positions.html#get_single_slice"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#microscope_automation.find_positions.get_single_slice" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return single image slice.</p>
+<dl class="simple">
+<dt>Input:</dt><dd><p>image: image of class imageAICS</p>
+</dd>
+<dt>Output:</dt><dd><p>image_data: 2D numpy array</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt id="microscope_automation.find_positions.location_to_object">
+<code class="sig-prename descclassname">microscope_automation.find_positions.</code><code class="sig-name descname">location_to_object</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">sample_object</span></em>, <em class="sig-param"><span class="n">output_class</span></em>, <em class="sig-param"><span class="n">image</span></em>, <em class="sig-param"><span class="n">location_list</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/microscope_automation/find_positions.html#location_to_object"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#microscope_automation.find_positions.location_to_object" title="Permalink to this definition">¶</a></dt>
+<dd><p>Convert position list to new objects.</p>
+<dl>
+<dt>Input:</dt><dd><p>sample_object: object that is searched</p>
+<p>output_class: string with name of class of new created output object</p>
+<p>image: image of class imageAICS</p>
+<p>location_list: list of coordinates</p>
+</dd>
+<dt>Output:</dt><dd><p>[new_objects, new_objects_dict]: [list with objects of class output_class,
+dictionary with name and objects]</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt id="microscope_automation.find_positions.segmentation">
+<code class="sig-prename descclassname">microscope_automation.find_positions.</code><code class="sig-name descname">segmentation</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">image_data</span></em>, <em class="sig-param"><span class="n">segmentation_type</span><span class="o">=</span><span class="default_value">'colony'</span></em>, <em class="sig-param"><span class="n">segmentation_settings</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/microscope_automation/find_positions.html#segmentation"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#microscope_automation.find_positions.segmentation" title="Permalink to this definition">¶</a></dt>
+<dd><p>Different algorithms to segment sample.</p>
+<dl>
+<dt>Input:</dt><dd><p>image_data: 2D numpy array with image data</p>
+<dl class="simple">
+<dt>segmentation_type: possible values:</dt><dd><p>‘colony’: segment hiPSC colonies (default)
+‘otsu’: intensity  segmentation based on Ostu algorithm</p>
+</dd>
+</dl>
+<p>segmentation_settings: settings from preferences file.
+Default (None) use default settings</p>
+</dd>
+<dt>Output:</dt><dd><p>segmented_position_list: list with (x, y) positions</p>
+</dd>
+</dl>
+</dd></dl>
+
 </div>
 <div class="section" id="module-microscope_automation.get_path">
 <span id="microscope-automation-get-path-module"></span><h2>microscope_automation.get_path module<a class="headerlink" href="#module-microscope_automation.get_path" title="Permalink to this headline">¶</a></h2>
@@ -1138,8 +1306,451 @@ Created on Oct 17, 2016</p>
 </dd></dl>
 
 </div>
-<div class="section" id="microscope-automation-microscope-automation-module">
-<h2>microscope_automation.microscope_automation module<a class="headerlink" href="#microscope-automation-microscope-automation-module" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="module-microscope_automation.microscope_automation">
+<span id="microscope-automation-microscope-automation-module"></span><h2>microscope_automation.microscope_automation module<a class="headerlink" href="#module-microscope_automation.microscope_automation" title="Permalink to this headline">¶</a></h2>
+<p>Main script for Microscope automation
+Created on Jun 9, 2016</p>
+<p>&#64;author: winfriedw</p>
+<dl class="py class">
+<dt id="microscope_automation.microscope_automation.MicroscopeAutomation">
+<em class="property">class </em><code class="sig-prename descclassname">microscope_automation.microscope_automation.</code><code class="sig-name descname">MicroscopeAutomation</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">prefs_path</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/microscope_automation/microscope_automation.html#MicroscopeAutomation"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#microscope_automation.microscope_automation.MicroscopeAutomation" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.9)"><code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></a></p>
+<dl class="py method">
+<dt id="microscope_automation.microscope_automation.MicroscopeAutomation.calculate_all_wells_correction">
+<code class="sig-name descname">calculate_all_wells_correction</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">prefs</span></em>, <em class="sig-param"><span class="n">plate_holder_object</span></em>, <em class="sig-param"><span class="n">experiment</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/microscope_automation/microscope_automation.html#MicroscopeAutomation.calculate_all_wells_correction"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#microscope_automation.microscope_automation.MicroscopeAutomation.calculate_all_wells_correction" title="Permalink to this definition">¶</a></dt>
+<dd><p>Calculate correction factor for well coordinate system for all wells.</p>
+<dl>
+<dt>Input:</dt><dd><p>prefs: dictionary with preferences</p>
+<p>plate_holder_object: object for plateholder that contains well</p>
+<p>experiment: dictionary with keys ‘Experiment’, Repetitions’, ‘Input’, ‘Output’
+from workflow with information about specific experiment</p>
+</dd>
+<dt>Output:</dt><dd><p>none</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="microscope_automation.microscope_automation.MicroscopeAutomation.calculate_plate_correction">
+<code class="sig-name descname">calculate_plate_correction</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">prefs</span></em>, <em class="sig-param"><span class="n">plate_holder_object</span></em>, <em class="sig-param"><span class="n">experiment</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/microscope_automation/microscope_automation.html#MicroscopeAutomation.calculate_plate_correction"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#microscope_automation.microscope_automation.MicroscopeAutomation.calculate_plate_correction" title="Permalink to this definition">¶</a></dt>
+<dd><p>Calculate correction factor for plate coordinate system.</p>
+<dl>
+<dt>Input:</dt><dd><p>prefs: dictionary with preferences</p>
+<p>plate_holder_object: object for plate that contains well</p>
+<p>experiment: dictionary with keys ‘Experiment’, Repetitions’, ‘Input’, ‘Output’
+from workflow with information about specific experiment</p>
+</dd>
+<dt>Output:</dt><dd><p>none</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="microscope_automation.microscope_automation.MicroscopeAutomation.control_autofocus">
+<code class="sig-name descname">control_autofocus</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">sample_object</span></em>, <em class="sig-param"><span class="n">imaging_settings</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/microscope_automation/microscope_automation.html#MicroscopeAutomation.control_autofocus"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#microscope_automation.microscope_automation.MicroscopeAutomation.control_autofocus" title="Permalink to this definition">¶</a></dt>
+<dd><p>Switch on/off autofocus.</p>
+<dl>
+<dt>Input:</dt><dd><p>sample_object: object of class inherited from ImagingSystem</p>
+<p>imaging_settings: settings derived from preferences file</p>
+</dd>
+<dt>Output:</dt><dd><p>none</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="microscope_automation.microscope_automation.MicroscopeAutomation.get_barcode_object">
+<code class="sig-name descname">get_barcode_object</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">well_object</span></em>, <em class="sig-param"><span class="n">barcode</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/microscope_automation/microscope_automation.html#MicroscopeAutomation.get_barcode_object"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#microscope_automation.microscope_automation.MicroscopeAutomation.get_barcode_object" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return Barcode object for given well.</p>
+<dl>
+<dt>Input:</dt><dd><p>well_object: object for well that contains barcode</p>
+<p>barcode: string of name for barcode</p>
+</dd>
+<dt>Output:</dt><dd><p>barcode_object: object for barcode</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="microscope_automation.microscope_automation.MicroscopeAutomation.get_objective_offsets">
+<code class="sig-name descname">get_objective_offsets</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">plate_holder_object</span></em>, <em class="sig-param"><span class="n">magnification</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/microscope_automation/microscope_automation.html#MicroscopeAutomation.get_objective_offsets"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#microscope_automation.microscope_automation.MicroscopeAutomation.get_objective_offsets" title="Permalink to this definition">¶</a></dt>
+<dd><p>Function to return the objective offsets</p>
+<dl>
+<dt>Input:</dt><dd><p>plate_holder_object: Plate Holder object containing all the information</p>
+<p>magnification: integer defining which objective to get offsets for</p>
+</dd>
+<dt>Output:</dt><dd><p>x and y offsets for objectives</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="microscope_automation.microscope_automation.MicroscopeAutomation.get_well_object">
+<code class="sig-name descname">get_well_object</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">plate_holder_object</span></em>, <em class="sig-param"><span class="n">plate_name</span></em>, <em class="sig-param"><span class="n">well</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/microscope_automation/microscope_automation.html#MicroscopeAutomation.get_well_object"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#microscope_automation.microscope_automation.MicroscopeAutomation.get_well_object" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return well object for given well.</p>
+<dl>
+<dt>Input:</dt><dd><p>plate_holder_object: object for plateholder that contains well</p>
+<p>plate_name: name for plate, typically barcode</p>
+<p>well: name of well in form ‘A1’</p>
+</dd>
+<dt>Output:</dt><dd><p>well_object: object for well</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="microscope_automation.microscope_automation.MicroscopeAutomation.initialize_microscope">
+<code class="sig-name descname">initialize_microscope</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">initialize_prefs</span></em>, <em class="sig-param"><span class="n">plate_holder_object</span></em>, <em class="sig-param"><span class="n">experiment</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/microscope_automation/microscope_automation.html#MicroscopeAutomation.initialize_microscope"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#microscope_automation.microscope_automation.MicroscopeAutomation.initialize_microscope" title="Permalink to this definition">¶</a></dt>
+<dd><p>Update z positions for plate (upper side of coverslip)
+Set load and work positions for focus drive.</p>
+<dl>
+<dt>Input:</dt><dd><p>initialize_prefs: dictionary with preferences</p>
+<p>plate_holder_object: object of type PlateHolder
+from module sample with well information</p>
+<p>experiment: dictionary with keys ‘Experiment’, Repetitions’, ‘Input’, ‘Output’
+from workflow with information about specific experiment</p>
+</dd>
+<dt>Output:</dt><dd><p>none</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="microscope_automation.microscope_automation.MicroscopeAutomation.microscope_automation">
+<code class="sig-name descname">microscope_automation</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/microscope_automation/microscope_automation.html#MicroscopeAutomation.microscope_automation"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#microscope_automation.microscope_automation.MicroscopeAutomation.microscope_automation" title="Permalink to this definition">¶</a></dt>
+<dd><p>Main script for Microscope automation.</p>
+<dl class="simple">
+<dt>Input:</dt><dd><p>none</p>
+</dd>
+<dt>Output:</dt><dd><p>none</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="microscope_automation.microscope_automation.MicroscopeAutomation.read_barcode">
+<code class="sig-name descname">read_barcode</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">prefs</span></em>, <em class="sig-param"><span class="n">plate_holder_object</span></em>, <em class="sig-param"><span class="n">barcode</span></em>, <em class="sig-param"><span class="n">well</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">barcode_name</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/microscope_automation/microscope_automation.html#MicroscopeAutomation.read_barcode"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#microscope_automation.microscope_automation.MicroscopeAutomation.read_barcode" title="Permalink to this definition">¶</a></dt>
+<dd><p>Move manually to barcode, read and decipher barcode.</p>
+<dl>
+<dt>Input:</dt><dd><p>prefs: dictionary with preferences</p>
+<p>plate_holder_object: object of type PlateHolder
+from module sample with well information</p>
+<p>barcode: barcode for plate, often used as plate name</p>
+<p>well: well the barcode is associated with in format ‘A1’.
+If empty ask user to navigate to barcode.</p>
+</dd>
+<dt>Return:</dt><dd><p>barcode: id encoded in barcode</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="microscope_automation.microscope_automation.MicroscopeAutomation.read_first_barcode_from_plateholderobject">
+<code class="sig-name descname">read_first_barcode_from_plateholderobject</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">plate_holder_object</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/microscope_automation/microscope_automation.html#MicroscopeAutomation.read_first_barcode_from_plateholderobject"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#microscope_automation.microscope_automation.MicroscopeAutomation.read_first_barcode_from_plateholderobject" title="Permalink to this definition">¶</a></dt>
+<dd><p>Given plate_holder_object that can store one plate,
+return that plate’s barcode.</p>
+<dl class="simple">
+<dt>Input:</dt><dd><p>plate_holder_object: object of type PlateHolder
+from module sample with well information</p>
+</dd>
+<dt>Output:</dt><dd><p>barcode: barcode of plate in plate_holder_object</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="microscope_automation.microscope_automation.MicroscopeAutomation.recover_previous_settings">
+<code class="sig-name descname">recover_previous_settings</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">plate_holder_object</span></em>, <em class="sig-param"><span class="n">plate_object</span></em>, <em class="sig-param"><span class="n">experiment</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/microscope_automation/microscope_automation.html#MicroscopeAutomation.recover_previous_settings"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#microscope_automation.microscope_automation.MicroscopeAutomation.recover_previous_settings" title="Permalink to this definition">¶</a></dt>
+<dd><p>Recover the the objects created in the last experiment
+and attach them to the right objects.</p>
+<dl>
+<dt>Input:</dt><dd><p>plate_holder_object: object of type PlateHolder
+from module sample with well information</p>
+<p>plate_object: object of class plate</p>
+<p>experiment: dictionary with keys ‘Experiment’, Repetitions’, ‘Input’, ‘Output’
+from workflow with information about specific experiment</p>
+</dd>
+<dt>Output:</dt><dd><p>none</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="microscope_automation.microscope_automation.MicroscopeAutomation.run_macro">
+<code class="sig-name descname">run_macro</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">imaging_settings</span></em>, <em class="sig-param"><span class="n">plate_holder_object</span></em>, <em class="sig-param"><span class="n">experiment</span></em>, <em class="sig-param"><span class="n">repetition</span><span class="o">=</span><span class="default_value">0</span></em>, <em class="sig-param"><span class="n">wait_after_image</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/microscope_automation/microscope_automation.html#MicroscopeAutomation.run_macro"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#microscope_automation.microscope_automation.MicroscopeAutomation.run_macro" title="Permalink to this definition">¶</a></dt>
+<dd><dl>
+<dt>Input:</dt><dd><p>imaging_settings: dictionary with preferences</p>
+<p>plate_holder_object: object of type PlateHolder
+from module sample with well information</p>
+<p>experiment: not used but included for consistency</p>
+<p>repetition: not used but included for consistency</p>
+<p>wait_after_image: not used but included for consistency</p>
+</dd>
+<dt>Output:</dt><dd><p>none</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="microscope_automation.microscope_automation.MicroscopeAutomation.save_segmented_image">
+<code class="sig-name descname">save_segmented_image</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">imaging_settings</span></em>, <em class="sig-param"><span class="n">image_data</span></em>, <em class="sig-param"><span class="n">location_list</span></em>, <em class="sig-param"><span class="n">plate_object</span></em>, <em class="sig-param"><span class="n">well_object</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/microscope_automation/microscope_automation.html#MicroscopeAutomation.save_segmented_image"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#microscope_automation.microscope_automation.MicroscopeAutomation.save_segmented_image" title="Permalink to this definition">¶</a></dt>
+<dd><p>A simple function to save the positions that were a result of
+well segmentation and represent which positions will be imaged in 100X</p>
+<dl>
+<dt>Input:</dt><dd><p>imaging_settings: yaml preferences</p>
+<p>image_data: pixel data of the image</p>
+<p>location_list: list of positions approved by the user</p>
+<p>plate_object: plate object</p>
+<p>well_object: well object associated with the image</p>
+</dd>
+<dt>Output:</dt><dd><p>none</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="microscope_automation.microscope_automation.MicroscopeAutomation.scan_all_objects">
+<code class="sig-name descname">scan_all_objects</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">imaging_settings</span></em>, <em class="sig-param"><span class="n">sample_list</span></em>, <em class="sig-param"><span class="n">plate_object</span></em>, <em class="sig-param"><span class="n">experiment</span></em>, <em class="sig-param"><span class="n">repetition</span><span class="o">=</span><span class="default_value">0</span></em>, <em class="sig-param"><span class="n">wait_after_image</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/microscope_automation/microscope_automation.html#MicroscopeAutomation.scan_all_objects"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#microscope_automation.microscope_automation.MicroscopeAutomation.scan_all_objects" title="Permalink to this definition">¶</a></dt>
+<dd><p>Scan all objects in dictionary.</p>
+<dl>
+<dt>Input:</dt><dd><p>imaging_settings: dictionary with preferences</p>
+<p>sample_list: list with all objects to scan</p>
+<p>plate_object: object sample list belongs to</p>
+<p>experiment: dictionary with keys ‘Experiment’, Repetitions’, ‘Input’, ‘Output’
+from workflow with information about specific experiment</p>
+<p>repetition: counter for time lapse experiments</p>
+<p>wait_after_image: wait preferences as dictionary to determine whether
+to wait after execution</p>
+<blockquote>
+<div><p>Image: Wait after each image
+Plate: Reset wait status after each plate
+Repetition: Reset wait status after each repetition</p>
+</div></blockquote>
+</dd>
+<dt>Return:</dt><dd><p>none</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="microscope_automation.microscope_automation.MicroscopeAutomation.scan_plate">
+<code class="sig-name descname">scan_plate</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">imaging_settings</span></em>, <em class="sig-param"><span class="n">plate_holder_object</span></em>, <em class="sig-param"><span class="n">experiment</span></em>, <em class="sig-param"><span class="n">repetition</span><span class="o">=</span><span class="default_value">0</span></em>, <em class="sig-param"><span class="n">wait_after_image</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/microscope_automation/microscope_automation.html#MicroscopeAutomation.scan_plate"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#microscope_automation.microscope_automation.MicroscopeAutomation.scan_plate" title="Permalink to this definition">¶</a></dt>
+<dd><p>Scan selected wells in plate to create overview.</p>
+<dl>
+<dt>Input:</dt><dd><p>imaging_settings: dictionary with preferences</p>
+<p>plate_holder_object: object of type PlateHolder
+from module sample with well information</p>
+<p>experiment: dictionary with keys ‘Experiment’, Repetitions’, ‘Input’, ‘Output’
+from workflow with information about specific experiment</p>
+<p>repetition: counter for time lapse experiments</p>
+<p>wait_after_image: wait preferences as dictionary to determine whether
+to wait after execution</p>
+<blockquote>
+<div><p>Image: Wait after each image
+Plate: Reset wait status after each plate
+Repetition: Reset wait status after each repetition</p>
+</div></blockquote>
+</dd>
+<dt>Output:</dt><dd><p>none</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="microscope_automation.microscope_automation.MicroscopeAutomation.scan_samples">
+<code class="sig-name descname">scan_samples</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">imaging_settings</span></em>, <em class="sig-param"><span class="n">plate_holder_object</span></em>, <em class="sig-param"><span class="n">experiment</span></em>, <em class="sig-param"><span class="n">repetition</span><span class="o">=</span><span class="default_value">0</span></em>, <em class="sig-param"><span class="n">wait_after_image</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/microscope_automation/microscope_automation.html#MicroscopeAutomation.scan_samples"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#microscope_automation.microscope_automation.MicroscopeAutomation.scan_samples" title="Permalink to this definition">¶</a></dt>
+<dd><p>Step through all plates and call scan_all_objects.</p>
+<dl>
+<dt>Input:</dt><dd><p>imaging_settings: dictionary with preferences</p>
+<p>plate_holder_object: object of type PlateHolder
+from module sample with well information</p>
+<p>experiment: dictionary with keys ‘Experiment’, Repetitions’, ‘Input’, ‘Output’
+from workflow with information about specific experiment</p>
+<p>repetition: counter for time lapse experiments</p>
+<p>wait_after_image: wait preferences as dictionary to determine whether
+to wait after execution</p>
+<blockquote>
+<div><p>Image: Wait after each image
+Plate: Reset wait status after each plate
+Repetition: Reset wait status after each repetition</p>
+</div></blockquote>
+</dd>
+<dt>Return:</dt><dd><p>none</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="microscope_automation.microscope_automation.MicroscopeAutomation.scan_single_ROI">
+<code class="sig-name descname">scan_single_ROI</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">imaging_settings</span></em>, <em class="sig-param"><span class="n">experiment_dict</span></em>, <em class="sig-param"><span class="n">sample_object</span></em>, <em class="sig-param"><span class="n">reference_object</span></em>, <em class="sig-param"><span class="n">image_path</span></em>, <em class="sig-param"><span class="n">meta_dict</span></em>, <em class="sig-param"><span class="n">verbose</span><span class="o">=</span><span class="default_value">True</span></em>, <em class="sig-param"><span class="n">number_selected_postions</span><span class="o">=</span><span class="default_value">0</span></em>, <em class="sig-param"><span class="n">repetition</span><span class="o">=</span><span class="default_value">0</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/microscope_automation/microscope_automation.html#MicroscopeAutomation.scan_single_ROI"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#microscope_automation.microscope_automation.MicroscopeAutomation.scan_single_ROI" title="Permalink to this definition">¶</a></dt>
+<dd><p>Acquire tiled image as defined in posList</p>
+<dl>
+<dt>Input:</dt><dd><p>imaging_settings: dictionary with preferences</p>
+<p>experiment_dict: The dictionary with full information about the experiment</p>
+<p>sample_object: object of a sample type (e.g. cell, colony) to be imaged</p>
+<p>reference_object: object used to set parfocality and parcentricity,
+typically a well in plate</p>
+<p>image_path: string for filename with path to save image in original format
+or tuple with string to directory and list with template for file name.
+Default=None: no saving</p>
+<p>meta_dict: directory with additional meta data, e.g. {‘aics_well’:, ‘A1’}</p>
+<p>verbose: if True print debug information (Default = True)</p>
+<p>number_selected_postions: number of positions collected so far</p>
+<p>repetition: counter for time lapse experiments</p>
+</dd>
+<dt>Output:</dt><dd><p>return_dict: dictionary of form {‘Image’: image, ‘Continue’: True/False}</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="microscope_automation.microscope_automation.MicroscopeAutomation.scan_wells_zero">
+<code class="sig-name descname">scan_wells_zero</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">prefs</span></em>, <em class="sig-param"><span class="n">plate_holder_object</span></em>, <em class="sig-param"><span class="n">barcode</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/microscope_automation/microscope_automation.html#MicroscopeAutomation.scan_wells_zero"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#microscope_automation.microscope_automation.MicroscopeAutomation.scan_wells_zero" title="Permalink to this definition">¶</a></dt>
+<dd><p>Scan selected wells at center.</p>
+<dl>
+<dt>Input:</dt><dd><p>prefs: dictionary with preferences</p>
+<p>plate_holder_object: object of type PlateHolder
+from module sample with well information</p>
+<p>barcode: barcode for plate, often used as plate name</p>
+</dd>
+<dt>Return:</dt><dd><p>none</p>
+</dd>
+</dl>
+<p>This method is mainly used to test calibrations.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="microscope_automation.microscope_automation.MicroscopeAutomation.segment_wells">
+<code class="sig-name descname">segment_wells</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">imaging_settings</span></em>, <em class="sig-param"><span class="n">plate_holder_object</span></em>, <em class="sig-param"><span class="n">experiment</span></em>, <em class="sig-param"><span class="n">repetition</span></em>, <em class="sig-param"><span class="n">wait_after_image</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/microscope_automation/microscope_automation.html#MicroscopeAutomation.segment_wells"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#microscope_automation.microscope_automation.MicroscopeAutomation.segment_wells" title="Permalink to this definition">¶</a></dt>
+<dd><p>Writes a position list of segemented wells to a CSV file.</p>
+<dl>
+<dt>Input:</dt><dd><p>imaging_settings: dictionary with preferences</p>
+<p>plate_holder_object: Plate Holder object containing all the information</p>
+<p>experiment: dictionary with keys ‘Experiment’, Repetitions’, ‘Input’, ‘Output’
+from workflow with information about specific experiment</p>
+<p>repetition: counter for time lapse experiments</p>
+<p>wait_after_image: wait preferences as dictionary to determine whether
+to wait after execution</p>
+<blockquote>
+<div><p>Image: Wait after each image
+Plate: Reset wait status after each plate
+Repetition: Reset wait status after each repetition</p>
+</div></blockquote>
+</dd>
+<dt>Output:</dt><dd><p>none</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="microscope_automation.microscope_automation.MicroscopeAutomation.set_objective_offset">
+<code class="sig-name descname">set_objective_offset</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">offset_prefs</span></em>, <em class="sig-param"><span class="n">plate_holder_object</span></em>, <em class="sig-param"><span class="n">_experiment</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/microscope_automation/microscope_automation.html#MicroscopeAutomation.set_objective_offset"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#microscope_automation.microscope_automation.MicroscopeAutomation.set_objective_offset" title="Permalink to this definition">¶</a></dt>
+<dd><p>Set parfocality and parcentricity for objectives used in experiments.</p>
+<dl>
+<dt>Input:</dt><dd><p>offset_prefs: dictionary with preferences based on preferences.yml</p>
+<p>plate_holder_object: object that contains all plates
+and all wells with sample information.</p>
+<p>_experiment: dictionary with keys ‘Experiment’, Repetitions’, ‘Input’, ‘Output’
+(not used, for compatibility only)</p>
+</dd>
+<dt>Output:</dt><dd><p>none</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="microscope_automation.microscope_automation.MicroscopeAutomation.set_up_Koehler">
+<code class="sig-name descname">set_up_Koehler</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">initialize_prefs</span></em>, <em class="sig-param"><span class="n">plate_object</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/microscope_automation/microscope_automation.html#MicroscopeAutomation.set_up_Koehler"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#microscope_automation.microscope_automation.MicroscopeAutomation.set_up_Koehler" title="Permalink to this definition">¶</a></dt>
+<dd><p>Set up Koehler illumination.</p>
+<dl>
+<dt>Input:</dt><dd><p>initialize_prefs: dictionary with preferences based on preferences.yml</p>
+<p>plate_object: object of class plate</p>
+</dd>
+<dt>Output:</dt><dd><p>none</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="microscope_automation.microscope_automation.MicroscopeAutomation.set_up_objectives">
+<code class="sig-name descname">set_up_objectives</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">set_up_settings</span></em>, <em class="sig-param"><span class="n">plate_holder_instance</span></em>, <em class="sig-param"><span class="n">_experiment</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/microscope_automation/microscope_automation.html#MicroscopeAutomation.set_up_objectives"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#microscope_automation.microscope_automation.MicroscopeAutomation.set_up_objectives" title="Permalink to this definition">¶</a></dt>
+<dd><p>Retrieve objectives mounted at microscope.</p>
+<dl>
+<dt>Input:</dt><dd><p>set_up_settings: dictionary with preferences</p>
+<p>plate_holder_instance: object of type PlateHolder
+from module sample with well information</p>
+<p>_experiment: not used, necessary for compatibility</p>
+</dd>
+<dt>Output:</dt><dd><p>none</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="microscope_automation.microscope_automation.MicroscopeAutomation.setup_immersion_system">
+<code class="sig-name descname">setup_immersion_system</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">prefs</span></em>, <em class="sig-param"><span class="n">plate_holder_instance</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/microscope_automation/microscope_automation.html#MicroscopeAutomation.setup_immersion_system"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#microscope_automation.microscope_automation.MicroscopeAutomation.setup_immersion_system" title="Permalink to this definition">¶</a></dt>
+<dd><p>Setup system to deliver immersion water</p>
+<dl>
+<dt>Input:</dt><dd><p>prefs: dictionary with preferences</p>
+<p>plate_holder_instance: instance for plateholder that contains well</p>
+</dd>
+<dt>Output:</dt><dd><p>none</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="microscope_automation.microscope_automation.MicroscopeAutomation.update_plate_zZero">
+<code class="sig-name descname">update_plate_zZero</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">image_settings</span></em>, <em class="sig-param"><span class="n">plate_holder_object</span></em>, <em class="sig-param"><span class="n">experiment</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/microscope_automation/microscope_automation.html#MicroscopeAutomation.update_plate_zZero"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#microscope_automation.microscope_automation.MicroscopeAutomation.update_plate_zZero" title="Permalink to this definition">¶</a></dt>
+<dd><p>Update z positions for plate (upper side of coverslip)
+Set load and work positions for focus drive.</p>
+<dl>
+<dt>Input:</dt><dd><p>image_settings: dictionary with preferences</p>
+<p>plate_holder_object: object of type PlateHolder
+from module sample with well information</p>
+<p>experiment: dictionary with keys ‘Experiment’, Repetitions’, ‘Input’, ‘Output’
+from workflow with information about specific experiment</p>
+</dd>
+<dt>Output:</dt><dd><p>none</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="microscope_automation.microscope_automation.MicroscopeAutomation.validate_experiment">
+<code class="sig-name descname">validate_experiment</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">imaging_settings</span></em>, <em class="sig-param"><span class="n">microscope_object</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/microscope_automation/microscope_automation.html#MicroscopeAutomation.validate_experiment"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#microscope_automation.microscope_automation.MicroscopeAutomation.validate_experiment" title="Permalink to this definition">¶</a></dt>
+<dd><p>If the experiment is not defined in Zen, give the user two tries to create it</p>
+<dl>
+<dt>Input:</dt><dd><p>image_settings: preferences from the yaml file</p>
+<p>microscope_object: microscope hardware object</p>
+</dd>
+<dt>Output:</dt><dd><p>none</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py function">
+<dt id="microscope_automation.microscope_automation.main">
+<code class="sig-prename descclassname">microscope_automation.microscope_automation.</code><code class="sig-name descname">main</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/microscope_automation/microscope_automation.html#main"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#microscope_automation.microscope_automation.main" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt id="microscope_automation.microscope_automation.stop_script">
+<code class="sig-prename descclassname">microscope_automation.microscope_automation.</code><code class="sig-name descname">stop_script</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">message_text</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">allow_continue</span><span class="o">=</span><span class="default_value">False</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/microscope_automation/microscope_automation.html#stop_script"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#microscope_automation.microscope_automation.stop_script" title="Permalink to this definition">¶</a></dt>
+<dd><p>Stop processing and ask to leave automation script.</p>
+<dl>
+<dt>Input:</dt><dd><p>message_text: Message to user explaining why processing should be stopped.</p>
+<p>allow_continue: if True, allow user to continue. Default: False</p>
+</dd>
+<dt>Output:</dt><dd><p>none if user selects ‘Continue’, otherwise calls sys.exit()</p>
+</dd>
+</dl>
+<p>Script will stop all Microscope action immediately and
+ask user to stop execution of script or to continue.</p>
+</dd></dl>
+
 </div>
 <div class="section" id="module-microscope_automation.preferences">
 <span id="microscope-automation-preferences-module"></span><h2>microscope_automation.preferences module<a class="headerlink" href="#module-microscope_automation.preferences" title="Permalink to this headline">¶</a></h2>
@@ -1205,8 +1816,144 @@ Default: do not check.</p>
 </dd></dl>
 
 </div>
-<div class="section" id="microscope-automation-software-state-module">
-<h2>microscope_automation.software_state module<a class="headerlink" href="#microscope-automation-software-state-module" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="module-microscope_automation.software_state">
+<span id="microscope-automation-software-state-module"></span><h2>microscope_automation.software_state module<a class="headerlink" href="#module-microscope_automation.software_state" title="Permalink to this headline">¶</a></h2>
+<p>File to keep track of the state of the software.</p>
+<p>&#64;author: winfriedw</p>
+<dl class="py class">
+<dt id="microscope_automation.software_state.DiagnosticPickler">
+<em class="property">class </em><code class="sig-prename descclassname">microscope_automation.software_state.</code><code class="sig-name descname">DiagnosticPickler</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">file</span></em>, <em class="sig-param"><span class="n">protocol</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">fix_imports</span><span class="o">=</span><span class="default_value">True</span></em>, <em class="sig-param"><span class="n">buffer_callback</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/microscope_automation/software_state.html#DiagnosticPickler"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#microscope_automation.software_state.DiagnosticPickler" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">_pickle.Pickler</span></code></p>
+<dl class="py method">
+<dt id="microscope_automation.software_state.DiagnosticPickler.save">
+<code class="sig-name descname">save</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">obj</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/microscope_automation/software_state.html#DiagnosticPickler.save"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#microscope_automation.software_state.DiagnosticPickler.save" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt id="microscope_automation.software_state.State">
+<em class="property">class </em><code class="sig-prename descclassname">microscope_automation.software_state.</code><code class="sig-name descname">State</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">recovery_file_path</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/microscope_automation/software_state.html#State"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#microscope_automation.software_state.State" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.9)"><code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></a></p>
+<dl class="py method">
+<dt id="microscope_automation.software_state.State.add_last_experiment_object">
+<code class="sig-name descname">add_last_experiment_object</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">exp_object_name</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/microscope_automation/software_state.html#State.add_last_experiment_object"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#microscope_automation.software_state.State.add_last_experiment_object" title="Permalink to this definition">¶</a></dt>
+<dd><p>Add objects to the list for last experiment objects to keep track of which
+cells have already  been imaged. To be able to pick up exactly where we left off</p>
+<dl class="simple">
+<dt>Input:</dt><dd><p>exp_object_list: list of experiment objects to add for the next experiment</p>
+</dd>
+<dt>Output:</dt><dd><p>none</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="microscope_automation.software_state.State.add_next_experiment_object">
+<code class="sig-name descname">add_next_experiment_object</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">experiment_name</span></em>, <em class="sig-param"><span class="n">exp_object_list</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/microscope_automation/software_state.html#State.add_next_experiment_object"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#microscope_automation.software_state.State.add_next_experiment_object" title="Permalink to this definition">¶</a></dt>
+<dd><p>Add objects to the list for next experiment objects.</p>
+<dl>
+<dt>Input:</dt><dd><p>experiment_name: name of experiment to add</p>
+<p>exp_object_list: list of experiment objects to add for the next experiment</p>
+</dd>
+<dt>Output:</dt><dd><p>none</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="microscope_automation.software_state.State.add_unpickled_objects">
+<code class="sig-name descname">add_unpickled_objects</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">base_object</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/microscope_automation/software_state.html#State.add_unpickled_objects"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#microscope_automation.software_state.State.add_unpickled_objects" title="Permalink to this definition">¶</a></dt>
+<dd><p>Function to add Zen object back</p>
+<dl class="simple">
+<dt>Input</dt><dd><p>base_object: The reference object or next experiment object to rehydrate</p>
+</dd>
+<dt>Output:</dt><dd><p>none</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="microscope_automation.software_state.State.eliminate_unpickled_objects">
+<code class="sig-name descname">eliminate_unpickled_objects</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">base_object</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/microscope_automation/software_state.html#State.eliminate_unpickled_objects"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#microscope_automation.software_state.State.eliminate_unpickled_objects" title="Permalink to this definition">¶</a></dt>
+<dd><p>Remove unpickled objects from given object</p>
+<dl class="simple">
+<dt>Input:</dt><dd><p>base_object: Object that needs to be pruned</p>
+</dd>
+<dt>Output:</dt><dd><p>none</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="microscope_automation.software_state.State.prune_object_dict">
+<code class="sig-name descname">prune_object_dict</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/microscope_automation/software_state.html#State.prune_object_dict"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#microscope_automation.software_state.State.prune_object_dict" title="Permalink to this definition">¶</a></dt>
+<dd><p>Function to strip away the Zen microscope object from each level
+of the sample object tree.</p>
+<p>Reason - there are some objects in microscope class (communication object)
+that can’t be pickled.</p>
+<dl class="simple">
+<dt>Input:</dt><dd><p>object_dict: The dictionary that needs to be filtered.</p>
+</dd>
+<dt>Output:</dt><dd><p>object_dict: The filtered dictionary.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="microscope_automation.software_state.State.recover_objects">
+<code class="sig-name descname">recover_objects</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">file_path</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/microscope_automation/software_state.html#State.recover_objects"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#microscope_automation.software_state.State.recover_objects" title="Permalink to this definition">¶</a></dt>
+<dd><p>Function to return next objects dictionary
+and the reference object by unpickling the file.</p>
+<dl class="simple">
+<dt>Input:</dt><dd><p>filepath: path to the pickled file</p>
+</dd>
+<dt>Output:</dt><dd><p>tuple of recovered objects in the form (next_experiment_objects,
+reference_object, last_experiment_objects, hardware_status_dict)</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="microscope_automation.software_state.State.rehydrate_removed_references">
+<code class="sig-name descname">rehydrate_removed_references</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/microscope_automation/software_state.html#State.rehydrate_removed_references"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#microscope_automation.software_state.State.rehydrate_removed_references" title="Permalink to this definition">¶</a></dt>
+<dd><p>In case of auto save, we need the Zen object to be added back
+(it was removed before pickling)</p>
+<dl class="simple">
+<dt>Input:</dt><dd><p>none</p>
+</dd>
+<dt>Output:</dt><dd><p>none</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="microscope_automation.software_state.State.save_state">
+<code class="sig-name descname">save_state</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/microscope_automation/software_state.html#State.save_state"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#microscope_automation.software_state.State.save_state" title="Permalink to this definition">¶</a></dt>
+<dd><p>Function to process the objects and save them by pickling.</p>
+<dl class="simple">
+<dt>Input:</dt><dd><p>none</p>
+</dd>
+<dt>Output:</dt><dd><p>none</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="microscope_automation.software_state.State.save_state_and_exit">
+<code class="sig-name descname">save_state_and_exit</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/microscope_automation/software_state.html#State.save_state_and_exit"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#microscope_automation.software_state.State.save_state_and_exit" title="Permalink to this definition">¶</a></dt>
+<dd><p>Function to process the objects and save them by pickling
+and exiting the software.</p>
+<dl class="simple">
+<dt>Input:</dt><dd><p>none</p>
+</dd>
+<dt>Output:</dt><dd><p>none</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
 </div>
 <div class="section" id="module-microscope_automation">
 <span id="module-contents"></span><h2>Module contents<a class="headerlink" href="#module-microscope_automation" title="Permalink to this headline">¶</a></h2>

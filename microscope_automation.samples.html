@@ -3095,6 +3095,40 @@ The tiles will be centered around the current stage position.</p>
 </dd></dl>
 
 </div>
+<div class="section" id="module-microscope_automation.samples.segmentation_filters">
+<span id="microscope-automation-samples-segmentation-filters-module"></span><h2>microscope_automation.samples.segmentation_filters module<a class="headerlink" href="#module-microscope_automation.samples.segmentation_filters" title="Permalink to this headline">¶</a></h2>
+<dl class="py function">
+<dt id="microscope_automation.samples.segmentation_filters.apply_filter">
+<code class="sig-prename descclassname">microscope_automation.samples.segmentation_filters.</code><code class="sig-name descname">apply_filter</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">filter_name</span></em>, <em class="sig-param"><span class="n">input_image</span></em>, <em class="sig-param"><span class="n">filter_values</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/microscope_automation/samples/segmentation_filters.html#apply_filter"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#microscope_automation.samples.segmentation_filters.apply_filter" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt id="microscope_automation.samples.segmentation_filters.filter_by_distance">
+<code class="sig-prename descclassname">microscope_automation.samples.segmentation_filters.</code><code class="sig-name descname">filter_by_distance</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">input_image</span></em>, <em class="sig-param"><span class="n">filter_values</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/microscope_automation/samples/segmentation_filters.html#filter_by_distance"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#microscope_automation.samples.segmentation_filters.filter_by_distance" title="Permalink to this definition">¶</a></dt>
+<dd><p>Function to filter segmented objects by their distance from the center of the image</p>
+<dl>
+<dt>Input:</dt><dd><p>input_image: The image (numpy array) to the filter to be applied on</p>
+<p>filter_values: (list) [max distance from the center, number of objects requested]</p>
+</dd>
+<dt>Output:</dt><dd><p>filtered_image: Image (numpy array) after applying the filter mask</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt id="microscope_automation.samples.segmentation_filters.filter_by_size">
+<code class="sig-prename descclassname">microscope_automation.samples.segmentation_filters.</code><code class="sig-name descname">filter_by_size</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">input_image</span></em>, <em class="sig-param"><span class="n">filter_values</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/microscope_automation/samples/segmentation_filters.html#filter_by_size"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#microscope_automation.samples.segmentation_filters.filter_by_size" title="Permalink to this definition">¶</a></dt>
+<dd><p>Function to filter segmented objects by their area.</p>
+<dl>
+<dt>Input:</dt><dd><p>input_image: The image (numpy array) to the filter to be applied on</p>
+<p>filter_values: (list) [minimum area, maximum area (optional)]</p>
+</dd>
+<dt>Output:</dt><dd><p>filtered_image: Image (numpy array) after applying the filter mask</p>
+</dd>
+</dl>
+</dd></dl>
+
+</div>
 <div class="section" id="module-microscope_automation.samples.setup_samples">
 <span id="microscope-automation-samples-setup-samples-module"></span><h2>microscope_automation.samples.setup_samples module<a class="headerlink" href="#module-microscope_automation.samples.setup_samples" title="Permalink to this headline">¶</a></h2>
 <p>Function to setup hardware and samples based on reference files
@@ -3204,6 +3238,52 @@ consists of plate holder and slide.</p>
 <dt>Output:</dt><dd><p>img: tiled image of type ImageAICS</p>
 </dd>
 </dl>
+</dd></dl>
+
+</div>
+<div class="section" id="module-microscope_automation.samples.well_overview_segmentation">
+<span id="microscope-automation-samples-well-overview-segmentation-module"></span><h2>microscope_automation.samples.well_overview_segmentation module<a class="headerlink" href="#module-microscope_automation.samples.well_overview_segmentation" title="Permalink to this headline">¶</a></h2>
+<dl class="py class">
+<dt id="microscope_automation.samples.well_overview_segmentation.WellSegmentation">
+<em class="property">class </em><code class="sig-prename descclassname">microscope_automation.samples.well_overview_segmentation.</code><code class="sig-name descname">WellSegmentation</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">image_data</span></em>, <em class="sig-param"><span class="n">colony_filters_dict</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">mode</span><span class="o">=</span><span class="default_value">'A'</span></em>, <em class="sig-param"><span class="n">canny_sigma</span><span class="o">=</span><span class="default_value">0.01</span></em>, <em class="sig-param"><span class="n">canny_low_threshold</span><span class="o">=</span><span class="default_value">0.025</span></em>, <em class="sig-param"><span class="n">remove_small_holes_area_threshold</span><span class="o">=</span><span class="default_value">1000</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/microscope_automation/samples/well_overview_segmentation.html#WellSegmentation"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#microscope_automation.samples.well_overview_segmentation.WellSegmentation" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.9)"><code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></a></p>
+<dl class="py method">
+<dt id="microscope_automation.samples.well_overview_segmentation.WellSegmentation.downscale_filter_dictionary">
+<code class="sig-name descname">downscale_filter_dictionary</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">colony_filters_dict</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/microscope_automation/samples/well_overview_segmentation.html#WellSegmentation.downscale_filter_dictionary"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#microscope_automation.samples.well_overview_segmentation.WellSegmentation.downscale_filter_dictionary" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt id="microscope_automation.samples.well_overview_segmentation.WellSegmentation.get_mode_c_points">
+<code class="sig-name descname">get_mode_c_points</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">dist_mask</span></em>, <em class="sig-param"><span class="n">threshold_min</span></em>, <em class="sig-param"><span class="n">threshold_max</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/microscope_automation/samples/well_overview_segmentation.html#WellSegmentation.get_mode_c_points"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#microscope_automation.samples.well_overview_segmentation.WellSegmentation.get_mode_c_points" title="Permalink to this definition">¶</a></dt>
+<dd><p>Function to find a point at the center, edge &amp; ridge in a colony</p>
+<dl>
+<dt>Input:</dt><dd><p>dist_mask: The image with two fold distance map applied</p>
+<p>threshold_min: The minimum percentage threshold for the distance from the edge</p>
+<p>threshold_max: The maximum percentage threshold for the distance from the edge</p>
+</dd>
+<dt>Output:</dt><dd><p>smooth_point_corrected: the location of the point</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="microscope_automation.samples.well_overview_segmentation.WellSegmentation.point_locations">
+<em class="property">property </em><code class="sig-name descname">point_locations</code><a class="headerlink" href="#microscope_automation.samples.well_overview_segmentation.WellSegmentation.point_locations" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt id="microscope_automation.samples.well_overview_segmentation.WellSegmentation.segment_and_find_positions">
+<code class="sig-name descname">segment_and_find_positions</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/microscope_automation/samples/well_overview_segmentation.html#WellSegmentation.segment_and_find_positions"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#microscope_automation.samples.well_overview_segmentation.WellSegmentation.segment_and_find_positions" title="Permalink to this definition">¶</a></dt>
+<dd><p>Function segments out the colonies, applied filters
+and find the smooth points based on the mode</p>
+<dl class="simple">
+<dt>Input:</dt><dd><p>none</p>
+</dd>
+<dt>Output:</dt><dd><p>none</p>
+</dd>
+</dl>
+</dd></dl>
+
 </dd></dl>
 
 </div>

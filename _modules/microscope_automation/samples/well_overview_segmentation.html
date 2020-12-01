@@ -1,0 +1,336 @@
+
+<!DOCTYPE html>
+
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>microscope_automation.samples.well_overview_segmentation &#8212; Microscope Automation 0.0 documentation</title>
+    <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+    <link rel="stylesheet" href="../../../_static/alabaster.css" type="text/css" />
+    <script id="documentation_options" data-url_root="../../../" src="../../../_static/documentation_options.js"></script>
+    <script src="../../../_static/jquery.js"></script>
+    <script src="../../../_static/underscore.js"></script>
+    <script src="../../../_static/doctools.js"></script>
+    <script src="../../../_static/language_data.js"></script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" />
+   
+  <link rel="stylesheet" href="../../../_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head><body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          
+
+          <div class="body" role="main">
+            
+  <h1>Source code for microscope_automation.samples.well_overview_segmentation</h1><div class="highlight"><pre>
+<span></span><span class="kn">from</span> <span class="nn">matplotlib.pyplot</span> <span class="kn">import</span> <span class="n">rcParams</span>
+<span class="kn">import</span> <span class="nn">numpy</span>
+<span class="kn">import</span> <span class="nn">skimage</span>
+<span class="kn">import</span> <span class="nn">random</span>
+<span class="kn">from</span> <span class="nn">skimage</span> <span class="kn">import</span> <span class="n">exposure</span><span class="p">,</span> <span class="n">feature</span><span class="p">,</span> <span class="n">morphology</span><span class="p">,</span> <span class="n">transform</span>
+<span class="kn">from</span> <span class="nn">scipy</span> <span class="kn">import</span> <span class="n">ndimage</span>
+<span class="kn">from</span> <span class="nn">.</span> <span class="kn">import</span> <span class="n">segmentation_filters</span>
+
+<span class="n">rcParams</span><span class="p">[</span><span class="s2">&quot;figure.figsize&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="mi">15</span><span class="p">,</span> <span class="mi">12</span>
+<span class="n">DOWNSCALING_FACTOR</span> <span class="o">=</span> <span class="mi">4</span>
+
+
+<div class="viewcode-block" id="WellSegmentation"><a class="viewcode-back" href="../../../microscope_automation.samples.html#microscope_automation.samples.well_overview_segmentation.WellSegmentation">[docs]</a><span class="k">class</span> <span class="nc">WellSegmentation</span><span class="p">:</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">image_data</span><span class="p">,</span>
+        <span class="n">colony_filters_dict</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">mode</span><span class="o">=</span><span class="s2">&quot;A&quot;</span><span class="p">,</span>
+        <span class="n">canny_sigma</span><span class="o">=</span><span class="mf">0.01</span><span class="p">,</span>
+        <span class="n">canny_low_threshold</span><span class="o">=</span><span class="mf">0.025</span><span class="p">,</span>
+        <span class="n">remove_small_holes_area_threshold</span><span class="o">=</span><span class="mi">1000</span><span class="p">,</span>
+    <span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Input:</span>
+<span class="sd">         image_data =  numpy image data Image to be segmented (Well or colony)</span>
+
+<span class="sd">         filters_dict = dictionary of filters to be applied {filter_name: filter_values}</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">data</span> <span class="o">=</span> <span class="n">image_data</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_point_locations</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="c1"># Downscale the colony dictionary</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">colony_filters_dict</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">downscale_filter_dictionary</span><span class="p">(</span><span class="n">colony_filters_dict</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">mode</span> <span class="o">==</span> <span class="s2">&quot;A&quot;</span> <span class="ow">or</span> <span class="n">mode</span> <span class="o">==</span> <span class="s2">&quot;C&quot;</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">mode</span> <span class="o">=</span> <span class="n">mode</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                <span class="s2">&quot;Invalid value of mode. Mode can only be &#39;A&#39; or &#39;C&#39;.&quot;</span>
+                <span class="s2">&quot; Please check the preference file.&quot;</span>
+            <span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">canny_sigma</span> <span class="o">=</span> <span class="n">canny_sigma</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">canny_low_threshold</span> <span class="o">=</span> <span class="n">canny_low_threshold</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">remove_small_holes_area_threshold</span> <span class="o">=</span> <span class="n">remove_small_holes_area_threshold</span>
+
+<div class="viewcode-block" id="WellSegmentation.downscale_filter_dictionary"><a class="viewcode-back" href="../../../microscope_automation.samples.html#microscope_automation.samples.well_overview_segmentation.WellSegmentation.downscale_filter_dictionary">[docs]</a>    <span class="k">def</span> <span class="nf">downscale_filter_dictionary</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">colony_filters_dict</span><span class="p">):</span>
+        <span class="n">colony_filters_dict_corrected</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="n">colony_filters_dict_corrected</span><span class="p">[</span><span class="s2">&quot;distFromCenter&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span>
+            <span class="n">colony_filters_dict</span><span class="p">[</span><span class="s2">&quot;distFromCenter&quot;</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span> <span class="o">/</span> <span class="n">DOWNSCALING_FACTOR</span><span class="p">,</span>
+            <span class="n">colony_filters_dict</span><span class="p">[</span><span class="s2">&quot;distFromCenter&quot;</span><span class="p">][</span><span class="mi">1</span><span class="p">],</span>
+        <span class="p">]</span>
+        <span class="n">colony_filters_dict_corrected</span><span class="p">[</span><span class="s2">&quot;minArea&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">value</span> <span class="ow">in</span> <span class="n">colony_filters_dict</span><span class="p">[</span><span class="s2">&quot;minArea&quot;</span><span class="p">]:</span>
+            <span class="n">colony_filters_dict_corrected</span><span class="p">[</span><span class="s2">&quot;minArea&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+                <span class="n">value</span> <span class="o">/</span> <span class="p">(</span><span class="n">DOWNSCALING_FACTOR</span> <span class="o">**</span> <span class="mi">2</span><span class="p">)</span>
+            <span class="p">)</span>
+        <span class="k">return</span> <span class="n">colony_filters_dict_corrected</span></div>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">point_locations</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_point_locations</span>
+
+<div class="viewcode-block" id="WellSegmentation.segment_and_find_positions"><a class="viewcode-back" href="../../../microscope_automation.samples.html#microscope_automation.samples.well_overview_segmentation.WellSegmentation.segment_and_find_positions">[docs]</a>    <span class="k">def</span> <span class="nf">segment_and_find_positions</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Function segments out the colonies, applied filters</span>
+<span class="sd">        and find the smooth points based on the mode</span>
+
+<span class="sd">        Input:</span>
+<span class="sd">         none</span>
+<span class="sd">        Output:</span>
+<span class="sd">         none</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">initial_image</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">data</span>
+        <span class="n">xdim</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+
+        <span class="n">ydim</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+        <span class="n">downsized_image</span> <span class="o">=</span> <span class="n">transform</span><span class="o">.</span><span class="n">resize</span><span class="p">(</span>
+            <span class="n">initial_image</span><span class="p">,</span>
+            <span class="p">(</span><span class="n">xdim</span> <span class="o">/</span> <span class="n">DOWNSCALING_FACTOR</span><span class="p">,</span> <span class="n">ydim</span> <span class="o">/</span> <span class="n">DOWNSCALING_FACTOR</span><span class="p">),</span>
+            <span class="n">mode</span><span class="o">=</span><span class="s2">&quot;constant&quot;</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="n">rescaled_image</span> <span class="o">=</span> <span class="n">exposure</span><span class="o">.</span><span class="n">rescale_intensity</span><span class="p">(</span><span class="n">downsized_image</span><span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Starting Canny filtering&quot;</span><span class="p">)</span>
+        <span class="n">g_edges</span> <span class="o">=</span> <span class="n">skimage</span><span class="o">.</span><span class="n">feature</span><span class="o">.</span><span class="n">canny</span><span class="p">(</span>
+            <span class="n">rescaled_image</span><span class="p">,</span>
+            <span class="n">sigma</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">canny_sigma</span><span class="p">,</span>
+            <span class="n">low_threshold</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">canny_low_threshold</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Starting dilation&quot;</span><span class="p">)</span>
+        <span class="n">dilation</span> <span class="o">=</span> <span class="n">morphology</span><span class="o">.</span><span class="n">dilation</span><span class="p">(</span><span class="n">g_edges</span><span class="p">,</span> <span class="n">morphology</span><span class="o">.</span><span class="n">disk</span><span class="p">(</span><span class="mi">3</span><span class="p">))</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Starting erosion&quot;</span><span class="p">)</span>
+        <span class="n">eroded</span> <span class="o">=</span> <span class="n">morphology</span><span class="o">.</span><span class="n">erosion</span><span class="p">(</span><span class="n">dilation</span><span class="p">,</span> <span class="n">morphology</span><span class="o">.</span><span class="n">disk</span><span class="p">(</span><span class="mi">4</span><span class="p">))</span>
+        <span class="n">dilation</span> <span class="o">=</span> <span class="n">morphology</span><span class="o">.</span><span class="n">dilation</span><span class="p">(</span>
+            <span class="n">eroded</span><span class="p">,</span> <span class="n">morphology</span><span class="o">.</span><span class="n">diamond</span><span class="p">(</span><span class="mi">4</span><span class="p">)</span>
+        <span class="p">)</span>  <span class="c1"># Dont change to disk</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Starting to remove small holes&quot;</span><span class="p">)</span>
+        <span class="n">filled</span> <span class="o">=</span> <span class="n">morphology</span><span class="o">.</span><span class="n">remove_small_holes</span><span class="p">(</span>
+            <span class="n">dilation</span><span class="p">,</span> <span class="n">area_threshold</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">remove_small_holes_area_threshold</span>
+        <span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Starting erosion&quot;</span><span class="p">)</span>
+        <span class="n">eroded</span> <span class="o">=</span> <span class="n">morphology</span><span class="o">.</span><span class="n">erosion</span><span class="p">(</span><span class="n">filled</span><span class="p">,</span> <span class="n">morphology</span><span class="o">.</span><span class="n">diamond</span><span class="p">(</span><span class="mi">3</span><span class="p">))</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Applying filters&quot;</span><span class="p">)</span>
+        <span class="n">filtered_image</span> <span class="o">=</span> <span class="n">eroded</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">colony_filters_dict</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">for</span> <span class="n">filter_name</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">colony_filters_dict</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
+                <span class="n">filtered_image</span> <span class="o">=</span> <span class="n">segmentation_filters</span><span class="o">.</span><span class="n">apply_filter</span><span class="p">(</span>
+                    <span class="n">filter_name</span><span class="p">,</span> <span class="n">filtered_image</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">colony_filters_dict</span><span class="p">[</span><span class="n">filter_name</span><span class="p">]</span>
+                <span class="p">)</span>
+
+        <span class="n">colony_edges</span> <span class="o">=</span> <span class="n">morphology</span><span class="o">.</span><span class="n">dilation</span><span class="p">(</span><span class="n">feature</span><span class="o">.</span><span class="n">canny</span><span class="p">(</span><span class="n">filtered_image</span><span class="p">,</span> <span class="mf">0.01</span><span class="p">))</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Starting outlining&quot;</span><span class="p">)</span>
+        <span class="n">outline</span> <span class="o">=</span> <span class="n">downsized_image</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+        <span class="n">outline</span><span class="p">[</span><span class="n">colony_edges</span><span class="p">]</span> <span class="o">=</span> <span class="mi">65535</span>
+        <span class="n">distance</span> <span class="o">=</span> <span class="n">ndimage</span><span class="o">.</span><span class="n">distance_transform_edt</span><span class="p">(</span><span class="n">filtered_image</span><span class="p">)</span>
+        <span class="n">smoothed_well</span> <span class="o">=</span> <span class="n">ndimage</span><span class="o">.</span><span class="n">gaussian_filter</span><span class="p">(</span><span class="n">downsized_image</span><span class="p">,</span> <span class="mf">0.35</span><span class="p">)</span>
+        <span class="n">outline</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+        <span class="n">objs</span><span class="p">,</span> <span class="n">num_objs</span> <span class="o">=</span> <span class="n">ndimage</span><span class="o">.</span><span class="n">label</span><span class="p">(</span><span class="n">filtered_image</span><span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Applying filters for points&quot;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">mode</span> <span class="o">==</span> <span class="s2">&quot;A&quot;</span><span class="p">:</span>
+            <span class="c1"># point selection: Smoothest point in the center region</span>
+            <span class="k">for</span> <span class="n">obj</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="n">num_objs</span> <span class="o">+</span> <span class="mi">1</span><span class="p">):</span>
+                <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;On object </span><span class="si">{}</span><span class="s2"> of </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">obj</span><span class="p">,</span> <span class="n">num_objs</span><span class="p">))</span>
+                <span class="n">mask</span> <span class="o">=</span> <span class="n">objs</span> <span class="o">==</span> <span class="n">obj</span>
+                <span class="n">dist_mask</span> <span class="o">=</span> <span class="n">distance</span> <span class="o">*</span> <span class="n">mask</span>
+                <span class="c1"># for each colony,</span>
+                <span class="c1"># find the maximum distance from the two fold distance map.</span>
+                <span class="c1"># The edge is at 0% and the center of the colony is at 100%</span>
+                <span class="n">d_max</span> <span class="o">=</span> <span class="n">dist_mask</span><span class="o">.</span><span class="n">max</span><span class="p">()</span>
+                <span class="c1"># Getting the points which is at least 40% away from the edge</span>
+                <span class="n">top_percent</span> <span class="o">=</span> <span class="n">dist_mask</span> <span class="o">&gt;</span> <span class="p">(</span><span class="n">d_max</span> <span class="o">*</span> <span class="mf">0.40</span><span class="p">)</span>
+                <span class="n">colony_mask</span> <span class="o">=</span> <span class="n">smoothed_well</span> <span class="o">*</span> <span class="n">top_percent</span>
+                <span class="n">colony_edges</span> <span class="o">=</span> <span class="n">feature</span><span class="o">.</span><span class="n">canny</span><span class="p">(</span><span class="n">colony_mask</span><span class="p">,</span> <span class="mf">0.1</span><span class="p">)</span>
+                <span class="c1"># applying the second distance transform</span>
+                <span class="c1"># to find the smoothest point in the correct region</span>
+                <span class="n">inner_edges</span> <span class="o">=</span> <span class="n">ndimage</span><span class="o">.</span><span class="n">distance_transform_edt</span><span class="p">(</span>
+                    <span class="o">~</span><span class="n">colony_edges</span> <span class="o">*</span> <span class="n">top_percent</span>
+                <span class="p">)</span>
+                <span class="n">smooth_point</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">inner_edges</span> <span class="o">==</span> <span class="n">inner_edges</span><span class="o">.</span><span class="n">max</span><span class="p">())</span>
+                <span class="n">smooth_point</span> <span class="o">=</span> <span class="p">(</span><span class="n">smooth_point</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="mi">0</span><span class="p">],</span> <span class="n">smooth_point</span><span class="p">[</span><span class="mi">1</span><span class="p">][</span><span class="mi">0</span><span class="p">])</span>
+                <span class="n">smooth_point_corrected</span> <span class="o">=</span> <span class="p">(</span>
+                    <span class="n">smooth_point</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">*</span> <span class="n">DOWNSCALING_FACTOR</span><span class="p">,</span>
+                    <span class="n">smooth_point</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">*</span> <span class="n">DOWNSCALING_FACTOR</span><span class="p">,</span>
+                <span class="p">)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_point_locations</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">smooth_point_corrected</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">mode</span> <span class="o">==</span> <span class="s2">&quot;C&quot;</span><span class="p">:</span>
+            <span class="k">for</span> <span class="n">obj</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="n">num_objs</span> <span class="o">+</span> <span class="mi">1</span><span class="p">):</span>
+                <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;On object </span><span class="si">{}</span><span class="s2"> of </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">obj</span><span class="p">,</span> <span class="n">num_objs</span><span class="p">))</span>
+                <span class="n">mask</span> <span class="o">=</span> <span class="n">objs</span> <span class="o">==</span> <span class="n">obj</span>
+                <span class="n">dist_mask</span> <span class="o">=</span> <span class="n">distance</span> <span class="o">*</span> <span class="n">mask</span>
+                <span class="c1"># point selection: edge, ridge &amp; center respectively</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">get_mode_c_points</span><span class="p">(</span><span class="n">dist_mask</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mf">0.03</span><span class="p">)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">get_mode_c_points</span><span class="p">(</span><span class="n">dist_mask</span><span class="p">,</span> <span class="mf">0.15</span><span class="p">,</span> <span class="mf">0.20</span><span class="p">)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">get_mode_c_points</span><span class="p">(</span><span class="n">dist_mask</span><span class="p">,</span> <span class="mf">0.90</span><span class="p">,</span> <span class="mf">0.99</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="WellSegmentation.get_mode_c_points"><a class="viewcode-back" href="../../../microscope_automation.samples.html#microscope_automation.samples.well_overview_segmentation.WellSegmentation.get_mode_c_points">[docs]</a>    <span class="k">def</span> <span class="nf">get_mode_c_points</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">dist_mask</span><span class="p">,</span> <span class="n">threshold_min</span><span class="p">,</span> <span class="n">threshold_max</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Function to find a point at the center, edge &amp; ridge in a colony</span>
+
+<span class="sd">        Input:</span>
+<span class="sd">         dist_mask: The image with two fold distance map applied</span>
+
+<span class="sd">         threshold_min: The minimum percentage threshold for the distance from the edge</span>
+
+<span class="sd">         threshold_max: The maximum percentage threshold for the distance from the edge</span>
+
+<span class="sd">        Output:</span>
+<span class="sd">         smooth_point_corrected: the location of the point</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">d_max</span> <span class="o">=</span> <span class="n">dist_mask</span><span class="o">.</span><span class="n">max</span><span class="p">()</span>
+        <span class="c1"># apply the threshold- different for different type of points</span>
+        <span class="n">threshold_mask</span> <span class="o">=</span> <span class="p">(</span><span class="n">dist_mask</span> <span class="o">&gt;</span> <span class="p">(</span><span class="n">threshold_min</span> <span class="o">*</span> <span class="n">d_max</span><span class="p">))</span> <span class="o">&amp;</span> <span class="p">(</span>
+            <span class="n">dist_mask</span> <span class="o">&lt;=</span> <span class="p">(</span><span class="n">threshold_max</span> <span class="o">*</span> <span class="n">d_max</span><span class="p">)</span>
+        <span class="p">)</span>
+        <span class="c1"># extract the locations of the points that fulfill that threshold condition</span>
+        <span class="n">locations_true</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">argwhere</span><span class="p">(</span><span class="n">threshold_mask</span> <span class="o">==</span> <span class="mi">1</span><span class="p">)</span>
+        <span class="c1"># Randomly pick a point from that list</span>
+        <span class="n">smooth_point_list</span> <span class="o">=</span> <span class="n">random</span><span class="o">.</span><span class="n">sample</span><span class="p">(</span><span class="n">locations_true</span><span class="o">.</span><span class="n">tolist</span><span class="p">(),</span> <span class="mi">1</span><span class="p">)</span>
+        <span class="c1"># random.sample returns a list (with one element in this case).</span>
+        <span class="c1"># Hence extract the element</span>
+        <span class="n">smooth_point</span> <span class="o">=</span> <span class="n">smooth_point_list</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="n">smooth_point_corrected</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="n">smooth_point</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">*</span> <span class="n">DOWNSCALING_FACTOR</span><span class="p">,</span>
+            <span class="n">smooth_point</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">*</span> <span class="n">DOWNSCALING_FACTOR</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_point_locations</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">smooth_point_corrected</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">smooth_point_corrected</span></div></div>
+</pre></div>
+
+          </div>
+          
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<h1 class="logo"><a href="../../../index.html">Microscope Automation</a></h1>
+
+
+
+
+
+
+
+
+<h3>Navigation</h3>
+<p class="caption"><span class="caption-text">Overview</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../index.html">README</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../installation.html">Installation</a></li>
+</ul>
+<p class="caption"><span class="caption-text">Hardware</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../hardware_components.html">hardware_components</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../hardware_control.html">hardware_control</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../RS232.html">RS232</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../setup_microscope.html">setup_microscope</a></li>
+</ul>
+<p class="caption"><span class="caption-text">Samples</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../correct_background.html">correct_background</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../draw_plate.html">draw_plate</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../find_well_center.html">find_well_center</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../find_cells.html">find_cells</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../interactive_location_picker_pyqtgraph.html">interactive_location_picker_pyqtgraph</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../positions_list.html">positions_list</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../samples.html">samples</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../setup_samples.html">setup_samples</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../tile_images.html">tile_images</a></li>
+</ul>
+<p class="caption"><span class="caption-text">Zeiss Microscopes</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../connect_zen_blue.html">connect_zen_blue</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../connect_zen_black.html">connect_zen_black</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../hardware_control_zeiss.html">hardware_control_zeiss</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../write_zen_tiles_experiment.html">write_zen_tiles_experiment</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../zen_experiment_info.html">zen_experiment_info</a></li>
+</ul>
+<p class="caption"><span class="caption-text">3i Microscopes</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../hardware_control_3i.html">hardware_control_3i</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../connect_slidebook.html">connect_slidebook</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../slidebook_experiment_info.html">slidebook_experiment_info</a></li>
+</ul>
+<p class="caption"><span class="caption-text">General Methods</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../automation_exceptions.html">automation_exceptions</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../automation_messages_form_layout.html">automation_messages_form_layout</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../error_handling.html">error_handling</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../get_path.html">get_path</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../image_AICS.html">image_AICS</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../load_image_czi.html">load_image_czi</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../meta_data_file.html">meta_data_file</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../preferences.html">preferences</a></li>
+</ul>
+<p class="caption"><span class="caption-text">Reference Docs</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../CONTRIBUTING.html">Allen Institute Contribution Agreement</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../LICENSE.html">LICENSE</a></li>
+</ul>
+
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="../../../index.html">Documentation overview</a><ul>
+  <li><a href="../../index.html">Module code</a><ul>
+  <li><a href="../../microscope_automation.html">microscope_automation</a><ul>
+  </ul></li>
+  </ul></li>
+  </ul></li>
+</ul>
+</div>
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../../../search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" />
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script>$('#searchbox').show(0);</script>
+
+
+
+
+
+
+
+
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2020, Allen Institute.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 3.3.1</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.12</a>
+      
+    </div>
+
+    
+
+    
+  </body>
+</html>

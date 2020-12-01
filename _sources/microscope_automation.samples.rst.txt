@@ -60,6 +60,14 @@ microscope\_automation.samples.samples module
    :undoc-members:
    :show-inheritance:
 
+microscope\_automation.samples.segmentation\_filters module
+-----------------------------------------------------------
+
+.. automodule:: microscope_automation.samples.segmentation_filters
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
 microscope\_automation.samples.setup\_samples module
 ----------------------------------------------------
 
@@ -72,6 +80,14 @@ microscope\_automation.samples.tile\_images module
 --------------------------------------------------
 
 .. automodule:: microscope_automation.samples.tile_images
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+microscope\_automation.samples.well\_overview\_segmentation module
+------------------------------------------------------------------
+
+.. automodule:: microscope_automation.samples.well_overview_segmentation
    :members:
    :undoc-members:
    :show-inheritance:

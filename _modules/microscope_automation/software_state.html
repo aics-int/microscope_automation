@@ -1,0 +1,386 @@
+
+<!DOCTYPE html>
+
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>microscope_automation.software_state &#8212; Microscope Automation 0.0 documentation</title>
+    <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+    <link rel="stylesheet" href="../../_static/alabaster.css" type="text/css" />
+    <script id="documentation_options" data-url_root="../../" src="../../_static/documentation_options.js"></script>
+    <script src="../../_static/jquery.js"></script>
+    <script src="../../_static/underscore.js"></script>
+    <script src="../../_static/doctools.js"></script>
+    <script src="../../_static/language_data.js"></script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" />
+   
+  <link rel="stylesheet" href="../../_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head><body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          
+
+          <div class="body" role="main">
+            
+  <h1>Source code for microscope_automation.software_state</h1><div class="highlight"><pre>
+<span></span><span class="sd">&quot;&quot;&quot;File to keep track of the state of the software.</span>
+
+<span class="sd">@author: winfriedw</span>
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="kn">import</span> <span class="nn">pickle</span>
+<span class="kn">import</span> <span class="nn">sys</span>
+<span class="kn">from</span> <span class="nn">microscope_automation.samples</span> <span class="kn">import</span> <span class="n">samples</span>
+<span class="kn">from</span> <span class="nn">collections</span> <span class="kn">import</span> <span class="n">OrderedDict</span>
+
+<span class="n">REFERENCE_OBJECT</span> <span class="o">=</span> <span class="s2">&quot;reference_object&quot;</span>
+<span class="n">NEXT_EXP_OBJECTS</span> <span class="o">=</span> <span class="s2">&quot;next_objects_dict&quot;</span>
+<span class="n">LAST_EXP_OBJECTS</span> <span class="o">=</span> <span class="s2">&quot;last_exp_objects_list&quot;</span>
+<span class="n">HARDWARE_STATUS</span> <span class="o">=</span> <span class="s2">&quot;hardware_status_dict&quot;</span>
+
+
+<span class="c1"># When pickling fails, this method prints out objects it pickled</span>
+<span class="c1"># It helps pinpoint what exactly could not be pickled.</span>
+<div class="viewcode-block" id="DiagnosticPickler"><a class="viewcode-back" href="../../microscope_automation.html#microscope_automation.software_state.DiagnosticPickler">[docs]</a><span class="k">class</span> <span class="nc">DiagnosticPickler</span><span class="p">(</span><span class="n">pickle</span><span class="o">.</span><span class="n">Pickler</span><span class="p">):</span>
+<div class="viewcode-block" id="DiagnosticPickler.save"><a class="viewcode-back" href="../../microscope_automation.html#microscope_automation.software_state.DiagnosticPickler.save">[docs]</a>    <span class="k">def</span> <span class="nf">save</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">obj</span><span class="p">):</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;pickling object&quot;</span> <span class="o">+</span> <span class="n">obj</span> <span class="o">+</span> <span class="s2">&quot;of type&quot;</span> <span class="o">+</span> <span class="nb">type</span><span class="p">(</span><span class="n">obj</span><span class="p">))</span>
+        <span class="n">pickle</span><span class="o">.</span><span class="n">Pickler</span><span class="o">.</span><span class="n">save</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">obj</span><span class="p">)</span></div></div>
+
+
+<div class="viewcode-block" id="State"><a class="viewcode-back" href="../../microscope_automation.html#microscope_automation.software_state.State">[docs]</a><span class="k">class</span> <span class="nc">State</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">recovery_file_path</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Function to initialize the object</span>
+
+<span class="sd">        Input:</span>
+<span class="sd">         recovery_file_path: full file path+name of the recovery file for the experiment</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">workflow_pos</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">reference_object</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="c1"># List of wells/cells names that have already been imaged,</span>
+        <span class="c1"># to be able to continue right where we left off</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">last_experiment_objects</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">next_experiment_objects</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="n">OrderedDict</span><span class="p">()</span>
+        <span class="p">)</span>  <span class="c1"># {Function Name: list of objects acquired for the next experiment}</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">hardware_status_dict</span> <span class="o">=</span> <span class="p">{}</span>  <span class="c1"># If the objectives were already initialized</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">recovery_file_path</span> <span class="o">=</span> <span class="n">recovery_file_path</span>
+
+        <span class="c1"># Kruft</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">zen_instance</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">ref_image</span> <span class="o">=</span> <span class="kc">None</span>
+
+<div class="viewcode-block" id="State.save_state_and_exit"><a class="viewcode-back" href="../../microscope_automation.html#microscope_automation.software_state.State.save_state_and_exit">[docs]</a>    <span class="k">def</span> <span class="nf">save_state_and_exit</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Function to process the objects and save them by pickling</span>
+<span class="sd">        and exiting the software.</span>
+
+<span class="sd">        Input:</span>
+<span class="sd">         none</span>
+
+<span class="sd">        Output:</span>
+<span class="sd">         none</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">save_state</span><span class="p">()</span>
+        <span class="n">sys</span><span class="o">.</span><span class="n">exit</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="State.save_state"><a class="viewcode-back" href="../../microscope_automation.html#microscope_automation.software_state.State.save_state">[docs]</a>    <span class="k">def</span> <span class="nf">save_state</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Function to process the objects and save them by pickling.</span>
+
+<span class="sd">        Input:</span>
+<span class="sd">         none</span>
+
+<span class="sd">        Output:</span>
+<span class="sd">         none</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">pickle_dict</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">prune_object_dict</span><span class="p">()</span>
+        <span class="n">pickle_dict</span><span class="p">[</span><span class="n">NEXT_EXP_OBJECTS</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">next_experiment_objects</span>
+        <span class="n">pickle_dict</span><span class="p">[</span><span class="n">REFERENCE_OBJECT</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">reference_object</span>
+        <span class="c1"># No need to prune last experiment objects</span>
+        <span class="c1"># because it&#39;s just a list of names (string)</span>
+        <span class="n">pickle_dict</span><span class="p">[</span><span class="n">LAST_EXP_OBJECTS</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">last_experiment_objects</span>
+        <span class="n">pickle_dict</span><span class="p">[</span><span class="n">HARDWARE_STATUS</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">hardware_status_dict</span>
+        <span class="c1"># Generate the file name for the particular interrupt</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">recovery_file_path</span><span class="p">,</span> <span class="s2">&quot;wb&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+                <span class="n">pickle</span><span class="o">.</span><span class="n">dump</span><span class="p">(</span><span class="n">pickle_dict</span><span class="p">,</span> <span class="n">f</span><span class="p">,</span> <span class="n">pickle</span><span class="o">.</span><span class="n">HIGHEST_PROTOCOL</span><span class="p">)</span>
+                <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;State was saved in the recovery file&quot;</span><span class="p">)</span>
+                <span class="n">f</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+        <span class="k">except</span> <span class="ne">Exception</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;State was NOT saved.&quot;</span><span class="p">)</span>
+
+        <span class="c1"># Need to rehydrate the removed references</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">rehydrate_removed_references</span><span class="p">()</span></div>
+
+<div class="viewcode-block" id="State.rehydrate_removed_references"><a class="viewcode-back" href="../../microscope_automation.html#microscope_automation.software_state.State.rehydrate_removed_references">[docs]</a>    <span class="k">def</span> <span class="nf">rehydrate_removed_references</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;In case of auto save, we need the Zen object to be added back</span>
+<span class="sd">        (it was removed before pickling)</span>
+
+<span class="sd">        Input:</span>
+<span class="sd">         none</span>
+
+<span class="sd">        Output:</span>
+<span class="sd">         none</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">for</span> <span class="nb">object</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">next_experiment_objects</span><span class="o">.</span><span class="n">values</span><span class="p">():</span>
+            <span class="k">for</span> <span class="n">item</span> <span class="ow">in</span> <span class="nb">object</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">add_unpickled_objects</span><span class="p">(</span><span class="n">item</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">reference_object</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">reference_object</span><span class="o">.</span><span class="n">container</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">add_unpickled_objects</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">reference_object</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="State.add_unpickled_objects"><a class="viewcode-back" href="../../microscope_automation.html#microscope_automation.software_state.State.add_unpickled_objects">[docs]</a>    <span class="k">def</span> <span class="nf">add_unpickled_objects</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">base_object</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Function to add Zen object back</span>
+
+<span class="sd">        Input</span>
+<span class="sd">         base_object: The reference object or next experiment object to rehydrate</span>
+
+<span class="sd">        Output:</span>
+<span class="sd">         none</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">current_object</span> <span class="o">=</span> <span class="n">base_object</span>
+        <span class="k">if</span> <span class="n">current_object</span><span class="o">.</span><span class="n">microscope</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">current_object</span><span class="o">.</span><span class="n">microscope</span><span class="o">.</span><span class="n">get_control_software</span><span class="p">()</span><span class="o">.</span><span class="n">connection</span><span class="o">.</span><span class="n">Zen</span> <span class="o">=</span> <span class="p">(</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">zen_instance</span>
+            <span class="p">)</span>
+        <span class="k">while</span> <span class="n">current_object</span><span class="o">.</span><span class="n">container</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">current_object</span><span class="o">.</span><span class="n">container</span><span class="p">,</span> <span class="n">samples</span><span class="o">.</span><span class="n">PlateHolder</span><span class="p">):</span>
+                <span class="n">current_object</span><span class="o">.</span><span class="n">container</span><span class="o">.</span><span class="n">microscope</span><span class="o">.</span><span class="n">get_control_software</span><span class="p">()</span><span class="o">.</span><span class="n">connection</span><span class="o">.</span><span class="n">Zen</span> <span class="o">=</span> <span class="p">(</span>  <span class="c1"># noqa</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">zen_instance</span>
+                <span class="p">)</span>
+                <span class="n">current_object</span><span class="o">.</span><span class="n">container</span><span class="o">.</span><span class="n">microscope</span><span class="o">.</span><span class="n">get_control_software</span><span class="p">()</span><span class="o">.</span><span class="n">connection</span><span class="o">.</span><span class="n">image</span> <span class="o">=</span> <span class="p">(</span>  <span class="c1"># noqa</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">ref_image</span>
+                <span class="p">)</span>
+            <span class="n">current_object</span> <span class="o">=</span> <span class="n">current_object</span><span class="o">.</span><span class="n">container</span></div>
+
+<div class="viewcode-block" id="State.prune_object_dict"><a class="viewcode-back" href="../../microscope_automation.html#microscope_automation.software_state.State.prune_object_dict">[docs]</a>    <span class="k">def</span> <span class="nf">prune_object_dict</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Function to strip away the Zen microscope object from each level</span>
+<span class="sd">        of the sample object tree.</span>
+
+<span class="sd">        Reason - there are some objects in microscope class (communication object)</span>
+<span class="sd">        that can&#39;t be pickled.</span>
+
+<span class="sd">        Input:</span>
+<span class="sd">         object_dict: The dictionary that needs to be filtered.</span>
+
+<span class="sd">        Output:</span>
+<span class="sd">         object_dict: The filtered dictionary.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="k">for</span> <span class="nb">object</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">next_experiment_objects</span><span class="o">.</span><span class="n">values</span><span class="p">():</span>
+            <span class="k">for</span> <span class="n">item</span> <span class="ow">in</span> <span class="nb">object</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">eliminate_unpickled_objects</span><span class="p">(</span><span class="n">item</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">reference_object</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">reference_object</span><span class="o">.</span><span class="n">container</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">eliminate_unpickled_objects</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">reference_object</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="State.eliminate_unpickled_objects"><a class="viewcode-back" href="../../microscope_automation.html#microscope_automation.software_state.State.eliminate_unpickled_objects">[docs]</a>    <span class="k">def</span> <span class="nf">eliminate_unpickled_objects</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">base_object</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Remove unpickled objects from given object</span>
+
+<span class="sd">        Input:</span>
+<span class="sd">         base_object: Object that needs to be pruned</span>
+
+<span class="sd">        Output:</span>
+<span class="sd">         none</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">current_object</span> <span class="o">=</span> <span class="n">base_object</span>
+        <span class="k">if</span> <span class="n">current_object</span><span class="o">.</span><span class="n">microscope</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">zen_instance</span> <span class="o">=</span> <span class="p">(</span>
+                <span class="n">current_object</span><span class="o">.</span><span class="n">microscope</span><span class="o">.</span><span class="n">get_control_software</span><span class="p">()</span><span class="o">.</span><span class="n">connection</span><span class="o">.</span><span class="n">Zen</span>
+            <span class="p">)</span>
+            <span class="n">current_object</span><span class="o">.</span><span class="n">microscope</span><span class="o">.</span><span class="n">get_control_software</span><span class="p">()</span><span class="o">.</span><span class="n">connection</span><span class="o">.</span><span class="n">Zen</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="k">while</span> <span class="n">current_object</span><span class="o">.</span><span class="n">container</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">current_object</span><span class="o">.</span><span class="n">container</span><span class="p">,</span> <span class="n">samples</span><span class="o">.</span><span class="n">PlateHolder</span><span class="p">):</span>
+                <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">zen_instance</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">zen_instance</span> <span class="o">=</span> <span class="p">(</span>
+                        <span class="n">current_object</span><span class="o">.</span><span class="n">container</span><span class="o">.</span><span class="n">microscope</span><span class="o">.</span><span class="n">get_control_software</span><span class="p">()</span><span class="o">.</span><span class="n">connection</span><span class="o">.</span><span class="n">Zen</span>  <span class="c1"># noqa</span>
+                    <span class="p">)</span>
+                <span class="n">current_object</span><span class="o">.</span><span class="n">container</span><span class="o">.</span><span class="n">microscope</span><span class="o">.</span><span class="n">get_control_software</span><span class="p">()</span><span class="o">.</span><span class="n">connection</span><span class="o">.</span><span class="n">Zen</span> <span class="o">=</span> <span class="p">(</span>  <span class="c1"># noqa</span>
+                    <span class="kc">None</span>
+                <span class="p">)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">ref_image</span> <span class="o">=</span> <span class="p">(</span>
+                    <span class="n">current_object</span><span class="o">.</span><span class="n">container</span><span class="o">.</span><span class="n">microscope</span><span class="o">.</span><span class="n">get_control_software</span><span class="p">()</span><span class="o">.</span><span class="n">connection</span><span class="o">.</span><span class="n">image</span>  <span class="c1"># noqa</span>
+                <span class="p">)</span>
+                <span class="n">current_object</span><span class="o">.</span><span class="n">container</span><span class="o">.</span><span class="n">microscope</span><span class="o">.</span><span class="n">get_control_software</span><span class="p">()</span><span class="o">.</span><span class="n">connection</span><span class="o">.</span><span class="n">image</span> <span class="o">=</span> <span class="p">(</span>  <span class="c1"># noqa</span>
+                    <span class="kc">None</span>
+                <span class="p">)</span>
+            <span class="n">current_object</span> <span class="o">=</span> <span class="n">current_object</span><span class="o">.</span><span class="n">container</span></div>
+
+<div class="viewcode-block" id="State.add_next_experiment_object"><a class="viewcode-back" href="../../microscope_automation.html#microscope_automation.software_state.State.add_next_experiment_object">[docs]</a>    <span class="k">def</span> <span class="nf">add_next_experiment_object</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">experiment_name</span><span class="p">,</span> <span class="n">exp_object_list</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Add objects to the list for next experiment objects.</span>
+
+<span class="sd">        Input:</span>
+<span class="sd">         experiment_name: name of experiment to add</span>
+
+<span class="sd">         exp_object_list: list of experiment objects to add for the next experiment</span>
+
+<span class="sd">        Output:</span>
+<span class="sd">         none</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">next_experiment_objects</span><span class="o">.</span><span class="n">update</span><span class="p">({</span><span class="n">experiment_name</span><span class="p">:</span> <span class="n">exp_object_list</span><span class="p">})</span></div>
+
+<div class="viewcode-block" id="State.recover_objects"><a class="viewcode-back" href="../../microscope_automation.html#microscope_automation.software_state.State.recover_objects">[docs]</a>    <span class="k">def</span> <span class="nf">recover_objects</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">file_path</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Function to return next objects dictionary</span>
+<span class="sd">        and the reference object by unpickling the file.</span>
+
+<span class="sd">        Input:</span>
+<span class="sd">         filepath: path to the pickled file</span>
+
+<span class="sd">        Output:</span>
+<span class="sd">         tuple of recovered objects in the form (next_experiment_objects,</span>
+<span class="sd">         reference_object, last_experiment_objects, hardware_status_dict)</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">file_path</span><span class="p">,</span> <span class="s2">&quot;rb&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">handle</span><span class="p">:</span>
+            <span class="n">pickle_dict</span> <span class="o">=</span> <span class="n">pickle</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">handle</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">last_experiment_objects</span> <span class="o">=</span> <span class="p">[]</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">next_experiment_objects</span> <span class="o">=</span> <span class="n">OrderedDict</span><span class="p">()</span>
+        <span class="c1"># Restore the state</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">next_experiment_objects</span> <span class="o">=</span> <span class="n">pickle_dict</span><span class="p">[</span><span class="n">NEXT_EXP_OBJECTS</span><span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">reference_object</span> <span class="o">=</span> <span class="n">pickle_dict</span><span class="p">[</span><span class="n">REFERENCE_OBJECT</span><span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">last_experiment_objects</span> <span class="o">=</span> <span class="n">pickle_dict</span><span class="p">[</span><span class="n">LAST_EXP_OBJECTS</span><span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">hardware_status_dict</span> <span class="o">=</span> <span class="n">pickle_dict</span><span class="p">[</span><span class="n">HARDWARE_STATUS</span><span class="p">]</span>
+        <span class="k">return</span> <span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">next_experiment_objects</span><span class="p">,</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">reference_object</span><span class="p">,</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">last_experiment_objects</span><span class="p">,</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">hardware_status_dict</span><span class="p">,</span>
+        <span class="p">)</span></div>
+
+<div class="viewcode-block" id="State.add_last_experiment_object"><a class="viewcode-back" href="../../microscope_automation.html#microscope_automation.software_state.State.add_last_experiment_object">[docs]</a>    <span class="k">def</span> <span class="nf">add_last_experiment_object</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">exp_object_name</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Add objects to the list for last experiment objects to keep track of which</span>
+<span class="sd">        cells have already  been imaged. To be able to pick up exactly where we left off</span>
+
+<span class="sd">        Input:</span>
+<span class="sd">         exp_object_list: list of experiment objects to add for the next experiment</span>
+
+<span class="sd">        Output:</span>
+<span class="sd">         none</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">last_experiment_objects</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">exp_object_name</span><span class="p">)</span></div></div>
+</pre></div>
+
+          </div>
+          
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<h1 class="logo"><a href="../../index.html">Microscope Automation</a></h1>
+
+
+
+
+
+
+
+
+<h3>Navigation</h3>
+<p class="caption"><span class="caption-text">Overview</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../index.html">README</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../installation.html">Installation</a></li>
+</ul>
+<p class="caption"><span class="caption-text">Hardware</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../hardware_components.html">hardware_components</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../hardware_control.html">hardware_control</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../RS232.html">RS232</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../setup_microscope.html">setup_microscope</a></li>
+</ul>
+<p class="caption"><span class="caption-text">Samples</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../correct_background.html">correct_background</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../draw_plate.html">draw_plate</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../find_well_center.html">find_well_center</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../find_cells.html">find_cells</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../interactive_location_picker_pyqtgraph.html">interactive_location_picker_pyqtgraph</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../positions_list.html">positions_list</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../samples.html">samples</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../setup_samples.html">setup_samples</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../tile_images.html">tile_images</a></li>
+</ul>
+<p class="caption"><span class="caption-text">Zeiss Microscopes</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../connect_zen_blue.html">connect_zen_blue</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../connect_zen_black.html">connect_zen_black</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../hardware_control_zeiss.html">hardware_control_zeiss</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../write_zen_tiles_experiment.html">write_zen_tiles_experiment</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../zen_experiment_info.html">zen_experiment_info</a></li>
+</ul>
+<p class="caption"><span class="caption-text">3i Microscopes</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../hardware_control_3i.html">hardware_control_3i</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../connect_slidebook.html">connect_slidebook</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../slidebook_experiment_info.html">slidebook_experiment_info</a></li>
+</ul>
+<p class="caption"><span class="caption-text">General Methods</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../automation_exceptions.html">automation_exceptions</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../automation_messages_form_layout.html">automation_messages_form_layout</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../error_handling.html">error_handling</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../get_path.html">get_path</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../image_AICS.html">image_AICS</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../load_image_czi.html">load_image_czi</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../meta_data_file.html">meta_data_file</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../preferences.html">preferences</a></li>
+</ul>
+<p class="caption"><span class="caption-text">Reference Docs</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../CONTRIBUTING.html">Allen Institute Contribution Agreement</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../LICENSE.html">LICENSE</a></li>
+</ul>
+
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="../../index.html">Documentation overview</a><ul>
+  <li><a href="../index.html">Module code</a><ul>
+  <li><a href="../microscope_automation.html">microscope_automation</a><ul>
+  </ul></li>
+  </ul></li>
+  </ul></li>
+</ul>
+</div>
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../../search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" />
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script>$('#searchbox').show(0);</script>
+
+
+
+
+
+
+
+
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2020, Allen Institute.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 3.3.1</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.12</a>
+      
+    </div>
+
+    
+
+    
+  </body>
+</html>
