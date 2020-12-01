@@ -523,10 +523,10 @@ class MicroscopeAutomation(object):
                     objective_information[name]["z_offset"] = z_offset
 
                     print(
-                        ("New offset values for objective {}:\n"
-                         "x_offset: {}\ny_offset: {}\nz_offset: {}").format(
-                            name, x_offset, y_offset, z_offset
-                        )
+                        (
+                            "New offset values for objective {}:\n"
+                            "x_offset: {}\ny_offset: {}\nz_offset: {}"
+                        ).format(name, x_offset, y_offset, z_offset)
                     )
                     microscope_instance.set_microscope(
                         settings_dict={
@@ -771,9 +771,11 @@ class MicroscopeAutomation(object):
                 else:
                     well_object.move_to_zero(load=load, verbose=verbose)
             else:
-                raise AutomationError((
-                    "Microscope not ready in update_plate_zZero"
-                    " with experiment {}").format(zen_experiment)
+                raise AutomationError(
+                    (
+                        "Microscope not ready in update_plate_zZero"
+                        " with experiment {}"
+                    ).format(zen_experiment)
                 )
 
             # User has to set focus position for following experiments
@@ -879,8 +881,10 @@ class MicroscopeAutomation(object):
                 verbose=verbose,
             ):
                 raise AutomationError(
-                    ("Microscope not ready in update_plate_zZero"
-                     " with experiment {}").format(zen_experiment)
+                    (
+                        "Microscope not ready in update_plate_zZero"
+                        " with experiment {}"
+                    ).format(zen_experiment)
                 )
 
             def find_well_center(well_object, well_index, verbose=verbose):
@@ -890,11 +894,11 @@ class MicroscopeAutomation(object):
                 well_object.live_mode_start(
                     camera_id=camera_id, experiment=zen_experiment
                 )
-                return_code = message.operate_message((
-                    "Please focus with 10x on left edge of well {}\n"
-                    "to find zero position for plate {}").format(
-                        well_names[well_index], plate_object.get_name()
-                ),
+                return_code = message.operate_message(
+                    (
+                        "Please focus with 10x on left edge of well {}\n"
+                        "to find zero position for plate {}"
+                    ).format(well_names[well_index], plate_object.get_name()),
                     returnCode=True,
                 )
                 if return_code == 0:

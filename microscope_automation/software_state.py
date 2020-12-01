@@ -118,10 +118,12 @@ class State(object):
             )
         while current_object.container is not None:
             if isinstance(current_object.container, samples.PlateHolder):
-                current_object.container.microscope.get_control_software(
-                ).connection.Zen = (self.zen_instance)
-                current_object.container.microscope.get_control_software(
-                ).connection.image = (self.ref_image)
+                current_object.container.microscope.get_control_software().connection.Zen = (  # noqa
+                    self.zen_instance
+                )
+                current_object.container.microscope.get_control_software().connection.image = (  # noqa
+                    self.ref_image
+                )
             current_object = current_object.container
 
     def prune_object_dict(self):
@@ -164,17 +166,17 @@ class State(object):
             if isinstance(current_object.container, samples.PlateHolder):
                 if self.zen_instance is None:
                     self.zen_instance = (
-                        current_object.container.microscope.get_control_software(
-                        ).connection.Zen
+                        current_object.container.microscope.get_control_software().connection.Zen  # noqa
                     )
-                current_object.container.microscope.get_control_software(
-                ).connection.Zen = (None)
-                self.ref_image = (
-                    current_object.container.microscope.get_control_software(
-                    ).connection.image
+                current_object.container.microscope.get_control_software().connection.Zen = (  # noqa
+                    None
                 )
-                current_object.container.microscope.get_control_software(
-                ).connection.image = (None)
+                self.ref_image = (
+                    current_object.container.microscope.get_control_software().connection.image  # noqa
+                )
+                current_object.container.microscope.get_control_software().connection.image = (  # noqa
+                    None
+                )
             current_object = current_object.container
 
     def add_next_experiment_object(self, experiment_name, exp_object_list):
