@@ -51,12 +51,12 @@ from microscope_automation.automation_exceptions import (
     HardwareError,
     AutomationError,
 )
-from microscope_automation.softwareState import State
+from microscope_automation.software_state import State
 from microscope_automation.find_positions import (
     create_output_objects_from_parent_object,
     convert_location_list,
 )
-from microscope_automation.zeiss.write_zen_tiles_experiment import save_position_list
+from microscope_automation.zeiss.write_zen_tiles_experiment import PositionWriter
 from microscope_automation.image_AICS import ImageAICS
 from microscope_automation.samples.well_segmentation_refined import WellSegmentation
 
@@ -137,8 +137,7 @@ def stop_script(message_text=None, allow_continue=False):
     Script will stop all Microscope action immediately and
     ask user to stop execution of script or to continue.
     """
-
-    #     Microscope.stop_microscope()
+    # Microscope.stop_microscope()
     if allow_continue:
         if message_text is None:
             message_text = "If you want to abort script press ok.\notherwise Continue"
@@ -1838,7 +1837,7 @@ class MicroscopeAutomation(object):
             with open(filename, "wb") as f:
                 pickle.dump(pickle_dict, f, pickle.HIGHEST_PROTOCOL)
                 stop_script("Interruption Occurred. Data saved!")
-        pos_list_saver = save_position_list(
+        pos_list_saver = PositionWriter(
             self.prefs.prefs["Info"]["System"],
             plate_object.barcode,
             self.prefs.prefs["PathDailyFolder"],

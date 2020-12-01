@@ -4,7 +4,7 @@
 """
 import pickle
 import sys
-import samples
+from microscope_automation.samples import samples
 from collections import OrderedDict
 
 REFERENCE_OBJECT = "reference_object"
