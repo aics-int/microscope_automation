@@ -19,7 +19,7 @@ skip_all_tests = True
 @pytest.mark.parametrize(
     ("text, allow_continue, expected"),
     [
-        (None, False, ""),
+        (None, False, "SystemExit"),
     ],
 )
 def test_stop_script(text, allow_continue, expected):
