@@ -5,8 +5,6 @@ Tools to find positions for imaging
 @author: winfriedw
 """
 import samples
-import pyqtgraph
-from pyqtgraph.Qt import QtGui
 from well_overview_segmentation import WellSegmentation
 
 
@@ -155,14 +153,14 @@ def location_to_object(sample_object, output_class, image, location_list):
     # Populate colony / cell dictionary based on output_class
     new_objects = []
     new_objects_dict = {}
-    class_ = getattr(samples, output_class)
+    # class_ = getattr(samples, output_class)
     ind = 1
     for location in location_list:
         new_object_name = sample_object.get_name() + "_{:04}".format(ind)
         ind = ind + 1
         # locations in correct_location_list are relative to the image center
         # The image center is not necessarily (0, 0, 0) in object coordinates
-        # The center position of the image in object coordinates is stored in image meta data
+        # Center position of the image in object coordinates stored in image meta data
         new_object = copy_image_position(
             sample_object, output_class, image, offset=(location[0], location[1], 0)
         )
@@ -232,7 +230,7 @@ def segmentation(image_data, segmentation_type="colony", segmentation_settings=N
                 canny_low_threshold=canny_low_threshold,
                 remove_small_holes_area_threshold=remove_small_holes_area_threshold,
             )
-        except:
+        except Exception:
             # if the preferences are not set, call with default ones
             segmented_well = WellSegmentation(image_data, colony_filters_dict=filters)
 
@@ -258,7 +256,8 @@ def find_interactive_distance_map(
      app: object of class QtGui.QApplication
 
     Output:
-     [new_objects, new_objects_dict]: [list with objects of class output_class, dictionary with name and objects]
+     [new_objects, new_objects_dict]: [list with objects of class output_class,
+     dictionary with name and objects]
     """
     image_data = get_single_slice(image)
 
@@ -268,7 +267,7 @@ def find_interactive_distance_map(
         segmentation_settings=segmentation_settings,
     )
 
-    # 2. Call image location picker module to let the user adjust positions to image further
+    # 2. Call image location picker module to let the user adjust positions
     location_list = sample_object.set_interactive_positions(
         image_data, segmented_position_list, app
     )
@@ -318,9 +317,6 @@ def create_output_objects_from_parent_object(
      [new_objects, new_objects_dict]: [list with objects of class output_class,
      dictionary with name and objects]
     """
-    #     pathHardwareSettings = setupAutomation.get_hardware_settings_path(imaging_settings)
-    #     hardwareSettings = preferences.Preferences(pathHardwareSettings)
-    #     z_center_background = hardwareSettings.getPref('zCenterBackground')
     new_objects = None
     new_objects_dict = {}
 

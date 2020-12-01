@@ -30,7 +30,8 @@ class State(object):
         """
         self.workflow_pos = []
         self.reference_object = None
-        # List of wells/cells names that have already been imaged, to be able to continue right where we left off
+        # List of wells/cells names that have already been imaged,
+        # to be able to continue right where we left off
         self.last_experiment_objects = []
         self.next_experiment_objects = (
             OrderedDict()
@@ -78,7 +79,7 @@ class State(object):
                 pickle.dump(pickle_dict, f, pickle.HIGHEST_PROTOCOL)
                 print("State was saved in the recovery file")
                 f.close()
-        except:
+        except Exception:
             print("State was NOT saved.")
 
         # Need to rehydrate the removed references
@@ -117,12 +118,10 @@ class State(object):
             )
         while current_object.container is not None:
             if isinstance(current_object.container, samples.PlateHolder):
-                current_object.container.microscope.get_control_software().connection.Zen = (
-                    self.zen_instance
-                )
-                current_object.container.microscope.get_control_software().connection.image = (
-                    self.ref_image
-                )
+                current_object.container.microscope.get_control_software(
+                ).connection.Zen = (self.zen_instance)
+                current_object.container.microscope.get_control_software(
+                ).connection.image = (self.ref_image)
             current_object = current_object.container
 
     def prune_object_dict(self):
@@ -165,17 +164,17 @@ class State(object):
             if isinstance(current_object.container, samples.PlateHolder):
                 if self.zen_instance is None:
                     self.zen_instance = (
-                        current_object.container.microscope.get_control_software().connection.Zen
+                        current_object.container.microscope.get_control_software(
+                        ).connection.Zen
                     )
-                current_object.container.microscope.get_control_software().connection.Zen = (
-                    None
-                )
+                current_object.container.microscope.get_control_software(
+                ).connection.Zen = (None)
                 self.ref_image = (
-                    current_object.container.microscope.get_control_software().connection.image
+                    current_object.container.microscope.get_control_software(
+                    ).connection.image
                 )
-                current_object.container.microscope.get_control_software().connection.image = (
-                    None
-                )
+                current_object.container.microscope.get_control_software(
+                ).connection.image = (None)
             current_object = current_object.container
 
     def add_next_experiment_object(self, experiment_name, exp_object_list):

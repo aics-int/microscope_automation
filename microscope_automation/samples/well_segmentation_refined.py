@@ -1,9 +1,6 @@
 import math
-from aicsimageio import AICSImage
-from .interactive_location_picker_pyqtgraph import ImageLocationPicker
 from matplotlib.pyplot import rcParams
 import numpy as np
-from pyqtgraph.Qt import QtGui
 from scipy import ndimage, signal
 from skimage import exposure, feature, morphology, transform, filters, measure
 
@@ -25,7 +22,7 @@ class WellSegmentation:
         Input:
          image_data =  numpy image data Image to be segmented (Well or colony)
 
-         filters_dict = dictionary of filters to be applied { filter_name: filter_values}
+         filters_dict = dictionary of filters to be applied {filter_name: filter_values}
         """
         self._point_locations = []
         self.segmented_colonies = None
@@ -103,7 +100,8 @@ class WellSegmentation:
         mask = self.create_circular_mask(radius=(self.height / 2.1) - 5.0)
         masked_image = correction.copy()
         masked_image[~mask] = 0
-        # Smooth and rescale image to enhance contrast before filtering to 5th and 95th percentile of pixel intensity
+        # Smooth and rescale image to enhance contrast
+        # before filtering to 5th and 95th percentile of pixel intensity
         p5, p95 = np.percentile(masked_image, (5, 95))
         img_rescale = exposure.rescale_intensity(masked_image, in_range=(p5, p95))
         gaussian = filters.gaussian(img_rescale, sigma=0.5, preserve_range=True)
@@ -157,7 +155,8 @@ class WellSegmentation:
         # with limiting the distance between two peaks be 10 or more
         peaks, dictionary = signal.find_peaks(frq, distance=5)
 
-        # Calculate background (peak to the left) and signal (peak to the right) thresholds
+        # Calculate background (peak to the left)
+        # and signal (peak to the right) thresholds
         if len(peaks) >= 2:
             # Find the two highest peaks that reference to background or signal
             order = frq[peaks].argsort()
@@ -251,10 +250,11 @@ class WellSegmentation:
                 obj_to_add.append(obj)
                 dilate_maxi[lab_dis_obj == obj] = 1
 
-        # As overall colony segmentation was not able to separate colonies that are close to each other
-        # and tend to merge neighboring colonies, a secondary filter is applied to the distance map
-        # to pick up signals from small colonies to find center of small colonies and add to markers
-        # for watershed
+        # As overall colony segmentation was not able to separate colonies
+        # that are close to each other and tend to merge neighboring colonies,
+        # a secondary filter is applied to the distance map
+        # to pick up signals from small colonies to find center of
+        # small colonies and add to markers for watershed
         filter_max = distance_map_max.copy()
         filter_max[filter_max < 10] = 0
         filter_max[filter_max > 0] = 1
@@ -322,17 +322,20 @@ class WellSegmentation:
 
         # Selecting objects above a certain size threshold
         size_mask = sizes_colony > min_area
-        obj_number_keep = np.where(size_mask == True)[0]
+        obj_number_keep = np.where(size_mask)[0]
         num_colonies_final = self.colony_filters_dict["distFromCenter"][1]
 
         filtered = np.zeros(self.segmented_colonies.shape)
 
         # TODO  - Test for 0 position
-        # If there is equal or less # colonies segmented than wanted, use all colonies for picking positions
-        # If there is less # colonies segmented than wanted, flag user that colonies are small in the well
+        # If there is equal or less # colonies segmented than wanted,
+        # use all colonies for picking positions
+        # If there is less # colonies segmented than wanted,
+        # flag user that colonies are small in the well
         # and use the largest colonies to generate positions
-        # If there are more colonies segmented than wanted, use the largest #wanted+2 colonies (+2 gives the
-        # flexibility later to pick positions that are from a slightly smaller colony but closer to well center)
+        # If there are more colonies segmented than wanted, use the largest
+        # wanted+2 colonies (+2 gives the flexibility later to pick positions
+        # that are from a slightly smaller colony but closer to well center)
 
         if len(obj_number_keep) <= num_colonies_final:
             for obj in obj_number_keep:
@@ -360,7 +363,8 @@ class WellSegmentation:
 
         filtered_colonies = measure.label(filtered)
         print("Filtered colonies according to size")
-        # Select 1 position per colony and populate the point location in original-sized image in [point_locations]
+        # Select 1 position per colony and populate the point location
+        # in original-sized image in [point_locations]
         # with distance map
         smoothed_well = ndimage.gaussian_filter(self.downsized_image, 0.35)
         distance = ndimage.distance_transform_edt(filtered_colonies)
@@ -377,7 +381,8 @@ class WellSegmentation:
             top_percent = dist_mask > (d_max * 0.30)
             colony_mask = smoothed_well * top_percent
             colony_edges = feature.canny(colony_mask, sigma=0.1)
-            # applying the second distance transform to find the smoothest point in the correct region
+            # applying the second distance transform
+            # to find the smoothest point in the correct region
             inner_edges = ndimage.distance_transform_edt(~colony_edges * top_percent)
             smooth_point = np.where(inner_edges == inner_edges.max())
             smooth_point = (smooth_point[0][0], smooth_point[1][0])

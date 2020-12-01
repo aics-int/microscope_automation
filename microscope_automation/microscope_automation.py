@@ -35,7 +35,6 @@ from microscope_automation.get_path import (
     set_up_subfolders,
     get_daily_folder,
     get_recovery_settings_path,
-    get_prefs_path,
     get_references_path,
     get_images_path,
     get_position_csv_path,
@@ -226,18 +225,20 @@ class MicroscopeAutomation(object):
     ################################################################################
 
     def read_barcode(
-        self, prefs, plate_holder_object, barcode, well=None, barcodeName=None
+        self, prefs, plate_holder_object, barcode, well=None, barcode_name=None
     ):
         """Move manually to barcode, read and decipher barcode.
 
         Input:
          prefs: dictionary with preferences
 
-         plate_holder_object: object of type PlateHolder from module sample with well information
+         plate_holder_object: object of type PlateHolder
+         from module sample with well information
 
          barcode: barcode for plate, often used as plate name
 
-         well: well the barcode is associated with in format 'A1'. If empty ask user to navigate to barcode.
+         well: well the barcode is associated with in format 'A1'.
+         If empty ask user to navigate to barcode.
 
         Return:
          barcode: id encoded in barcode
@@ -267,12 +268,12 @@ class MicroscopeAutomation(object):
         camera_id = prefs.get_pref("CameraBarcode")
 
         # Define and if necessary create folder for images
-        imageDir = get_references_path(prefs)
+        image_dir = get_references_path(prefs)
 
         # acquire image
-        filePath = imageDir + barcodeName + ".czi"
+        file_path = image_dir + barcode_name + ".czi"
         barcode = barcode_object.read_barcode(
-            experiment, camera_id, filePath, verbose=verbose
+            experiment, camera_id, file_path, verbose=verbose
         )
         return barcode
 
@@ -286,7 +287,7 @@ class MicroscopeAutomation(object):
 
          plate_holder_object: object for plateholder that contains well
 
-         experiment: dictionary with keys 'Experiment', Repetitions', 'Input', 'Output']
+         experiment: dictionary with keys 'Experiment', Repetitions', 'Input', 'Output'
          from workflow with information about specific experiment
 
         Output:
@@ -350,7 +351,8 @@ class MicroscopeAutomation(object):
         # get immersion delivery system object
         immersion_delivery = plate_holder_instance.immersion_delivery_system
 
-        # move objective under immersion water outlet and assign position of outlet to immersionDelivery object
+        # move objective under immersion water outlet and assign position
+        # of outlet to immersion delivery object
         focus_drive = plate_holder_instance.get_focus()
         load_position = focus_drive.get_load_position()
 
@@ -388,12 +390,13 @@ class MicroscopeAutomation(object):
         # take image of water outlet
         immersion_delivery.live_mode_start(camera_id, experiment)
         message.operate_message(
-            "Move objective under water outlet.\nUse flashlight from below stage to see outlet."
+            "Move objective under water outlet."
+            "\nUse flashlight from below stage to see outlet."
         )
         immersion_delivery.live_mode_stop(camera_id, experiment)
 
         # drop objective to load position and store position for water delivery
-        # water will always be delivered with objective in load position to avoid collision
+        # water is always delivered with objective in load position to avoid collision
         focus_drive.goto_load(communication_object)
         immersion_delivery.set_zero(verbose=verbose)
 
@@ -410,7 +413,8 @@ class MicroscopeAutomation(object):
         Input:
          set_up_settings: dictionary with preferences
 
-         plate_holder_instance: object of type PlateHolder from module sample with well information
+         plate_holder_instance: object of type PlateHolder
+         from module sample with well information
 
          _experiment: not used, necessary for compatibility
 
@@ -438,8 +442,9 @@ class MicroscopeAutomation(object):
         )
         objective_information = objective_changer_instance.objective_information
 
-        # step through all objectives and determine parfocality and parcentrizity settings
-        # create ordered dictionary with immersions to ensure that we start with air and end with oil objectives
+        # step through all objectives and determine parfocality and parcentrizity
+        # create ordered dictionary with immersions to ensure
+        # that we start with air and end with oil objectives
         magnifications_list = sorted(
             [
                 magnification
@@ -450,8 +455,8 @@ class MicroscopeAutomation(object):
         )
         immersions_list = ["air", "water", "glycerol", "oil"]
 
-        # the offset for each objective will be calculated relative to the highest resolution air objective
-        # (water if air does not exist)
+        # the offset for each objective will be calculated relative to the highest
+        # resolution air objective (water if air does not exist)
         x_reference_position = None
         y_reference_position = None
         z_reference_position = None
@@ -518,7 +523,8 @@ class MicroscopeAutomation(object):
                     objective_information[name]["z_offset"] = z_offset
 
                     print(
-                        "New offset values for objective {}:\nx_offset: {}\ny_offset: {}\nz_offset: {}".format(
+                        ("New offset values for objective {}:\n"
+                         "x_offset: {}\ny_offset: {}\nz_offset: {}").format(
                             name, x_offset, y_offset, z_offset
                         )
                     )
@@ -539,8 +545,8 @@ class MicroscopeAutomation(object):
          plate_holder_object: object that contains all plates
          and all wells with sample information.
 
-         _experiment: dictionary with keys 'Experiment', Repetitions', 'Input', 'Output'] (not used, for compatibility only)
-         from workflow with information about specific experiment
+         _experiment: dictionary with keys 'Experiment', Repetitions', 'Input', 'Output'
+         (not used, for compatibility only)
 
         Output:
          none
@@ -630,9 +636,10 @@ class MicroscopeAutomation(object):
         Input:
          initialize_prefs: dictionary with preferences
 
-         plate_holder_object: object of type PlateHolder from module sample with well information
+         plate_holder_object: object of type PlateHolder
+         from module sample with well information
 
-         experiment: dictionary with keys 'Experiment', Repetitions', 'Input', 'Output']
+         experiment: dictionary with keys 'Experiment', Repetitions', 'Input', 'Output'
          from workflow with information about specific experiment
 
         Output:
@@ -648,7 +655,8 @@ class MicroscopeAutomation(object):
                 initialize_prefs.get_pref("AddColonies", valid_values=VALID_ADDCOLONIES)
                 is True
             ):
-                # Add colonies is in the list of experiment, show the options for csv file
+                # Add colonies is in the list of experiment,
+                # show the options for csv file
                 colony_remote_file = message.file_select_dialog(
                     colony_remote_dir, returnCode=True
                 )
@@ -660,7 +668,8 @@ class MicroscopeAutomation(object):
                     destination_path = get_colony_dir_path(initialize_prefs)
                     shutil.copy2(source_path, destination_path)
 
-        # initialize microscope hardware (e.g. auto-focus) for each plate within plateholder
+        # initialize microscope hardware (e.g. auto-focus)
+        # for each plate within plateholder
         trials = initialize_prefs.get_pref("NumberTrials")
         verbose = initialize_prefs.get_pref("Verbose", valid_values=VALID_VERBOSE)
         microscope_object = plate_holder_object.get_microscope()
@@ -697,7 +706,9 @@ class MicroscopeAutomation(object):
         # ask user to enable laser safety
         if initialize_prefs.get_pref("LaserSafety", valid_values=VALID_LASERSAFETY):
             message.operate_message(
-                "Please enable laser safety.\nDisable parfocality and parcentralicy\nSecure sample from sliding."
+                "Please enable laser safety.\n"
+                "Disable parfocality and parcentralicy\n"
+                "Secure sample from sliding."
             )
 
     ################################################################################
@@ -709,9 +720,10 @@ class MicroscopeAutomation(object):
         Input:
          image_settings: dictionary with preferences
 
-         plate_holder_object: object of type PlateHolder from module sample with well information
+         plate_holder_object: object of type PlateHolder
+         from module sample with well information
 
-         experiment: dictionary with keys 'Experiment', Repetitions', 'Input', 'Output']
+         experiment: dictionary with keys 'Experiment', Repetitions', 'Input', 'Output'
          from workflow with information about specific experiment
 
         Output:
@@ -759,10 +771,9 @@ class MicroscopeAutomation(object):
                 else:
                     well_object.move_to_zero(load=load, verbose=verbose)
             else:
-                raise AutomationError(
-                    "Microscope not ready in update_plate_zZero with experiment {}".format(
-                        zen_experiment
-                    )
+                raise AutomationError((
+                    "Microscope not ready in update_plate_zZero"
+                    " with experiment {}").format(zen_experiment)
                 )
 
             # User has to set focus position for following experiments
@@ -780,7 +791,8 @@ class MicroscopeAutomation(object):
             )
             plate_object.update_zero(z=z_new, verbose=verbose)
 
-            # store position used for focusing, will make later focusing with higher magnification easier
+            # store position used for focusing,
+            # will make later focusing with higher magnification easier
             plate_object.update_z_zero_pos = plate_object.get_pos_from_abs_pos(
                 verbose=verbose
             )
@@ -789,13 +801,14 @@ class MicroscopeAutomation(object):
                 key,
                 value,
             ) in (
-                plate_holder_object.microscope.microscope_components_ordered_dict.items()
+                plate_holder_object.microscope.microscope_components_ordered_dict.items()  # noqa
             ):
                 if isinstance(value, hardware_components.AutoFocus):
                     self.state.reference_object = value.get_focus_reference_obj()
                     # Autosave
                     self.state.save_state()
-                # Passage the previous experiment's objects if being called as a separate workflow experiment
+                # Passage the previous experiment's objects if being called
+                # as a separate workflow experiment
                 workflow_list = experiment["WorkflowList"]
                 original_workflow = experiment["OriginalWorkflow"]
                 if experiment["Experiment"] in workflow_list:
@@ -822,7 +835,7 @@ class MicroscopeAutomation(object):
 
          plate_holder_object: object for plate that contains well
 
-         experiment: dictionary with keys 'Experiment', Repetitions', 'Input', 'Output']
+         experiment: dictionary with keys 'Experiment', Repetitions', 'Input', 'Output'
          from workflow with information about specific experiment
 
         Output:
@@ -831,14 +844,15 @@ class MicroscopeAutomation(object):
         # set debugging level
         verbose = prefs.get_pref("Verbose", valid_values=VALID_VERBOSE)
         print(
-            "\n\nStart to acquire images for plate correction (calculate_plate_correction)"
+            "\n\nStart to acquire images for plate correction (calculate_plate_correction)"  # noqa
         )
 
         # iterate through all plates on plate holder
         plates = plate_holder_object.get_plates()
 
         for plate_name, plate_object in plates.items():
-            # Acquire images of edges of three reference wells  and use them to determine the well center
+            # Acquire images of edges of three reference wells
+            # and use them to determine the well center
             # Get names of reference wells
             well_names = [
                 prefs.get_pref("WellCalibrateWell_{}".format(i)) for i in range(1, 4)
@@ -865,9 +879,8 @@ class MicroscopeAutomation(object):
                 verbose=verbose,
             ):
                 raise AutomationError(
-                    "Microscope not ready in update_plate_zZero with experiment {}".format(
-                        zen_experiment
-                    )
+                    ("Microscope not ready in update_plate_zZero"
+                     " with experiment {}").format(zen_experiment)
                 )
 
             def find_well_center(well_object, well_index, verbose=verbose):
@@ -877,10 +890,11 @@ class MicroscopeAutomation(object):
                 well_object.live_mode_start(
                     camera_id=camera_id, experiment=zen_experiment
                 )
-                return_code = message.operate_message(
-                    "Please focus with 10x on left edge of well {}\nto find zero position for plate {}".format(
+                return_code = message.operate_message((
+                    "Please focus with 10x on left edge of well {}\n"
+                    "to find zero position for plate {}").format(
                         well_names[well_index], plate_object.get_name()
-                    ),
+                ),
                     returnCode=True,
                 )
                 if return_code == 0:
@@ -895,7 +909,8 @@ class MicroscopeAutomation(object):
             well_center_abs = []
 
             # The stored z position for wells is not necessarily the actual one.
-            # store the difference between the z-position on file and the last measured z-position as delta_z
+            # store the difference between the z-position on file
+            # and the last measured z-position as delta_z
             # apply this delta to the next well to be closer at the actual position
             delta_z = 0
 
@@ -918,8 +933,9 @@ class MicroscopeAutomation(object):
                 delta_z = well_object.get_abs_zero()[2] - well_center_abs_i[2]
                 well_center_abs.append(well_center_abs_i)
 
-            # Calculate values for transformation from plate holder coordinates to plate coordinates
-            # get plate coordinates for well centers from zero positions of wells in plate coordinate
+            # Calculate values for transformation from plate holder coordinates
+            # to plate coordinates, then get plate coordinates for well centers
+            # from zero positions of wells in plate coordinate
             plate_centers = [
                 well_objects[ind].get_zero() for ind in range(len(well_objects))
             ]
@@ -928,7 +944,7 @@ class MicroscopeAutomation(object):
             x_plate_distance = plate_centers[1][0] - plate_centers[0][0]
             y_plate_distance = plate_centers[2][1] - plate_centers[1][1]
 
-            # get plate holder coordinates for plate holder based on measured well centers
+            # get plate holder coordinates based on measured well centers
             plate_holder_object = plate_object.get_container()
             plate_holder_centers = [
                 plate_holder_object.get_pos_from_abs_pos(*centers, verbose=verbose)
@@ -948,7 +964,8 @@ class MicroscopeAutomation(object):
             z_plate_holder_correction = 1
 
             # Describe not leveled plate as plane of form ax + bx + cx = d
-            # Calculate 2 vectors from 3 points, and use cross product to find normal vector for plane <a, b, c>
+            # Calculate 2 vectors from 3 points, and use cross product
+            # to find normal vector for plane <a, b, c>
             # Dot normal vector and point to get offset (d)
             p = [
                 numpy.array(center).astype(numpy.float)
@@ -1033,7 +1050,8 @@ class MicroscopeAutomation(object):
         Input:
          prefs: dictionary with preferences
 
-         plate_holder_object: object of type PlateHolder from module sample with well information
+         plate_holder_object: object of type PlateHolder
+         from module sample with well information
 
          barcode: barcode for plate, often used as plate name
 
@@ -1156,7 +1174,8 @@ class MicroscopeAutomation(object):
             print("Image Object ", sample_object.get_name())
         return_dict = {"Image": None, "Continue": True}
 
-        # check if microscope is ready for imaging and tries to execute missing initializations
+        # check if microscope is ready for imaging
+        # and tries to execute missing initializations
         if not sample_object.microscope_is_ready(
             experiment=experiment,
             reference_object=sample_object.get_reference_object(),
@@ -1174,7 +1193,7 @@ class MicroscopeAutomation(object):
         if manual_refocus:
             if verbose:
                 print(
-                    "\n\n============================== Before re-focus ========================================"
+                    "\n\n============================== Before re-focus ========================================"  # noqa
                 )
                 print(
                     "Image object ",
@@ -1185,12 +1204,13 @@ class MicroscopeAutomation(object):
                     sample_object.get_abs_position(),
                 )
 
-            # start live mode again because redefinition of auto-focus might stop live_mode
+            # start live mode again because redefinition of auto-focus might stop it
             sample_object.live_mode_start(camera_id=camera_id, experiment=experiment)
             select_result = message.select_message(
                 "Focus on center of "
                 + sample_object.get_name()
-                + "\nCheck box below if you want to include position in further experiments.",
+                + "\nCheck box below if you want to"
+                + " include position in further experiments.",
                 count=number_selected_postions,
             )
             sample_object.live_mode_stop(camera_id=camera_id)
@@ -1206,8 +1226,8 @@ class MicroscopeAutomation(object):
 
             if verbose:
                 print(
-                    "\n\n============================== After re-focus ========================================"
-                )  # noqa
+                    "\n\n============================== After re-focus ========================================"  # noqa
+                )
                 print(
                     "Image colony ",
                     sample_object.get_name(),
@@ -1283,7 +1303,7 @@ class MicroscopeAutomation(object):
 
          plate_object: object sample list belongs to
 
-         experiment: dictionary with keys 'Experiment', Repetitions', 'Input', 'Output']
+         experiment: dictionary with keys 'Experiment', Repetitions', 'Input', 'Output'
          from workflow with information about specific experiment
 
          repetition: counter for time lapse experiments
@@ -1338,16 +1358,22 @@ class MicroscopeAutomation(object):
                 automatic=use_pump,
             )
 
-        # There is Zen's bug where the focus strategy keeps changing to "Z value defined by tile set up" after being
+        # There is Zen's bug where the focus strategy keeps changing
+        # to "Z value defined by tile set up" after being
         # repeatedly setup to "None".
-        # To find a workaround for this for now, this piece of code loads the experiment into Zen software so that
-        # all the settings are visible and then asks the user to confirm those settings. Here user can change the
-        # focus strategy in Zen and it stays "None" throughout the scan
+        # To find a workaround for this for now,
+        # this piece of code loads the experiment into Zen software so that
+        # all the settings are visible and then asks the user to confirm those settings.
+        # Here user can change the focus strategy in Zen
+        # and it stays "None" throughout the scan
         experiment_name = imaging_settings.get_pref("Experiment")
         camera_id = imaging_settings.get_pref("Camera")
-        # The reason for startimg live mode and stopping it is because in Zen there is no way of just loading
-        # the experiment in Zen software where all the settings are visible unless you call an operation on it
-        # This way, from the UI side, it loads the experiment without doing anything (instant start & stop).
+        # The reason for startimg live mode and stopping it is
+        # because in Zen there is no way of just loading
+        # the experiment in Zen software where all the settings are visible
+        # unless you call an operation on it
+        # This way, from the UI side,
+        # it loads the experiment without doing anything (instant start & stop).
         sample_list[0].live_mode_start(camera_id, experiment_name)
         sample_list[0].live_mode_stop(camera_id)
         message.information_message(
@@ -1374,11 +1400,11 @@ class MicroscopeAutomation(object):
                         automatic=use_pump,
                     )
                 if load_between_wells:
-                    load = True
+                    load = True  # noqa
             # Removed, stage will move in scan_single_ROI
-            #             _, _, _ = sampleObject.move_to_zero(load = load, verbose = verbose)
+            # _, _, _ = sampleObject.move_to_zero(load = load, verbose = verbose)
             current_well = sample_object.get_well_object()
-            load = load_between_objects
+            # load = load_between_objects
 
             meta_dict = {
                 "aics_well": current_well.get_name(),
@@ -1443,7 +1469,7 @@ class MicroscopeAutomation(object):
                         tile_image = sample_object.get_microscope().load_image(
                             image, getMeta=True
                         )  # loads the image & metadata
-                except:
+                except Exception:
                     tile_image = None
                     raise
 
@@ -1464,7 +1490,8 @@ class MicroscopeAutomation(object):
                     plate_object.add_to_image_dir(
                         list_name=output_name, sample_object=next_experiment_objects
                     )
-                    # Populate objects for multiple wells/colonies/cells in one common dictionary
+                    # Populate objects for multiple wells/colonies/cells
+                    # in one common dictionary
                     next_experiment_objects_dict = next_experiment_objects_list[1]
                     for object in next_experiment_objects_dict:
                         all_objects_dict[object] = next_experiment_objects_dict[object]
@@ -1493,7 +1520,8 @@ class MicroscopeAutomation(object):
         # Autosave
         self.state.save_state()
 
-        # Once the experiment with multiple objects is finished, if interrupt is true, pickle and exit
+        # Once the experiment with multiple objects is finished,
+        # if interrupt is true, pickle and exit
         # If the experiment needs to be interrupted, save the positions and exit
         pickle_dict = {}
         pickle_dict["next_object_dict"] = all_objects_dict
@@ -1545,7 +1573,7 @@ class MicroscopeAutomation(object):
 
          plate_holder_object: Plate Holder object containing all the information
 
-         experiment: dictionary with keys 'Experiment', Repetitions', 'Input', 'Output']
+         experiment: dictionary with keys 'Experiment', Repetitions', 'Input', 'Output'
          from workflow with information about specific experiment
 
          repetition: counter for time lapse experiments
@@ -1571,8 +1599,8 @@ class MicroscopeAutomation(object):
         well_names_list = imaging_settings.get_pref("Wells", valid_values=VALID_WELLS)
         plates = plate_holder_object.get_plates()
 
-        # To preserve the order defined in the preferences, we need to gp through well list
-        # and create the image list in that particular order
+        # To preserve the order defined in the preferences, we need to gp through
+        # well list and create the image list in that particular order
         for well in well_names_list:
             # Get the image file name associated with this well
             for image_filename in images_name_list:
@@ -1599,7 +1627,7 @@ class MicroscopeAutomation(object):
                 well_name = image.get_meta("aics_well")
                 image_data = image.get_data()
                 if image_data.ndim == 3:
-                    # Remove the channel dimension before calling the location_picker module
+                    # Remove the channel dimension before calling the location_picker
                     image_data = image_data[:, :, 0]
                 # Call segment well module to find imageable positions
                 filters = imaging_settings.get_pref("Filters")
@@ -1615,9 +1643,9 @@ class MicroscopeAutomation(object):
                         mode="A",
                         canny_sigma=canny_sigma,
                         canny_low_threshold=canny_low_threshold,
-                        remove_small_holes_area_threshold=remove_small_holes_area_threshold,
+                        remove_small_holes_area_threshold=remove_small_holes_area_threshold,  # noqa
                     )
-                except:
+                except Exception:
                     # if the preferences are not set, call with default ones
                     segmented_well = WellSegmentation(
                         image_data, colony_filters_dict=filters
@@ -1640,9 +1668,11 @@ class MicroscopeAutomation(object):
         all_objects_list = []
         position_number = 1
         # List of lists to store the CSV file info
-        # 1. To store the list of positions in the format specific to Zen Blue software for 100X imaging.
+        # 1. To store the list of positions in the format specific
+        # to Zen Blue software for 100X imaging.
         position_list_for_csv = []
-        # 2. To store positions and respective well IDs for post processing (splitting and aligning)
+        # 2. To store positions and respective well IDs for post processing
+        # (splitting and aligning)
         image_location_list_for_csv = []
         # Initialize the csv file to store the positions after approval
         (
@@ -1698,11 +1728,13 @@ class MicroscopeAutomation(object):
                     )
                     new_objects_list.append(new_object)
                     new_objects_dict[new_object_name] = new_object
-                    # Add P number to match the format currently being used in the pipeline
+                    # Add P number to match the format being used in the pipeline
                     position_name = "P" + str(position_number)
                     # The positions in this list are relative to the center of well
-                    # To get the absolute stage coordinates - we will have to add well.zero position + plate.zero position
-                    # And we will also need to add the objective offset for 100X to correct for parcentricity
+                    # To get the absolute stage coordinates
+                    # we will have to add well.zero position + plate.zero position
+                    # And we will also need to add the objective offset
+                    # for 100X to correct for parcentricity
                     x_obj_offset, y_obj_offset = self.get_objective_offsets(
                         plate_holder_object, 100
                     )
@@ -1781,7 +1813,8 @@ class MicroscopeAutomation(object):
                 self.state.reference_object = value.get_focus_reference_obj()
                 # Autosave
                 self.state.save_state()
-        # Once the experiment with multiple objects is finished, if interrupt is true, pickle and exit
+        # Once the experiment with multiple objects is finished,
+        # if interrupt is true, pickle and exit
         # If the experiment needs to be interrupted, save the positions and exit
         if (
             "Interrupt" in experiment.keys()
@@ -1856,9 +1889,10 @@ class MicroscopeAutomation(object):
         Input:
          imaging_settings: dictionary with preferences
 
-         plate_holder_object: object of type PlateHolder from module sample with well information
+         plate_holder_object: object of type PlateHolder
+         from module sample with well information
 
-         experiment: dictionary with keys 'Experiment', Repetitions', 'Input', 'Output']
+         experiment: dictionary with keys 'Experiment', Repetitions', 'Input', 'Output'
          from workflow with information about specific experiment
 
          repetition: counter for time lapse experiments
@@ -1973,7 +2007,8 @@ class MicroscopeAutomation(object):
         return that plate's barcode.
 
         Input:
-         plate_holder_object: object of type PlateHolder from module sample with well information
+         plate_holder_object: object of type PlateHolder
+         from module sample with well information
 
         Output:
          barcode: barcode of plate in plate_holder_object
@@ -1986,18 +2021,21 @@ class MicroscopeAutomation(object):
         and attach them to the right objects.
 
         Input:
-         plate_holder_object: object of type PlateHolder from module sample with well information
+         plate_holder_object: object of type PlateHolder
+         from module sample with well information
 
          plate_object: object of class plate
 
-         experiment: experiment dictionary with information about input and output parameters
+         experiment: dictionary with keys 'Experiment', Repetitions', 'Input', 'Output'
+         from workflow with information about specific experiment
 
         Output:
          none
         """
         next_experiment_objects = []
         next_experiment_objects_dict = experiment["ObjectsDict"]
-        # Add the microscope object to each plateholder that was removed when the dict was pickled
+        # Add the microscope object to each plateholder that was removed
+        # when the dict was pickled
         for object in next_experiment_objects_dict.values():
             while object.container is not None:
                 if isinstance(object.container, samples.PlateHolder):
@@ -2086,9 +2124,10 @@ class MicroscopeAutomation(object):
         Input:
          imaging_settings: dictionary with preferences
 
-         plate_holder_object: object of type PlateHolder from module sample with well information
+         plate_holder_object: object of type PlateHolder
+         from module sample with well information
 
-         experiment: dictionary with keys 'Experiment', Repetitions', 'Input', 'Output']
+         experiment: dictionary with keys 'Experiment', Repetitions', 'Input', 'Output'
          from workflow with information about specific experiment
 
          repetition: counter for time lapse experiments
@@ -2122,7 +2161,8 @@ class MicroscopeAutomation(object):
                     )
 
                 # Readjust the focus if continuing from scanCells
-                # To readjust the focus get the experiment name of the focusing block from the pref file
+                # To readjust the focus get the experiment name
+                # of the focusing block from the pref file
                 update_z_function_name = imaging_settings.get_pref(
                     "DefineFocusBlockName"
                 )
@@ -2151,7 +2191,7 @@ class MicroscopeAutomation(object):
                 # Extract the sample list
                 sampleList = plate_object.get_from_image_dir(list_name)
                 current_samples = copy.copy(sampleList)
-                # Update the sample list by removing the positions that were imaged already
+                # Update sample list by removing positions that were imaged already
                 last_exp_objects = experiment["LastExpObjects"]
                 if sampleList is not None:
                     for sample in sampleList:
@@ -2197,7 +2237,8 @@ class MicroscopeAutomation(object):
         # Initialize a Experiment object
         experiment_name = imaging_settings.get_pref("Experiment")
 
-        # Check if the experiment is actually needed (for example, segmentation doesn't need a Zen experiment)
+        # Check if the experiment is actually needed
+        # (for example, segmentation doesn't need a Zen experiment)
         if experiment_name != "NoExperiment":
             experiment_path = get_experiment_path(imaging_settings)
             zen_experiment = hardware_components.Experiment(
@@ -2311,7 +2352,8 @@ class MicroscopeAutomation(object):
             )
             workflow_experiments = [step["Experiment"] for step in workflow]
             original_workflow = copy.copy(workflow_experiments)
-            # Update the experiment list with experiments starting from continue_experiment and the ones after it
+            # Update the experiment list with experiments starting
+            # from continue_experiment and the ones after it
             for step in workflow:
                 if step["Experiment"] != continue_experiment:
                     workflow_experiments.remove(step["Experiment"])
@@ -2357,7 +2399,8 @@ class MicroscopeAutomation(object):
             # Set up the hardware status in the microscope object
             microscope_object.objective_ready_dict = hardware_status_dict
             # Set up objects dict for backtracking - remove unnecessary objects
-            # won't work for planned interruption workflow so only do it if its of the type unplanned
+            # won't work for planned interruption workflow
+            # so only do it if its of the type unplanned
             # planned interruptions dict value are objects, unplanned ones are list
             objects_dict = OrderedDict()
             if isinstance(next_objects_dict.values(), list):
@@ -2368,7 +2411,7 @@ class MicroscopeAutomation(object):
                     objects_list = next_objects_dict[previous_experiment]
                     for obj in objects_list:
                         objects_dict.update({obj.get_name(): obj})
-                except:
+                except Exception:
                     objects_dict = None
             else:
                 objects_dict = next_objects_dict
@@ -2439,7 +2482,8 @@ class MicroscopeAutomation(object):
         for barcode, plate_object in plate_objects.items():
             # execute each measurement based on experiment in workflow
             for experiment in workflow:
-                # attach additional parameters to experiment to propagate into all the scanning functions
+                # attach additional parameters to experiment to propagate
+                # into all the scanning functions
                 experiment["WorkflowList"] = workflow_experiments
                 experiment["OriginalWorkflow"] = original_workflow
                 experiment["WorkflowType"] = workflow_type
@@ -2471,7 +2515,7 @@ class MicroscopeAutomation(object):
 
                 # set blocking/non-blocking for error messages
                 # TODO - blocking is not used anywhere - inquire!
-                blocking = imaging_settings.get_pref("Blocking", VALID_BLOCKING)
+                blocking = imaging_settings.get_pref("Blocking", VALID_BLOCKING)  # noqa
                 # get function to perform experiment
                 function_name = imaging_settings.get_pref(
                     "FunctionName", valid_values=VALID_FUNCTIONNAME
@@ -2479,20 +2523,19 @@ class MicroscopeAutomation(object):
                 function_to_use = getattr(self, function_name)
                 # For segment wells, it is better to not display the dialog box
                 # Reason - to make the workflow more seamless for the scientists
-                # With this, they can leave after starting the 10X scan and come back after segmentation
-                # to approve positions. Instead of coming after the 10x scan to press ok for segment wells
+                # With this, they can leave after starting the 10X scan
+                # and come back after segmentation to approve positions.
+                # Instead of coming after the 10x scan to press ok for segment wells
                 if function_name != "segment_wells":
                     if self.less_dialog:
-                        # if less dialog option enabled, fake user press and continue (return code 1)
+                        # if less dialog option enabled, fake user press
+                        # and continue (return code 1)
                         return_code = 1
                     else:
                         return_code = message.information_message(
                             "{}".format(experiment["Experiment"]), "", returnCode=True
                         )
-                        # " Output = "+str(experiment['Output']) +
-                        # "\n Input = "+str(experiment['Input']) +
-                        # "\n Repetitions = "+str(experiment['Repetitions']),
-                        # returnCode=True)
+
                 # If return_code is 0, user pressed cancel
                 else:
                     return_code = 1
