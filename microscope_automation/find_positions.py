@@ -4,8 +4,8 @@ Created on Aug 23, 2018
 Tools to find positions for imaging
 @author: winfriedw
 """
-import samples
-from well_overview_segmentation import WellSegmentation
+from microscope_automation.samples import samples
+from microscope_automation.samples.well_overview_segmentation import WellSegmentation
 
 
 def copy_zero_position(sample_object, output_class, image, z_center_background=0):
