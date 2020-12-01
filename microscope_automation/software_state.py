@@ -7,22 +7,21 @@ import sys
 import samples
 from collections import OrderedDict
 
-REFERENCE_OBJECT = 'reference_object'
-NEXT_EXP_OBJECTS = 'next_objects_dict'
-LAST_EXP_OBJECTS = 'last_exp_objects_list'
-HARDWARE_STATUS = 'hardware_status_dict'
+REFERENCE_OBJECT = "reference_object"
+NEXT_EXP_OBJECTS = "next_objects_dict"
+LAST_EXP_OBJECTS = "last_exp_objects_list"
+HARDWARE_STATUS = "hardware_status_dict"
 
 
 # When pickling fails, this method prints out objects it pickled
 # It helps pinpoint what exactly could not be pickled.
 class DiagnosticPickler(pickle.Pickler):
     def save(self, obj):
-        print('pickling object' + obj + 'of type' + type(obj))
+        print("pickling object" + obj + "of type" + type(obj))
         pickle.Pickler.save(self, obj)
 
 
 class State(object):
-
     def __init__(self, recovery_file_path=None):
         """Function to initialize the object
 
@@ -33,8 +32,10 @@ class State(object):
         self.reference_object = None
         # List of wells/cells names that have already been imaged, to be able to continue right where we left off
         self.last_experiment_objects = []
-        self.next_experiment_objects = OrderedDict()  # {Function Name: list of objects acquired for the next experiment}
-        self.hardware_status_dict = {}     # If the objectives were already initialized
+        self.next_experiment_objects = (
+            OrderedDict()
+        )  # {Function Name: list of objects acquired for the next experiment}
+        self.hardware_status_dict = {}  # If the objectives were already initialized
         self.recovery_file_path = recovery_file_path
 
         # Kruft
@@ -73,7 +74,7 @@ class State(object):
         pickle_dict[HARDWARE_STATUS] = self.hardware_status_dict
         # Generate the file name for the particular interrupt
         try:
-            with open(self.recovery_file_path, 'wb') as f:
+            with open(self.recovery_file_path, "wb") as f:
                 pickle.dump(pickle_dict, f, pickle.HIGHEST_PROTOCOL)
                 print("State was saved in the recovery file")
                 f.close()
@@ -111,11 +112,17 @@ class State(object):
         """
         current_object = base_object
         if current_object.microscope is not None:
-            current_object.microscope.get_control_software().connection.Zen = self.zen_instance
+            current_object.microscope.get_control_software().connection.Zen = (
+                self.zen_instance
+            )
         while current_object.container is not None:
             if isinstance(current_object.container, samples.PlateHolder):
-                current_object.container.microscope.get_control_software().connection.Zen = self.zen_instance
-                current_object.container.microscope.get_control_software().connection.image = self.ref_image
+                current_object.container.microscope.get_control_software().connection.Zen = (
+                    self.zen_instance
+                )
+                current_object.container.microscope.get_control_software().connection.image = (
+                    self.ref_image
+                )
             current_object = current_object.container
 
     def prune_object_dict(self):
@@ -150,15 +157,25 @@ class State(object):
         """
         current_object = base_object
         if current_object.microscope is not None:
-            self.zen_instance = current_object.microscope.get_control_software().connection.Zen
+            self.zen_instance = (
+                current_object.microscope.get_control_software().connection.Zen
+            )
             current_object.microscope.get_control_software().connection.Zen = None
         while current_object.container is not None:
             if isinstance(current_object.container, samples.PlateHolder):
                 if self.zen_instance is None:
-                    self.zen_instance = current_object.container.microscope.get_control_software().connection.Zen
-                current_object.container.microscope.get_control_software().connection.Zen = None
-                self.ref_image = current_object.container.microscope.get_control_software().connection.image
-                current_object.container.microscope.get_control_software().connection.image = None
+                    self.zen_instance = (
+                        current_object.container.microscope.get_control_software().connection.Zen
+                    )
+                current_object.container.microscope.get_control_software().connection.Zen = (
+                    None
+                )
+                self.ref_image = (
+                    current_object.container.microscope.get_control_software().connection.image
+                )
+                current_object.container.microscope.get_control_software().connection.image = (
+                    None
+                )
             current_object = current_object.container
 
     def add_next_experiment_object(self, experiment_name, exp_object_list):
@@ -185,7 +202,7 @@ class State(object):
          tuple of recovered objects in the form (next_experiment_objects,
          reference_object, last_experiment_objects, hardware_status_dict)
         """
-        with open(file_path, 'rb') as handle:
+        with open(file_path, "rb") as handle:
             pickle_dict = pickle.load(handle)
             self.last_experiment_objects = []
             self.next_experiment_objects = OrderedDict()
@@ -194,8 +211,12 @@ class State(object):
         self.reference_object = pickle_dict[REFERENCE_OBJECT]
         self.last_experiment_objects = pickle_dict[LAST_EXP_OBJECTS]
         self.hardware_status_dict = pickle_dict[HARDWARE_STATUS]
-        return (self.next_experiment_objects, self.reference_object,
-                self.last_experiment_objects, self.hardware_status_dict)
+        return (
+            self.next_experiment_objects,
+            self.reference_object,
+            self.last_experiment_objects,
+            self.hardware_status_dict,
+        )
 
     def add_last_experiment_object(self, exp_object_name):
         """Add objects to the list for last experiment objects to keep track of which
