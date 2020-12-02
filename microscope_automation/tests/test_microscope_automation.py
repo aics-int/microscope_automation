@@ -8,6 +8,7 @@ Created on December 1, 2020
 import pytest
 import os
 from mock import patch
+from microscope_automation.preferences import Preferences
 from microscope_automation.samples import samples
 from microscope_automation import microscope_automation
 
@@ -57,3 +58,82 @@ def test_get_well_object(prefs_path, plate_holder_name, plate_name,
 
     assert result.name == well
     assert result.__class__ == samples.Well
+
+
+@pytest.mark.skipif(skip_all_tests, reason="Exclude all tests")
+@pytest.mark.parametrize(
+    ("prefs_path, well_name, barcode_name"),
+    [
+        ("data/preferences_ZSD_test.yml", "A1", "1234"),
+    ],
+)
+def test_get_barcode_object(prefs_path, well_name, barcode_name, helpers):
+    mic_auto = helpers.setup_local_microscope_automation(prefs_path)
+    well_object = helpers.setup_local_well(helpers, name=well_name)
+    barcode_object = samples.Barcode(name=barcode_name)
+    well_object.add_barcode({barcode_name: barcode_object})
+
+    result = mic_auto.get_barcode_object(well_object, barcode_name)
+
+    assert result.name == barcode_name
+    assert result.__class__ == samples.Barcode
+
+
+@patch(
+    "microscope_automation.samples.samples.PlateHolder.execute_experiment"
+)
+@patch("microscope_automation.automation_messages_form_layout.operate_message")
+@pytest.mark.skipif(skip_all_tests, reason="Exclude all tests")
+@pytest.mark.parametrize(
+    ("prefs_path, pref_name, plate_holder_name, plate_name, "
+     "well_name, barcode_name, expected"),
+    [
+        ("data/preferences_ZSD_test.yml", "ImageBarcode", "Plateholder",
+         "96-well", "A1", "1234", "Not implemented"),
+        ("data/preferences_ZSD_test.yml", "ImageBarcode", "Plateholder",
+         "96-well", None, None, "AttributeError"),
+    ],
+)
+def test_read_barcode(mock_message, mock_execute, prefs_path, pref_name,
+                      plate_holder_name, plate_name, well_name, barcode_name,
+                      expected, helpers):
+    # if prefs_path:
+    #     (
+    #         microscope,
+    #         stage_id,
+    #         focus_id,
+    #         autofocus_id,
+    #         obj_changer_id,
+    #         safety_id,
+    #     ) = helpers.microscope_for_samples_testing(helpers, prefs_path)
+    # else:
+    #     microscope = None
+
+    mic_auto = helpers.setup_local_microscope_automation(prefs_path)
+    well_object = helpers.setup_local_well(helpers, name=well_name,
+                                           plate_name=plate_name)
+    plate_holder_object = helpers.setup_local_plate_holder(
+        helpers,
+        name=plate_holder_name,
+        prefs_path=prefs_path
+    )
+    plate_object = well_object.container
+    plate_object.set_container(plate_holder_object)
+    plate_object.add_wells({well_name: well_object})
+    plate_holder_object.add_plates({plate_name: plate_object})
+    barcode_object = samples.Barcode(name=barcode_name)
+    barcode_object.set_container(well_object)
+    well_object.add_barcode({barcode_name: barcode_object})
+
+    try:
+        result = mic_auto.read_barcode(
+            Preferences(prefs_path).get_pref_as_meta(pref_name),
+            plate_holder_object,
+            plate_name,
+            well_name,
+            barcode_name
+        )
+    except Exception as err:
+        result = type(err).__name__
+
+    assert result == expected

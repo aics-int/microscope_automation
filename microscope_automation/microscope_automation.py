@@ -212,7 +212,6 @@ class MicroscopeAutomation(object):
         Output:
          barcode_object: object for barcode
         """
-
         # get dictionary of all samples associated with well
         sample_objects = well_object.get_samples()
         barcode_object = sample_objects[barcode]
@@ -255,7 +254,7 @@ class MicroscopeAutomation(object):
             well_object = self.get_well_object(plate_holder_object, barcode, well)
         else:
             well_object = self.get_well_object(plate_holder_object, barcode, well)
-            well_object.move_to_well()
+            well_object.get_container().move_to_well(well)
 
         # get barcode object
         barcode_object = self.get_barcode_object(well_object, barcode_name)
