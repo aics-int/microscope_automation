@@ -160,9 +160,7 @@ def stop_script(message_text=None, allow_continue=False):
 class MicroscopeAutomation(object):
     def __init__(self, prefs_path):
         self.prefs = preferences.Preferences(prefs_path)
-        recovery_file_path = get_recovery_settings_path(
-            self.prefs.get_pref("RecoverySettingsFilePath")
-        )
+        recovery_file_path = get_recovery_settings_path(self.prefs)
 
         # Create the recovery folder if it does not exist.
         rec_folder_path = os.path.dirname(recovery_file_path)
