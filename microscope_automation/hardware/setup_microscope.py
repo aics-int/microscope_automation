@@ -194,9 +194,9 @@ def setup_pump(specs, microscope):
     if pump_specifications:
         pump_object = hardware_components.Pump(
             pump_id=pump_specifications.get_pref("Name"),
-            seconds=pump_specifications.get_pref("TimePump"),
-            port=pump_specifications.get_pref("ComPortPump"),
-            baudrate=pump_specifications.get_pref("BaudratePump"),
+            seconds=pump_specifications.get_pref("Time"),
+            port=pump_specifications.get_pref("ComPort"),
+            baudrate=pump_specifications.get_pref("Baudrate"),
         )
         microscope.add_microscope_object(pump_object)
 

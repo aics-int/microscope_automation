@@ -289,7 +289,6 @@ class MicroscopeAutomation(object):
         Output:
          none
         """
-
         # iterate through all plates on plate holder
         plates = plate_holder_object.get_plates()
 
@@ -317,7 +316,7 @@ class MicroscopeAutomation(object):
             # set measuredDiameter for all wells to measuredDiameter from reference well
             # update calibration correction for all wells
             for well_name, well_object in wells.items():
-                well_object.set_measuredDiameter(measured_diameter)
+                well_object.set_measured_diameter(measured_diameter)
                 x_correction = (
                     well_object.get_measured_diameter()
                     / well_object.get_assigned_diameter()

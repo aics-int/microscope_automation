@@ -88,27 +88,15 @@ def test_get_barcode_object(prefs_path, well_name, barcode_name, helpers):
     ("prefs_path, pref_name, plate_holder_name, plate_name, "
      "well_name, barcode_name, expected"),
     [
-        ("data/preferences_ZSD_test.yml", "ImageBarcode", "Plateholder",
+        ("data/preferences_ZSD_2_test.yml", "ImageBarcode", "Plateholder",
          "96-well", "A1", "1234", "Not implemented"),
-        ("data/preferences_ZSD_test.yml", "ImageBarcode", "Plateholder",
+        ("data/preferences_ZSD_2_test.yml", "ImageBarcode", "Plateholder",
          "96-well", None, None, "AttributeError"),
     ],
 )
 def test_read_barcode(mock_message, mock_execute, prefs_path, pref_name,
                       plate_holder_name, plate_name, well_name, barcode_name,
                       expected, helpers):
-    # if prefs_path:
-    #     (
-    #         microscope,
-    #         stage_id,
-    #         focus_id,
-    #         autofocus_id,
-    #         obj_changer_id,
-    #         safety_id,
-    #     ) = helpers.microscope_for_samples_testing(helpers, prefs_path)
-    # else:
-    #     microscope = None
-
     mic_auto = helpers.setup_local_microscope_automation(prefs_path)
     well_object = helpers.setup_local_well(helpers, name=well_name,
                                            plate_name=plate_name)
@@ -132,6 +120,51 @@ def test_read_barcode(mock_message, mock_execute, prefs_path, pref_name,
             plate_name,
             well_name,
             barcode_name
+        )
+    except Exception as err:
+        result = type(err).__name__
+
+    assert result == expected
+
+
+@pytest.mark.skipif(skip_all_tests, reason="Exclude all tests")
+@pytest.mark.parametrize(
+    ("prefs_path, pref_name, plate_holder_name, plate_name, "
+     "well_names, well_diameter, experiment, expected"),
+    [
+        ("data/preferences_ZSD_2_test.yml", "CalibrateWellDistance", "Plateholder",
+         "96-well", ["B2", "B11", "G11"], None, "ImageBarcode.czexp",
+         "TypeError"),
+        ("data/preferences_ZSD_2_test.yml", "CalibrateWellDistance", "Plateholder",
+         "96-well", ["B2", "B11", "G11"], 6134, "ImageBarcode.czexp",
+         None),
+        ("data/preferences_ZSD_2_test.yml", "ImageBarcode", "Plateholder",
+         "96-well", [], None, None, "AttributeError"),
+    ],
+)
+def test_calculate_all_wells_correction(prefs_path, pref_name,
+                                        plate_holder_name, plate_name, well_names,
+                                        well_diameter, experiment, expected, helpers):
+    mic_auto = helpers.setup_local_microscope_automation(prefs_path)
+    plate_object = helpers.setup_local_plate(helpers, name=plate_name)
+    plate_holder_object = helpers.setup_local_plate_holder(
+        helpers,
+        name=plate_holder_name,
+        prefs_path=prefs_path
+    )
+    plate_object.set_container(plate_holder_object)
+    plate_holder_object.add_plates({plate_name: plate_object})
+    for name in well_names:
+        well = helpers.setup_local_well(helpers, name=name)
+        well.set_measured_diameter(well_diameter)
+        well.container = plate_object
+        plate_object.add_wells({name: well})
+
+    try:
+        result = mic_auto.calculate_all_wells_correction(
+            Preferences(prefs_path).get_pref_as_meta(pref_name),
+            plate_holder_object,
+            experiment
         )
     except Exception as err:
         result = type(err).__name__
