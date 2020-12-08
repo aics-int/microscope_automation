@@ -78,7 +78,7 @@ VALID_FUNCTIONNAME = [
     "initialize_microscope",
     "set_objective_offset",
     "set_up_objectives",
-    "update_plate_zZero",
+    "update_plate_z_zero",
     "calculate_plate_correction",
     "calculate_all_wells_correction",
     "setup_immersion_system",
@@ -236,7 +236,7 @@ class MicroscopeAutomation(object):
          well: well the barcode is associated with in format 'A1'.
          If empty ask user to navigate to barcode.
 
-        Return:
+        Output:
          barcode: id encoded in barcode
         """
         # set debugging level
@@ -332,7 +332,7 @@ class MicroscopeAutomation(object):
         Input:
          prefs: dictionary with preferences
 
-         plate_holder_instance: instance for plateholder that contains well
+         plate_holder_instance: instance for plateholder that contains immersion system
 
         Output:
          none
@@ -348,12 +348,14 @@ class MicroscopeAutomation(object):
 
         # move objective under immersion water outlet and assign position
         # of outlet to immersion delivery object
-        focus_drive = plate_holder_instance.get_focus()
+        microscope = plate_holder_instance.get_microscope()
+        focus_id = plate_holder_instance.get_focus_id()
+        focus_drive = microscope._get_microscope_object(focus_id)
         load_position = focus_drive.get_load_position()
 
         # get communication object
         communication_object = (
-            plate_holder_instance.microscope.get_control_software().connection
+            plate_holder_instance.microscope._get_control_software().connection
         )
 
         # Make sure load position is defined for focus drive
@@ -396,7 +398,7 @@ class MicroscopeAutomation(object):
         immersion_delivery.set_zero(verbose=verbose)
 
         # move away from delivery system to avoid later collisions
-        immersion_delivery.move_to_save()
+        immersion_delivery.move_to_safe()
         magnification = prefs.get_pref("MaginificationImmersionSystem")
         immersion_delivery.magnification = magnification
 
@@ -428,10 +430,10 @@ class MicroscopeAutomation(object):
         # retrieve information about mounted objectives
         # This part will detect all objectives defined in the touch pad software.
         microscope_instance = plate_holder_instance.get_microscope()
-        objective_changer_instance = microscope_instance.get_microscope_object(
+        objective_changer_instance = microscope_instance._get_microscope_object(
             plate_holder_instance.objective_changer_id
         )
-        communication_object = microscope_instance.get_control_software().connection
+        communication_object = microscope_instance._get_control_software().connection
         objectives_dict = objective_changer_instance.get_all_objectives(
             communication_object
         )
@@ -540,8 +542,7 @@ class MicroscopeAutomation(object):
          plate_holder_object: object that contains all plates
          and all wells with sample information.
 
-         _experiment: dictionary with keys 'Experiment', Repetitions', 'Input', 'Output'
-         (not used, for compatibility only)
+         _experiment: not used, necessary for compatibility
 
         Output:
          none
@@ -556,11 +557,11 @@ class MicroscopeAutomation(object):
         # iterate through all plates on plate holder
         plates = plate_holder_object.get_plates()
 
-        for plateName, plateObject in plates.items():
+        for plate_name, plate_object in plates.items():
             for experiment in experiments_list:
                 microscope_object.create_experiment_path(experiment)
 
-                objective_changer_id = plateObject.get_objective_changer_id()
+                objective_changer_id = plate_object.get_objective_changer_id()
                 objective_changer = microscope_object.get_microscope_object(
                     objective_changer_id
                 )
@@ -570,12 +571,12 @@ class MicroscopeAutomation(object):
                     initialize_components_ordered_dict={
                         objective_changer_id: {"no_find_surface"}
                     },
-                    reference_object=plateObject.get_reference_object(),
+                    reference_object=plate_object.get_reference_object(),
                     trials=3,
                     verbose=verbose,
                 )
 
-    def set_up_Koehler(self, initialize_prefs, plate_object):
+    def set_up_koehler(self, initialize_prefs, plate_object):
         """Set up Koehler illumination.
 
         Input:
@@ -615,16 +616,16 @@ class MicroscopeAutomation(object):
             well_object.move_to_zero(load=load, verbose=verbose)
         else:
             raise AutomationError(
-                "Microscope not ready in update_plate_zZero with experiment {}".format(
+                "Microscope not ready in update_plate_z_zero with experiment {}".format(
                     zen_experiment
                 )
-            )  # noqa
+            )
 
         microscope_object.live_mode(camera_id, experiment=zen_experiment, live=True)
         message.operate_message("Set-up Koehler illumination.")
         microscope_object.live_mode(camera_id, experiment=zen_experiment, live=False)
 
-    def initialize_microscope(self, initialize_prefs, plate_holder_object, experiment):
+    def initialize_microscope(self, initialize_prefs, plate_holder_object, _experiment):
         """Update z positions for plate (upper side of coverslip)
         Set load and work positions for focus drive.
 
@@ -634,8 +635,7 @@ class MicroscopeAutomation(object):
          plate_holder_object: object of type PlateHolder
          from module sample with well information
 
-         experiment: dictionary with keys 'Experiment', Repetitions', 'Input', 'Output'
-         from workflow with information about specific experiment
+         _experiment: not used, necessary for compatibility
 
         Output:
          none
@@ -696,7 +696,7 @@ class MicroscopeAutomation(object):
 
             # set Koehler illumination
             if initialize_prefs.get_pref("Koehler", valid_values=VALID_KOEHLER):
-                self.set_up_Koehler(initialize_prefs, plate)
+                self.set_up_koehler(initialize_prefs, plate)
 
         # ask user to enable laser safety
         if initialize_prefs.get_pref("LaserSafety", valid_values=VALID_LASERSAFETY):
@@ -708,7 +708,7 @@ class MicroscopeAutomation(object):
 
     ################################################################################
 
-    def update_plate_zZero(self, image_settings, plate_holder_object, experiment):
+    def update_plate_z_zero(self, image_settings, plate_holder_object, experiment):
         """Update z positions for plate (upper side of coverslip)
         Set load and work positions for focus drive.
 
@@ -726,7 +726,7 @@ class MicroscopeAutomation(object):
         """
         # set debugging level
         verbose = image_settings.get_pref("Verbose", valid_values=VALID_VERBOSE)
-        print("\n\nStart to update z zero settings for plates (update_plate_zZero)")
+        print("\n\nStart to update z zero settings for plates (update_plate_z_zero)")
 
         trials = image_settings.get_pref("NumberTrials")
         # iterate through all plates on plate holder
@@ -768,7 +768,7 @@ class MicroscopeAutomation(object):
             else:
                 raise AutomationError(
                     (
-                        "Microscope not ready in update_plate_zZero"
+                        "Microscope not ready in update_plate_z_zero"
                         " with experiment {}"
                     ).format(zen_experiment)
                 )
@@ -824,7 +824,7 @@ class MicroscopeAutomation(object):
 
     ################################################################################
 
-    def calculate_plate_correction(self, prefs, plate_holder_object, experiment):
+    def calculate_plate_correction(self, prefs, plate_holder_object, _experiment):
         """Calculate correction factor for plate coordinate system.
 
         Input:
@@ -832,8 +832,7 @@ class MicroscopeAutomation(object):
 
          plate_holder_object: object for plate that contains well
 
-         experiment: dictionary with keys 'Experiment', Repetitions', 'Input', 'Output'
-         from workflow with information about specific experiment
+         _experiment: not used, necessary for compatibility
 
         Output:
          none
@@ -841,7 +840,8 @@ class MicroscopeAutomation(object):
         # set debugging level
         verbose = prefs.get_pref("Verbose", valid_values=VALID_VERBOSE)
         print(
-            "\n\nStart to acquire images for plate correction (calculate_plate_correction)"  # noqa
+            "\n\nStart to acquire images for plate correction"
+            " (calculate_plate_correction)"
         )
 
         # iterate through all plates on plate holder
@@ -877,14 +877,14 @@ class MicroscopeAutomation(object):
             ):
                 raise AutomationError(
                     (
-                        "Microscope not ready in update_plate_zZero"
+                        "Microscope not ready in calculate_plate_correction"
                         " with experiment {}"
                     ).format(zen_experiment)
                 )
 
             def find_well_center(well_object, well_index, verbose=verbose):
                 well_object.move_delta_xyz(
-                    -well_diameter / 2, 0, 0, load=False, verbose=verbose
+                    well_diameter / 2, 0, 0, load=False, verbose=verbose
                 )
                 well_object.live_mode_start(
                     camera_id=camera_id, experiment=zen_experiment
@@ -949,7 +949,7 @@ class MicroscopeAutomation(object):
                 plate_holder_object.get_pos_from_abs_pos(*centers, verbose=verbose)
                 for centers in well_center_abs
             ]
-
+            print(well_center_abs)
             x_plate_holder_distance = (
                 plate_holder_centers[1][0] - plate_holder_centers[0][0]
             )
@@ -957,6 +957,7 @@ class MicroscopeAutomation(object):
                 plate_holder_centers[2][1] - plate_holder_centers[1][1]
             )
 
+            print(plate_centers)
             # calculate corrections
             x_plate_holder_correction = x_plate_holder_distance / x_plate_distance
             y_plate_holder_correction = y_plate_holder_distance / y_plate_distance
@@ -1045,6 +1046,7 @@ class MicroscopeAutomation(object):
 
     def scan_wells_zero(self, prefs, plate_holder_object, barcode):
         """Scan selected wells at center.
+        This method is mainly used to test calibrations.
 
         Input:
          prefs: dictionary with preferences
@@ -1054,10 +1056,8 @@ class MicroscopeAutomation(object):
 
          barcode: barcode for plate, often used as plate name
 
-        Return:
+        Output:
          none
-
-        This method is mainly used to test calibrations.
         """
         # set debugging level
         verbose = prefs.get_pref("Verbose", valid_values=VALID_VERBOSE)
@@ -1313,7 +1313,7 @@ class MicroscopeAutomation(object):
           Plate: Reset wait status after each plate
           Repetition: Reset wait status after each repetition
 
-        Return:
+        Output:
          none
         """
         # get settings from imaging_settings
@@ -2137,7 +2137,7 @@ class MicroscopeAutomation(object):
           Plate: Reset wait status after each plate
           Repetition: Reset wait status after each repetition
 
-        Return:
+        Output:
          none
         """
         plates = plate_holder_object.get_plates()
@@ -2183,7 +2183,7 @@ class MicroscopeAutomation(object):
                 experiment_dict["WorkflowList"] = experiment["WorkflowList"]
                 experiment_dict["OriginalWorkflow"] = experiment["OriginalWorkflow"]
                 if update_z_function_name not in workflow_list:
-                    self.update_plate_zZero(
+                    self.update_plate_z_zero(
                         settings, plate_holder_object, experiment_dict
                     )
 

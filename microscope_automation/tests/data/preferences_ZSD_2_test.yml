@@ -61,7 +61,7 @@ PathCalibration: ['J:\Winfried\Production\GeneralSettings\Calibration\', '/Users
 # All paths are relative to daily folder
 ColonyDirPath: &ColonyDirPathRef CeligoColonyData
 ReferenceDirPath: References
-LogFilePath: LogFiles\MicroscopeAutomation.log
+WellEdgeDirPath: WellEdge
 
 # Whether to show all dialog boxes or less depending on the user's skill level
 LessDialog: False                                # Set "False": All diag boxes (default)   |   Set "True": Minimal diag boxes
@@ -69,6 +69,7 @@ LessDialog: False                                # Set "False": All diag boxes (
 # Settings to initialize microscope
 InitializeMicroscope:
  FunctionName: initialize_microscope              # Name of function in Python code in module microscopeAutomation that will process this experiment
+ Verbose: False
  NumberTrials: 3                                  # How often a user is given the chance to set up the system in a correct way
  SetupFolders: True                               # Setup image folder
  CopyColonyFile: False                            # Copy colony file
@@ -141,7 +142,7 @@ SetUpObjectives:
  xSetUpObjectives: 61415                                    # x stage coordinates in um to set-up objectives
  ySetUpObjectives: 30694                                    # y stage coordinates in um to set-up objectives
  zSetUpObjectives: 0                                        # z focus position in um to set-up objectives
- ExperimentSetUpObjectives: ImageFindWellCenter_10x.czexp
+ ExperimentSetUpObjectives: ImageBarcode.czexp
  CameraSetUpObjectives: Camera1 (Back)
 
 # Set work and load positions for focus drive.
@@ -186,12 +187,13 @@ ImageBarcode:
 CalibrateWellDistance:
  FunctionName: calculate_plate_correction            # Name of function in Python code in module microscopeAutomation that will process this experiment
  Verbose: False                                      # print debug messages?
+ NumberTrials: 3                                     # How often a user is given the chance to set up the system in a correct way
  Blocking: True                                      # open modal dialog in case of error
  WellCalibrateWell_1: &WellCalibrateWell_1_ref B2    # used to calculate zero position of plate on plate holder. Used for correction factor in  x and slope z
  WellCalibrateWell_2: &WellCalibrateWell_2_ref B11   # distance to well_1 will determine correction factor for x. Used for correction factor in  y and slope z
  WellCalibrateWell_3: &WellCalibrateWell_3_ref G11   # distance to well_2 will determine correction factor for y. Used for correction factor slope z
  UseAutoFocus: True                                  # use autofocus instead of values based on calibration
- Experiment: ScanWell_10x.czexp
+ Experiment: WellTile_10x.czexp
  Camera: Camera1 (Back)
  WellDiameterCalibrateWell: 6134                  # diameter in mum
  Load: False                                      # Load between objects
@@ -214,11 +216,11 @@ SetupImmersionSystem:
  Verbose: False                                                 # print debug messages?
  Blocking: True                                                 # open modal dialog in case of error
  NameImmersionSystem: BraintreeScientific                       # Name for immersion delivery system
- ExperimentSetupImmersionSystem: ImageFindWellCenter_10x.czexp
+ ExperimentSetupImmersionSystem: ImageBarcode.czexp
  CameraSetupImmersionSystem: Camera1 (Back)
 # DeliverWaterSetupImmersionSystem: True                         # Deliver water to objective after setup
  xImmersionSystem: 5722                                          # x position of immersion water outlet in stage mum
- yImmersionSystem: 84762                                         # Y position of immersion water outlet in stage mum
+ yImmersionSystem: 71200                                         # Y position of immersion water outlet in stage mum
 # MaginificationImmersionSystem: 100.0                           # Magnification of water immersion objective
  CameraDeliverSystem: Camera1 (Back)
 
@@ -294,7 +296,7 @@ ScanPlate:
  Verbose: False                                 # print debug messages?
  Blocking: False                                # open modal dialog in case of error
  Wells: *ScanPlateWells
- Experiment: ScanWell_10x.czexp
+ Experiment: WellTile_10x.czexp
  Camera: Camera1 (Back)
  Folder: wellScan                               # images of colonies will be stored within this folder
                                                 # create file name: list with string parts that will be concatinated
@@ -565,3 +567,32 @@ ScanCells:
  xPitchTile: 499.20
  yPitchTile: 499.20
  FindType: 'None'
+
+Koehler:
+ FunctionName: initialize_microscope              # Name of function in Python code in module microscopeAutomation that will process this experiment
+ Verbose: False                                   # print debug messages?
+ NumberTrials: 3                                  # How often a user is given the chance to set up the system in a correct way
+ SetupFolders: False                              # Setup image folder
+ CopyColonyFile: False                            # Copy colony file
+ ColonyFileFolder: ['\\allen\aics\microscopy\PRODUCTION\Summary\CeligoDailyScans', '../PlateSpecifications']   # Network folder with colony file
+ ColonyDirPath: *ColonyDirPathRef
+ AddColonies: False                               # add colony information from Hamilton to plate
+ Hardware: False                                  # Initialize hardware
+ Experiment: WellTile_10x.czexp                      # Experiment setting in ZEN blue used for microscope initialization
+ Camera: Camera1 (Back)
+ UseAutoFocus: False                              # use autofocus instead of values based on calibration
+ UseReference: False                            # Should reference postition been used?
+ FindLoad: False                                  # Ask user to move objective in load position and save
+ MaxLoadPosition: 50                              # Maximum focus position that will be accepted as load
+ LaserSafety: False                               # Enable laser safety
+ Koehler: True                                    # Set Koehler illumination
+ StageID: Marzhauser                              # Name of stage used to set up Koehler illumination
+ FocusID: MotorizedFocus                          # Name of focus drive used to set up Koehler illumination
+ SafeAreaID: ZSD_02_plate                         # Name of safe area used to avoid hardware collisions
+ Well: E7                                         # Well used to set Koehler
+ Load: False                                      # Go to load position when moving objective to Koehler well
+ Wait:                                            # Wait for user input after imaging and before removing image from display (has no effect in this experiment module)
+  Image: False                                      # Wait after each image
+  Plate: False                                      # Reset wait status after each plate
+  Repetition: False                                 # Reset wait status after each repetition
+ Blocking: False                                  # open modal dialog in case of error (has no effect in this experiment module)

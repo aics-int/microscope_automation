@@ -180,7 +180,7 @@ ObjectiveOffsets:
 
 # Set z-zero positions for plate and wells
 UpdatePlateWellZero_10x:
- FunctionName: update_plate_zZero               # Name of function in Python code in module microscopeAutomation that will process this experiment
+ FunctionName: update_plate_z_zero               # Name of function in Python code in module microscopeAutomation that will process this experiment
  Verbose: False                                 # print debug messages?
  NumberTrials: 3                                  # How often a user is given the chance to set up the system in a correct way
  Wait:                                            # Wait for user input after imaging and before removing image from display (has no effect in this experiment module)
@@ -199,7 +199,7 @@ UpdatePlateWellZero_10x:
  WellsBeforeAddImmersionWater: 0                # Number of wells to be imaged before water is added to objective. Water will be added before first well.
 
 UpdatePlateWellZero_20x:
- FunctionName: update_plate_zZero               # Name of function in Python code in module microscopeAutomation that will process this experiment
+ FunctionName: update_plate_z_zero               # Name of function in Python code in module microscopeAutomation that will process this experiment
  Verbose: False                                 # print debug messages?
  NumberTrials: 3                                  # How often a user is given the chance to set up the system in a correct way
  Wait:                                            # Wait for user input after imaging and before removing image from display (has no effect in this experiment module)
@@ -218,7 +218,7 @@ UpdatePlateWellZero_20x:
  WellsBeforeAddImmersionWater: 0                # Number of wells to be imaged before water is added to objective. Water will be added before first well.
 
 UpdatePlateWellZero_100x:
- FunctionName: update_plate_zZero               # Name of function in Python code in module microscopeAutomation that will process this experiment
+ FunctionName: update_plate_z_zero               # Name of function in Python code in module microscopeAutomation that will process this experiment
  Verbose: False                                 # print debug messages?
  NumberTrials: 3                                  # How often a user is given the chance to set up the system in a correct way
  Wait:                                            # Wait for user input after imaging and before removing image from display (has no effect in this experiment module)

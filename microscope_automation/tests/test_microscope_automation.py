@@ -130,21 +130,19 @@ def test_read_barcode(mock_message, mock_execute, prefs_path, pref_name,
 @pytest.mark.skipif(skip_all_tests, reason="Exclude all tests")
 @pytest.mark.parametrize(
     ("prefs_path, pref_name, plate_holder_name, plate_name, "
-     "well_names, well_diameter, experiment, expected"),
+     "well_names, well_diameter, expected"),
     [
-        ("data/preferences_ZSD_2_test.yml", "CalibrateWellDistance", "Plateholder",
-         "96-well", ["B2", "B11", "G11"], None, "ImageBarcode.czexp",
-         "TypeError"),
-        ("data/preferences_ZSD_2_test.yml", "CalibrateWellDistance", "Plateholder",
-         "96-well", ["B2", "B11", "G11"], 6134, "ImageBarcode.czexp",
-         None),
+        ("data/preferences_ZSD_2_test.yml", "CalibrateWellDiameter", "Plateholder",
+         "96-well", ["B2", "B11", "G11"], None, "TypeError"),
+        ("data/preferences_ZSD_2_test.yml", "CalibrateWellDiameter", "Plateholder",
+         "96-well", ["B2", "B11", "G11"], 6134, None),
         ("data/preferences_ZSD_2_test.yml", "ImageBarcode", "Plateholder",
-         "96-well", [], None, None, "AttributeError"),
+         "96-well", [], None, "AttributeError"),
     ],
 )
 def test_calculate_all_wells_correction(prefs_path, pref_name,
                                         plate_holder_name, plate_name, well_names,
-                                        well_diameter, experiment, expected, helpers):
+                                        well_diameter, expected, helpers):
     mic_auto = helpers.setup_local_microscope_automation(prefs_path)
     plate_object = helpers.setup_local_plate(helpers, name=plate_name)
     plate_holder_object = helpers.setup_local_plate_holder(
@@ -164,7 +162,304 @@ def test_calculate_all_wells_correction(prefs_path, pref_name,
         result = mic_auto.calculate_all_wells_correction(
             Preferences(prefs_path).get_pref_as_meta(pref_name),
             plate_holder_object,
-            experiment
+            None
+        )
+    except Exception as err:
+        result = type(err).__name__
+
+    assert result == expected
+
+
+@patch(
+    "microscope_automation.samples.samples.PlateHolder.execute_experiment"
+)
+@patch("microscope_automation.hardware.hardware_components.Safety.show_safe_areas")
+@patch("microscope_automation.automation_messages_form_layout.operate_message")
+@pytest.mark.skipif(skip_all_tests, reason="Exclude all tests")
+@pytest.mark.parametrize(
+    ("prefs_path, pref_name, plate_holder_name, immersion_name, expected"),
+    [
+        (None, "SetupImmersionSystem", "Plateholder",
+         "ImmersionDelivery", "AssertionError"),
+        ("data/preferences_ZSD_2_test.yml", "SetupImmersionSystem", "Plateholder",
+         "ImmersionDelivery", None),
+    ],
+)
+def test_setup_immersion_system(mock_execute, mock_show_safe, mock_message,
+                                prefs_path, pref_name, plate_holder_name,
+                                immersion_name, expected, helpers):
+    if prefs_path:
+        (
+            microscope,
+            stage_id,
+            focus_id,
+            autofocus_id,
+            obj_changer_id,
+            safety_id,
+        ) = helpers.microscope_for_samples_testing(helpers, prefs_path)
+    else:
+        microscope = None
+        focus_id = None
+        stage_id = None
+        autofocus_id = None
+        obj_changer_id = None
+        safety_id = None
+
+    plate_holder = helpers.create_sample_object(
+        "plate_holder",
+        microscope_obj=microscope,
+        focus_id=focus_id,
+        stage_id=stage_id,
+        autofocus_id=autofocus_id,
+        obj_changer_id=obj_changer_id,
+        safety_id=safety_id,
+    )
+    plate_holder.immersion_delivery_system = helpers.setup_local_immersion_delivery(
+        helpers,
+        name=immersion_name
+    )
+    plate_holder.immersion_delivery_system.container = plate_holder
+    # plate_holder_object.microscope = immersion_sys.microscope
+
+    try:
+        mic_auto = helpers.setup_local_microscope_automation(prefs_path)
+        prefs = Preferences(prefs_path).get_pref_as_meta(pref_name)
+        result = mic_auto.setup_immersion_system(
+            prefs,
+            plate_holder,
+        )
+
+        assert (prefs.get_pref("MaginificationImmersionSystem")
+                == plate_holder.immersion_delivery_system.magnification)
+    except Exception as err:
+        result = type(err).__name__
+
+    assert result == expected
+
+
+@pytest.mark.skipif(skip_all_tests, reason="Exclude all tests")
+@pytest.mark.parametrize(
+    ("prefs_path, pref_name, plate_holder_name, expected"),
+    [
+        ("data/preferences_ZSD_2_test.yml", "SetUpObjectives", "Plateholder", None),
+    ],
+)
+def test_set_up_objectives_and_offset(prefs_path, pref_name, plate_holder_name,
+                                      expected, helpers):
+    (
+        microscope,
+        stage_id,
+        focus_id,
+        autofocus_id,
+        obj_changer_id,
+        safety_id,
+    ) = helpers.microscope_for_samples_testing(helpers, prefs_path)
+
+    plate_holder = helpers.create_sample_object(
+        "plate_holder",
+        microscope_obj=microscope,
+        focus_id=focus_id,
+        stage_id=stage_id,
+        autofocus_id=autofocus_id,
+        obj_changer_id=obj_changer_id,
+        safety_id=safety_id,
+    )
+
+    mic_auto = helpers.setup_local_microscope_automation(prefs_path)
+    result0 = mic_auto.set_up_objectives(
+        Preferences(prefs_path).get_pref_as_meta(pref_name),
+        plate_holder,
+        None,
+    )
+
+    result1 = mic_auto.set_objective_offset(
+        Preferences(prefs_path).get_pref_as_meta(pref_name),
+        plate_holder,
+        None,
+    )
+
+    assert result0 == expected and result1 == expected
+
+
+@patch("microscope_automation.automation_messages_form_layout.operate_message")
+@pytest.mark.skipif(skip_all_tests, reason="Exclude all tests")
+@pytest.mark.parametrize(
+    ("prefs_path, pref_name, plate_holder_name, well_name, camera_id, expected"),
+    [
+        ("data/preferences_ZSD_2_test.yml", "Koehler", "Plateholder", "E7",
+         "Camera1 (Back)", None),
+    ],
+)
+def test_set_up_koehler(mock_message, prefs_path, pref_name, plate_holder_name,
+                        well_name, camera_id, expected, helpers):
+    (
+        microscope,
+        stage_id,
+        focus_id,
+        autofocus_id,
+        obj_changer_id,
+        safety_id,
+    ) = helpers.microscope_for_samples_testing(helpers, prefs_path)
+    microscope.add_microscope_object(helpers.setup_local_camera(camera_id))
+
+    plate_holder_object = helpers.create_sample_object(
+        "plate_holder",
+        microscope_obj=microscope,
+        camera_ids=[camera_id],
+        focus_id=focus_id,
+        stage_id=stage_id,
+        autofocus_id=autofocus_id,
+        obj_changer_id=obj_changer_id,
+        safety_id=safety_id,
+    )
+    plate_object = helpers.create_sample_object(
+        "plate",
+        container=plate_holder_object,
+    )
+    well_object = helpers.create_sample_object(
+        "well",
+        container=plate_object
+    )
+    plate_object.add_wells({well_name: well_object})
+
+    mic_auto = helpers.setup_local_microscope_automation(prefs_path)
+    result = mic_auto.set_up_koehler(
+        Preferences(prefs_path).get_pref_as_meta(pref_name),
+        plate_object
+    )
+
+    assert result == expected
+
+
+@patch("microscope_automation.automation_messages_form_layout.operate_message")
+@pytest.mark.skipif(skip_all_tests, reason="Exclude all tests")
+@pytest.mark.parametrize(
+    ("prefs_path, pref_name, expected"),
+    [
+        ("data/preferences_ZSD_2_test.yml", "InitializeMicroscope", None),
+    ],
+)
+def test_initialize_microscope(mock_message, prefs_path, pref_name,
+                               expected, helpers):
+    plate_holder_object = helpers.setup_local_plate_holder(
+        helpers,
+        prefs_path=prefs_path,
+    )
+
+    mic_auto = helpers.setup_local_microscope_automation(prefs_path)
+    result = mic_auto.initialize_microscope(
+        Preferences(prefs_path).get_pref_as_meta(pref_name),
+        plate_holder_object,
+        None,
+    )
+
+    assert result == expected
+
+
+@pytest.mark.skipif(skip_all_tests, reason="Exclude all tests")
+@pytest.mark.parametrize(
+    ("prefs_path, pref_name, experiment, expected"),
+    [
+        ("data/preferences_ZSD_2_test.yml", "UpdatePlateWellZero",
+         {'Experiment': 'UpdatePlateWellZero', 'Repetitions': 1,
+          'Input': None, 'Output': {}}, None),
+    ],
+)
+def test_update_plate_z_zero(prefs_path, pref_name, experiment, expected, helpers):
+    (
+        microscope,
+        stage_id,
+        focus_id,
+        autofocus_id,
+        obj_changer_id,
+        safety_id,
+    ) = helpers.microscope_for_samples_testing(helpers, prefs_path)
+
+    plate_holder_object = helpers.create_sample_object(
+        "plate_holder",
+        microscope_obj=microscope,
+        focus_id=focus_id,
+        stage_id=stage_id,
+        autofocus_id=autofocus_id,
+        obj_changer_id=obj_changer_id,
+        safety_id=safety_id,
+    )
+
+    mic_auto = helpers.setup_local_microscope_automation(prefs_path)
+    result = mic_auto.update_plate_z_zero(
+        Preferences(prefs_path).get_pref_as_meta(pref_name),
+        plate_holder_object,
+        experiment,
+    )
+
+    assert result == expected
+
+
+@patch("microscope_automation.samples.samples.Well.find_well_center_fine")
+@patch("microscope_automation.zeiss.connect_zen_blue.ConnectMicroscope.load_image")
+@patch("microscope_automation.zeiss.connect_zen_blue.ConnectMicroscope.save_image")
+@patch(
+    "microscope_automation.zeiss.connect_zen_blue.ConnectMicroscope.close_experiment"
+)
+@patch("microscope_automation.automation_messages_form_layout.operate_message")
+@patch(
+    "microscope_automation.zeiss.hardware_control_zeiss.SpinningDiskZeiss.reference_position"  # noqa
+)
+@pytest.mark.skipif(skip_all_tests, reason="Exclude all tests")
+@pytest.mark.parametrize(
+    ("prefs_path, pref_name, plate_name, well_names, well_centers, expected"),
+    [
+        ("data/preferences_ZSD_2_test.yml", "CalibrateWellDistance", "96-well",
+         ["B2", "B11", "G11"], [(0, 0, 0), (6134, 0, 0), (12268, 0, 0)],
+         "ZeroDivisionError"),
+        ("data/preferences_ZSD_2_test.yml", "CalibrateWellDistance", "96-well",
+         ["B2", "B11", "G11"], [(0, 0, 0), (6134, 6134, 0), (12268, 12268, 0)],
+         None),
+    ],
+)
+def test_calculate_plate_correction(mock_reference, mock_message, mock_close, mock_save,
+                                    mock_load, mock_find_center, prefs_path, pref_name,
+                                    plate_name, well_names, well_centers, expected,
+                                    helpers):
+    mock_find_center.side_effect = [(0, 0, 0), (6134, 6134, 0), (12268, 12268, 0)]
+    mic_auto = helpers.setup_local_microscope_automation(prefs_path)
+    camera_id = "Camera1 (Back)"
+    (
+        microscope,
+        stage_id,
+        focus_id,
+        autofocus_id,
+        obj_changer_id,
+        safety_id,
+    ) = helpers.microscope_for_samples_testing(helpers, prefs_path)
+
+    plate_holder_object = helpers.create_sample_object(
+        "plate_holder",
+        microscope_obj=microscope,
+        camera_ids=[camera_id],
+        focus_id=focus_id,
+        stage_id=stage_id,
+        autofocus_id=autofocus_id,
+        obj_changer_id=obj_changer_id,
+        safety_id=safety_id,
+    )
+
+    plate_object = helpers.setup_local_plate(helpers, name=plate_name)
+    plate_object.set_container(plate_holder_object)
+    plate_holder_object.add_plates({plate_name: plate_object})
+    i = 0
+    for name in well_names:
+        well = helpers.setup_local_well(helpers, name=name, center=well_centers[i])
+        # well.set_measured_diameter(well_diameter)
+        well.container = plate_object
+        plate_object.add_wells({name: well})
+        i += 1
+
+    try:
+        result = mic_auto.calculate_plate_correction(
+            Preferences(prefs_path).get_pref_as_meta(pref_name),
+            plate_holder_object,
+            None,
         )
     except Exception as err:
         result = type(err).__name__

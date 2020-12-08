@@ -446,7 +446,7 @@ class Helpers:
         y_flip=1,
         z_flip=1,
     ):
-        """Create PlateHolder object"""
+        """Create ImmersionDelivery object"""
         if prefs_path:
             microscope_object = self.setup_local_microscope(prefs_path)
         else:
@@ -609,7 +609,7 @@ class Helpers:
                 "magnification": 10,
                 "immersion": "air",
                 "experiment": "WellTile_10x_true",
-                "camera": "Camera1 (back)",
+                "camera": "Camera1 (Back)",
                 "autofocus": "DefiniteFocus2",
             }
         }
@@ -628,9 +628,11 @@ class Helpers:
             n_positions=6,
             objectives=objectives,
             prefs_path=prefs_path,
+            ref_objective="Plan-Apochromat 10x/0.45",
         )
         autofocus = self.setup_local_autofocus(
-            self, autofocus_id, obj_changer=obj_changer
+            self, autofocus_id, obj_changer=obj_changer,
+            default_camera="Camera1 (Back)"
         )
         focus_drive = self.setup_local_focus_drive(
             self,
