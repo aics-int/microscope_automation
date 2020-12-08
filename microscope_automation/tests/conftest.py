@@ -619,6 +619,7 @@ class Helpers:
             self,
             stage_id,
             safe_area=safe_area_id,
+            safe_position=(0, 0),
             objective_changer=obj_changer_id,
             prefs_path=prefs_path,
         )

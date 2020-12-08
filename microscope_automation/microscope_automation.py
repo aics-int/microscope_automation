@@ -562,7 +562,7 @@ class MicroscopeAutomation(object):
                 microscope_object.create_experiment_path(experiment)
 
                 objective_changer_id = plate_object.get_objective_changer_id()
-                objective_changer = microscope_object.get_microscope_object(
+                objective_changer = microscope_object._get_microscope_object(
                     objective_changer_id
                 )
                 objective_changer.set_init_experiment(experiment)
@@ -571,7 +571,7 @@ class MicroscopeAutomation(object):
                     initialize_components_ordered_dict={
                         objective_changer_id: {"no_find_surface"}
                     },
-                    reference_object=plate_object.get_reference_object(),
+                    reference_object_id=plate_object.get_reference_object().get_name(),
                     trials=3,
                     verbose=verbose,
                 )
@@ -655,6 +655,7 @@ class MicroscopeAutomation(object):
                 colony_remote_file = message.file_select_dialog(
                     colony_remote_dir, returnCode=True
                 )
+                print(colony_remote_file)
                 # continue if user did not press cancel
                 if colony_remote_file != 0:
                     source_path = os.path.normpath(
@@ -680,7 +681,7 @@ class MicroscopeAutomation(object):
                 )
                 microscope_object.initialize_hardware(
                     initialize_components_ordered_dict=initialization_dict,
-                    reference_object=plate.get_reference_object(),
+                    reference_object_id=plate.get_reference_object().get_name(),
                     trials=trials,
                     verbose=verbose,
                 )
@@ -690,7 +691,7 @@ class MicroscopeAutomation(object):
                     value,
                 ) in microscope_object.microscope_components_ordered_dict.items():
                     if isinstance(value, hardware_components.AutoFocus):
-                        self.state.reference_object = value.get_focus_reference_obj()
+                        self.state.reference_object = plate.get_reference_object()
                         # Autosave
                         self.state.save_state()
 

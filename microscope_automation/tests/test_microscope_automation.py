@@ -219,7 +219,6 @@ def test_setup_immersion_system(mock_execute, mock_show_safe, mock_message,
         name=immersion_name
     )
     plate_holder.immersion_delivery_system.container = plate_holder
-    # plate_holder_object.microscope = immersion_sys.microscope
 
     try:
         mic_auto = helpers.setup_local_microscope_automation(prefs_path)
@@ -237,15 +236,20 @@ def test_setup_immersion_system(mock_execute, mock_show_safe, mock_message,
     assert result == expected
 
 
+@patch(
+    "microscope_automation.zeiss.connect_zen_blue.ConnectMicroscope.get_all_objectives"
+)
 @pytest.mark.skipif(skip_all_tests, reason="Exclude all tests")
 @pytest.mark.parametrize(
-    ("prefs_path, pref_name, plate_holder_name, expected"),
+    ("prefs_path, plate_holder_name, expected"),
     [
-        ("data/preferences_ZSD_2_test.yml", "SetUpObjectives", "Plateholder", None),
+        ("data/preferences_ZSD_2_test.yml", "Plateholder", None),
     ],
 )
-def test_set_up_objectives_and_offset(prefs_path, pref_name, plate_holder_name,
-                                      expected, helpers):
+def test_set_up_objectives_and_offset(mock_get_obj, prefs_path,
+                                      plate_holder_name, expected, helpers):
+    mock_get_obj.return_value = {'10': {'Position': 6,
+                                        'Name': 'Plan-Apochromat 10x/0.45'}}
     (
         microscope,
         stage_id,
@@ -264,16 +268,22 @@ def test_set_up_objectives_and_offset(prefs_path, pref_name, plate_holder_name,
         obj_changer_id=obj_changer_id,
         safety_id=safety_id,
     )
+    plate_object = helpers.create_sample_object(
+        "plate",
+        container=plate_holder,
+    )
+    plate_holder.add_plates({"Plate": plate_object})
+    plate_object.set_reference_object(plate_holder)
 
     mic_auto = helpers.setup_local_microscope_automation(prefs_path)
     result0 = mic_auto.set_up_objectives(
-        Preferences(prefs_path).get_pref_as_meta(pref_name),
+        Preferences(prefs_path).get_pref_as_meta("SetUpObjectives"),
         plate_holder,
         None,
     )
 
     result1 = mic_auto.set_objective_offset(
-        Preferences(prefs_path).get_pref_as_meta(pref_name),
+        Preferences(prefs_path).get_pref_as_meta("ObjectiveOffsets"),
         plate_holder,
         None,
     )
@@ -331,20 +341,47 @@ def test_set_up_koehler(mock_message, prefs_path, pref_name, plate_holder_name,
     assert result == expected
 
 
+@patch("microscope_automation.automation_messages_form_layout.file_select_dialog")
+@patch(
+    "microscope_automation.microscope_automation.MicroscopeAutomation.set_up_koehler"
+)
 @patch("microscope_automation.automation_messages_form_layout.operate_message")
 @pytest.mark.skipif(skip_all_tests, reason="Exclude all tests")
 @pytest.mark.parametrize(
     ("prefs_path, pref_name, expected"),
     [
         ("data/preferences_ZSD_2_test.yml", "InitializeMicroscope", None),
+        ("data/preferences_ZSD_2_test.yml", "Koehler", None),
     ],
 )
-def test_initialize_microscope(mock_message, prefs_path, pref_name,
-                               expected, helpers):
-    plate_holder_object = helpers.setup_local_plate_holder(
-        helpers,
-        prefs_path=prefs_path,
+def test_initialize_microscope(mock_message, mock_koehler, mock_file_dialog,
+                               prefs_path, pref_name, expected, helpers):
+    mock_file_dialog.return_value = 'data/PlateSpecifications/PipelineData_Celigo.csv'
+    camera_id = "Camera1 (Back)"
+    (
+        microscope,
+        stage_id,
+        focus_id,
+        autofocus_id,
+        obj_changer_id,
+        safety_id,
+    ) = helpers.microscope_for_samples_testing(helpers, prefs_path)
+    plate_holder_object = helpers.create_sample_object(
+        "plate_holder",
+        microscope_obj=microscope,
+        camera_ids=[camera_id],
+        focus_id=focus_id,
+        stage_id=stage_id,
+        autofocus_id=autofocus_id,
+        obj_changer_id=obj_changer_id,
+        safety_id=safety_id,
     )
+    plate_object = helpers.create_sample_object(
+        "plate",
+        container=plate_holder_object,
+    )
+    plate_holder_object.add_plates({"Plate": plate_object})
+    plate_object.set_reference_object(plate_holder_object)
 
     mic_auto = helpers.setup_local_microscope_automation(prefs_path)
     result = mic_auto.initialize_microscope(
@@ -450,7 +487,6 @@ def test_calculate_plate_correction(mock_reference, mock_message, mock_close, mo
     i = 0
     for name in well_names:
         well = helpers.setup_local_well(helpers, name=name, center=well_centers[i])
-        # well.set_measured_diameter(well_diameter)
         well.container = plate_object
         plate_object.add_wells({name: well})
         i += 1

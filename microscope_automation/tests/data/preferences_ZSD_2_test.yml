@@ -72,19 +72,21 @@ InitializeMicroscope:
  Verbose: False
  NumberTrials: 3                                  # How often a user is given the chance to set up the system in a correct way
  SetupFolders: True                               # Setup image folder
- CopyColonyFile: False                            # Copy colony file
+ CopyColonyFile: True                             # Copy colony file
+ AddColonies: True
  ColonyFileFolder: ['\\allen\aics\microscopy\PRODUCTION\Summary\CeligoDailyScans', '../PlateSpecifications']   # Network folder with colony file
  ColonyDirPath: *ColonyDirPathRef
  FindLoad: True                                   # Ask user to move objective in load position and save
  MaxLoadPosition: 50                              # Maximum focus position that will be accepted as load
  LaserSafety: True                                # Enable laser safety
- Koehler: True                                    # Set Koehler illumination
+ Koehler: False                                   # Set Koehler illumination
  StageID: Marzhauser                              # Name of stage used to set up Koehler illumination
  FocusID: MotorizedFocus                          # Name of focus drive used to set up Koehler illumination
  SafeAreaID: ZSD_01_plate                         # Name of safe area used to avoid hardware collisions
  xSetupKoehler: 24054                             # x position for stage in um to set up Koehler illumination
  ySetupKoehler: 34462                             # x position for stage in um to set up Koehler illumination
  zSetupKoehler: 9150                              # x position for stage in um to set up Koehler illumination
+ Hardware: True
 
 # Settings for colonies
 AddColonies:
@@ -144,6 +146,21 @@ SetUpObjectives:
  zSetUpObjectives: 0                                        # z focus position in um to set-up objectives
  ExperimentSetUpObjectives: ImageBarcode.czexp
  CameraSetUpObjectives: Camera1 (Back)
+
+# Settings to setup objectives (find offset in x, y, and z between objectives
+ObjectiveOffsets:
+ FunctionName: set_objective_offset               # Name of function in Python code in module microscopeAutomation that will process this experiment
+ Verbose: False                                   # print debug messages?
+ NumberTrials: 3                                  # How often a user is given the chance to set up the system in a correct way
+ UseAutoFocus: True
+ Experiment: NoExperiment
+ ExperimentsList: ['WellTile_10x', 'ImageBarcode']       # List with experiments used to determine offset (one experiment per objective in order as listed)
+ # ExperimentsList: ['Setup_10x', 'Setup_100x']       # List with experiments used to determine offset (one experiment per objective in order as listed)
+ Wait:                                            # Wait for user input after imaging and before removing image from display (has no effect in this experiment module)
+  Image: False                                      # Wait after each image
+  Plate: False                                      # Reset wait status after each plate
+  Repetition: False                                 # Reset wait status after each repetition
+ Blocking: False                                  # open modal dialog in case of error (has no effect in this experiment module)
 
 # Set work and load positions for focus drive.
 # Set z-zero positions for plate and wells
