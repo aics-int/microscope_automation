@@ -955,7 +955,7 @@ class ImagingSystem(object):
         objective_changer_id = self.get_objective_changer_id()
         safety_object_id = self.get_safety_id()
         microscope_object = self.get_microscope()
-        if reference_object:
+        if reference_object and use_reference:
             reference_object_id = reference_object.get_name()
         else:
             reference_object_id = None
@@ -1750,6 +1750,15 @@ class ImagingSystem(object):
 
          verbose: print logging comments
 
+         tile_object: tile object passed in by preferences. Possible options:
+          'NoTiling': do not tile
+
+          'Fixed': calculate tiling to image a rectangular area
+
+          'Well': cover a well with tiles using an elliptical area
+
+          'ColonySize': cover a colony with tiles using an ellipse
+
         Output:
          tile_params: directory with parameters to calculate tile positions
         """
@@ -1827,7 +1836,7 @@ class ImagingSystem(object):
         Input:
          prefs: Preferences object with preferences for tiling
 
-         tile_type: tile object passed in by preferences. Possible options:
+         tile_object: tile object passed in by preferences. Possible options:
           'NoTiling': do not tile
 
           'Fixed': calculate tiling to image a rectangular area
@@ -3940,19 +3949,21 @@ class Well(ImagingSystem):
         print("Focus position: ", z_center)
         return x_center, y_center, z_center
 
-    def get_tile_positions_list(self, prefs, tile_type="Well", verbose=True):
+    def get_tile_positions_list(self, prefs, tile_object="Well", verbose=True):
         """Get positions for tiles in absolute coordinates.
         Other classes have additional tile_objects (e.g. ColonySize).
 
         Input:
          prefs: Preferences object with preferences for tiling
 
-         tile_type: type of tiling.  Possible options:
-          'None': do not tile
+         tile_object: tile object passed in by preferences. Possible options:
+          'NoTiling': do not tile
 
-          'Fixed': use fixed number of tiles
+          'Fixed': calculate tiling to image a rectangular area
 
-          'Well': use enough tiles to cover one well
+          'Well': cover a well with tiles using an elliptical area
+
+          'ColonySize': cover a colony with tiles using an ellipse
 
          verbose: print debugging information
 
@@ -3961,7 +3972,7 @@ class Well(ImagingSystem):
         """
         # retrieve common tiling parameters, than adjust them for wells if necessary
         try:
-            tile_params = self._get_tile_params(prefs, tile_type, verbose=verbose)
+            tile_params = self._get_tile_params(prefs, tile_object, verbose=verbose)
             tile_positions_list = self._compute_tile_positions_list(tile_params)
         except Exception:
             tile_positions_list = None

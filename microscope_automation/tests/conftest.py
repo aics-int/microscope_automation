@@ -609,7 +609,7 @@ class Helpers:
                 "magnification": 10,
                 "immersion": "air",
                 "experiment": "WellTile_10x_true",
-                "camera": "Camera1 (Back)",
+                "camera": "Camera1 (back)",
                 "autofocus": "DefiniteFocus2",
             }
         }
@@ -633,7 +633,7 @@ class Helpers:
         )
         autofocus = self.setup_local_autofocus(
             self, autofocus_id, obj_changer=obj_changer,
-            default_camera="Camera1 (Back)"
+            default_camera="Camera1 (back)"
         )
         focus_drive = self.setup_local_focus_drive(
             self,

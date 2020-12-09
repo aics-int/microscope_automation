@@ -145,7 +145,7 @@ SetUpObjectives:
  ySetUpObjectives: 30694                                    # y stage coordinates in um to set-up objectives
  zSetUpObjectives: 0                                        # z focus position in um to set-up objectives
  ExperimentSetUpObjectives: ImageBarcode.czexp
- CameraSetUpObjectives: Camera1 (Back)
+ CameraSetUpObjectives: Camera1 (back)
 
 # Settings to setup objectives (find offset in x, y, and z between objectives
 ObjectiveOffsets:
@@ -154,7 +154,7 @@ ObjectiveOffsets:
  NumberTrials: 3                                  # How often a user is given the chance to set up the system in a correct way
  UseAutoFocus: True
  Experiment: NoExperiment
- ExperimentsList: ['WellTile_10x', 'ImageBarcode']       # List with experiments used to determine offset (one experiment per objective in order as listed)
+ ExperimentsList: ['WellTile_10x', 'ImageBarcode']    # List with experiments used to determine offset (one experiment per objective in order as listed)
  # ExperimentsList: ['Setup_10x', 'Setup_100x']       # List with experiments used to determine offset (one experiment per objective in order as listed)
  Wait:                                            # Wait for user input after imaging and before removing image from display (has no effect in this experiment module)
   Image: False                                      # Wait after each image
@@ -165,8 +165,9 @@ ObjectiveOffsets:
 # Set work and load positions for focus drive.
 # Set z-zero positions for plate and wells
 UpdatePlateWellZero:
- FunctionName: update_plate_well_z_zero          # Name of function in Python code in module microscopeAutomation that will process this experiment
+ FunctionName: update_plate_well_z_zero         # Name of function in Python code in module microscopeAutomation that will process this experiment
  Verbose: False                                 # print debug messages?
+ NumberTrials: 3                                  # How often a user is given the chance to set up the system in a correct way
  Blocking: True                                 # open modal dialog in case of error
  xUpdatePlateWellZero: 60500                    # x stage coordinates in um to define z positions
  yUpdatePlateWellZero: 32100                    # y stage coordinates in um to define z positions
@@ -174,11 +175,17 @@ UpdatePlateWellZero:
  zUpdatePlateWellWellZero: 0                    # z focus position um for well, typically thickness of cover slip or 0 if upper side of coverslip was choosen as reference
  UseAutoFocus: True                             # use autofocus instead of values based on calibration
  Experiment: ScanWell_10x.czexp
- Camera: Camera1 (Back)
+ Camera: Camera1 (back)
  AddImmersionWater: False                       # Add immersion water to objective after a predefined number of images
  NameImmersionSystem: BraintreeScientific       # Name for immersion delivery system
  UsePump: False                                 # Use pump to add immersion water
  WellsBeforeAddImmersionWater: 2                # Number of wells to be imaged before water is added to objective. Water will be added before first well.
+ Experiment: WellTile_10x.czexp                 # Experiment setting in ZEN blue used for microscope initialization
+ Camera: Camera1 (back)
+ Well: E7
+ UseAutoFocus: False                            # use autofocus instead of values based on calibration
+ UseReference: False
+ Load: False                                    # Load between objects
 
 # Experiment Settings
 # Settings for imaging barcode
@@ -190,7 +197,7 @@ ImageBarcode:
  NameBarcode: PlateID                                                        # Name of specific barcode
  UseAutoFocus: True                             # use autofocus instead of values based on calibration
  ExperimentBarcode: ImageBarcode.czexp                                       # name of imaging parameters as defined in microscope software to image barcode
- CameraBarcode: Camera1 (Back)
+ CameraBarcode: Camera1 (back)
  SaveBarcode: True                                                           # True, if barcode image should be saved
  FilePathBarcode: /Users/winfriedw/Documents/Programming/ResultTestImages/   # path to directory that will hold barcode images
  AddImmersionWater: False                                                    # Add immersion water to objective after a predefined number of images
@@ -211,7 +218,7 @@ CalibrateWellDistance:
  WellCalibrateWell_3: &WellCalibrateWell_3_ref G11   # distance to well_2 will determine correction factor for y. Used for correction factor slope z
  UseAutoFocus: True                                  # use autofocus instead of values based on calibration
  Experiment: WellTile_10x.czexp
- Camera: Camera1 (Back)
+ Camera: Camera1 (back)
  WellDiameterCalibrateWell: 6134                  # diameter in mum
  Load: False                                      # Load between objects
  AddImmersionWater: False                         # Add immersion water to objective after a predefined number of images
@@ -234,12 +241,12 @@ SetupImmersionSystem:
  Blocking: True                                                 # open modal dialog in case of error
  NameImmersionSystem: BraintreeScientific                       # Name for immersion delivery system
  ExperimentSetupImmersionSystem: ImageBarcode.czexp
- CameraSetupImmersionSystem: Camera1 (Back)
+ CameraSetupImmersionSystem: Camera1 (back)
 # DeliverWaterSetupImmersionSystem: True                         # Deliver water to objective after setup
  xImmersionSystem: 5722                                          # x position of immersion water outlet in stage mum
  yImmersionSystem: 71200                                         # Y position of immersion water outlet in stage mum
 # MaginificationImmersionSystem: 100.0                           # Magnification of water immersion objective
- CameraDeliverSystem: Camera1 (Back)
+ CameraDeliverSystem: Camera1 (back)
 
 # Image center of selected wells
 # This method is mainly used for test purposes
@@ -247,11 +254,11 @@ ScanWellsZero:
  FunctionName: scan_wells_zero                                # Name of function in Python code in module microscopeAutomation that will process this experiment
  Verbose: True                                                # print debug messages?
  Blocking: True                                               # open modal dialog in case of error
- WellsScanWellsZero: B3, C3, D3,  B4, C4, D4
+ WellsScanWellsZero: B3, C3, D3, B4, C4, D4
  # WellsScanWellsZero: G10
  UseAutoFocus: True                                           # use autofocus instead of values based on calibration
- ExperimentScanWellsZero: ScanWell_10x.czexp
- CameraScanWellsZero: Camera1 (Back)
+ ExperimentScanWellsZero: WellTile_10x.czexp
+ CameraScanWellsZero: Camera1 (back)
  AddImmersionWater: False                                     # Add immersion water to objective after a predefined number of images
  NameImmersionSystem: BraintreeScientific                     # Name for immersion delivery system
  UsePump: False                                               # Use pump to add immersion water
@@ -261,6 +268,7 @@ ScanWellsZero:
 PreScanPlate:
  FunctionName: scan_plate                       # Name of function in Python code in module microscopeAutomation that will process this experiment
  Name: ScanPlate                                # name of experiment
+ NumberTrials: 3                                     # How often a user is given the chance to set up the system in a correct way
  NextName: CellScan                             # name of next experiment. Objects selected during this experiment will be added to the next one.
  Verbose: False                                 # print debug messages?
  Blocking: True                                 # open modal dialog in case of error
@@ -270,13 +278,14 @@ PreScanPlate:
   # F4, F5, F6, F7, F8]
  Wells: &ScanPlateWells [E5, E6]
 
- Experiment: ScanWell_10x.czexp
- Camera: Camera1 (Back)
+ Experiment: WellTile_10x.czexp
+ Camera: Camera1 (back)
  Folder: wellScan                               # images of colonies will be stored within this folder
                                                 # create file name: list with string parts that will be concatinated
                                                 # entries that start with '#' will be replaced with meta data values with the same key
  FileName: ['prescan', '_', '#aics_barcode', '_', '#aics_objectiveMagnification', 'X_', '#aics_dateStartShort', '_','#aics_well','.czi']
  UseAutoFocus: True                             # use autofocus instead of values based on calibration
+ UseReference: False
  ManualRefocus: True                            # give user option to manually refocus
  ManualRefocusAfterRepetitions: 0               # manually refocus after n repetitions (0: no refocus)
  SnapImage: True                                # take image and save it, not required for pre-scans
@@ -310,11 +319,12 @@ ScanPlate:
  FunctionName: scan_plate                       # Name of function in Python code in module microscopeAutomation that will process this experiment
  Name: ScanPlate                                # name of experiment
  NextName: ScanCells                            # name of next experiment. Objects selected during this experiment will be added to the next one.
+ UseReference: False
  Verbose: False                                 # print debug messages?
  Blocking: False                                # open modal dialog in case of error
  Wells: *ScanPlateWells
  Experiment: WellTile_10x.czexp
- Camera: Camera1 (Back)
+ Camera: Camera1 (back)
  Folder: wellScan                               # images of colonies will be stored within this folder
                                                 # create file name: list with string parts that will be concatinated
                                                 # entries that start with '#' will be replaced with meta data values with the same key
@@ -362,10 +372,10 @@ ScanBackground:
  Verbose: False                                  # print debug messages?
  Blocking: True                                  # open modal dialog in case of error
  UseAutoFocus: True                              # use autofocus instead of values based on calibration
- Experiments: [{Name: BackgroundTransmitted_10x, Experiment: BackgroundTransmitted_10x.czexp, Well: C9, zOffset: 500, Camera: Camera1 (Back)},
-  {Name: BackgroundBlue_10x, Experiment: BackgroundBlue_10x.czexp, Well: E9, zOffset: 500, Camera: Camera1 (Back)},
-  {Name: BackgroundGreen_10x, Experiment: BackgroundGreen_10x.czexp, Well: F9, zOffset: 500, Camera: Camera1 (Back)},
-  {Name: BackgroundRed_10x, Experiment: BackgroundRed_10x.czexp, Well: D9, zOffset: 500, Camera: Camera1 (Back)}]
+ Experiments: [{Name: BackgroundTransmitted_10x, Experiment: BackgroundTransmitted_10x.czexp, Well: C9, zOffset: 500, Camera: Camera1 (back)},
+  {Name: BackgroundBlue_10x, Experiment: BackgroundBlue_10x.czexp, Well: E9, zOffset: 500, Camera: Camera1 (back)},
+  {Name: BackgroundGreen_10x, Experiment: BackgroundGreen_10x.czexp, Well: F9, zOffset: 500, Camera: Camera1 (back)},
+  {Name: BackgroundRed_10x, Experiment: BackgroundRed_10x.czexp, Well: D9, zOffset: 500, Camera: Camera1 (back)}]
  BlackReference: [{Name: BlackReferenceTransmitted10x}, {Name: BlackReferenceGreen10x}]
  DefaultImages:
     - {Name: BackgroundTransmitted10x, CalibrationFolder: True, Type: "background", FileType: ".czi"}
@@ -393,7 +403,7 @@ PreScanColonies:
  Verbose: False                                  # print debug messages?
  Blocking: True                                  # open modal dialog in case of error
  Experiment: ScanColonies_10x.czexp
- Camera: Camera1 (Back)
+ Camera: Camera1 (back)
  Folder: 10Xcolonyscan                           # images of colonies will be stored within this folder
                                                  # create file name: list with string parts that will be concatinated
                                                  # entries that start with '#' will be replaced with meta data values with the same key
@@ -440,7 +450,7 @@ ScanColonies:
  Verbose: False                                  # print debug messages?
  Blocking: False                                 # open modal dialog in case of error
  Experiment: ScanWell_10x.czexp
- Camera: Camera1 (Back)
+ Camera: Camera1 (back)
  Folder: 10Xcolonyscan                           # images of colonies will be stored within this folder
                                                  # create file name: list with string parts that will be concatinated
                                                  # entries that start with '#' will be replaced with meta data values with the same key
@@ -515,7 +525,7 @@ PreScanCells:
  Verbose: False                                               # print debug messages?
  Blocking: True                                               # open modal dialog in case of error
  Experiment: PreScanCells_100x.czexp
- Camera: Camera1 (Back)
+ Camera: Camera1 (back)
  Folder: 100X_zstack                                          # images of colonies will be stored within this folder
                                                               # create file name: list with string parts that will be concatinated
                                                               # entries that start with '#' will be replaced with meta data values with the same key
@@ -554,7 +564,7 @@ ScanCells:
  Verbose: False                                               # print debug messages?
  Blocking: False                                              # open modal dialog in case of error
  Experiment: ScanCells_100x.czexp
- Camera: Camera1 (Back)
+ Camera: Camera1 (back)
  Folder: 100X_zstack                                          # images of colonies will be stored within this folder
                                                               # create file name: list with string parts that will be concatinated
                                                               # entries that start with '#' will be replaced with meta data values with the same key
@@ -596,7 +606,7 @@ Koehler:
  AddColonies: False                               # add colony information from Hamilton to plate
  Hardware: False                                  # Initialize hardware
  Experiment: WellTile_10x.czexp                      # Experiment setting in ZEN blue used for microscope initialization
- Camera: Camera1 (Back)
+ Camera: Camera1 (back)
  UseAutoFocus: False                              # use autofocus instead of values based on calibration
  UseReference: False                            # Should reference postition been used?
  FindLoad: False                                  # Ask user to move objective in load position and save

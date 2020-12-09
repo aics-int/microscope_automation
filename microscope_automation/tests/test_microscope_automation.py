@@ -8,6 +8,8 @@ Created on December 1, 2020
 import pytest
 import os
 from mock import patch
+from collections import Mapping
+from microscope_automation.image_AICS import ImageAICS
 from microscope_automation.preferences import Preferences
 from microscope_automation.samples import samples
 from microscope_automation import microscope_automation
@@ -297,7 +299,7 @@ def test_set_up_objectives_and_offset(mock_get_obj, prefs_path,
     ("prefs_path, pref_name, plate_holder_name, well_name, camera_id, expected"),
     [
         ("data/preferences_ZSD_2_test.yml", "Koehler", "Plateholder", "E7",
-         "Camera1 (Back)", None),
+         "Camera1 (back)", None),
     ],
 )
 def test_set_up_koehler(mock_message, prefs_path, pref_name, plate_holder_name,
@@ -357,7 +359,7 @@ def test_set_up_koehler(mock_message, prefs_path, pref_name, plate_holder_name,
 def test_initialize_microscope(mock_message, mock_koehler, mock_file_dialog,
                                prefs_path, pref_name, expected, helpers):
     mock_file_dialog.return_value = 'data/PlateSpecifications/PipelineData_Celigo.csv'
-    camera_id = "Camera1 (Back)"
+    camera_id = "Camera1 (back)"
     (
         microscope,
         stage_id,
@@ -393,16 +395,29 @@ def test_initialize_microscope(mock_message, mock_koehler, mock_file_dialog,
     assert result == expected
 
 
+@patch("microscope_automation.automation_messages_form_layout.operate_message")
 @pytest.mark.skipif(skip_all_tests, reason="Exclude all tests")
 @pytest.mark.parametrize(
-    ("prefs_path, pref_name, experiment, expected"),
+    ("prefs_path, pref_name, experiment, well_name, expected"),
     [
         ("data/preferences_ZSD_2_test.yml", "UpdatePlateWellZero",
          {'Experiment': 'UpdatePlateWellZero', 'Repetitions': 1,
-          'Input': None, 'Output': {}}, None),
+          'Input': None, 'Output': {}}, "Well", "AttributeError"),
+        ("data/preferences_ZSD_2_test.yml", "UpdatePlateWellZero",
+         {'Experiment': 'UpdatePlateWellZero', 'Repetitions': 1,
+          'Input': None, 'Output': {}, 'OriginalWorkflow':
+          [{'Experiment': 'Koehler', 'Repetitions': 1, 'Input': None, 'Output': {}},
+           {'Experiment': 'UpdatePlateWellZero', 'Repetitions': 1,
+            'Input': None, 'Output': {}},
+           {'Experiment': 'RunMacro', 'Repetitions': 1, 'Input': None,
+            'Output': {}},
+           ], 'WorkflowList': ['Koehler', 'UpdatePlateWellZero', 'RunMacro']
+          }, "E7", None),
     ],
 )
-def test_update_plate_z_zero(prefs_path, pref_name, experiment, expected, helpers):
+def test_update_plate_z_zero(mock_message, prefs_path, pref_name, experiment,
+                             well_name, expected, helpers):
+    camera_id = "Camera1 (back)"
     (
         microscope,
         stage_id,
@@ -415,19 +430,34 @@ def test_update_plate_z_zero(prefs_path, pref_name, experiment, expected, helper
     plate_holder_object = helpers.create_sample_object(
         "plate_holder",
         microscope_obj=microscope,
+        camera_ids=[camera_id],
         focus_id=focus_id,
         stage_id=stage_id,
         autofocus_id=autofocus_id,
         obj_changer_id=obj_changer_id,
         safety_id=safety_id,
     )
+    plate_object = helpers.create_sample_object(
+        "plate",
+        container=plate_holder_object,
+    )
+    plate_holder_object.add_plates({"Plate": plate_object})
+    well_object = helpers.create_sample_object(
+        "well",
+        container=plate_object,
+    )
+    plate_object.add_wells({well_name: well_object})
+    plate_object.set_reference_object(well_object)
 
     mic_auto = helpers.setup_local_microscope_automation(prefs_path)
-    result = mic_auto.update_plate_z_zero(
-        Preferences(prefs_path).get_pref_as_meta(pref_name),
-        plate_holder_object,
-        experiment,
-    )
+    try:
+        result = mic_auto.update_plate_z_zero(
+            Preferences(prefs_path).get_pref_as_meta(pref_name),
+            plate_holder_object,
+            experiment,
+        )
+    except Exception as err:
+        result = type(err).__name__
 
     assert result == expected
 
@@ -460,7 +490,7 @@ def test_calculate_plate_correction(mock_reference, mock_message, mock_close, mo
                                     helpers):
     mock_find_center.side_effect = [(0, 0, 0), (6134, 6134, 0), (12268, 12268, 0)]
     mic_auto = helpers.setup_local_microscope_automation(prefs_path)
-    camera_id = "Camera1 (Back)"
+    camera_id = "Camera1 (back)"
     (
         microscope,
         stage_id,
@@ -501,3 +531,166 @@ def test_calculate_plate_correction(mock_reference, mock_message, mock_close, mo
         result = type(err).__name__
 
     assert result == expected
+
+
+@patch("microscope_automation.hardware.hardware_components.Safety.show_safe_areas")
+@patch("microscope_automation.zeiss.connect_zen_blue.ConnectMicroscope.save_image")
+@patch(
+    "microscope_automation.zeiss.connect_zen_blue.ConnectMicroscope.close_experiment"
+)
+@patch("microscope_automation.automation_messages_form_layout.operate_message")
+@pytest.mark.skipif(skip_all_tests, reason="Exclude all tests")
+@pytest.mark.parametrize(
+    ("prefs_path, pref_name, well_names, expected"),
+    [
+        ("data/preferences_ZSD_2_test.yml", "ScanWellsZero", ["B3"],
+         "AttributeError"),
+        ("data/preferences_ZSD_2_test.yml", "ScanWellsZero",
+         ["B3", "C3", "D3", "B4", "C4", "D4"], None),
+    ],
+)
+def test_scan_wells_zero(mock_message, mock_close, mock_save, mock_show_safe,
+                         prefs_path, pref_name, well_names, expected, helpers):
+    camera_id = "Camera1 (back)"
+    (
+        microscope,
+        stage_id,
+        focus_id,
+        autofocus_id,
+        obj_changer_id,
+        safety_id,
+    ) = helpers.microscope_for_samples_testing(helpers, prefs_path)
+
+    plate_holder_object = helpers.create_sample_object(
+        "plate_holder",
+        microscope_obj=microscope,
+        camera_ids=[camera_id],
+        focus_id=focus_id,
+        stage_id=stage_id,
+        autofocus_id=autofocus_id,
+        obj_changer_id=obj_changer_id,
+        safety_id=safety_id,
+    )
+    plate_object = helpers.create_sample_object(
+        "plate",
+        container=plate_holder_object,
+    )
+    plate_holder_object.add_plates({"Plate": plate_object})
+    well_object = helpers.create_sample_object(
+        "well",
+        container=plate_object,
+    )
+    for name in well_names:
+        well = helpers.setup_local_well(helpers, name=name)
+        # well.set_measured_diameter(well_diameter)
+        well.container = plate_object
+        plate_object.add_wells({name: well})
+        well_object.set_reference_object(plate_object)
+
+    mic_auto = helpers.setup_local_microscope_automation(prefs_path)
+    try:
+        result = mic_auto.scan_wells_zero(
+            Preferences(prefs_path).get_pref_as_meta(pref_name),
+            plate_holder_object,
+            "Plate",
+        )
+    except Exception as err:
+        result = type(err).__name__
+
+    assert result == expected
+
+
+@patch(
+    "microscope_automation.zeiss.connect_zen_blue.ConnectMicroscope.close_experiment"
+)
+@patch("microscope_automation.hardware.hardware_components.Safety.show_safe_areas")
+@patch("microscope_automation.automation_messages_form_layout.operate_message")
+@patch("microscope_automation.automation_messages_form_layout.select_message")
+@pytest.mark.skipif(skip_all_tests, reason="Exclude all tests")
+@pytest.mark.parametrize(
+    ("prefs_path, pref_name, experiment, sample_type, reference_type, "
+     "image_path, meta_dict, repetition, expected"),
+    [
+        ("data/preferences_ZSD_2_test.yml", "PreScanPlate",
+         {'Experiment': 'UpdatePlateWellZero', 'Repetitions': 1,
+          'Input': None, 'Output': {}, 'OriginalWorkflow':
+          [{'Experiment': 'Koehler', 'Repetitions': 1, 'Input': None, 'Output': {}},
+           {'Experiment': 'UpdatePlateWellZero', 'Repetitions': 1,
+            'Input': None, 'Output': {}},
+           {'Experiment': 'RunMacro', 'Repetitions': 1, 'Input': None,
+            'Output': {}},
+           ], 'WorkflowList': ['Koehler', 'UpdatePlateWellZero', 'RunMacro']
+          }, "plate", "well", None, None, 0,
+         {'Image': [ImageAICS()], 'Continue': True}),
+        ("data/preferences_ZSD_2_test.yml", "PreScanPlate",
+         {'Experiment': 'UpdatePlateWellZero', 'Repetitions': 1,
+          'Input': None, 'Output': {}, 'OriginalWorkflow':
+          [{'Experiment': 'Koehler', 'Repetitions': 1, 'Input': None, 'Output': {}},
+           {'Experiment': 'UpdatePlateWellZero', 'Repetitions': 1,
+            'Input': None, 'Output': {}},
+           {'Experiment': 'RunMacro', 'Repetitions': 1, 'Input': None,
+            'Output': {}},
+           ], 'WorkflowList': ['Koehler', 'UpdatePlateWellZero', 'RunMacro']
+          }, "plate", "well", None, None, 1,
+         {'Image': [ImageAICS()], 'Continue': True}),
+        ("data/preferences_ZSD_2_test.yml", "ScanPlate",
+         {'Experiment': 'UpdatePlateWellZero', 'Repetitions': 1,
+          'Input': None, 'Output': {}, 'OriginalWorkflow':
+          [{'Experiment': 'Koehler', 'Repetitions': 1, 'Input': None, 'Output': {}},
+           {'Experiment': 'UpdatePlateWellZero', 'Repetitions': 1,
+            'Input': None, 'Output': {}},
+           {'Experiment': 'RunMacro', 'Repetitions': 1, 'Input': None,
+            'Output': {}},
+           ], 'WorkflowList': ['Koehler', 'UpdatePlateWellZero', 'RunMacro']
+          }, "plate", None, None, None, 1, "HardwareError"),
+    ],
+)
+def test_scan_single_ROI(mock_select, mock_message, mock_show_safe, mock_close,
+                         prefs_path, pref_name, experiment, sample_type,
+                         reference_type, image_path, meta_dict, repetition,
+                         expected, helpers):
+    if isinstance(expected, Mapping):
+        mock_select.return_value = {'Continue': expected['Continue'], 'Include': True}
+    camera_id = "Camera1 (back)"
+    (
+        microscope,
+        stage_id,
+        focus_id,
+        autofocus_id,
+        obj_changer_id,
+        safety_id,
+    ) = helpers.microscope_for_samples_testing(helpers, prefs_path)
+
+    plate_holder_object = helpers.create_sample_object(
+        "plate_holder",
+        microscope_obj=microscope,
+        camera_ids=[camera_id],
+        focus_id=focus_id,
+        stage_id=stage_id,
+        autofocus_id=autofocus_id,
+        obj_changer_id=obj_changer_id,
+        safety_id=safety_id,
+    )
+    sample_object = helpers.create_sample_object(
+        sample_type,
+        container=plate_holder_object,
+    )
+    reference_object = helpers.create_sample_object(reference_type)
+    sample_object.set_reference_object(reference_object)
+
+    mic_auto = helpers.setup_local_microscope_automation(prefs_path)
+    try:
+        result = mic_auto.scan_single_ROI(
+            Preferences(prefs_path).get_pref_as_meta(pref_name),
+            experiment,
+            sample_object,
+            reference_object,
+            image_path,
+            meta_dict,
+            repetition=repetition,
+        )
+        assert result['Continue'] == expected['Continue']
+        assert result['Image'].__class__ == expected['Image'].__class__
+    except Exception as err:
+        result = type(err).__name__
+        assert result == expected

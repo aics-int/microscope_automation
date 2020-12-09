@@ -275,7 +275,7 @@ class MicroscopeAutomation(object):
 
     ################################################################################
 
-    def calculate_all_wells_correction(self, prefs, plate_holder_object, experiment):
+    def calculate_all_wells_correction(self, prefs, plate_holder_object, _experiment):
         """Calculate correction factor for well coordinate system for all wells.
 
         Input:
@@ -283,8 +283,7 @@ class MicroscopeAutomation(object):
 
          plate_holder_object: object for plateholder that contains well
 
-         experiment: dictionary with keys 'Experiment', Repetitions', 'Input', 'Output'
-         from workflow with information about specific experiment
+         _experiment: _experiment: not used, necessary for compatibility
 
         Output:
          none
@@ -616,7 +615,7 @@ class MicroscopeAutomation(object):
             well_object.move_to_zero(load=load, verbose=verbose)
         else:
             raise AutomationError(
-                "Microscope not ready in update_plate_z_zero with experiment {}".format(
+                "Microscope not ready in set_up_koehler with experiment {}".format(
                     zen_experiment
                 )
             )
@@ -655,7 +654,6 @@ class MicroscopeAutomation(object):
                 colony_remote_file = message.file_select_dialog(
                     colony_remote_dir, returnCode=True
                 )
-                print(colony_remote_file)
                 # continue if user did not press cancel
                 if colony_remote_file != 0:
                     source_path = os.path.normpath(
@@ -719,8 +717,8 @@ class MicroscopeAutomation(object):
          plate_holder_object: object of type PlateHolder
          from module sample with well information
 
-         experiment: dictionary with keys 'Experiment', Repetitions', 'Input', 'Output'
-         from workflow with information about specific experiment
+         experiment: dictionary with keys 'Experiment', Repetitions', 'Input',
+         'Output', 'WorkflowList', 'WorflowType', 'ObjectsDict' and 'OriginalWorkflow'
 
         Output:
          none
@@ -802,7 +800,7 @@ class MicroscopeAutomation(object):
                 plate_holder_object.microscope.microscope_components_ordered_dict.items()  # noqa
             ):
                 if isinstance(value, hardware_components.AutoFocus):
-                    self.state.reference_object = value.get_focus_reference_obj()
+                    self.state.reference_object = plate_object.get_reference_object()
                     # Autosave
                     self.state.save_state()
                 # Passage the previous experiment's objects if being called
@@ -811,9 +809,9 @@ class MicroscopeAutomation(object):
                 original_workflow = experiment["OriginalWorkflow"]
                 if experiment["Experiment"] in workflow_list:
                     previous_experiment = original_workflow[
-                        original_workflow.index(experiment["Experiment"]) - 1
+                        workflow_list.index(experiment["Experiment"]) - 1
                     ]
-                    if previous_experiment in self.state.next_experiment_objects.keys():
+                    if previous_experiment in list(self.state.next_experiment_objects.keys()):
                         next_exp_objects = self.state.next_experiment_objects[
                             previous_experiment
                         ]
@@ -1113,7 +1111,7 @@ class MicroscopeAutomation(object):
         number_selected_postions=0,
         repetition=0,
     ):
-        """Acquire tiled image as defined in posList
+        """Acquire tiled image as defined in pos_list
 
         Input:
          imaging_settings: dictionary with preferences
@@ -1138,7 +1136,7 @@ class MicroscopeAutomation(object):
          repetition: counter for time lapse experiments
 
         Output:
-         return_dict: dictionary of form {'Image': image, 'Continue': True/False}
+         return_dict: dictionary of form {'Image': [images], 'Continue': True/False}
         """
         if verbose:
             print("\n\nStart scanning ", sample_object.get_name(), " (scan_single_ROI)")
@@ -1262,7 +1260,7 @@ class MicroscopeAutomation(object):
                 "Tile", valid_values=VALID_TILE_OBJECT
             )
             pos_list = sample_object.get_tile_positions_list(
-                imaging_settings, tile_type=tile_object, verbose=verbose
+                imaging_settings, tile_object=tile_object, verbose=verbose
             )
             images = sample_object.acquire_images(
                 experiment,
@@ -1303,15 +1301,17 @@ class MicroscopeAutomation(object):
 
          plate_object: object sample list belongs to
 
-         experiment: dictionary with keys 'Experiment', Repetitions', 'Input', 'Output'
-         from workflow with information about specific experiment
+         experiment: dictionary with keys 'Experiment', Repetitions', 'Input',
+         'Output', 'WorkflowList', 'WorflowType', 'ObjectsDict' and 'OriginalWorkflow'
 
          repetition: counter for time lapse experiments
 
          wait_after_image: wait preferences as dictionary to determine whether
          to wait after execution
           Image: Wait after each image
+
           Plate: Reset wait status after each plate
+
           Repetition: Reset wait status after each repetition
 
         Output:
@@ -1573,8 +1573,8 @@ class MicroscopeAutomation(object):
 
          plate_holder_object: Plate Holder object containing all the information
 
-         experiment: dictionary with keys 'Experiment', Repetitions', 'Input', 'Output'
-         from workflow with information about specific experiment
+         experiment: dictionary with keys 'Experiment', Repetitions', 'Input',
+         'Output', 'WorkflowList', 'WorflowType', 'ObjectsDict' and 'OriginalWorkflow'
 
          repetition: counter for time lapse experiments
 
@@ -1892,8 +1892,8 @@ class MicroscopeAutomation(object):
          plate_holder_object: object of type PlateHolder
          from module sample with well information
 
-         experiment: dictionary with keys 'Experiment', Repetitions', 'Input', 'Output'
-         from workflow with information about specific experiment
+         experiment: dictionary with keys 'Experiment', Repetitions', 'Input',
+         'Output', 'WorkflowList', 'WorflowType', 'ObjectsDict' and 'OriginalWorkflow'
 
          repetition: counter for time lapse experiments
 
@@ -2026,8 +2026,8 @@ class MicroscopeAutomation(object):
 
          plate_object: object of class plate
 
-         experiment: dictionary with keys 'Experiment', Repetitions', 'Input', 'Output'
-         from workflow with information about specific experiment
+         experiment: dictionary with keys 'Experiment', Repetitions', 'Input',
+         'Output', 'WorkflowList', 'WorflowType', 'ObjectsDict' and 'OriginalWorkflow'
 
         Output:
          none
@@ -2127,8 +2127,8 @@ class MicroscopeAutomation(object):
          plate_holder_object: object of type PlateHolder
          from module sample with well information
 
-         experiment: dictionary with keys 'Experiment', Repetitions', 'Input', 'Output'
-         from workflow with information about specific experiment
+         experiment: dictionary with keys 'Experiment', Repetitions', 'Input',
+         'Output', 'WorkflowList', 'WorflowType', 'ObjectsDict' and 'OriginalWorkflow'
 
          repetition: counter for time lapse experiments
 

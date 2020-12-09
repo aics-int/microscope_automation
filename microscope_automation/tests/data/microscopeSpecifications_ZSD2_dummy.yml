@@ -43,7 +43,7 @@ Microscope:
 ############################################################
 
 Cameras:
- Camera1 (Back):
+ Camera1 (back):
   pixelSize_x: 13
   pixelSize_y: 13
   pixelNumber_x: 1848
@@ -55,7 +55,7 @@ Cameras:
   detectorType: sCMOS
   manufacturer: Hamamatsu
 
- Camera2 (Left):
+ Camera2 (left):
   pixelSize_x: 13
   pixelSize_y: 13
   pixelNumber_x: 1848
@@ -233,7 +233,7 @@ Focus:
  MinWorkPosition: 100
  AutoFocus: DefiniteFocus2
  DefaultExperiment: Setup_10x.czexp
- DefaultCamera: Camera1 (Back)
+ DefaultCamera: Camera1 (back)
  ObjectiveChanger: 6xMotorizedNosepiece
 
 ############################################################
@@ -245,7 +245,7 @@ Focus:
 AutoFocus:
  Name: DefiniteFocus2
  DefaultExperiment: Setup_10x.czexp
- DefaultCamera: Camera1 (Back)
+ DefaultCamera: Camera1 (back)
  DefaultReferencePosition: [48645, 35791, 7307]
 
 ############################################################
@@ -273,7 +273,7 @@ ObjectiveChanger:
   ? "C-Apochromat 100x/1.25 W Korr UV VIS IR"
   :
     autofocus: DefiniteFocus2
-    camera: "Camera1 (Back)"
+    camera: "Camera1 (back)"
     experiment: Setup_100x
     immersion: water
     magnification: 100
@@ -283,7 +283,7 @@ ObjectiveChanger:
   ? "Plan-Apochromat 10x/0.45 M27"
   :
     autofocus: DefiniteFocus2
-    camera: "Camera1 (Back)"
+    camera: "Camera1 (back)"
     experiment: Setup_10x
     immersion: air
     magnification: 10
@@ -293,7 +293,7 @@ ObjectiveChanger:
   ? "Plan-Apochromat 20x/0.8 M27"
   :
     autofocus: DefiniteFocus2
-    camera: "Camera1 (Back)"
+    camera: "Camera1 (back)"
     experiment: Setup_20x
     immersion: air
     magnification: 20
