@@ -17,7 +17,7 @@ from microscope_automation import microscope_automation
 os.chdir(os.path.dirname(__file__))
 
 # set skip_all_tests = True to focus on single test
-skip_all_tests = True
+skip_all_tests = False
 
 
 @patch("microscope_automation.automation_messages_form_layout.information_message")
@@ -693,7 +693,7 @@ def test_scan_single_ROI(mock_select, mock_message, mock_show_safe, mock_close,
 @patch("microscope_automation.automation_messages_form_layout.information_message")
 @patch("microscope_automation.automation_messages_form_layout.operate_message")
 @patch("microscope_automation.automation_messages_form_layout.select_message")
-# @pytest.mark.skipif(skip_all_tests, reason="Exclude all tests")
+@pytest.mark.skipif(skip_all_tests, reason="Exclude all tests")
 @pytest.mark.parametrize(
     ("prefs_path, pref_name, experiment, sample_dict, repetition, wait_after_image,"
      "load_error, less_dialog, expected"),
