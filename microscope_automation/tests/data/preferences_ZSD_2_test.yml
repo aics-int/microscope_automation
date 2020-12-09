@@ -268,7 +268,7 @@ ScanWellsZero:
 PreScanPlate:
  FunctionName: scan_plate                       # Name of function in Python code in module microscopeAutomation that will process this experiment
  Name: ScanPlate                                # name of experiment
- NumberTrials: 3                                     # How often a user is given the chance to set up the system in a correct way
+ NumberTrials: 3                                # How often a user is given the chance to set up the system in a correct way
  NextName: CellScan                             # name of next experiment. Objects selected during this experiment will be added to the next one.
  Verbose: False                                 # print debug messages?
  Blocking: True                                 # open modal dialog in case of error
@@ -319,6 +319,7 @@ ScanPlate:
  FunctionName: scan_plate                       # Name of function in Python code in module microscopeAutomation that will process this experiment
  Name: ScanPlate                                # name of experiment
  NextName: ScanCells                            # name of next experiment. Objects selected during this experiment will be added to the next one.
+ NumberTrials: 3                                # How often a user is given the chance to set up the system in a correct way
  UseReference: False
  Verbose: False                                 # print debug messages?
  Blocking: False                                # open modal dialog in case of error

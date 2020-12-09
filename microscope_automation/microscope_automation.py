@@ -1314,6 +1314,9 @@ class MicroscopeAutomation(object):
 
           Repetition: Reset wait status after each repetition
 
+          Status: Show last image and allow adjustments if True,
+          enter fully automatic mode if False
+
         Output:
          none
         """
@@ -1467,7 +1470,7 @@ class MicroscopeAutomation(object):
                     else:
                         image = images[0]
                         tile_image = sample_object.get_microscope().load_image(
-                            image, getMeta=True
+                            image, get_meta=True
                         )  # loads the image & metadata
                 except Exception:
                     tile_image = None
@@ -1507,7 +1510,7 @@ class MicroscopeAutomation(object):
                     )
 
             # close all images in microscope software
-            sample_object.remove_images(tile_image)
+            sample_object.remove_images()
 
             if not return_dict["Continue"]:
                 raise StopCollectingError(
@@ -1533,8 +1536,8 @@ class MicroscopeAutomation(object):
             plate_object.container.microscope.microscope_components_ordered_dict.items()
         ):
             if isinstance(value, hardware_components.AutoFocus):
-                pickle_dict["reference_object"] = value.get_focus_reference_obj()
-                self.state.reference_object = value.get_focus_reference_obj()
+                self.state.reference_object = plate_object.get_reference_object()
+                pickle_dict["reference_object"] = self.state.reference_object
                 # Autosave
                 self.state.save_state()
 
@@ -1581,8 +1584,13 @@ class MicroscopeAutomation(object):
          wait_after_image: wait preferences as dictionary to determine whether
          to wait after execution
           Image: Wait after each image
+
           Plate: Reset wait status after each plate
+
           Repetition: Reset wait status after each repetition
+
+          Status: Show last image and allow adjustments if True,
+          enter fully automatic mode if False
 
         Output:
          none
@@ -1900,8 +1908,13 @@ class MicroscopeAutomation(object):
          wait_after_image: wait preferences as dictionary to determine whether
          to wait after execution
           Image: Wait after each image
+
           Plate: Reset wait status after each plate
+
           Repetition: Reset wait status after each repetition
+
+          Status: Show last image and allow adjustments if True,
+          enter fully automatic mode if False
 
         Output:
          none
@@ -2135,8 +2148,13 @@ class MicroscopeAutomation(object):
          wait_after_image: wait preferences as dictionary to determine whether
          to wait after execution
           Image: Wait after each image
+
           Plate: Reset wait status after each plate
+
           Repetition: Reset wait status after each repetition
+
+          Status: Show last image and allow adjustments if True,
+          enter fully automatic mode if False
 
         Output:
          none
