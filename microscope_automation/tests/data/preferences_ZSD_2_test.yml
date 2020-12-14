@@ -626,3 +626,15 @@ Koehler:
   Plate: False                                      # Reset wait status after each plate
   Repetition: False                                 # Reset wait status after each repetition
  Blocking: False                                  # open modal dialog in case of error (has no effect in this experiment module)
+
+RunMacro:
+ FunctionName: run_macro                       # Name of function in Python code in module microscopeAutomation that will process this experiment
+ MacroName: 10x_stitch                         # Name of macro called in Zen Blue software
+ Folder: ['10XwellScan\TapeOnly\split']        # List of folders inside daily foder to create before running macro if they do not exist.
+ Experiment: NoExperiment
+ Wait:                                            # Wait for user input after imaging and before removing image from display (has no effect in this experiment module)
+  Image: False                                      # Wait after each image
+  Plate: False                                      # Reset wait status after each plate
+  Repetition: False                                 # Reset wait status after each repetition
+ UseAutoFocus: False                            # use autofocus instead of values based on calibration
+ Blocking: False                                # open modal dialog in case of error (has no effect in this experiment module)

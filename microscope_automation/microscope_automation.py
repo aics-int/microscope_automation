@@ -283,7 +283,7 @@ class MicroscopeAutomation(object):
 
          plate_holder_object: object for plateholder that contains well
 
-         _experiment: _experiment: not used, necessary for compatibility
+         _experiment: not used, necessary for compatibility
 
         Output:
          none
@@ -1945,7 +1945,7 @@ class MicroscopeAutomation(object):
         self,
         imaging_settings,
         plate_holder_object,
-        experiment,
+        experiment=None,
         repetition=0,
         wait_after_image=None,
     ):
@@ -1956,11 +1956,11 @@ class MicroscopeAutomation(object):
          plate_holder_object: object of type PlateHolder
          from module sample with well information
 
-         experiment: not used but included for consistency
+         experiment: not used, necessary for compatibility
 
-         repetition: not used but included for consistency
+         repetition: not used, necessary for compatibility
 
-         wait_after_image: not used but included for consistency
+         wait_after_image: not used, necessary for compatibility
 
         Output:
          none

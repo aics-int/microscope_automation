@@ -889,18 +889,14 @@ def test_segment_wells(mock_convert, mock_write, prefs_path, pref_name,
     ],
 )
 def test_get_objective_offsets(prefs_path, magnification, expected, helpers):
-    if prefs_path:
-        (
-            microscope,
-            stage_id,
-            focus_id,
-            autofocus_id,
-            obj_changer_id,
-            safety_id,
-        ) = helpers.microscope_for_samples_testing(helpers, prefs_path)
-    else:
-        microscope = None
-        obj_changer_id = None
+    (
+        microscope,
+        stage_id,
+        focus_id,
+        autofocus_id,
+        obj_changer_id,
+        safety_id,
+    ) = helpers.microscope_for_samples_testing(helpers, prefs_path)
 
     plate_holder_object = helpers.create_sample_object(
         "plate_holder",
@@ -1008,20 +1004,35 @@ def test_scan_plate(mock_select, mock_message, mock_info, mock_wait,
 
     assert result == expected
 
-# def test_run_macro():
 
-# def test_read_first_barcode_from_plateholderobject():
+@pytest.mark.skipif(skip_all_tests, reason="Exclude all tests")
+@pytest.mark.parametrize(
+    ("prefs_path, pref_name, expected"),
+    [
+        ("data/preferences_ZSD_2_test.yml", "ScanPlate", None),
+        ("data/preferences_ZSD_2_test.yml", "RunMacro", None),
+    ],
+)
+def test_run_macro(prefs_path, pref_name, expected, helpers):
+    (
+        microscope,
+        stage_id,
+        focus_id,
+        autofocus_id,
+        obj_changer_id,
+        safety_id,
+    ) = helpers.microscope_for_samples_testing(helpers, prefs_path)
 
-# def test_recover_previous_settings():
+    plate_holder_object = helpers.create_sample_object(
+        "plate_holder",
+        microscope_obj=microscope,
+        obj_changer_id=obj_changer_id,
+    )
 
-# def test_save_segmented_image():
+    mic_auto = helpers.setup_local_microscope_automation(prefs_path)
+    result = mic_auto.run_macro(
+        Preferences(prefs_path).get_pref_as_meta(pref_name),
+        plate_holder_object
+    )
 
-# def test_scan_samples():
-
-# def test_validate_experiment():
-
-# def test_control_autofocus():
-
-# def test_microscope_automation():
-
-# def test_main():
+    assert result == expected
