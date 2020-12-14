@@ -629,7 +629,7 @@ def test_scan_wells_zero(mock_message, mock_close, mock_save, mock_show_safe,
           'OriginalWorkflow': ['Koehler', 'UpdatePlateWellZero', 'RunMacro'],
           'WorkflowList': ['Koehler', 'UpdatePlateWellZero', 'RunMacro'],
           'WorkflowType': 'new',
-          }, "plate", None, None, None, 1, "HardwareError"),
+          }, "plate", None, None, None, 1, "AttributeError"),
     ],
 )
 def test_scan_single_ROI(mock_select, mock_message, mock_show_safe, mock_close,
