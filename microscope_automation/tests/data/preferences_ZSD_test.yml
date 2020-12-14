@@ -261,6 +261,7 @@ ScanPlate:
                                                 # entries that start with '#' will be replaced with meta data values with the same key
  FileName: ['#aics_barcode', '_', '#aics_objectiveMagnification', 'X_', '#aics_dateStartShort', '_', '#aics_well','.czi']
  UseAutoFocus: True                             # use autofocus instead of values based on calibration
+ UseReference: False
  ManualRefocus: False                           # give user option to manually refocus
  ManualRefocusAfterRepetitions: 1               # manually refocus after n repetitions (0: no refocus)
  SnapImage: True                                # take image and save it, not required for pre-scans

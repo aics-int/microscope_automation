@@ -309,10 +309,12 @@ PreScanPlate:
                                                 # - Well:  image whole well (if only part of well set PercentageWell to value smaller 100)
  CorrectBackground: False                       # Apply illumination correction before tiling?
  FindObjects: 'Interactive'                     # Type of objects to find ('None', 'Cells', 'Colonies', 'Interactive')
- TypeFindCells: False                           # Method used to determine imaging location
-                                                # - False: do not find cells
-                                                # - CenterMassCellProfiler: use center of mass as defined in cell profiler
-                                                # - TwofoldDistanceMap: use the twofold distance map to locate smooth areas
+ FindType: None                                 # Method used to determine imaging location
+                                                # - Interactive: Use the UI to image objects (on well object for now)
+                                                # - Copy
+                                                # - None
+                                                # - CenterMassCellProfiler: use center of mass as defined in cell profiler (on colony objects for now)
+                                                # - TwofoldDistanceMap: use the twofold distance map to locate smooth areas (on colony objects for now)
 
 # Take overview images of selected wells
 ScanPlate:

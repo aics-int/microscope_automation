@@ -1918,13 +1918,13 @@ class MicroscopeAutomation(object):
                         plate_holder_object, plate_object, experiment
                     )
 
-                # get objects for wells in welNamesList
-                wellsList = [
+                # get objects for wells in well_names_list
+                wells_list = [
                     plate_object.get_well(well_name) for well_name in well_names_list
                 ]
                 self.scan_all_objects(
                     imaging_settings,
-                    sample_list=wellsList,
+                    sample_list=wells_list,
                     plate_object=plate_object,
                     experiment=experiment,
                     repetition=repetition,
