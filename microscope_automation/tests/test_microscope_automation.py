@@ -17,7 +17,7 @@ from microscope_automation import microscope_automation
 os.chdir(os.path.dirname(__file__))
 
 # set skip_all_tests = True to focus on single test
-skip_all_tests = True
+skip_all_tests = False
 
 
 @patch("microscope_automation.automation_messages_form_layout.information_message")
