@@ -60,6 +60,9 @@ WellEdgeDirPath: WellEdge
 MetaDataPath: MetaData.csv
 MetaDataFormat: csv
 
+# Path to Empty positions.czsh file- save_position_list uses this to write a filled positions.czsh file with coordinates from the Automation software.
+PathDummy: 'data\dummy_tile_positions.czsh'
+
 # Whether to show all dialog boxes or less depending on the user's skill level
 LessDialog: False                                # Set "False": All diag boxes (default)   |   Set "True": Minimal diag boxes
 

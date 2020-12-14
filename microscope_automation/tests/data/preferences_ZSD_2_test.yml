@@ -52,10 +52,10 @@ Experiment: WellTile_10x_true.czexp
 PathMicroscopeSpecs: ['data\microscopeSpecifications_ZSD2_dummy.yml', 'data/microscopeSpecifications_ZSD2_dummy.yml']
 
 # Path to daily folder
-PathDailyFolder: ['J:\Winfried\Production\Daily\', '/Users/winfriedw/Documents/Documents - OSXLT4G8WM/Programming/Production/Daily', '/home/mattb/git/microscopeautomation/data/test_data_matthew/', '/home/shailjad/git/microscopeautomation/data/test_data_shailja/']
+PathDailyFolder: ['data\Production\Daily\', 'data/Production/Daily/']
 
 # Path to calibration information
-PathCalibration: ['J:\Winfried\Production\GeneralSettings\Calibration\', '/Users/winfriedw/Documents/Documents - OSXLT4G8WM/Programming/Production/GeneralSettings/Calibration/', '/home/mattb/git/microscopeautomation/GeneralSettings/Calibration/', '/home/shailjad/git/microscopeautomation/GeneralSettings/Calibration/']
+PathCalibration: ['data\Production\GeneralSettings\Calibration\', 'data/Production/GeneralSettings/Calibration/']
 
 # Sample Information in daily folder. Do not use '/' at end of directory.
 # All paths are relative to daily folder

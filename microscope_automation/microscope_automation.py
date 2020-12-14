@@ -684,14 +684,9 @@ class MicroscopeAutomation(object):
                     verbose=verbose,
                 )
 
-                for (
-                    key,
-                    value,
-                ) in microscope_object.microscope_components_ordered_dict.items():
-                    if isinstance(value, hardware_components.AutoFocus):
-                        self.state.reference_object = plate.get_reference_object()
-                        # Autosave
-                        self.state.save_state()
+                self.state.reference_object = plate.get_reference_object()
+                # Autosave
+                self.state.save_state()
 
             # set Koehler illumination
             if initialize_prefs.get_pref("Koehler", valid_values=VALID_KOEHLER):
@@ -793,16 +788,15 @@ class MicroscopeAutomation(object):
                 verbose=verbose
             )
 
+            self.state.reference_object = plate_object.get_reference_object()
+            self.state.save_state()
+
             for (
                 key,
                 value,
             ) in (
                 plate_holder_object.microscope.microscope_components_ordered_dict.items()  # noqa
             ):
-                if isinstance(value, hardware_components.AutoFocus):
-                    self.state.reference_object = plate_object.get_reference_object()
-                    # Autosave
-                    self.state.save_state()
                 # Passage the previous experiment's objects if being called
                 # as a separate workflow experiment
                 workflow_list = experiment["WorkflowList"]
@@ -1529,17 +1523,10 @@ class MicroscopeAutomation(object):
         pickle_dict = {}
         pickle_dict["next_object_dict"] = all_objects_dict
         # Pickle the reference object - needed for continuation
-        for (
-            key,
-            value,
-        ) in (
-            plate_object.container.microscope.microscope_components_ordered_dict.items()
-        ):
-            if isinstance(value, hardware_components.AutoFocus):
-                self.state.reference_object = plate_object.get_reference_object()
-                pickle_dict["reference_object"] = self.state.reference_object
-                # Autosave
-                self.state.save_state()
+        self.state.reference_object = plate_object.get_reference_object()
+        pickle_dict["reference_object"] = self.state.reference_object
+        # Autosave
+        self.state.save_state()
 
         if (
             "Interrupt" in experiment.keys()
@@ -1774,7 +1761,7 @@ class MicroscopeAutomation(object):
                     all_objects_dict[object] = new_objects_dict[object]
         finally:
             # write each position to the file
-            with open(str(position_csv_filepath), mode="ab") as position_file:
+            with open(str(position_csv_filepath), mode="a") as position_file:
                 position_writer = csv.writer(
                     position_file,
                     delimiter=",",
@@ -1784,7 +1771,7 @@ class MicroscopeAutomation(object):
                 for position in position_list_for_csv:
                     position_writer.writerow(position)
             with open(
-                str(position_wellid_csv_filepath), mode="ab"
+                str(position_wellid_csv_filepath), mode="a"
             ) as position_wellid_file:
                 position_wellid_writer = csv.writer(
                     position_wellid_file,
@@ -1794,7 +1781,7 @@ class MicroscopeAutomation(object):
                 )
                 for position_wellid in image_location_list_for_csv:
                     position_wellid_writer.writerow(position_wellid)
-            with open(str(failed_csv_filepath), mode="ab") as fail_position_file:
+            with open(str(failed_csv_filepath), mode="a") as fail_position_file:
                 fail_position_writer = csv.writer(
                     fail_position_file, quotechar='"', quoting=csv.QUOTE_MINIMAL
                 )
@@ -1811,16 +1798,10 @@ class MicroscopeAutomation(object):
         self.state.save_state()
         pickle_dict = {}
         pickle_dict["next_object_dict"] = all_objects_dict
-        # pickle the reference object - needed for continuation
-        for (
-            key,
-            value,
-        ) in plate_holder_object.microscope.microscope_components_ordered_dict.items():
-            if isinstance(value, hardware_components.AutoFocus):
-                pickle_dict["reference_object"] = value.get_focus_reference_obj()
-                self.state.reference_object = value.get_focus_reference_obj()
-                # Autosave
-                self.state.save_state()
+        self.state.reference_object = plate_holder_object.get_reference_object()
+        pickle_dict["reference_object"] = self.state.reference_object
+        # Autosave
+        self.state.save_state()
         # Once the experiment with multiple objects is finished,
         # if interrupt is true, pickle and exit
         # If the experiment needs to be interrupted, save the positions and exit
@@ -1839,12 +1820,12 @@ class MicroscopeAutomation(object):
             filename = get_recovery_settings_path(
                 experiment["RecoverySettingsFilePath"]
             )
-            with open(filename, "wb") as f:
+            with open(filename, "w") as f:
                 pickle.dump(pickle_dict, f, pickle.HIGHEST_PROTOCOL)
                 stop_script("Interruption Occurred. Data saved!")
         pos_list_saver = PositionWriter(
             self.prefs.prefs["Info"]["System"],
-            plate_object.barcode,
+            plate_object.get_barcode(),
             self.prefs.prefs["PathDailyFolder"],
         )
         position_list_for_csv = pos_list_saver.convert_to_stage_coords(
@@ -2026,7 +2007,6 @@ class MicroscopeAutomation(object):
         Output:
          barcode: barcode of plate in plate_holder_object
         """
-
         return list(plate_holder_object.get_plates().values())[0].barcode
 
     def recover_previous_settings(self, plate_holder_object, plate_object, experiment):
@@ -2228,14 +2208,9 @@ class MicroscopeAutomation(object):
                 )
 
         # Update the reference object
-        for (
-            key,
-            value,
-        ) in plate_holder_object.microscope.microscope_components_ordered_dict.items():
-            if isinstance(value, hardware_components.AutoFocus):
-                self.state.reference_object = value.get_focus_reference_obj()
-                # Autosave
-                self.state.save_state()
+        self.state.reference_object = plate_holder_object.get_reference_object()
+        # Autosave
+        self.state.save_state()
 
     ################################################################################
 
