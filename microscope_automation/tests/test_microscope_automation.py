@@ -1036,3 +1036,55 @@ def test_run_macro(prefs_path, pref_name, expected, helpers):
     )
 
     assert result == expected
+
+
+# def test_read_first_barcode_from_plateholderobject():
+
+
+@pytest.mark.skipif(skip_all_tests, reason="Exclude all tests")
+@pytest.mark.parametrize(
+    ("prefs_path, experiment, expected"),
+    [
+        ("data/preferences_ZSD_2_test.yml",
+         {'Experiment': 'UpdatePlateWellZero', 'Repetitions': 1,
+          'Input': None, 'Output': {},
+          'OriginalWorkflow': ['Koehler', 'UpdatePlateWellZero', 'RunMacro'],
+          'WorkflowList': ['Koehler', 'UpdatePlateWellZero', 'RunMacro'],
+          'WorkflowType': 'new'}, "KeyError"),
+         ("data/preferences_ZSD_2_test.yml",
+          {'Experiment': 'UpdatePlateWellZero', 'Repetitions': 1,
+           'Input': None, 'Output': {},
+           'OriginalWorkflow': ['Koehler', 'UpdatePlateWellZero', 'RunMacro'],
+           'WorkflowList': ['Koehler', 'UpdatePlateWellZero', 'RunMacro'],
+           'WorkflowType': 'new', 'ObjectsDict': {}}, None),
+         ("data/preferences_ZSD_2_test.yml",
+          {'Experiment': 'UpdatePlateWellZero', 'Repetitions': 1,
+           'Input': None, 'Output': {},
+           'OriginalWorkflow': ['Koehler', 'UpdatePlateWellZero', 'RunMacro'],
+           'WorkflowList': ['Koehler', 'UpdatePlateWellZero', 'RunMacro'],
+           'WorkflowType': 'new', 'ObjectsDict': {'Plate': samples.Plate()}}, None),
+    ],
+)
+def test_recover_previous_settings(prefs_path, experiment,
+                                   expected, helpers):
+    plate_holder_object = helpers.create_sample_object("plate_holder")
+    plate_object = helpers.create_sample_object(
+        "plate",
+        container=plate_holder_object,
+    )
+
+    objects_dict = experiment.get('ObjectsDict')
+    if objects_dict:
+        if objects_dict.get(plate_object.get_name()):
+            experiment['ObjectsDict'][plate_object.get_name()] = plate_object
+
+    mic_auto = helpers.setup_local_microscope_automation(prefs_path)
+    try:
+        result = mic_auto.recover_previous_settings(
+            plate_holder_object,
+            plate_object,
+            experiment
+        )
+    except Exception as err:
+        result = type(err).__name__
+    assert result == expected
