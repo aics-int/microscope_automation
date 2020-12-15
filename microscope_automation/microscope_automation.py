@@ -942,7 +942,7 @@ class MicroscopeAutomation(object):
                 plate_holder_object.get_pos_from_abs_pos(*centers, verbose=verbose)
                 for centers in well_center_abs
             ]
-            print(well_center_abs)
+
             x_plate_holder_distance = (
                 plate_holder_centers[1][0] - plate_holder_centers[0][0]
             )
@@ -950,7 +950,6 @@ class MicroscopeAutomation(object):
                 plate_holder_centers[2][1] - plate_holder_centers[1][1]
             )
 
-            print(plate_centers)
             # calculate corrections
             x_plate_holder_correction = x_plate_holder_distance / x_plate_distance
             y_plate_holder_correction = y_plate_holder_distance / y_plate_distance
@@ -2166,10 +2165,10 @@ class MicroscopeAutomation(object):
                 )
                 if update_z_function_name is None:
                     update_z_function_name = "UpdatePlateWellZero_100x"
-                settings = imaging_settings.parentPrefs.get_pref_as_meta(
+                settings = imaging_settings.get_parent_prefs().get_pref_as_meta(
                     update_z_function_name
                 )
-                workflow = imaging_settings.parentPrefs.get_pref("Workflow")
+                workflow = imaging_settings.get_parent_prefs().get_pref("Workflow")
                 update_plate_exp = [
                     update_plate_exp
                     for update_plate_exp in workflow
@@ -2187,12 +2186,12 @@ class MicroscopeAutomation(object):
                     )
 
                 # Extract the sample list
-                sampleList = plate_object.get_from_image_dir(list_name)
-                current_samples = copy.copy(sampleList)
+                sample_list = plate_object.get_from_image_dir(list_name)
+                current_samples = copy.copy(sample_list)
                 # Update sample list by removing positions that were imaged already
                 last_exp_objects = experiment["LastExpObjects"]
-                if sampleList is not None:
-                    for sample in sampleList:
+                if sample_list is not None:
+                    for sample in sample_list:
                         name = sample.get_name()
                         if name in last_exp_objects:
                             current_samples.remove(sample)

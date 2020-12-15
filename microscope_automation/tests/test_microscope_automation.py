@@ -937,6 +937,13 @@ def test_get_objective_offsets(prefs_path, magnification, expected, helpers):
           'Input': None, 'Output': {},
           'OriginalWorkflow': ['Koehler', 'UpdatePlateWellZero', 'RunMacro'],
           'WorkflowList': ['Koehler', 'UpdatePlateWellZero', 'RunMacro'],
+          'WorkflowType': 'continue', 'ObjectsDict': {'Plate': samples.Plate()}
+          }, ["E5", "E6"], 0, {'Status': True, 'Plate': True}, None),
+        ("data/preferences_ZSD_2_test.yml", "PreScanPlate",
+         {'Experiment': 'UpdatePlateWellZero', 'Repetitions': 1,
+          'Input': None, 'Output': {},
+          'OriginalWorkflow': ['Koehler', 'UpdatePlateWellZero', 'RunMacro'],
+          'WorkflowList': ['Koehler', 'UpdatePlateWellZero', 'RunMacro'],
           'WorkflowType': 'new',
           }, ["E5", "E6"], 0, {'Status': True}, "KeyError"),
         ("data/preferences_ZSD_test.yml", "ScanPlate",
@@ -984,6 +991,11 @@ def test_scan_plate(mock_select, mock_message, mock_info, mock_wait,
         container=plate_holder_object,
     )
     plate_holder_object.add_plates({plate_object.get_name(): plate_object})
+
+    objects_dict = experiment.get('ObjectsDict')
+    if objects_dict:
+        if objects_dict.get(plate_object.get_name()):
+            experiment['ObjectsDict'][plate_object.get_name()] = plate_object
 
     for name in well_names:
         well = helpers.setup_local_well(helpers, name=name)
@@ -1051,18 +1063,18 @@ def test_run_macro(prefs_path, pref_name, expected, helpers):
           'OriginalWorkflow': ['Koehler', 'UpdatePlateWellZero', 'RunMacro'],
           'WorkflowList': ['Koehler', 'UpdatePlateWellZero', 'RunMacro'],
           'WorkflowType': 'new'}, "KeyError"),
-         ("data/preferences_ZSD_2_test.yml",
-          {'Experiment': 'UpdatePlateWellZero', 'Repetitions': 1,
-           'Input': None, 'Output': {},
-           'OriginalWorkflow': ['Koehler', 'UpdatePlateWellZero', 'RunMacro'],
-           'WorkflowList': ['Koehler', 'UpdatePlateWellZero', 'RunMacro'],
-           'WorkflowType': 'new', 'ObjectsDict': {}}, None),
-         ("data/preferences_ZSD_2_test.yml",
-          {'Experiment': 'UpdatePlateWellZero', 'Repetitions': 1,
-           'Input': None, 'Output': {},
-           'OriginalWorkflow': ['Koehler', 'UpdatePlateWellZero', 'RunMacro'],
-           'WorkflowList': ['Koehler', 'UpdatePlateWellZero', 'RunMacro'],
-           'WorkflowType': 'new', 'ObjectsDict': {'Plate': samples.Plate()}}, None),
+        ("data/preferences_ZSD_2_test.yml",
+         {'Experiment': 'UpdatePlateWellZero', 'Repetitions': 1,
+          'Input': None, 'Output': {},
+          'OriginalWorkflow': ['Koehler', 'UpdatePlateWellZero', 'RunMacro'],
+          'WorkflowList': ['Koehler', 'UpdatePlateWellZero', 'RunMacro'],
+          'WorkflowType': 'new', 'ObjectsDict': {}}, None),
+        ("data/preferences_ZSD_2_test.yml",
+         {'Experiment': 'UpdatePlateWellZero', 'Repetitions': 1,
+          'Input': None, 'Output': {},
+          'OriginalWorkflow': ['Koehler', 'UpdatePlateWellZero', 'RunMacro'],
+          'WorkflowList': ['Koehler', 'UpdatePlateWellZero', 'RunMacro'],
+          'WorkflowType': 'new', 'ObjectsDict': {'Plate': samples.Plate()}}, None),
     ],
 )
 def test_recover_previous_settings(prefs_path, experiment,
@@ -1088,3 +1100,189 @@ def test_recover_previous_settings(prefs_path, experiment,
     except Exception as err:
         result = type(err).__name__
     assert result == expected
+
+
+@patch("matplotlib.image.imsave")
+@patch(
+    "microscope_automation.zeiss.connect_zen_blue.ConnectMicroscope.get_objective_name"
+)
+@pytest.mark.skipif(skip_all_tests, reason="Exclude all tests")
+@pytest.mark.parametrize(
+    ("prefs_path, pref_name, location_list, image, well_name, expected"),
+    [
+        ("data/preferences_ZSD_2_test.yml", "ScanPlate",
+         [], "test_image_all_black", "E7", None),
+        ("data/preferences_ZSD_2_test.yml", "ScanPlate",
+         [(0, 0), (-1, 1)], "test_image_all_black", "E7", None),
+        ("data/preferences_ZSD_2_test.yml", "ScanPlate",
+         None, "test_image_all_black", "E7", "TypeError"),
+    ],
+)
+def test_save_segmented_image(mock_get_obj, mock_save, prefs_path, pref_name,
+                              location_list, image, well_name, expected, helpers,
+                              test_image_all_black, test_image_all_white):
+    mock_get_obj.return_value = "Plan-Apochromat 10x/0.45"
+    if image == "test_image_all_black":
+        image = test_image_all_black
+    elif image == "test_image_all_white":
+        image = test_image_all_white
+
+    (
+        microscope,
+        stage_id,
+        focus_id,
+        autofocus_id,
+        obj_changer_id,
+        safety_id,
+    ) = helpers.microscope_for_samples_testing(helpers, prefs_path)
+
+    plate_holder_object = helpers.create_sample_object(
+        "plate_holder",
+        microscope_obj=microscope,
+        obj_changer_id=obj_changer_id,
+    )
+    plate_object = helpers.create_sample_object(
+        "plate",
+        container=plate_holder_object,
+    )
+    well_object = helpers.setup_local_well(helpers, name=well_name)
+
+    mic_auto = helpers.setup_local_microscope_automation(prefs_path)
+    try:
+        result = mic_auto.save_segmented_image(
+            Preferences(prefs_path).get_pref_as_meta(pref_name),
+            image.data,
+            location_list,
+            plate_object,
+            well_object,
+        )
+    except Exception as err:
+        result = type(err).__name__
+
+    assert result == expected
+
+
+@patch(
+    "microscope_automation.microscope_automation.MicroscopeAutomation.update_plate_z_zero"  # noqa
+)
+@patch(
+    "microscope_automation.microscope_automation.MicroscopeAutomation.scan_all_objects"
+)
+@pytest.mark.skipif(skip_all_tests, reason="Exclude all tests")
+@pytest.mark.parametrize(
+    ("prefs_path, pref_name, experiment, well_names, repetition, wait_after_image,"
+     "expected"),
+    [
+        ("data/preferences_ZSD_2_test.yml", "PreScanPlate",
+         {'Experiment': 'UpdatePlateWellZero', 'Repetitions': 1,
+          'Input': None, 'Output': {},
+          'OriginalWorkflow': ['Koehler', 'UpdatePlateWellZero', 'RunMacro'],
+          'WorkflowList': ['Koehler', 'UpdatePlateWellZero', 'RunMacro'],
+          'WorkflowType': 'new',
+          }, ["E5", "E6"], 0, {'Status': True, 'Plate': True}, None),
+        ("data/preferences_ZSD_2_test.yml", "ScanPlate",
+         {'Experiment': 'UpdatePlateWellZero', 'Repetitions': 1,
+          'Input': None, 'Output': {},
+          'OriginalWorkflow': ['Koehler', 'UpdatePlateWellZero', 'RunMacro'],
+          'WorkflowList': ['Koehler', 'UpdatePlateWellZero', 'RunMacro'],
+          'WorkflowType': 'continue', 'ObjectsDict': {'Plate': samples.Plate()}
+          }, ["E5", "E6"], 0, {'Status': True, 'Plate': True}, "IndexError"),
+        ("data/preferences_ZSD_test.yml", "ScanPlate",
+         {'Experiment': 'UpdatePlateWellZero', 'Repetitions': 1,
+          'Input': None, 'Output': {},
+          'OriginalWorkflow': ['Koehler', 'UpdatePlateWellZero', 'RunMacro'],
+          'WorkflowList': ['Koehler', 'UpdatePlateWellZero', 'RunMacro'],
+          'WorkflowType': 'continue', 'ObjectsDict': {'Plate': samples.Plate()}
+          }, ["E5", "E6"], 0, {'Status': True, 'Plate': True}, "KeyError"),
+        ("data/preferences_ZSD_test.yml", "ScanPlate",
+         {'Experiment': 'UpdatePlateWellZero', 'Repetitions': 1,
+          'Input': None, 'Output': {},
+          'OriginalWorkflow': ['Koehler', 'UpdatePlateWellZero', 'RunMacro'],
+          'WorkflowList': ['Koehler', 'UpdatePlateWellZero', 'RunMacro'],
+          'WorkflowType': 'continue', 'ObjectsDict': {'Plate': samples.Plate()},
+          'RecoverySettingsFilePath': ['data\\Production\\GeneralSettings\\RecoverySettings',
+                                       'data/Production/GeneralSettings/RecoverySettings'],
+          'LastExpObjects': None
+          }, ["E5", "E6"], 0, {'Status': True, 'Plate': True}, "TypeError"),
+        ("data/preferences_ZSD_test.yml", "ScanPlate",
+         {'Experiment': 'UpdatePlateWellZero', 'Repetitions': 1,
+          'Input': None, 'Output': {},
+          'OriginalWorkflow': ['Koehler', 'UpdatePlateWellZero', 'RunMacro'],
+          'WorkflowList': ['Koehler', 'UpdatePlateWellZero', 'RunMacro'],
+          'WorkflowType': 'continue', 'ObjectsDict': {'Plate': samples.Plate()},
+          'RecoverySettingsFilePath': ['data\\Production\\GeneralSettings\\RecoverySettings',
+                                       'data/Production/GeneralSettings/RecoverySettings'],
+          'LastExpObjects': []
+          }, ["E5", "E6"], 0, {'Status': True, 'Plate': True}, None),
+        ("data/preferences_ZSD_test.yml", "ScanPlate",
+         {'Experiment': 'UpdatePlateWellZero', 'Repetitions': 1,
+          'Input': None, 'Output': {},
+          'OriginalWorkflow': ['Koehler', 'UpdatePlateWellZero', 'RunMacro'],
+          'WorkflowList': ['Koehler', 'UpdatePlateWellZero', 'RunMacro'],
+          'WorkflowType': 'continue', 'ObjectsDict': {'Plate': samples.Plate()},
+          'RecoverySettingsFilePath': ['data\\Production\\GeneralSettings\\RecoverySettings',
+                                       'data/Production/GeneralSettings/RecoverySettings'],
+          'LastExpObjects': ['Plate']
+          }, ["E5", "E6"], 0, {'Status': True, 'Plate': True}, None),
+    ],
+)
+def test_scan_samples(mock_scan, mock_update,
+                      prefs_path, pref_name, experiment, well_names, repetition,
+                      wait_after_image, expected, helpers):
+    camera_id = "Camera1 (back)"
+    (
+        microscope,
+        stage_id,
+        focus_id,
+        autofocus_id,
+        obj_changer_id,
+        safety_id,
+    ) = helpers.microscope_for_samples_testing(helpers, prefs_path)
+
+    plate_holder_object = helpers.create_sample_object(
+        "plate_holder",
+        microscope_obj=microscope,
+        camera_ids=[camera_id],
+        focus_id=focus_id,
+        stage_id=stage_id,
+        autofocus_id=autofocus_id,
+        obj_changer_id=obj_changer_id,
+        safety_id=safety_id,
+    )
+    plate_object = helpers.create_sample_object(
+        "plate",
+        container=plate_holder_object,
+    )
+    plate_holder_object.add_plates({plate_object.get_name(): plate_object})
+
+    objects_dict = experiment.get('ObjectsDict')
+    if objects_dict:
+        if objects_dict.get(plate_object.get_name()):
+            experiment['ObjectsDict'][plate_object.get_name()] = plate_object
+
+    for name in well_names:
+        well = helpers.setup_local_well(helpers, name=name)
+        well.container = plate_object
+        plate_object.add_wells({name: well})
+
+    mic_auto = helpers.setup_local_microscope_automation(prefs_path)
+    try:
+        result = mic_auto.scan_samples(
+            Preferences(prefs_path).get_pref_as_meta(pref_name),
+            plate_holder_object,
+            experiment,
+            repetition=repetition,
+            wait_after_image=wait_after_image,
+        )
+    except Exception as err:
+        result = type(err).__name__
+
+    assert result == expected
+
+# def test_validate_experiment():
+
+# def test_control_autofocus():
+
+# def test_microscope_automation():
+
+# def test_main():
