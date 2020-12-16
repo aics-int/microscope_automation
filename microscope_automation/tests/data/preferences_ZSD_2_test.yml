@@ -183,7 +183,6 @@ UpdatePlateWellZero:
  Experiment: WellTile_10x.czexp                 # Experiment setting in ZEN blue used for microscope initialization
  Camera: Camera1 (back)
  Well: E7
- UseAutoFocus: False                            # use autofocus instead of values based on calibration
  UseReference: False
  Load: False                                    # Load between objects
 

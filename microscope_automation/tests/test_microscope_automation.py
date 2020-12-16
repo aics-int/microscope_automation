@@ -1279,10 +1279,97 @@ def test_scan_samples(mock_scan, mock_update,
 
     assert result == expected
 
-# def test_validate_experiment():
 
-# def test_control_autofocus():
+@pytest.mark.skipif(skip_all_tests, reason="Exclude all tests")
+@pytest.mark.parametrize(
+    ("prefs_path, pref_name, expected"),
+    [
+        ("data/preferences_ZSD_2_test.yml", "ScanPlate", None),
+        ("data/preferences_3i_test.yml", "ScanPlate", "XMLSyntaxError")
+    ],
+)
+def test_validate_experiment(prefs_path, pref_name, expected, helpers):
+    (
+        microscope,
+        stage_id,
+        focus_id,
+        autofocus_id,
+        obj_changer_id,
+        safety_id,
+    ) = helpers.microscope_for_samples_testing(helpers, prefs_path)
 
-# def test_microscope_automation():
+    mic_auto = helpers.setup_local_microscope_automation(prefs_path)
+    try:
+        result = mic_auto.validate_experiment(
+            Preferences(prefs_path).get_pref_as_meta(pref_name),
+            microscope,
+        )
+    except Exception as err:
+        result = type(err).__name__
 
-# def test_main():
+    assert result == expected
+
+
+@pytest.mark.skipif(skip_all_tests, reason="Exclude all tests")
+@pytest.mark.parametrize(
+    ("prefs_path, pref_name, sample_type, container_type, expected"),
+    [
+        ("data/preferences_ZSD_2_test.yml", "ScanPlate", "well", None, "AttributeError"),
+        ("data/preferences_ZSD_2_test.yml", "ScanPlate", "well", "plate", "AttributeError"),
+        ("data/preferences_ZSD_2_test.yml", "ScanPlate", "plate", "plate_holder", True),
+        ("data/preferences_ZSD_2_test.yml", "RunMacro", "plate", "plate_holder", False),
+    ],
+)
+def test_control_autofocus(prefs_path, pref_name, sample_type, container_type,
+                           expected, helpers):
+    camera_id = "Camera1 (back)"
+    (
+        microscope,
+        stage_id,
+        focus_id,
+        autofocus_id,
+        obj_changer_id,
+        safety_id,
+    ) = helpers.microscope_for_samples_testing(helpers, prefs_path)
+
+    if container_type:
+        container = helpers.create_sample_object(
+            container_type,
+            microscope_obj=microscope,
+            camera_ids=[camera_id],
+            focus_id=focus_id,
+            stage_id=stage_id,
+            autofocus_id=autofocus_id,
+            obj_changer_id=obj_changer_id,
+            safety_id=safety_id,)
+    else:
+        container = None
+    sample = helpers.create_sample_object(sample_type, container=container)
+    mic_auto = helpers.setup_local_microscope_automation(prefs_path)
+    try:
+        mic_auto.control_autofocus(
+            sample,
+            Preferences(prefs_path).get_pref_as_meta(pref_name),
+        )
+        result = sample.get_use_autofocus()
+    except Exception as err:
+        result = type(err).__name__
+
+    assert result == expected
+
+
+@pytest.mark.skipif(skip_all_tests, reason="Exclude all tests")
+@pytest.mark.parametrize(
+    ("prefs_path, expected"),
+    [
+        ("data/preferences_ZSD_2_test.yml", "AttributeError"),
+    ],
+)
+def test_microscope_automation(prefs_path, expected, helpers):
+    mic_auto = helpers.setup_local_microscope_automation(prefs_path)
+    try:
+        mic_auto.microscope_automation()
+    except Exception as err:
+        result = type(err).__name__
+
+    assert result == expected
