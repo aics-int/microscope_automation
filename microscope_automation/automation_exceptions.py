@@ -98,7 +98,7 @@ class HardwareError(AutomationError):
                 "\nPlease check for problems with hardware\n"
                 " e.g. laser safety not engaged"
             ),
-            returnCode=False,
+            return_code=False,
             blocking=get_error_blocking(),
         )
 
@@ -119,7 +119,7 @@ class HardwareDoesNotExistError(HardwareError):
             ("Hardware Does Not Exist Error:" "\n'{}'' does not exist.\n'{}'").format(
                 self.error_component, advice
             ),
-            returnCode=False,
+            return_code=False,
             blocking=get_error_blocking(),
         )
 
@@ -138,7 +138,7 @@ class CrashDangerError(AutomationError):
         """
         return error_message(
             'Crash Danger Error:\n"{}"\n{}'.format(self.message, advice),
-            returnCode=False,
+            return_code=False,
             blocking=get_error_blocking(),
         )
 
@@ -159,7 +159,7 @@ class HardwareNotReadyError(AutomationError):
             'Hardware is not ready for experiment:\n"{}"\n{}'.format(
                 self.message, self.error_component
             ),
-            returnCode=False,
+            return_code=False,
             blocking=get_error_blocking(),
         )
 
@@ -180,7 +180,7 @@ class HardwareCommandNotDefinedError(AutomationError):
             'Action not supported by hardware:\n"{}"\n{}'.format(
                 self.message, self.error_component
             ),
-            returnCode=False,
+            return_code=False,
             blocking=get_error_blocking(),
         )
 
@@ -362,7 +362,7 @@ class LoadNotDefinedError(HardwareError):
                 "Please move objective to load position or cancel"
                 " program.\nError message:\n'{}'"
             ).format(self.message),
-            returnCode=False,
+            return_code=False,
             blocking=get_error_blocking(),
         )
 
@@ -384,7 +384,7 @@ class WorkNotDefinedError(HardwareError):
                 "Please move objective to work position or cancel"
                 " program.\nError message:\n'{}'"
             ).format(self.message),
-            returnCode=False,
+            return_code=False,
             blocking=get_error_blocking(),
         )
 
@@ -408,7 +408,7 @@ class ObjectiveNotDefinedError(HardwareError):
         """
         return error_message(
             'Objective not defined.\nError message:\n"{}"'.format(self.message),
-            returnCode=False,
+            return_code=False,
             blocking=get_error_blocking(),
         )
 
@@ -436,7 +436,7 @@ class ExperimentError(HardwareError):
                 "\nPlease check for problems with hardware\n"
                 " e.g. laser safety not engaged"
             ),
-            returnCode=False,
+            return_code=False,
             blocking=get_error_blocking(),
         )
 
@@ -455,7 +455,7 @@ class ExperimentNotExistError(ExperimentError):
         """
         return error_message(
             'Experiment "{}" does not exist.'.format(self.error_component),
-            returnCode=False,
+            return_code=False,
             blocking=get_error_blocking(),
         )
 
@@ -479,7 +479,7 @@ class IOError(AutomationError):
         """
         return error_message(
             'I/O Error.\nError:\n"{}"'.format(self.message),
-            returnCode=False,
+            return_code=False,
             blocking=get_error_blocking(),
         )
 
@@ -500,7 +500,7 @@ class FileExistsError(AutomationError):
             ("A file with this name already exists.\n" "Error:\n'{}'").format(
                 self.message
             ),
-            returnCode=False,
+            return_code=False,
             blocking=get_error_blocking(),
         )
 
@@ -519,7 +519,7 @@ class MetaDataNotSavedError(AutomationError):
         """
         return error_message(
             ("Could not save meta data to file.\n" "Error:\n'{}'").format(self.message),
-            returnCode=False,
+            return_code=False,
             blocking=get_error_blocking(),
         )
 
@@ -545,6 +545,6 @@ class StopCollectingError(AutomationError):
             ("User stopped collecting image positions.\n" "Message:\n'{}'").format(
                 self.message
             ),
-            returnCode=False,
+            return_code=False,
             blocking=get_error_blocking(),
         )

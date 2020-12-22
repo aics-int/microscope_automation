@@ -18,7 +18,7 @@ os.chdir(os.path.dirname(__file__))
 
 
 # set skip_all_tests = True to focus on single test
-skip_all_tests = False
+skip_all_tests = True
 
 today = datetime.date.today()
 DATE_STR = str(today.year) + "_" + str(today.month) + "_" + str(today.day)
@@ -101,7 +101,7 @@ def test_set_up_subfolders(parent_folder_path, subfolder, expected):
     assert result == expected
 
 
-@pytest.mark.skipif(skip_all_tests, reason="Exclude all tests")
+# @pytest.mark.skipif(skip_all_tests, reason="Exclude all tests")
 @pytest.mark.parametrize(
     "prefs_path, barcode, expected",
     [

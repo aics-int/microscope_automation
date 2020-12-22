@@ -141,11 +141,11 @@ def stop_script(message_text=None, allow_continue=False):
     if allow_continue:
         if message_text is None:
             message_text = "If you want to abort script press ok.\notherwise Continue"
-        con = message.information_message("Exit script", message_text, returnCode=True)
+        con = message.information_message("Exit script", message_text, return_code=True)
     else:
         if message_text is None:
             message_text = "Exit"
-        con = message.information_message("Exit script", message_text, returnCode=False)
+        con = message.information_message("Exit script", message_text, return_code=False)
         con = 0
 
     if con == 0:
@@ -492,7 +492,7 @@ class MicroscopeAutomation(object):
                     )
                     message.operate_message(
                         message="Please move to and focus on reference position.",
-                        returnCode=False,
+                        return_code=False,
                     )
                     microscope_instance.live_mode(
                         camera_id=camera, experiment=experiment, live=False
@@ -652,7 +652,7 @@ class MicroscopeAutomation(object):
                 # Add colonies is in the list of experiment,
                 # show the options for csv file
                 colony_remote_file = message.file_select_dialog(
-                    colony_remote_dir, returnCode=True
+                    colony_remote_dir, return_code=True
                 )
                 # continue if user did not press cancel
                 if colony_remote_file != 0:
@@ -769,7 +769,7 @@ class MicroscopeAutomation(object):
 
             # User has to set focus position for following experiments
             return_code = message.operate_message(
-                "Please set the focus for your acquisition", returnCode=True
+                "Please set the focus for your acquisition", return_code=True
             )
 
             if return_code == 0:
@@ -889,7 +889,7 @@ class MicroscopeAutomation(object):
                         "Please focus with 10x on left edge of well {}\n"
                         "to find zero position for plate {}"
                     ).format(well_names[well_index], plate_object.get_name()),
-                    returnCode=True,
+                    return_code=True,
                 )
                 if return_code == 0:
                     self.state.save_state_and_exit()
@@ -2294,7 +2294,7 @@ class MicroscopeAutomation(object):
          none
         """ ""
         # start local logging
-        error_handling.setupLogger(self.prefs)
+        error_handling.setup_logger(self.prefs)
         logger = logging.getLogger("MicroscopeAutomation.microscope_automation")
         logger.info("automation protocol started")
 
@@ -2311,7 +2311,7 @@ class MicroscopeAutomation(object):
             ("Continue last workflow", False),
         ]
         continue_dialog_box = message.check_box_message(
-            "Please select workflow type:", continue_check_box_list, returnCode=False
+            "Please select workflow type:", continue_check_box_list, return_code=False
         )
 
         if continue_dialog_box[0][1] is True:
@@ -2326,7 +2326,7 @@ class MicroscopeAutomation(object):
                 for i in workflow
             ]
             new_check_box_list = message.check_box_message(
-                "Please select experiment to execute:", check_box_list, returnCode=False
+                "Please select experiment to execute:", check_box_list, return_code=False
             )
             workflow = [
                 workflow[i]
@@ -2434,7 +2434,7 @@ class MicroscopeAutomation(object):
         # Set up the Daily folder with plate barcode
         # Currently only one plate supported so barcode is extracted from that
         plates = plate_holder_object.get_plates()
-        barcode = plates.keys()[-1]
+        barcode = list(plates.keys())[-1]
         # Set up the high level folder with plate barcode
         get_daily_folder(self.prefs, barcode)
         # Set up Image Folders and Sub Folders
@@ -2527,7 +2527,7 @@ class MicroscopeAutomation(object):
                         return_code = 1
                     else:
                         return_code = message.information_message(
-                            "{}".format(experiment["Experiment"]), "", returnCode=True
+                            "{}".format(experiment["Experiment"]), "", return_code=True
                         )
 
                 # If return_code is 0, user pressed cancel

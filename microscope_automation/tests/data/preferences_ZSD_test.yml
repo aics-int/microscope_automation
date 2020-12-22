@@ -77,7 +77,7 @@ InitializeMicroscope:
  ColonyDirPath: *ColonyDirPathRef
  AddColonies: False                               # add colony information from Hamilton to plate
  Hardware: True                                   # Initialize hardware
- Experiment: Setup_10x.czexp                      # Experiment setting in ZEN blue used for microscope initialization
+ Experiment: WellTile_10x.czexp                      # Experiment setting in ZEN blue used for microscope initialization
  Camera: Camera1 (back)
  UseAutoFocus: False                              # use autofocus instead of values based on calibration
  FindLoad: True                                   # Ask user to move objective in load position and save
@@ -105,7 +105,7 @@ Koehler:
  ColonyDirPath: *ColonyDirPathRef
  AddColonies: False                               # add colony information from Hamilton to plate
  Hardware: False                                  # Initialize hardware
- Experiment: Setup_10x.czexp                      # Experiment setting in ZEN blue used for microscope initialization
+ Experiment: WellTile_10x.czexp                      # Experiment setting in ZEN blue used for microscope initialization
  Camera: Camera1 (back)
  UseAutoFocus: True                               # use autofocus instead of values based on calibration
  FindLoad: False                                  # Ask user to move objective in load position and save
@@ -173,7 +173,7 @@ ObjectiveOffsets:
  NumberTrials: 3                                  # How often a user is given the chance to set up the system in a correct way
  UseAutoFocus: True
  Experiment: NoExperiment
- ExperimentsList: ['Setup_20x','Setup_10x', 'Setup_100x']       # List with experiments used to determine offset (one experiment per objective in order as listed)
+ ExperimentsList: ['WellTile_10x']       # List with experiments used to determine offset (one experiment per objective in order as listed)
  # ExperimentsList: ['Setup_10x', 'Setup_100x']       # List with experiments used to determine offset (one experiment per objective in order as listed)
  Wait:                                            # Wait for user input after imaging and before removing image from display (has no effect in this experiment module)
   Image: False                                      # Wait after each image
@@ -194,7 +194,7 @@ UpdatePlateWellZero_10x:
  Blocking: False                                # open modal dialog in case of error (has no effect in this experiment module)
  Well: E8                                       # Well used to set well zero
  UseAutoFocus: False                            # use autofocus instead of values based on calibration
- Experiment: Setup_10x.czexp
+ Experiment: WellTile_10x.czexp
  Camera: Camera1 (back)
  AddImmersionWater: False                       # Add immersion water to objective after a predefined number of images
  NameImmersionSystem: BraintreeScientific       # Name for immersion delivery system
@@ -232,7 +232,7 @@ UpdatePlateWellZero_100x:
  Blocking: False                                # open modal dialog in case of error (has no effect in this experiment module)
  Well: E8                                       # Well used to set well zero
  UseAutoFocus: False                            # use autofocus instead of values based on calibration
- Experiment: Setup_100x.czexp
+ Experiment: WellTile_10x.czexp
  Camera: Camera1 (back)
  AddImmersionWater: False                       # Add immersion water to objective after a predefined number of images
  NameImmersionSystem: BraintreeScientific       # Name for immersion delivery system

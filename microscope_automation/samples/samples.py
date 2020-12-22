@@ -3083,7 +3083,7 @@ class ImmersionDelivery(ImagingSystem):
                     'Please switch objective manually.\nError:\n"{}"'.format(
                         error.message
                     ),
-                    returnCode=False,
+                    return_code=False,
                 )
         # Move objective below water outlet, do not use autofocus
         store_autofocus_flag = self.get_use_autofocus()
@@ -3095,7 +3095,7 @@ class ImmersionDelivery(ImagingSystem):
             self.trigger_pump()
         else:
             message.operate_message(
-                "Please add immersion water to objective.", returnCode=False
+                "Please add immersion water to objective.", return_code=False
             )
 
         # Return to original position

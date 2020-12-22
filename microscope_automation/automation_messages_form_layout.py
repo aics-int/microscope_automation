@@ -42,7 +42,7 @@ logger = logging.getLogger("microscope_automation")
 # TODO: fix circular imports, current implementation has stop_script in this file
 
 
-def read_string(title, label, default, returnCode=False):
+def read_string(title, label, default, return_code=False):
     """Ask for user input and allows option to abort script.
 
     Input:
@@ -52,7 +52,7 @@ def read_string(title, label, default, returnCode=False):
 
      default: default input
 
-     returnCode: if True, will return after cancel with code 0,
+     return_code: if True, will return after cancel with code 0,
      otherwise will call sys.exit()
 
     Return:
@@ -67,7 +67,7 @@ def read_string(title, label, default, returnCode=False):
     ]
     result = fedit(datalist, title=title, comment="")
     if result is None:
-        if returnCode:
+        if return_code:
             return 0
         else:
             print("User terminated program")
@@ -76,7 +76,7 @@ def read_string(title, label, default, returnCode=False):
         return str(result[0])
 
 
-def information_message(title, message, returnCode=False):
+def information_message(title, message, return_code=False):
     """Displays information to user and allows option to abort script.
 
     Input:
@@ -84,7 +84,7 @@ def information_message(title, message, returnCode=False):
 
      message: Message that will be displayed
 
-     returnCode: if True, will return after cancel with code 0,
+     return_code: if True, will return after cancel with code 0,
      otherwise will call sys.exit()
 
     Return:
@@ -98,7 +98,7 @@ def information_message(title, message, returnCode=False):
     ]
     result = fedit(datalist, title=title, comment=message)
     if result is None:
-        if returnCode:
+        if return_code:
             return 0
         else:
             print("User terminated program")
@@ -107,13 +107,13 @@ def information_message(title, message, returnCode=False):
         return 1
 
 
-def setup_message(message, returnCode=False):
+def setup_message(message, return_code=False):
     """Displays information about setup error and allows option to abort script.
 
     Input:
      message: Message that will be displayed
 
-     returnCode: if True, will return after cancel with code 0,
+     return_code: if True, will return after cancel with code 0,
      otherwise will call sys.exit()
 
     Return:
@@ -127,7 +127,7 @@ def setup_message(message, returnCode=False):
     ]
     result = fedit(datalist, title="Error in setup detected", comment=message)
     if result is None:
-        if returnCode:
+        if return_code:
             return 0
         else:
             print("User terminated program")
@@ -136,13 +136,13 @@ def setup_message(message, returnCode=False):
         return 1
 
 
-def operate_message(message, returnCode=False):
+def operate_message(message, return_code=False):
     """Ask user to operate microscope manually and allows option to abort script.
 
     Input:
      message: Message that will be displayed
 
-     returnCode: if True, will return after cancel with code 0,
+     return_code: if True, will return after cancel with code 0,
      otherwise will call sys.exit()
 
     Return:
@@ -156,7 +156,7 @@ def operate_message(message, returnCode=False):
     ]
     result = fedit(datalist, title="Please operate microscope", comment=message)
     if result is None:
-        if returnCode:
+        if return_code:
             return 0
         else:
             print("User terminated program")
@@ -165,7 +165,7 @@ def operate_message(message, returnCode=False):
         return 1
 
 
-def check_box_message(message, checkBoxList, returnCode=False):
+def check_box_message(message, checkBoxList, return_code=False):
     """Ask user to operate microscope manually and allows option to abort script.
 
     Input:
@@ -174,7 +174,7 @@ def check_box_message(message, checkBoxList, returnCode=False):
      checkBoxList: list with check box names and settings in form:
       [('Choice 1', True), ('Choice 2', False)
 
-     returnCode: if True, will return after cancel with code 0,
+     return_code: if True, will return after cancel with code 0,
      otherwise will call sys.exit()
 
     Return:
@@ -189,24 +189,24 @@ def check_box_message(message, checkBoxList, returnCode=False):
 
     result = fedit(datalist, title="Please select", comment=message)
     if result is None:
-        if returnCode:
+        if return_code:
             return 0
         else:
             print("User terminated program")
             sys.exit()
     else:
         boxLabels = [box[0] for box in checkBoxList]
-        new_check_box_list = zip(boxLabels, result)
+        new_check_box_list = list(zip(boxLabels, result))
         return new_check_box_list
 
 
-def error_message(message, returnCode=False, blocking=True):
+def error_message(message, return_code=False, blocking=True):
     """Show error message and allows option to abort script.
 
     Input:
      message: Message that will be displayed
 
-     returnCode: if True, will return after cancel with code 0,
+     return_code: if True, will return after cancel with code 0,
      otherwise will call sys.exit()
 
      blocking: if True use modal dialog for error reporting, otherwise print(message)
@@ -238,7 +238,7 @@ def error_message(message, returnCode=False, blocking=True):
             else:
                 return 1
         if result is None:
-            if returnCode:
+            if return_code:
                 return 0
             else:
                 print("User terminated program")
@@ -247,13 +247,13 @@ def error_message(message, returnCode=False, blocking=True):
             return 1
 
 
-def wait_message(message, returnCode=False):
+def wait_message(message, return_code=False):
     """Interrupt script and wait for user to continue.
 
     Input:
      message: Message that will be displayed
 
-     returnCode: if True, will return after cancel with code 0,
+     return_code: if True, will return after cancel with code 0,
      otherwise will call sys.exit()
 
     Return:
@@ -274,7 +274,7 @@ def wait_message(message, returnCode=False):
     ]
     result = fedit(datalist, title="Continue?", comment=message)
     if result is None:
-        if returnCode:
+        if return_code:
             return 0
         else:
             print("User terminated program")
@@ -283,7 +283,7 @@ def wait_message(message, returnCode=False):
         return result[0]
 
 
-def select_message(message, count=None, returnCode=False):
+def select_message(message, count=None, return_code=False):
     """Interrupt script and wait for user to continue.
 
     Input:
@@ -291,7 +291,7 @@ def select_message(message, count=None, returnCode=False):
 
      count: number of collected positions
 
-     returnCode: if True, will return after cancel with code 0,
+     return_code: if True, will return after cancel with code 0,
      otherwise will call sys.exit()
 
     Return:
@@ -313,7 +313,7 @@ def select_message(message, count=None, returnCode=False):
     ]
     result = fedit(datalist, title="Select", comment=message)
     if result is None:
-        if returnCode:
+        if return_code:
             return 0
         else:
             print("User terminated program")
@@ -323,7 +323,7 @@ def select_message(message, count=None, returnCode=False):
         return resultDict
 
 
-def file_select_dialog(directory, filePattern=None, comment=None, returnCode=False):
+def file_select_dialog(directory, filePattern=None, comment=None, return_code=False):
     """List all files in directory and select one.
 
     Input:
@@ -332,7 +332,7 @@ def file_select_dialog(directory, filePattern=None, comment=None, returnCode=Fal
      filePattern: string with regular expression.
      If file matches expression it will be pre-selected.
 
-     returnCode: if True, will return after cancel with code 0,
+     return_code: if True, will return after cancel with code 0,
      otherwise will call sys.exit()
 
     Output:
@@ -358,7 +358,7 @@ def file_select_dialog(directory, filePattern=None, comment=None, returnCode=Fal
     result = fedit(datalist, title="Select file?", comment=comment)
     print(result)
     if result is None:
-        if returnCode:
+        if return_code:
             return 0
         else:
             print("User terminated program")
@@ -426,11 +426,11 @@ def stop_script(message_text=None, allow_continue=False):
     if allow_continue:
         if message_text is None:
             message_text = "If you want to abort script press ok.\notherwise Continue"
-        con = information_message("Exit script", message_text, returnCode=True)
+        con = information_message("Exit script", message_text, return_code=True)
     else:
         if message_text is None:
             message_text = "Exit"
-        con = information_message("Exit script", message_text, returnCode=False)
+        con = information_message("Exit script", message_text, return_code=False)
         con = 0
 
     if con == 0:

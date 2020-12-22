@@ -1885,17 +1885,35 @@ def test_control_autofocus(
     assert result == expected
 
 
+@patch("microscope_automation.automation_messages_form_layout.read_string")
+@patch("microscope_automation.automation_messages_form_layout.check_box_message")
+@patch("microscope_automation.automation_messages_form_layout.information_message")
 @pytest.mark.skipif(skip_all_tests, reason="Exclude all tests")
 @pytest.mark.parametrize(
-    ("prefs_path, expected"),
+    ("check_box_val, barcode, prefs_path, less_dialog, expected"),
     [
-        ("data/preferences_ZSD_2_test.yml", "AttributeError"),
+        ([("Start new workflow", False), ("Continue last workflow", False)], None,
+         "data/preferences_ZSD_2_test.yml", None, "UnboundLocalError"),
+        ([("Start new workflow", True), ("Continue last workflow", False)], None,
+         "data/preferences_ZSD_2_test.yml", None, "AttributeError"),
+        ([("Start new workflow", True), ("Continue last workflow", False)], "1234",
+         "data/preferences_ZSD_test.yml", False, "AttributeError"),
+        # ([("Start new workflow", True), ("Continue last workflow", False)], "1234",
+        #  "data/preferences_ZSD_test.yml", True, ""),
+        # ([("Start new workflow", False), ("Continue last workflow", True)], "1234",
+        #  "data/preferences_ZSD_test.yml", False, ""),
     ],
 )
-def test_microscope_automation(prefs_path, expected, helpers):
+def test_microscope_automation(mock_info, mock_check_box, mock_read,
+                               check_box_val, barcode, prefs_path, less_dialog,
+                               expected, helpers):
+    mock_check_box.return_value = check_box_val
+    mock_read.return_value = barcode
+
     mic_auto = helpers.setup_local_microscope_automation(prefs_path)
+    mic_auto.less_dialog = less_dialog
     try:
-        mic_auto.microscope_automation()
+        result = mic_auto.microscope_automation()
     except Exception as err:
         result = type(err).__name__
 
