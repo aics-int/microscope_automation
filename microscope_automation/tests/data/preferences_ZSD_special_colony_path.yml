@@ -46,7 +46,7 @@ Experiment: WellTile_10x_true.czexp
 PathMicroscopeSpecs: ['data\microscopeSpecifications_ZSD1_dummy.yml', 'data/microscopeSpecifications_ZSD1_dummy.yml']
 
 # Path to daily folder
-PathDailyFolder: ['data\Production\Daily\', 'data/Production/Daily/']
+PathDailyFolder: ['data\Production\Nonexistent\', 'data/Production/Nonexistent/']
 
 # Path to calibration information
 PathCalibration: ['data\Production\GeneralSettings\Calibration\', 'data/Production/GeneralSettings/Calibration/']

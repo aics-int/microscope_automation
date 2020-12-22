@@ -632,8 +632,7 @@ class Helpers:
             ref_objective="Plan-Apochromat 10x/0.45",
         )
         autofocus = self.setup_local_autofocus(
-            self, autofocus_id, obj_changer=obj_changer,
-            default_camera="Camera1 (back)"
+            self, autofocus_id, obj_changer=obj_changer, default_camera="Camera1 (back)"
         )
         focus_drive = self.setup_local_focus_drive(
             self,

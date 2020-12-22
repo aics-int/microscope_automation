@@ -805,7 +805,9 @@ class MicroscopeAutomation(object):
                     previous_experiment = original_workflow[
                         workflow_list.index(experiment["Experiment"]) - 1
                     ]
-                    if previous_experiment in list(self.state.next_experiment_objects.keys()):
+                    if previous_experiment in list(
+                        self.state.next_experiment_objects.keys()
+                    ):
                         next_exp_objects = self.state.next_experiment_objects[
                             previous_experiment
                         ]
