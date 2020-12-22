@@ -1,8 +1,5 @@
 # Ignore everything in this directory
-2020_*
-2021_*
-1234/Zeiss SD 1
+*
 
 # Except this file
-!WellEdge_0_1_C2.czi
 !.gitignore

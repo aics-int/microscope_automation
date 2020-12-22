@@ -136,6 +136,9 @@ AddColonies:
 MetaDataPath: MetaData.csv
 MetaDataFormat: csv
 
+# Path to Empty positions.czsh file- save_position_list uses this to write a filled positions.czsh file with coordinates from the Automation software.
+PathDummy: 'data\dummy_tile_positions.czsh'
+
 # Retrieve information about objectives.
 SetUpObjectives:
  FunctionName: set_up_objectives                            # Name of function in Python code in module microscopeAutomation that will process this experiment
@@ -637,3 +640,29 @@ RunMacro:
   Repetition: False                                 # Reset wait status after each repetition
  UseAutoFocus: False                            # use autofocus instead of values based on calibration
  Blocking: False                                # open modal dialog in case of error (has no effect in this experiment module)
+
+SegmentWells:
+ FunctionName: segment_wells                       # Name of function in Python code in module microscopeAutomation that will process this experiment
+ Experiment: NoExperiment
+ Name: SegmentWells                                # name of experiment
+ UseAutoFocus: True
+ Verbose: False                                 # print debug messages?
+ Blocking: False                                # open modal dialog in case of error
+ Wells: []
+ SourceFolder: 10XwellScan
+ PositionCsv: positions.csv                     # name of the csv filename where all the positions are stored after segmentation
+ PositionDefaultZ: 8700                         # Z stored in CSV file
+ Folder: wellScanSegmented                               # images of colonies will be stored within this folder
+                                                # create file name: list with string parts that will be concatinated
+                                                # entries that start with '#' will be replaced with meta data values with the same key
+ FileName: ['#aics_barcode', '_', '#aics_objectiveMagnification', 'X_', '#aics_dateStartShort', '_','#aics_well','.tiff']
+ Filters:     # filters for segmentation if find type = interactive distance map
+  minArea: [40000]  # min area of the colony
+  distFromCenter: [2500, 0]  # max distance from center & the number of colonies you want
+ AdjustSigmoidCutoff: 0.3
+ AdjustSigmoidGain: 5
+ AdjustGammaGain: 1.5
+ Wait:
+  Image: True
+  Plate: False
+  Repetition: False
