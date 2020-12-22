@@ -7,6 +7,8 @@ Created on December 1, 2020
 
 import pytest
 import os
+import datetime
+from shutil import copyfile
 from mock import patch
 from collections import Mapping
 from microscope_automation.image_AICS import ImageAICS
@@ -17,7 +19,10 @@ from microscope_automation import microscope_automation
 os.chdir(os.path.dirname(__file__))
 
 # set skip_all_tests = True to focus on single test
-skip_all_tests = True
+skip_all_tests = False
+
+today = datetime.date.today()
+DATE_STR = str(today.year) + "_" + str(today.month) + "_" + str(today.day)
 
 
 @patch("microscope_automation.automation_messages_form_layout.information_message")
@@ -1152,6 +1157,11 @@ def test_segment_wells(
     expected,
     helpers,
 ):
+    basepath = os.path.join('data', 'Production', 'Daily')
+    copyfile(os.path.join(basepath, 'WellEdge_B2_0_1.czi'),
+             os.path.join(basepath, DATE_STR, 'Zeiss SD 1', '10XwellScan',
+                          'WellEdge_B2_0_1.czi'))
+
     camera_id = "Camera1 (back)"
     (
         microscope,
@@ -1890,7 +1900,7 @@ def test_control_autofocus(
 @patch("microscope_automation.automation_messages_form_layout.read_string")
 @patch("microscope_automation.automation_messages_form_layout.check_box_message")
 @patch("microscope_automation.automation_messages_form_layout.information_message")
-# @pytest.mark.skipif(skip_all_tests, reason="Exclude all tests")
+@pytest.mark.skipif(skip_all_tests, reason="Exclude all tests")
 @pytest.mark.parametrize(
     ("check_box_val, barcode, prefs_path, less_dialog, expected"),
     [
