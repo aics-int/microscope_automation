@@ -317,14 +317,22 @@ def test_setup_immersion_system(
 @pytest.mark.parametrize(
     ("objective_dict, prefs_path, plate_holder_name, expected"),
     [
-        ({
-            "10": {"Position": 6, "Name": "Plan-Apochromat 10x/0.45"}
-         },
-         "data/preferences_ZSD_2_test.yml", "Plateholder", None),
+        (
+            {"10": {"Position": 6, "Name": "Plan-Apochromat 10x/0.45"}},
+            "data/preferences_ZSD_2_test.yml",
+            "Plateholder",
+            None,
+        ),
     ],
 )
 def test_set_up_objectives_and_offset(
-    mock_get_obj, mock_operate, objective_dict, prefs_path, plate_holder_name, expected, helpers
+    mock_get_obj,
+    mock_operate,
+    objective_dict,
+    prefs_path,
+    plate_holder_name,
+    expected,
+    helpers,
 ):
     mock_get_obj.return_value = objective_dict
     (
@@ -1157,10 +1165,13 @@ def test_segment_wells(
     expected,
     helpers,
 ):
-    basepath = os.path.join('data', 'Production', 'Daily')
-    copyfile(os.path.join(basepath, 'WellEdge_B2_0_1.czi'),
-             os.path.join(basepath, DATE_STR, 'Zeiss SD 1', '10XwellScan',
-                          'WellEdge_B2_0_1.czi'))
+    basepath = os.path.join("data", "Production", "Daily")
+    copyfile(
+        os.path.join(basepath, "WellEdge_B2_0_1.czi"),
+        os.path.join(
+            basepath, DATE_STR, "Zeiss SD 1", "10XwellScan", "WellEdge_B2_0_1.czi"
+        ),
+    )
 
     camera_id = "Camera1 (back)"
     (
@@ -1904,21 +1915,44 @@ def test_control_autofocus(
 @pytest.mark.parametrize(
     ("check_box_val, barcode, prefs_path, less_dialog, expected"),
     [
-        ([("Start new workflow", False), ("Continue last workflow", False)], None,
-         "data/preferences_ZSD_2_test.yml", None, "UnboundLocalError"),
-        ([("Start new workflow", True), ("Continue last workflow", False)], None,
-         "data/preferences_ZSD_2_test.yml", None, "AttributeError"),
-        ([("Start new workflow", True), ("Continue last workflow", False)], "1234",
-         "data/preferences_ZSD_test.yml", False, "AttributeError"),
+        (
+            [("Start new workflow", False), ("Continue last workflow", False)],
+            None,
+            "data/preferences_ZSD_2_test.yml",
+            None,
+            "UnboundLocalError",
+        ),
+        (
+            [("Start new workflow", True), ("Continue last workflow", False)],
+            None,
+            "data/preferences_ZSD_2_test.yml",
+            None,
+            "AttributeError",
+        ),
+        (
+            [("Start new workflow", True), ("Continue last workflow", False)],
+            "1234",
+            "data/preferences_ZSD_test.yml",
+            False,
+            "AttributeError",
+        ),
         # ([("Start new workflow", True), ("Continue last workflow", False)], "1234",
         #  "data/preferences_ZSD_test.yml", True, ""),
         # ([("Start new workflow", False), ("Continue last workflow", True)], "1234",
         #  "data/preferences_ZSD_test.yml", False, ""),
     ],
 )
-def test_microscope_automation(mock_info, mock_check_box, mock_read,
-                               check_box_val, barcode, prefs_path, less_dialog,
-                               expected, helpers):
+def test_microscope_automation(
+    mock_info,
+    mock_check_box,
+    mock_read,
+    check_box_val,
+    barcode,
+    prefs_path,
+    less_dialog,
+    expected,
+    helpers,
+):
     mock_check_box.return_value = check_box_val
     mock_read.return_value = barcode
 

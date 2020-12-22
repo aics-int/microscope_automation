@@ -145,7 +145,9 @@ def stop_script(message_text=None, allow_continue=False):
     else:
         if message_text is None:
             message_text = "Exit"
-        con = message.information_message("Exit script", message_text, return_code=False)
+        con = message.information_message(
+            "Exit script", message_text, return_code=False
+        )
         con = 0
 
     if con == 0:
@@ -2326,7 +2328,9 @@ class MicroscopeAutomation(object):
                 for i in workflow
             ]
             new_check_box_list = message.check_box_message(
-                "Please select experiment to execute:", check_box_list, return_code=False
+                "Please select experiment to execute:",
+                check_box_list,
+                return_code=False,
             )
             workflow = [
                 workflow[i]
