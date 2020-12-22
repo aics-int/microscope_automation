@@ -142,9 +142,9 @@ def test_get_daily_folder(prefs_path, barcode, expected):
             "SegmentWells",
             None,
             (
-                Path(os.path.join(DATE_STR, "3iW1-0", "positions.csv")),
-                Path(os.path.join(DATE_STR, "3iW1-0", "positions_wellid.csv")),
-                Path(os.path.join(DATE_STR, "3iW1-0", "failed_wells.csv")),
+                Path(os.path.join(DATE_STR, "Zeiss SD 1", "positions.csv")),
+                Path(os.path.join(DATE_STR, "Zeiss SD 1", "positions_wellid.csv")),
+                Path(os.path.join(DATE_STR, "Zeiss SD 1", "failed_wells.csv")),
             ),
         ),
         (
@@ -406,7 +406,7 @@ def test_get_recovery_settings_path(prefs_path, expected):
         (
             "data/preferences_ZSD_special_colony_path.yml",
             None,
-            os.path.join("data" "PlateSpecifications"),
+            os.path.join("data", "PlateSpecifications"),
         ),
         (
             "data/preferences_ZSD_test.yml",
@@ -484,7 +484,7 @@ def test_get_colony_remote_dir_path(prefs_path, pref_name, expected):
             "data/preferences_ZSD_special_colony_path.yml",
             "test.csv",
             None,
-            os.path.join("data", "PlateSpecifications" "test.csv"),
+            os.path.join("data", "PlateSpecifications", "test.csv"),
         ),
         (
             "data/preferences_ZSD_test.yml",
