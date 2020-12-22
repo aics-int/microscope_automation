@@ -1071,7 +1071,7 @@ def test_scan_all_objects(
 @patch(
     "microscope_automation.zeiss.write_zen_tiles_experiment.PositionWriter.convert_to_stage_coords"  # noqa
 )
-# @pytest.mark.skipif(skip_all_tests, reason="Exclude all tests")
+@pytest.mark.skipif(skip_all_tests, reason="Exclude all tests")
 @pytest.mark.parametrize(
     (
         "prefs_path, pref_name, experiment, well_names, repetition, wait_after_image,"
@@ -1166,12 +1166,15 @@ def test_segment_wells(
     helpers,
 ):
     basepath = os.path.join("data", "Production", "Daily")
-    copyfile(
-        os.path.join(basepath, "WellEdge_B2_0_1.czi"),
-        os.path.join(
-            basepath, DATE_STR, "Zeiss SD 1", "10XwellScan", "WellEdge_B2_0_1.czi"
-        ),
+    src = os.path.join(basepath, "WellEdge_B2_0_1.czi")
+    dst = os.path.join(
+        basepath, DATE_STR, "Zeiss SD 1", "10XwellScan", "WellEdge_B2_0_1.czi"
     )
+    try:
+        copyfile(src, dst)
+    except FileNotFoundError:
+        os.makedirs(os.path.dirname(dst))
+        copyfile(src, dst)
 
     camera_id = "Camera1 (back)"
     (
@@ -1911,11 +1914,15 @@ def test_control_autofocus(
 @patch("microscope_automation.automation_messages_form_layout.read_string")
 @patch("microscope_automation.automation_messages_form_layout.check_box_message")
 @patch("microscope_automation.automation_messages_form_layout.information_message")
+@patch("microscope_automation.automation_messages_form_layout.operate_message")
+@patch("microscope_automation.automation_messages_form_layout.pull_down_select_dialog")
+@patch("microscope_automation.automation_messages_form_layout.file_select_dialog")
 @pytest.mark.skipif(skip_all_tests, reason="Exclude all tests")
 @pytest.mark.parametrize(
-    ("check_box_val, barcode, prefs_path, less_dialog, expected"),
+    ("file_name, check_box_val, barcode, prefs_path, less_dialog, expected"),
     [
         (
+            None,
             [("Start new workflow", False), ("Continue last workflow", False)],
             None,
             "data/preferences_ZSD_2_test.yml",
@@ -1923,6 +1930,7 @@ def test_control_autofocus(
             "UnboundLocalError",
         ),
         (
+            None,
             [("Start new workflow", True), ("Continue last workflow", False)],
             None,
             "data/preferences_ZSD_2_test.yml",
@@ -1930,22 +1938,47 @@ def test_control_autofocus(
             "AttributeError",
         ),
         (
+            None,
             [("Start new workflow", True), ("Continue last workflow", False)],
+            "1234",
+            "data/preferences_ZSD_test.yml",
+            False,
+            None,
+        ),
+        (
+            None,
+            [("Start new workflow", True), ("Continue last workflow", False)],
+            "1234",
+            "data/preferences_ZSD_test.yml",
+            True,
+            None,
+        ),
+        (
+            ".gitignore",
+            [("Start new workflow", False), ("Continue last workflow", True)],
+            "1234",
+            "data/preferences_ZSD_test.yml",
+            False,
+            "UnpicklingError",
+        ),
+        (
+            "test_recovery.pickle",
+            [("Start new workflow", False), ("Continue last workflow", True)],
             "1234",
             "data/preferences_ZSD_test.yml",
             False,
             "AttributeError",
         ),
-        # ([("Start new workflow", True), ("Continue last workflow", False)], "1234",
-        #  "data/preferences_ZSD_test.yml", True, ""),
-        # ([("Start new workflow", False), ("Continue last workflow", True)], "1234",
-        #  "data/preferences_ZSD_test.yml", False, ""),
     ],
 )
 def test_microscope_automation(
+    mock_file_dialog,
+    mock_pull_down,
+    mock_operate,
     mock_info,
     mock_check_box,
     mock_read,
+    file_name,
     check_box_val,
     barcode,
     prefs_path,
@@ -1953,6 +1986,8 @@ def test_microscope_automation(
     expected,
     helpers,
 ):
+    mock_file_dialog.return_value = file_name
+    mock_pull_down.return_value = "ScanCells"
     mock_check_box.return_value = check_box_val
     mock_read.return_value = barcode
 

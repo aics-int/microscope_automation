@@ -230,7 +230,7 @@ zCenterBackground: 200       # center of background in the z direction in the pl
 
 Focus:
  Name: MotorizedFocus
- MaxLoadPosition: 50
+ MaxLoadPosition: 500
  MinWorkPosition: 100
  AutoFocus: DefiniteFocus2
  DefaultExperiment: Setup_10x.czexp

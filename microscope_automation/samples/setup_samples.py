@@ -375,18 +375,6 @@ def setup_plate(prefs, colony_file=None, microscope_object=None, barcode=None):
     # create immersion delivery system as part of PlateHolder and add to PlateHolder
     pump = specifications.get_pref_as_meta("Pump")
 
-    # pumpName = specifications.get_pref('Pump')
-    # safety_id = specifications.get_pref('PumpSafetyID')
-    # pumpObject = microscope_object._get_microscope_object(pumpName)
-    # center = [float(specifications.get_pref('xCenterPump')), \
-    #           float(specifications.get_pref('yCenterPump')), \
-    #           float(specifications.get_pref('zCenterPump'))]
-    # x_flip = int(specifications.get_pref('xFlipPump'))
-    # y_flip = int(specifications.get_pref('yFlipPump'))
-    # z_flip = int(specifications.get_pref('zFlipPump'))
-    # x_correction = float(specifications.get_pref('xCorrectionPump'))
-    # y_correction = float(specifications.get_pref('yCorrectionPump'))
-    # z_correction = float(specifications.get_pref('zCorrectionPump'))
     if pump:
         immersion_delivery_object = samples.ImmersionDelivery(
             name=pump.get_pref("Name"),
@@ -404,20 +392,6 @@ def setup_plate(prefs, colony_file=None, microscope_object=None, barcode=None):
             z_correction=pump.get_pref("zCorrection"),
         )
         plate_holder_object.immersion_delivery_system = immersion_delivery_object
-
-    # create Plate as part of PlateHolder and add it to PlateHolder
-    # get description for plate dimensions and coordinate system from microscopeSpecifications.yml  # noqa
-    # plateName = specifications.get_pref('Plate')
-    # center = [float(specifications.get_pref('xCenterPlate')), \
-    #           float(specifications.get_pref('yCenterPlate')), \
-    #           float(specifications.get_pref('zCenterPlate'))]
-    # x_flip = int(specifications.get_pref('xFlipPlate'))
-    # y_flip = int(specifications.get_pref('yFlipPlate'))
-    # z_flip = int(specifications.get_pref('zFlipPlate'))
-    # x_correction = float(specifications.get_pref('xCorrectionPlate'))
-    # y_correction = float(specifications.get_pref('yCorrectionPlate'))
-    # z_correction = float(specifications.get_pref('zCorrectionPlate'))
-    # reference_well = specifications.get_pref('InitialReferenceWell')
 
     plate = specifications.get_pref_as_meta("Plate")
     plate_object = samples.Plate(
@@ -494,7 +468,7 @@ def setup_plate(prefs, colony_file=None, microscope_object=None, barcode=None):
         ]
 
     # add reference well
-    reference_well = specifications.get_pref("InitialReferenceWell")
+    reference_well = plate.get_pref("InitialReferenceWell")
     reference_object = plate_object.get_well(reference_well)
     plate_object.set_reference_object(reference_object)
 

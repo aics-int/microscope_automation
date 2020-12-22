@@ -27,7 +27,7 @@ Workflow: [
            {'Experiment': 'InitializeMicroscope', 'Repetitions': 1, 'Input': None, 'Output': {}},
            {'Experiment': 'ObjectiveOffsets', 'Repetitions': 1, 'Input': None, 'Output': {}},
            {'Experiment': 'UpdatePlateWellZero_10x', 'Repetitions': 1, 'Input': None, 'Output': {}},
-           {'Experiment': 'Koehler', 'Repetitions': 1, 'Input': None, 'Output': {}},
+           #{'Experiment': 'Koehler', 'Repetitions': 1, 'Input': None, 'Output': {}},
            #{'Experiment': 'ScanPlate', 'Repetitions': 1, 'Input': Wells, 'Output': {ScanCells: Cell}},
            {'Experiment': 'ScanPlate', 'Repetitions': 1, 'Input': Wells, 'Output': {Wells_Selected: Well}},
            {'Experiment': 'SegmentWells', 'Repetitions': 1, 'Input': Wells_Selected, 'Output': {ScanCells: Cell}},
@@ -81,7 +81,7 @@ InitializeMicroscope:
  Camera: Camera1 (back)
  UseAutoFocus: False                              # use autofocus instead of values based on calibration
  FindLoad: True                                   # Ask user to move objective in load position and save
- MaxLoadPosition: 50                              # Maximum focus position that will be accepted as load
+ MaxLoadPosition: 500                             # Maximum focus position that will be accepted as load
  LaserSafety: True                                # Enable laser safety
  Koehler: False                                   # Set Koehler illumination
  StageID: Marzhauser                              # Name of stage used to set up Koehler illumination

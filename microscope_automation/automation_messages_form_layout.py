@@ -356,14 +356,13 @@ def file_select_dialog(directory, filePattern=None, comment=None, return_code=Fa
     all_files.sort()
     datalist = [("Files:", col_file_loc_index + all_files)]
     result = fedit(datalist, title="Select file?", comment=comment)
-    print(result)
     if result is None:
         if return_code:
             return 0
         else:
             print("User terminated program")
             sys.exit()
-    return all_files[result[0]]
+    return all_files[result[0] - 1]
 
 
 def pull_down_select_dialog(item_list, message):
@@ -384,7 +383,7 @@ def pull_down_select_dialog(item_list, message):
     result = fedit(datalist, title="Selection", comment=message)
     if result is None:
         stop_script()
-    selected_item = item_list[result[0]]
+    selected_item = item_list[result[0] - 1]
     return selected_item
 
 

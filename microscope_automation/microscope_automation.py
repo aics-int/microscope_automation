@@ -42,6 +42,7 @@ from microscope_automation.get_path import (
     get_colony_remote_dir_path,
     get_experiment_path,
     get_meta_data_path,
+    get_valid_path_from_prefs,
 )
 from microscope_automation.samples import samples
 from microscope_automation.hardware import hardware_components
@@ -2369,7 +2370,9 @@ class MicroscopeAutomation(object):
             pickle_file = ""
             while pickle_file == "":
                 # Ask user which pickle file to recover settings from
-                file_dir = self.prefs.get_pref("RecoverySettingsFilePath")
+                file_dir = get_valid_path_from_prefs(
+                    self.prefs, "RecoverySettingsFilePath", search_dir=True
+                )
                 pickle_file = message.file_select_dialog(
                     file_dir,
                     filePattern="*.pickle",
