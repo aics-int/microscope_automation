@@ -293,7 +293,7 @@ PreScanPlate:
   Plate: False                                                 # Reset wait status after each plate
   Repetition: False                                            # Reset wait status after each repetition
  Load: False                                    # Load between objects
- LoadBetweenWells: False                        # Bring focus drive into load position when moving from one well to another
+ LoadBetweenWells: True                         # Bring focus drive into load position when moving from one well to another
  AddImmersionWater: False                       # Add immersion water to objective after a predefined number of images
  NameImmersionSystem: BraintreeScientific       # Name for immersion delivery system
  UsePump: False                                 # Use pump to add immersion water

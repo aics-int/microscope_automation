@@ -472,7 +472,7 @@ class MicroscopeAutomation(object):
                         objective["autofocus"],
                     )
                     for name, objective in immersion_objectives
-                    if objective["magnification"] == magnification
+                    if objective["magnification"] == int(magnification)
                 ]
                 for name, experiment, camera, auto_focus in experiments:
                     # store status of auto-focus and switch offs

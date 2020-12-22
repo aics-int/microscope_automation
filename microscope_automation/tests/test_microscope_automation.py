@@ -17,7 +17,7 @@ from microscope_automation import microscope_automation
 os.chdir(os.path.dirname(__file__))
 
 # set skip_all_tests = True to focus on single test
-skip_all_tests = False
+skip_all_tests = True
 
 
 @patch("microscope_automation.automation_messages_form_layout.information_message")
@@ -304,22 +304,24 @@ def test_setup_immersion_system(
     assert result == expected
 
 
+@patch("microscope_automation.automation_messages_form_layout.operate_message")
 @patch(
     "microscope_automation.zeiss.connect_zen_blue.ConnectMicroscope.get_all_objectives"
 )
 @pytest.mark.skipif(skip_all_tests, reason="Exclude all tests")
 @pytest.mark.parametrize(
-    ("prefs_path, plate_holder_name, expected"),
+    ("objective_dict, prefs_path, plate_holder_name, expected"),
     [
-        ("data/preferences_ZSD_2_test.yml", "Plateholder", None),
+        ({
+            "10": {"Position": 6, "Name": "Plan-Apochromat 10x/0.45"}
+         },
+         "data/preferences_ZSD_2_test.yml", "Plateholder", None),
     ],
 )
 def test_set_up_objectives_and_offset(
-    mock_get_obj, prefs_path, plate_holder_name, expected, helpers
+    mock_get_obj, mock_operate, objective_dict, prefs_path, plate_holder_name, expected, helpers
 ):
-    mock_get_obj.return_value = {
-        "10": {"Position": 6, "Name": "Plan-Apochromat 10x/0.45"}
-    }
+    mock_get_obj.return_value = objective_dict
     (
         microscope,
         stage_id,
@@ -1056,7 +1058,7 @@ def test_scan_all_objects(
 @patch(
     "microscope_automation.zeiss.write_zen_tiles_experiment.PositionWriter.convert_to_stage_coords"  # noqa
 )
-@pytest.mark.skipif(skip_all_tests, reason="Exclude all tests")
+# @pytest.mark.skipif(skip_all_tests, reason="Exclude all tests")
 @pytest.mark.parametrize(
     (
         "prefs_path, pref_name, experiment, well_names, repetition, wait_after_image,"
@@ -1888,7 +1890,7 @@ def test_control_autofocus(
 @patch("microscope_automation.automation_messages_form_layout.read_string")
 @patch("microscope_automation.automation_messages_form_layout.check_box_message")
 @patch("microscope_automation.automation_messages_form_layout.information_message")
-@pytest.mark.skipif(skip_all_tests, reason="Exclude all tests")
+# @pytest.mark.skipif(skip_all_tests, reason="Exclude all tests")
 @pytest.mark.parametrize(
     ("check_box_val, barcode, prefs_path, less_dialog, expected"),
     [
