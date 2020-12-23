@@ -1680,13 +1680,15 @@ class MicroscopeAutomation(object):
             failed_csv_filepath,
         ) = get_position_csv_path(imaging_settings)
         # DefaultZ since the z position is not available at this point
-        defualtZ = imaging_settings.get_pref("PositionDefaultZ")
+        default_z = imaging_settings.get_pref("PositionDefaultZ")
         position_list_for_csv.append(
             ["Name", "X", "Y", "Z", "Width", "Height", "ContourType"]
         )
         image_location_list_for_csv.append(
             ["Name", "WellID", "X", "Y", "Z", "Width", "Height", "ContourType"]
         )
+        print(images_list)
+        print(segmentation_info_dict)
         try:
             # Display each image for point approval
 
@@ -1745,13 +1747,13 @@ class MicroscopeAutomation(object):
                     )
                     x_pos = location[0] + x_offset
                     y_pos = location[1] + y_offset
-                    pos_info = [position_name, x_pos, y_pos, defualtZ]
+                    pos_info = [position_name, x_pos, y_pos, default_z]
                     well_info = [
                         position_name,
                         well_object.get_name(),
                         location[0],
                         location[1],
-                        defualtZ,
+                        default_z,
                     ]
                     position_list_for_csv.append(pos_info)
                     image_location_list_for_csv.append(well_info)

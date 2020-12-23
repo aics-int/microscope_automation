@@ -1071,7 +1071,7 @@ def test_scan_all_objects(
 @patch(
     "microscope_automation.zeiss.write_zen_tiles_experiment.PositionWriter.convert_to_stage_coords"  # noqa
 )
-# @pytest.mark.skipif(skip_all_tests, reason="Exclude all tests")
+@pytest.mark.skipif(skip_all_tests, reason="Exclude all tests")
 @pytest.mark.parametrize(
     (
         "prefs_path, pref_name, experiment, well_names, repetition, wait_after_image,"
@@ -1079,7 +1079,7 @@ def test_scan_all_objects(
     ),
     [
         (
-            "data/preferences_ZSD_test.yml",
+            "data/preferences_ZSD_2_test.yml",
             "ScanPlate",
             {
                 "Experiment": "UpdatePlateWellZero",
@@ -1097,7 +1097,7 @@ def test_scan_all_objects(
             "TypeError",
         ),
         (
-            "data/preferences_ZSD_test.yml",
+            "data/preferences_ZSD_2_test.yml",
             "SegmentWells",
             {
                 "Experiment": "UpdatePlateWellZero",
@@ -1115,7 +1115,7 @@ def test_scan_all_objects(
             "ValueError",
         ),
         (
-            "data/preferences_ZSD_test.yml",
+            "data/preferences_ZSD_2_test.yml",
             "SegmentWells",
             {
                 "Experiment": "UpdatePlateWellZero",
