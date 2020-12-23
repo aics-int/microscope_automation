@@ -1828,7 +1828,7 @@ class MicroscopeAutomation(object):
                 pickle.dump(pickle_dict, f, pickle.HIGHEST_PROTOCOL)
                 stop_script("Interruption Occurred. Data saved!")
         daily_folder = get_valid_path_from_prefs(
-            self.prefs.prefs, "PathDailyFolder", search_dir=True
+            self.prefs, "PathDailyFolder", search_dir=True
         )
         pos_list_saver = PositionWriter(
             self.prefs.prefs["Info"]["System"],
