@@ -1939,46 +1939,46 @@ def test_control_autofocus(
 @pytest.mark.parametrize(
     ("file_name, check_box_val, barcode, prefs_path, less_dialog, expected"),
     [
-        # (
-        #     None,
-        #     [("Start new workflow", False), ("Continue last workflow", False)],
-        #     None,
-        #     "data/preferences_ZSD_2_test.yml",
-        #     None,
-        #     "UnboundLocalError",
-        # ),
-        # (
-        #     None,
-        #     [("Start new workflow", True), ("Continue last workflow", False)],
-        #     None,
-        #     "data/preferences_ZSD_2_test.yml",
-        #     None,
-        #     "AttributeError",
-        # ),
-        # (
-        #     None,
-        #     [("Start new workflow", True), ("Continue last workflow", False)],
-        #     "1234",
-        #     "data/preferences_ZSD_test.yml",
-        #     False,
-        #     None,
-        # ),
-        # (
-        #     None,
-        #     [("Start new workflow", True), ("Continue last workflow", False)],
-        #     "1234",
-        #     "data/preferences_ZSD_test.yml",
-        #     True,
-        #     None,
-        # ),
-        # (
-        #     ".gitignore",
-        #     [("Start new workflow", False), ("Continue last workflow", True)],
-        #     "1234",
-        #     "data/preferences_ZSD_test.yml",
-        #     False,
-        #     "UnpicklingError",
-        # ),
+        (
+            None,
+            [("Start new workflow", False), ("Continue last workflow", False)],
+            None,
+            "data/preferences_ZSD_2_test.yml",
+            None,
+            "UnboundLocalError",
+        ),
+        (
+            None,
+            [("Start new workflow", True), ("Continue last workflow", False)],
+            None,
+            "data/preferences_ZSD_2_test.yml",
+            None,
+            "AttributeError",
+        ),
+        (
+            None,
+            [("Start new workflow", True), ("Continue last workflow", False)],
+            "1234",
+            "data/preferences_ZSD_test.yml",
+            False,
+            None,
+        ),
+        (
+            None,
+            [("Start new workflow", True), ("Continue last workflow", False)],
+            "1234",
+            "data/preferences_ZSD_test.yml",
+            True,
+            None,
+        ),
+        (
+            ".gitignore",
+            [("Start new workflow", False), ("Continue last workflow", True)],
+            "1234",
+            "data/preferences_ZSD_test.yml",
+            False,
+            "UnpicklingError",
+        ),
         (
             "test_recovery.pickle",
             [("Start new workflow", False), ("Continue last workflow", True)],
@@ -2011,9 +2011,9 @@ def test_microscope_automation(
 
     mic_auto = helpers.setup_local_microscope_automation(prefs_path)
     mic_auto.less_dialog = less_dialog
-    # try:
-    result = mic_auto.microscope_automation()
-    # except Exception as err:
-    #     result = type(err).__name__
+    try:
+        result = mic_auto.microscope_automation()
+    except Exception as err:
+        result = type(err).__name__
 
     assert result == expected

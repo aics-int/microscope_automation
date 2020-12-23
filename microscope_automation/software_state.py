@@ -76,7 +76,7 @@ class State(object):
         # Generate the file name for the particular interrupt
         try:
             with open(self.recovery_file_path, "wb") as f:
-                pickle.dump(pickle_dict, f, pickle.HIGHEST_PROTOCOL)
+                pickle.dump(pickle_dict, f, pickle.DEFAULT_PROTOCOL)
                 print("State was saved in the recovery file")
                 f.close()
         except Exception:
