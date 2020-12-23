@@ -12,7 +12,6 @@
     <script src="../../_static/jquery.js"></script>
     <script src="../../_static/underscore.js"></script>
     <script src="../../_static/doctools.js"></script>
-    <script src="../../_static/language_data.js"></script>
     <link rel="index" title="Index" href="../../genindex.html" />
     <link rel="search" title="Search" href="../../search.html" />
    
@@ -76,6 +75,7 @@
     <span class="n">get_colony_remote_dir_path</span><span class="p">,</span>
     <span class="n">get_experiment_path</span><span class="p">,</span>
     <span class="n">get_meta_data_path</span><span class="p">,</span>
+    <span class="n">get_valid_path_from_prefs</span><span class="p">,</span>
 <span class="p">)</span>
 <span class="kn">from</span> <span class="nn">microscope_automation.samples</span> <span class="kn">import</span> <span class="n">samples</span>
 <span class="kn">from</span> <span class="nn">microscope_automation.hardware</span> <span class="kn">import</span> <span class="n">hardware_components</span>
@@ -112,7 +112,7 @@
     <span class="s2">&quot;initialize_microscope&quot;</span><span class="p">,</span>
     <span class="s2">&quot;set_objective_offset&quot;</span><span class="p">,</span>
     <span class="s2">&quot;set_up_objectives&quot;</span><span class="p">,</span>
-    <span class="s2">&quot;update_plate_zZero&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;update_plate_z_zero&quot;</span><span class="p">,</span>
     <span class="s2">&quot;calculate_plate_correction&quot;</span><span class="p">,</span>
     <span class="s2">&quot;calculate_all_wells_correction&quot;</span><span class="p">,</span>
     <span class="s2">&quot;setup_immersion_system&quot;</span><span class="p">,</span>
@@ -175,11 +175,13 @@
     <span class="k">if</span> <span class="n">allow_continue</span><span class="p">:</span>
         <span class="k">if</span> <span class="n">message_text</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
             <span class="n">message_text</span> <span class="o">=</span> <span class="s2">&quot;If you want to abort script press ok.</span><span class="se">\n</span><span class="s2">otherwise Continue&quot;</span>
-        <span class="n">con</span> <span class="o">=</span> <span class="n">message</span><span class="o">.</span><span class="n">information_message</span><span class="p">(</span><span class="s2">&quot;Exit script&quot;</span><span class="p">,</span> <span class="n">message_text</span><span class="p">,</span> <span class="n">returnCode</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        <span class="n">con</span> <span class="o">=</span> <span class="n">message</span><span class="o">.</span><span class="n">information_message</span><span class="p">(</span><span class="s2">&quot;Exit script&quot;</span><span class="p">,</span> <span class="n">message_text</span><span class="p">,</span> <span class="n">return_code</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
     <span class="k">else</span><span class="p">:</span>
         <span class="k">if</span> <span class="n">message_text</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
             <span class="n">message_text</span> <span class="o">=</span> <span class="s2">&quot;Exit&quot;</span>
-        <span class="n">con</span> <span class="o">=</span> <span class="n">message</span><span class="o">.</span><span class="n">information_message</span><span class="p">(</span><span class="s2">&quot;Exit script&quot;</span><span class="p">,</span> <span class="n">message_text</span><span class="p">,</span> <span class="n">returnCode</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+        <span class="n">con</span> <span class="o">=</span> <span class="n">message</span><span class="o">.</span><span class="n">information_message</span><span class="p">(</span>
+            <span class="s2">&quot;Exit script&quot;</span><span class="p">,</span> <span class="n">message_text</span><span class="p">,</span> <span class="n">return_code</span><span class="o">=</span><span class="kc">False</span>
+        <span class="p">)</span>
         <span class="n">con</span> <span class="o">=</span> <span class="mi">0</span>
 
     <span class="k">if</span> <span class="n">con</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
@@ -194,9 +196,7 @@
 <div class="viewcode-block" id="MicroscopeAutomation"><a class="viewcode-back" href="../../microscope_automation.html#microscope_automation.microscope_automation.MicroscopeAutomation">[docs]</a><span class="k">class</span> <span class="nc">MicroscopeAutomation</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">prefs_path</span><span class="p">):</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">prefs</span> <span class="o">=</span> <span class="n">preferences</span><span class="o">.</span><span class="n">Preferences</span><span class="p">(</span><span class="n">prefs_path</span><span class="p">)</span>
-        <span class="n">recovery_file_path</span> <span class="o">=</span> <span class="n">get_recovery_settings_path</span><span class="p">(</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">prefs</span><span class="o">.</span><span class="n">get_pref</span><span class="p">(</span><span class="s2">&quot;RecoverySettingsFilePath&quot;</span><span class="p">)</span>
-        <span class="p">)</span>
+        <span class="n">recovery_file_path</span> <span class="o">=</span> <span class="n">get_recovery_settings_path</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">prefs</span><span class="p">)</span>
 
         <span class="c1"># Create the recovery folder if it does not exist.</span>
         <span class="n">rec_folder_path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">dirname</span><span class="p">(</span><span class="n">recovery_file_path</span><span class="p">)</span>
@@ -248,7 +248,6 @@
 <span class="sd">        Output:</span>
 <span class="sd">         barcode_object: object for barcode</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-
         <span class="c1"># get dictionary of all samples associated with well</span>
         <span class="n">sample_objects</span> <span class="o">=</span> <span class="n">well_object</span><span class="o">.</span><span class="n">get_samples</span><span class="p">()</span>
         <span class="n">barcode_object</span> <span class="o">=</span> <span class="n">sample_objects</span><span class="p">[</span><span class="n">barcode</span><span class="p">]</span>
@@ -273,7 +272,7 @@
 <span class="sd">         well: well the barcode is associated with in format &#39;A1&#39;.</span>
 <span class="sd">         If empty ask user to navigate to barcode.</span>
 
-<span class="sd">        Return:</span>
+<span class="sd">        Output:</span>
 <span class="sd">         barcode: id encoded in barcode</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="c1"># set debugging level</span>
@@ -291,7 +290,7 @@
             <span class="n">well_object</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_well_object</span><span class="p">(</span><span class="n">plate_holder_object</span><span class="p">,</span> <span class="n">barcode</span><span class="p">,</span> <span class="n">well</span><span class="p">)</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="n">well_object</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_well_object</span><span class="p">(</span><span class="n">plate_holder_object</span><span class="p">,</span> <span class="n">barcode</span><span class="p">,</span> <span class="n">well</span><span class="p">)</span>
-            <span class="n">well_object</span><span class="o">.</span><span class="n">move_to_well</span><span class="p">()</span>
+            <span class="n">well_object</span><span class="o">.</span><span class="n">get_container</span><span class="p">()</span><span class="o">.</span><span class="n">move_to_well</span><span class="p">(</span><span class="n">well</span><span class="p">)</span>
 
         <span class="c1"># get barcode object</span>
         <span class="n">barcode_object</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_barcode_object</span><span class="p">(</span><span class="n">well_object</span><span class="p">,</span> <span class="n">barcode_name</span><span class="p">)</span>
@@ -312,7 +311,7 @@
 
     <span class="c1">################################################################################</span>
 
-<div class="viewcode-block" id="MicroscopeAutomation.calculate_all_wells_correction"><a class="viewcode-back" href="../../microscope_automation.html#microscope_automation.microscope_automation.MicroscopeAutomation.calculate_all_wells_correction">[docs]</a>    <span class="k">def</span> <span class="nf">calculate_all_wells_correction</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">prefs</span><span class="p">,</span> <span class="n">plate_holder_object</span><span class="p">,</span> <span class="n">experiment</span><span class="p">):</span>
+<div class="viewcode-block" id="MicroscopeAutomation.calculate_all_wells_correction"><a class="viewcode-back" href="../../microscope_automation.html#microscope_automation.microscope_automation.MicroscopeAutomation.calculate_all_wells_correction">[docs]</a>    <span class="k">def</span> <span class="nf">calculate_all_wells_correction</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">prefs</span><span class="p">,</span> <span class="n">plate_holder_object</span><span class="p">,</span> <span class="n">_experiment</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Calculate correction factor for well coordinate system for all wells.</span>
 
 <span class="sd">        Input:</span>
@@ -320,13 +319,11 @@
 
 <span class="sd">         plate_holder_object: object for plateholder that contains well</span>
 
-<span class="sd">         experiment: dictionary with keys &#39;Experiment&#39;, Repetitions&#39;, &#39;Input&#39;, &#39;Output&#39;</span>
-<span class="sd">         from workflow with information about specific experiment</span>
+<span class="sd">         _experiment: not used, necessary for compatibility</span>
 
 <span class="sd">        Output:</span>
 <span class="sd">         none</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-
         <span class="c1"># iterate through all plates on plate holder</span>
         <span class="n">plates</span> <span class="o">=</span> <span class="n">plate_holder_object</span><span class="o">.</span><span class="n">get_plates</span><span class="p">()</span>
 
@@ -354,7 +351,7 @@
             <span class="c1"># set measuredDiameter for all wells to measuredDiameter from reference well</span>
             <span class="c1"># update calibration correction for all wells</span>
             <span class="k">for</span> <span class="n">well_name</span><span class="p">,</span> <span class="n">well_object</span> <span class="ow">in</span> <span class="n">wells</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
-                <span class="n">well_object</span><span class="o">.</span><span class="n">set_measuredDiameter</span><span class="p">(</span><span class="n">measured_diameter</span><span class="p">)</span>
+                <span class="n">well_object</span><span class="o">.</span><span class="n">set_measured_diameter</span><span class="p">(</span><span class="n">measured_diameter</span><span class="p">)</span>
                 <span class="n">x_correction</span> <span class="o">=</span> <span class="p">(</span>
                     <span class="n">well_object</span><span class="o">.</span><span class="n">get_measured_diameter</span><span class="p">()</span>
                     <span class="o">/</span> <span class="n">well_object</span><span class="o">.</span><span class="n">get_assigned_diameter</span><span class="p">()</span>
@@ -370,7 +367,7 @@
 <span class="sd">        Input:</span>
 <span class="sd">         prefs: dictionary with preferences</span>
 
-<span class="sd">         plate_holder_instance: instance for plateholder that contains well</span>
+<span class="sd">         plate_holder_instance: instance for plateholder that contains immersion system</span>
 
 <span class="sd">        Output:</span>
 <span class="sd">         none</span>
@@ -386,12 +383,14 @@
 
         <span class="c1"># move objective under immersion water outlet and assign position</span>
         <span class="c1"># of outlet to immersion delivery object</span>
-        <span class="n">focus_drive</span> <span class="o">=</span> <span class="n">plate_holder_instance</span><span class="o">.</span><span class="n">get_focus</span><span class="p">()</span>
+        <span class="n">microscope</span> <span class="o">=</span> <span class="n">plate_holder_instance</span><span class="o">.</span><span class="n">get_microscope</span><span class="p">()</span>
+        <span class="n">focus_id</span> <span class="o">=</span> <span class="n">plate_holder_instance</span><span class="o">.</span><span class="n">get_focus_id</span><span class="p">()</span>
+        <span class="n">focus_drive</span> <span class="o">=</span> <span class="n">microscope</span><span class="o">.</span><span class="n">_get_microscope_object</span><span class="p">(</span><span class="n">focus_id</span><span class="p">)</span>
         <span class="n">load_position</span> <span class="o">=</span> <span class="n">focus_drive</span><span class="o">.</span><span class="n">get_load_position</span><span class="p">()</span>
 
         <span class="c1"># get communication object</span>
         <span class="n">communication_object</span> <span class="o">=</span> <span class="p">(</span>
-            <span class="n">plate_holder_instance</span><span class="o">.</span><span class="n">microscope</span><span class="o">.</span><span class="n">get_control_software</span><span class="p">()</span><span class="o">.</span><span class="n">connection</span>
+            <span class="n">plate_holder_instance</span><span class="o">.</span><span class="n">microscope</span><span class="o">.</span><span class="n">_get_control_software</span><span class="p">()</span><span class="o">.</span><span class="n">connection</span>
         <span class="p">)</span>
 
         <span class="c1"># Make sure load position is defined for focus drive</span>
@@ -434,7 +433,7 @@
         <span class="n">immersion_delivery</span><span class="o">.</span><span class="n">set_zero</span><span class="p">(</span><span class="n">verbose</span><span class="o">=</span><span class="n">verbose</span><span class="p">)</span>
 
         <span class="c1"># move away from delivery system to avoid later collisions</span>
-        <span class="n">immersion_delivery</span><span class="o">.</span><span class="n">move_to_save</span><span class="p">()</span>
+        <span class="n">immersion_delivery</span><span class="o">.</span><span class="n">move_to_safe</span><span class="p">()</span>
         <span class="n">magnification</span> <span class="o">=</span> <span class="n">prefs</span><span class="o">.</span><span class="n">get_pref</span><span class="p">(</span><span class="s2">&quot;MaginificationImmersionSystem&quot;</span><span class="p">)</span>
         <span class="n">immersion_delivery</span><span class="o">.</span><span class="n">magnification</span> <span class="o">=</span> <span class="n">magnification</span></div>
 
@@ -466,10 +465,10 @@
         <span class="c1"># retrieve information about mounted objectives</span>
         <span class="c1"># This part will detect all objectives defined in the touch pad software.</span>
         <span class="n">microscope_instance</span> <span class="o">=</span> <span class="n">plate_holder_instance</span><span class="o">.</span><span class="n">get_microscope</span><span class="p">()</span>
-        <span class="n">objective_changer_instance</span> <span class="o">=</span> <span class="n">microscope_instance</span><span class="o">.</span><span class="n">get_microscope_object</span><span class="p">(</span>
+        <span class="n">objective_changer_instance</span> <span class="o">=</span> <span class="n">microscope_instance</span><span class="o">.</span><span class="n">_get_microscope_object</span><span class="p">(</span>
             <span class="n">plate_holder_instance</span><span class="o">.</span><span class="n">objective_changer_id</span>
         <span class="p">)</span>
-        <span class="n">communication_object</span> <span class="o">=</span> <span class="n">microscope_instance</span><span class="o">.</span><span class="n">get_control_software</span><span class="p">()</span><span class="o">.</span><span class="n">connection</span>
+        <span class="n">communication_object</span> <span class="o">=</span> <span class="n">microscope_instance</span><span class="o">.</span><span class="n">_get_control_software</span><span class="p">()</span><span class="o">.</span><span class="n">connection</span>
         <span class="n">objectives_dict</span> <span class="o">=</span> <span class="n">objective_changer_instance</span><span class="o">.</span><span class="n">get_all_objectives</span><span class="p">(</span>
             <span class="n">communication_object</span>
         <span class="p">)</span>
@@ -509,7 +508,7 @@
                         <span class="n">objective</span><span class="p">[</span><span class="s2">&quot;autofocus&quot;</span><span class="p">],</span>
                     <span class="p">)</span>
                     <span class="k">for</span> <span class="n">name</span><span class="p">,</span> <span class="n">objective</span> <span class="ow">in</span> <span class="n">immersion_objectives</span>
-                    <span class="k">if</span> <span class="n">objective</span><span class="p">[</span><span class="s2">&quot;magnification&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="n">magnification</span>
+                    <span class="k">if</span> <span class="n">objective</span><span class="p">[</span><span class="s2">&quot;magnification&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="nb">int</span><span class="p">(</span><span class="n">magnification</span><span class="p">)</span>
                 <span class="p">]</span>
                 <span class="k">for</span> <span class="n">name</span><span class="p">,</span> <span class="n">experiment</span><span class="p">,</span> <span class="n">camera</span><span class="p">,</span> <span class="n">auto_focus</span> <span class="ow">in</span> <span class="n">experiments</span><span class="p">:</span>
                     <span class="c1"># store status of auto-focus and switch offs</span>
@@ -529,7 +528,7 @@
                     <span class="p">)</span>
                     <span class="n">message</span><span class="o">.</span><span class="n">operate_message</span><span class="p">(</span>
                         <span class="n">message</span><span class="o">=</span><span class="s2">&quot;Please move to and focus on reference position.&quot;</span><span class="p">,</span>
-                        <span class="n">returnCode</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+                        <span class="n">return_code</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
                     <span class="p">)</span>
                     <span class="n">microscope_instance</span><span class="o">.</span><span class="n">live_mode</span><span class="p">(</span>
                         <span class="n">camera_id</span><span class="o">=</span><span class="n">camera</span><span class="p">,</span> <span class="n">experiment</span><span class="o">=</span><span class="n">experiment</span><span class="p">,</span> <span class="n">live</span><span class="o">=</span><span class="kc">False</span>
@@ -578,8 +577,7 @@
 <span class="sd">         plate_holder_object: object that contains all plates</span>
 <span class="sd">         and all wells with sample information.</span>
 
-<span class="sd">         _experiment: dictionary with keys &#39;Experiment&#39;, Repetitions&#39;, &#39;Input&#39;, &#39;Output&#39;</span>
-<span class="sd">         (not used, for compatibility only)</span>
+<span class="sd">         _experiment: not used, necessary for compatibility</span>
 
 <span class="sd">        Output:</span>
 <span class="sd">         none</span>
@@ -594,12 +592,12 @@
         <span class="c1"># iterate through all plates on plate holder</span>
         <span class="n">plates</span> <span class="o">=</span> <span class="n">plate_holder_object</span><span class="o">.</span><span class="n">get_plates</span><span class="p">()</span>
 
-        <span class="k">for</span> <span class="n">plateName</span><span class="p">,</span> <span class="n">plateObject</span> <span class="ow">in</span> <span class="n">plates</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+        <span class="k">for</span> <span class="n">plate_name</span><span class="p">,</span> <span class="n">plate_object</span> <span class="ow">in</span> <span class="n">plates</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
             <span class="k">for</span> <span class="n">experiment</span> <span class="ow">in</span> <span class="n">experiments_list</span><span class="p">:</span>
                 <span class="n">microscope_object</span><span class="o">.</span><span class="n">create_experiment_path</span><span class="p">(</span><span class="n">experiment</span><span class="p">)</span>
 
-                <span class="n">objective_changer_id</span> <span class="o">=</span> <span class="n">plateObject</span><span class="o">.</span><span class="n">get_objective_changer_id</span><span class="p">()</span>
-                <span class="n">objective_changer</span> <span class="o">=</span> <span class="n">microscope_object</span><span class="o">.</span><span class="n">get_microscope_object</span><span class="p">(</span>
+                <span class="n">objective_changer_id</span> <span class="o">=</span> <span class="n">plate_object</span><span class="o">.</span><span class="n">get_objective_changer_id</span><span class="p">()</span>
+                <span class="n">objective_changer</span> <span class="o">=</span> <span class="n">microscope_object</span><span class="o">.</span><span class="n">_get_microscope_object</span><span class="p">(</span>
                     <span class="n">objective_changer_id</span>
                 <span class="p">)</span>
                 <span class="n">objective_changer</span><span class="o">.</span><span class="n">set_init_experiment</span><span class="p">(</span><span class="n">experiment</span><span class="p">)</span>
@@ -608,12 +606,12 @@
                     <span class="n">initialize_components_ordered_dict</span><span class="o">=</span><span class="p">{</span>
                         <span class="n">objective_changer_id</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;no_find_surface&quot;</span><span class="p">}</span>
                     <span class="p">},</span>
-                    <span class="n">reference_object</span><span class="o">=</span><span class="n">plateObject</span><span class="o">.</span><span class="n">get_reference_object</span><span class="p">(),</span>
+                    <span class="n">reference_object_id</span><span class="o">=</span><span class="n">plate_object</span><span class="o">.</span><span class="n">get_reference_object</span><span class="p">()</span><span class="o">.</span><span class="n">get_name</span><span class="p">(),</span>
                     <span class="n">trials</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span>
                     <span class="n">verbose</span><span class="o">=</span><span class="n">verbose</span><span class="p">,</span>
                 <span class="p">)</span></div>
 
-<div class="viewcode-block" id="MicroscopeAutomation.set_up_Koehler"><a class="viewcode-back" href="../../microscope_automation.html#microscope_automation.microscope_automation.MicroscopeAutomation.set_up_Koehler">[docs]</a>    <span class="k">def</span> <span class="nf">set_up_Koehler</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">initialize_prefs</span><span class="p">,</span> <span class="n">plate_object</span><span class="p">):</span>
+<div class="viewcode-block" id="MicroscopeAutomation.set_up_koehler"><a class="viewcode-back" href="../../microscope_automation.html#microscope_automation.microscope_automation.MicroscopeAutomation.set_up_koehler">[docs]</a>    <span class="k">def</span> <span class="nf">set_up_koehler</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">initialize_prefs</span><span class="p">,</span> <span class="n">plate_object</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Set up Koehler illumination.</span>
 
 <span class="sd">        Input:</span>
@@ -653,16 +651,16 @@
             <span class="n">well_object</span><span class="o">.</span><span class="n">move_to_zero</span><span class="p">(</span><span class="n">load</span><span class="o">=</span><span class="n">load</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="n">verbose</span><span class="p">)</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="k">raise</span> <span class="n">AutomationError</span><span class="p">(</span>
-                <span class="s2">&quot;Microscope not ready in update_plate_zZero with experiment </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
+                <span class="s2">&quot;Microscope not ready in set_up_koehler with experiment </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
                     <span class="n">zen_experiment</span>
                 <span class="p">)</span>
-            <span class="p">)</span>  <span class="c1"># noqa</span>
+            <span class="p">)</span>
 
         <span class="n">microscope_object</span><span class="o">.</span><span class="n">live_mode</span><span class="p">(</span><span class="n">camera_id</span><span class="p">,</span> <span class="n">experiment</span><span class="o">=</span><span class="n">zen_experiment</span><span class="p">,</span> <span class="n">live</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
         <span class="n">message</span><span class="o">.</span><span class="n">operate_message</span><span class="p">(</span><span class="s2">&quot;Set-up Koehler illumination.&quot;</span><span class="p">)</span>
         <span class="n">microscope_object</span><span class="o">.</span><span class="n">live_mode</span><span class="p">(</span><span class="n">camera_id</span><span class="p">,</span> <span class="n">experiment</span><span class="o">=</span><span class="n">zen_experiment</span><span class="p">,</span> <span class="n">live</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span></div>
 
-<div class="viewcode-block" id="MicroscopeAutomation.initialize_microscope"><a class="viewcode-back" href="../../microscope_automation.html#microscope_automation.microscope_automation.MicroscopeAutomation.initialize_microscope">[docs]</a>    <span class="k">def</span> <span class="nf">initialize_microscope</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">initialize_prefs</span><span class="p">,</span> <span class="n">plate_holder_object</span><span class="p">,</span> <span class="n">experiment</span><span class="p">):</span>
+<div class="viewcode-block" id="MicroscopeAutomation.initialize_microscope"><a class="viewcode-back" href="../../microscope_automation.html#microscope_automation.microscope_automation.MicroscopeAutomation.initialize_microscope">[docs]</a>    <span class="k">def</span> <span class="nf">initialize_microscope</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">initialize_prefs</span><span class="p">,</span> <span class="n">plate_holder_object</span><span class="p">,</span> <span class="n">_experiment</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Update z positions for plate (upper side of coverslip)</span>
 <span class="sd">        Set load and work positions for focus drive.</span>
 
@@ -672,8 +670,7 @@
 <span class="sd">         plate_holder_object: object of type PlateHolder</span>
 <span class="sd">         from module sample with well information</span>
 
-<span class="sd">         experiment: dictionary with keys &#39;Experiment&#39;, Repetitions&#39;, &#39;Input&#39;, &#39;Output&#39;</span>
-<span class="sd">         from workflow with information about specific experiment</span>
+<span class="sd">         _experiment: not used, necessary for compatibility</span>
 
 <span class="sd">        Output:</span>
 <span class="sd">         none</span>
@@ -691,7 +688,7 @@
                 <span class="c1"># Add colonies is in the list of experiment,</span>
                 <span class="c1"># show the options for csv file</span>
                 <span class="n">colony_remote_file</span> <span class="o">=</span> <span class="n">message</span><span class="o">.</span><span class="n">file_select_dialog</span><span class="p">(</span>
-                    <span class="n">colony_remote_dir</span><span class="p">,</span> <span class="n">returnCode</span><span class="o">=</span><span class="kc">True</span>
+                    <span class="n">colony_remote_dir</span><span class="p">,</span> <span class="n">return_code</span><span class="o">=</span><span class="kc">True</span>
                 <span class="p">)</span>
                 <span class="c1"># continue if user did not press cancel</span>
                 <span class="k">if</span> <span class="n">colony_remote_file</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">:</span>
@@ -718,23 +715,18 @@
                 <span class="p">)</span>
                 <span class="n">microscope_object</span><span class="o">.</span><span class="n">initialize_hardware</span><span class="p">(</span>
                     <span class="n">initialize_components_ordered_dict</span><span class="o">=</span><span class="n">initialization_dict</span><span class="p">,</span>
-                    <span class="n">reference_object</span><span class="o">=</span><span class="n">plate</span><span class="o">.</span><span class="n">get_reference_object</span><span class="p">(),</span>
+                    <span class="n">reference_object_id</span><span class="o">=</span><span class="n">plate</span><span class="o">.</span><span class="n">get_reference_object</span><span class="p">()</span><span class="o">.</span><span class="n">get_name</span><span class="p">(),</span>
                     <span class="n">trials</span><span class="o">=</span><span class="n">trials</span><span class="p">,</span>
                     <span class="n">verbose</span><span class="o">=</span><span class="n">verbose</span><span class="p">,</span>
                 <span class="p">)</span>
 
-                <span class="k">for</span> <span class="p">(</span>
-                    <span class="n">key</span><span class="p">,</span>
-                    <span class="n">value</span><span class="p">,</span>
-                <span class="p">)</span> <span class="ow">in</span> <span class="n">microscope_object</span><span class="o">.</span><span class="n">microscope_components_ordered_dict</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
-                    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="n">hardware_components</span><span class="o">.</span><span class="n">AutoFocus</span><span class="p">):</span>
-                        <span class="bp">self</span><span class="o">.</span><span class="n">state</span><span class="o">.</span><span class="n">reference_object</span> <span class="o">=</span> <span class="n">value</span><span class="o">.</span><span class="n">get_focus_reference_obj</span><span class="p">()</span>
-                        <span class="c1"># Autosave</span>
-                        <span class="bp">self</span><span class="o">.</span><span class="n">state</span><span class="o">.</span><span class="n">save_state</span><span class="p">()</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">state</span><span class="o">.</span><span class="n">reference_object</span> <span class="o">=</span> <span class="n">plate</span><span class="o">.</span><span class="n">get_reference_object</span><span class="p">()</span>
+                <span class="c1"># Autosave</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">state</span><span class="o">.</span><span class="n">save_state</span><span class="p">()</span>
 
             <span class="c1"># set Koehler illumination</span>
             <span class="k">if</span> <span class="n">initialize_prefs</span><span class="o">.</span><span class="n">get_pref</span><span class="p">(</span><span class="s2">&quot;Koehler&quot;</span><span class="p">,</span> <span class="n">valid_values</span><span class="o">=</span><span class="n">VALID_KOEHLER</span><span class="p">):</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">set_up_Koehler</span><span class="p">(</span><span class="n">initialize_prefs</span><span class="p">,</span> <span class="n">plate</span><span class="p">)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">set_up_koehler</span><span class="p">(</span><span class="n">initialize_prefs</span><span class="p">,</span> <span class="n">plate</span><span class="p">)</span>
 
         <span class="c1"># ask user to enable laser safety</span>
         <span class="k">if</span> <span class="n">initialize_prefs</span><span class="o">.</span><span class="n">get_pref</span><span class="p">(</span><span class="s2">&quot;LaserSafety&quot;</span><span class="p">,</span> <span class="n">valid_values</span><span class="o">=</span><span class="n">VALID_LASERSAFETY</span><span class="p">):</span>
@@ -746,7 +738,7 @@
 
     <span class="c1">################################################################################</span>
 
-<div class="viewcode-block" id="MicroscopeAutomation.update_plate_zZero"><a class="viewcode-back" href="../../microscope_automation.html#microscope_automation.microscope_automation.MicroscopeAutomation.update_plate_zZero">[docs]</a>    <span class="k">def</span> <span class="nf">update_plate_zZero</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">image_settings</span><span class="p">,</span> <span class="n">plate_holder_object</span><span class="p">,</span> <span class="n">experiment</span><span class="p">):</span>
+<div class="viewcode-block" id="MicroscopeAutomation.update_plate_z_zero"><a class="viewcode-back" href="../../microscope_automation.html#microscope_automation.microscope_automation.MicroscopeAutomation.update_plate_z_zero">[docs]</a>    <span class="k">def</span> <span class="nf">update_plate_z_zero</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">image_settings</span><span class="p">,</span> <span class="n">plate_holder_object</span><span class="p">,</span> <span class="n">experiment</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Update z positions for plate (upper side of coverslip)</span>
 <span class="sd">        Set load and work positions for focus drive.</span>
 
@@ -756,15 +748,15 @@
 <span class="sd">         plate_holder_object: object of type PlateHolder</span>
 <span class="sd">         from module sample with well information</span>
 
-<span class="sd">         experiment: dictionary with keys &#39;Experiment&#39;, Repetitions&#39;, &#39;Input&#39;, &#39;Output&#39;</span>
-<span class="sd">         from workflow with information about specific experiment</span>
+<span class="sd">         experiment: dictionary with keys &#39;Experiment&#39;, Repetitions&#39;, &#39;Input&#39;,</span>
+<span class="sd">         &#39;Output&#39;, &#39;WorkflowList&#39;, &#39;WorflowType&#39;, &#39;ObjectsDict&#39; and &#39;OriginalWorkflow&#39;</span>
 
 <span class="sd">        Output:</span>
 <span class="sd">         none</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="c1"># set debugging level</span>
         <span class="n">verbose</span> <span class="o">=</span> <span class="n">image_settings</span><span class="o">.</span><span class="n">get_pref</span><span class="p">(</span><span class="s2">&quot;Verbose&quot;</span><span class="p">,</span> <span class="n">valid_values</span><span class="o">=</span><span class="n">VALID_VERBOSE</span><span class="p">)</span>
-        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n\n</span><span class="s2">Start to update z zero settings for plates (update_plate_zZero)&quot;</span><span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n\n</span><span class="s2">Start to update z zero settings for plates (update_plate_z_zero)&quot;</span><span class="p">)</span>
 
         <span class="n">trials</span> <span class="o">=</span> <span class="n">image_settings</span><span class="o">.</span><span class="n">get_pref</span><span class="p">(</span><span class="s2">&quot;NumberTrials&quot;</span><span class="p">)</span>
         <span class="c1"># iterate through all plates on plate holder</span>
@@ -806,14 +798,14 @@
             <span class="k">else</span><span class="p">:</span>
                 <span class="k">raise</span> <span class="n">AutomationError</span><span class="p">(</span>
                     <span class="p">(</span>
-                        <span class="s2">&quot;Microscope not ready in update_plate_zZero&quot;</span>
+                        <span class="s2">&quot;Microscope not ready in update_plate_z_zero&quot;</span>
                         <span class="s2">&quot; with experiment </span><span class="si">{}</span><span class="s2">&quot;</span>
                     <span class="p">)</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">zen_experiment</span><span class="p">)</span>
                 <span class="p">)</span>
 
             <span class="c1"># User has to set focus position for following experiments</span>
             <span class="n">return_code</span> <span class="o">=</span> <span class="n">message</span><span class="o">.</span><span class="n">operate_message</span><span class="p">(</span>
-                <span class="s2">&quot;Please set the focus for your acquisition&quot;</span><span class="p">,</span> <span class="n">returnCode</span><span class="o">=</span><span class="kc">True</span>
+                <span class="s2">&quot;Please set the focus for your acquisition&quot;</span><span class="p">,</span> <span class="n">return_code</span><span class="o">=</span><span class="kc">True</span>
             <span class="p">)</span>
 
             <span class="k">if</span> <span class="n">return_code</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
@@ -832,25 +824,26 @@
                 <span class="n">verbose</span><span class="o">=</span><span class="n">verbose</span>
             <span class="p">)</span>
 
+            <span class="bp">self</span><span class="o">.</span><span class="n">state</span><span class="o">.</span><span class="n">reference_object</span> <span class="o">=</span> <span class="n">plate_object</span><span class="o">.</span><span class="n">get_reference_object</span><span class="p">()</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">state</span><span class="o">.</span><span class="n">save_state</span><span class="p">()</span>
+
             <span class="k">for</span> <span class="p">(</span>
                 <span class="n">key</span><span class="p">,</span>
                 <span class="n">value</span><span class="p">,</span>
             <span class="p">)</span> <span class="ow">in</span> <span class="p">(</span>
                 <span class="n">plate_holder_object</span><span class="o">.</span><span class="n">microscope</span><span class="o">.</span><span class="n">microscope_components_ordered_dict</span><span class="o">.</span><span class="n">items</span><span class="p">()</span>  <span class="c1"># noqa</span>
             <span class="p">):</span>
-                <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="n">hardware_components</span><span class="o">.</span><span class="n">AutoFocus</span><span class="p">):</span>
-                    <span class="bp">self</span><span class="o">.</span><span class="n">state</span><span class="o">.</span><span class="n">reference_object</span> <span class="o">=</span> <span class="n">value</span><span class="o">.</span><span class="n">get_focus_reference_obj</span><span class="p">()</span>
-                    <span class="c1"># Autosave</span>
-                    <span class="bp">self</span><span class="o">.</span><span class="n">state</span><span class="o">.</span><span class="n">save_state</span><span class="p">()</span>
                 <span class="c1"># Passage the previous experiment&#39;s objects if being called</span>
                 <span class="c1"># as a separate workflow experiment</span>
                 <span class="n">workflow_list</span> <span class="o">=</span> <span class="n">experiment</span><span class="p">[</span><span class="s2">&quot;WorkflowList&quot;</span><span class="p">]</span>
                 <span class="n">original_workflow</span> <span class="o">=</span> <span class="n">experiment</span><span class="p">[</span><span class="s2">&quot;OriginalWorkflow&quot;</span><span class="p">]</span>
                 <span class="k">if</span> <span class="n">experiment</span><span class="p">[</span><span class="s2">&quot;Experiment&quot;</span><span class="p">]</span> <span class="ow">in</span> <span class="n">workflow_list</span><span class="p">:</span>
                     <span class="n">previous_experiment</span> <span class="o">=</span> <span class="n">original_workflow</span><span class="p">[</span>
-                        <span class="n">original_workflow</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="n">experiment</span><span class="p">[</span><span class="s2">&quot;Experiment&quot;</span><span class="p">])</span> <span class="o">-</span> <span class="mi">1</span>
+                        <span class="n">workflow_list</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="n">experiment</span><span class="p">[</span><span class="s2">&quot;Experiment&quot;</span><span class="p">])</span> <span class="o">-</span> <span class="mi">1</span>
                     <span class="p">]</span>
-                    <span class="k">if</span> <span class="n">previous_experiment</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">state</span><span class="o">.</span><span class="n">next_experiment_objects</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
+                    <span class="k">if</span> <span class="n">previous_experiment</span> <span class="ow">in</span> <span class="nb">list</span><span class="p">(</span>
+                        <span class="bp">self</span><span class="o">.</span><span class="n">state</span><span class="o">.</span><span class="n">next_experiment_objects</span><span class="o">.</span><span class="n">keys</span><span class="p">()</span>
+                    <span class="p">):</span>
                         <span class="n">next_exp_objects</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">state</span><span class="o">.</span><span class="n">next_experiment_objects</span><span class="p">[</span>
                             <span class="n">previous_experiment</span>
                         <span class="p">]</span>
@@ -862,7 +855,7 @@
 
     <span class="c1">################################################################################</span>
 
-<div class="viewcode-block" id="MicroscopeAutomation.calculate_plate_correction"><a class="viewcode-back" href="../../microscope_automation.html#microscope_automation.microscope_automation.MicroscopeAutomation.calculate_plate_correction">[docs]</a>    <span class="k">def</span> <span class="nf">calculate_plate_correction</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">prefs</span><span class="p">,</span> <span class="n">plate_holder_object</span><span class="p">,</span> <span class="n">experiment</span><span class="p">):</span>
+<div class="viewcode-block" id="MicroscopeAutomation.calculate_plate_correction"><a class="viewcode-back" href="../../microscope_automation.html#microscope_automation.microscope_automation.MicroscopeAutomation.calculate_plate_correction">[docs]</a>    <span class="k">def</span> <span class="nf">calculate_plate_correction</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">prefs</span><span class="p">,</span> <span class="n">plate_holder_object</span><span class="p">,</span> <span class="n">_experiment</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Calculate correction factor for plate coordinate system.</span>
 
 <span class="sd">        Input:</span>
@@ -870,8 +863,7 @@
 
 <span class="sd">         plate_holder_object: object for plate that contains well</span>
 
-<span class="sd">         experiment: dictionary with keys &#39;Experiment&#39;, Repetitions&#39;, &#39;Input&#39;, &#39;Output&#39;</span>
-<span class="sd">         from workflow with information about specific experiment</span>
+<span class="sd">         _experiment: not used, necessary for compatibility</span>
 
 <span class="sd">        Output:</span>
 <span class="sd">         none</span>
@@ -879,7 +871,8 @@
         <span class="c1"># set debugging level</span>
         <span class="n">verbose</span> <span class="o">=</span> <span class="n">prefs</span><span class="o">.</span><span class="n">get_pref</span><span class="p">(</span><span class="s2">&quot;Verbose&quot;</span><span class="p">,</span> <span class="n">valid_values</span><span class="o">=</span><span class="n">VALID_VERBOSE</span><span class="p">)</span>
         <span class="nb">print</span><span class="p">(</span>
-            <span class="s2">&quot;</span><span class="se">\n\n</span><span class="s2">Start to acquire images for plate correction (calculate_plate_correction)&quot;</span>  <span class="c1"># noqa</span>
+            <span class="s2">&quot;</span><span class="se">\n\n</span><span class="s2">Start to acquire images for plate correction&quot;</span>
+            <span class="s2">&quot; (calculate_plate_correction)&quot;</span>
         <span class="p">)</span>
 
         <span class="c1"># iterate through all plates on plate holder</span>
@@ -915,14 +908,14 @@
             <span class="p">):</span>
                 <span class="k">raise</span> <span class="n">AutomationError</span><span class="p">(</span>
                     <span class="p">(</span>
-                        <span class="s2">&quot;Microscope not ready in update_plate_zZero&quot;</span>
+                        <span class="s2">&quot;Microscope not ready in calculate_plate_correction&quot;</span>
                         <span class="s2">&quot; with experiment </span><span class="si">{}</span><span class="s2">&quot;</span>
                     <span class="p">)</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">zen_experiment</span><span class="p">)</span>
                 <span class="p">)</span>
 
             <span class="k">def</span> <span class="nf">find_well_center</span><span class="p">(</span><span class="n">well_object</span><span class="p">,</span> <span class="n">well_index</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="n">verbose</span><span class="p">):</span>
                 <span class="n">well_object</span><span class="o">.</span><span class="n">move_delta_xyz</span><span class="p">(</span>
-                    <span class="o">-</span><span class="n">well_diameter</span> <span class="o">/</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="n">load</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="n">verbose</span>
+                    <span class="n">well_diameter</span> <span class="o">/</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="n">load</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="n">verbose</span>
                 <span class="p">)</span>
                 <span class="n">well_object</span><span class="o">.</span><span class="n">live_mode_start</span><span class="p">(</span>
                     <span class="n">camera_id</span><span class="o">=</span><span class="n">camera_id</span><span class="p">,</span> <span class="n">experiment</span><span class="o">=</span><span class="n">zen_experiment</span>
@@ -932,7 +925,7 @@
                         <span class="s2">&quot;Please focus with 10x on left edge of well </span><span class="si">{}</span><span class="se">\n</span><span class="s2">&quot;</span>
                         <span class="s2">&quot;to find zero position for plate </span><span class="si">{}</span><span class="s2">&quot;</span>
                     <span class="p">)</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">well_names</span><span class="p">[</span><span class="n">well_index</span><span class="p">],</span> <span class="n">plate_object</span><span class="o">.</span><span class="n">get_name</span><span class="p">()),</span>
-                    <span class="n">returnCode</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+                    <span class="n">return_code</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
                 <span class="p">)</span>
                 <span class="k">if</span> <span class="n">return_code</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
                     <span class="bp">self</span><span class="o">.</span><span class="n">state</span><span class="o">.</span><span class="n">save_state_and_exit</span><span class="p">()</span>
@@ -1083,6 +1076,7 @@
 
 <div class="viewcode-block" id="MicroscopeAutomation.scan_wells_zero"><a class="viewcode-back" href="../../microscope_automation.html#microscope_automation.microscope_automation.MicroscopeAutomation.scan_wells_zero">[docs]</a>    <span class="k">def</span> <span class="nf">scan_wells_zero</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">prefs</span><span class="p">,</span> <span class="n">plate_holder_object</span><span class="p">,</span> <span class="n">barcode</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Scan selected wells at center.</span>
+<span class="sd">        This method is mainly used to test calibrations.</span>
 
 <span class="sd">        Input:</span>
 <span class="sd">         prefs: dictionary with preferences</span>
@@ -1092,10 +1086,8 @@
 
 <span class="sd">         barcode: barcode for plate, often used as plate name</span>
 
-<span class="sd">        Return:</span>
+<span class="sd">        Output:</span>
 <span class="sd">         none</span>
-
-<span class="sd">        This method is mainly used to test calibrations.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="c1"># set debugging level</span>
         <span class="n">verbose</span> <span class="o">=</span> <span class="n">prefs</span><span class="o">.</span><span class="n">get_pref</span><span class="p">(</span><span class="s2">&quot;Verbose&quot;</span><span class="p">,</span> <span class="n">valid_values</span><span class="o">=</span><span class="n">VALID_VERBOSE</span><span class="p">)</span>
@@ -1150,7 +1142,7 @@
         <span class="n">number_selected_postions</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span>
         <span class="n">repetition</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span>
     <span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Acquire tiled image as defined in posList</span>
+        <span class="sd">&quot;&quot;&quot;Acquire tiled image as defined in pos_list</span>
 
 <span class="sd">        Input:</span>
 <span class="sd">         imaging_settings: dictionary with preferences</span>
@@ -1175,7 +1167,7 @@
 <span class="sd">         repetition: counter for time lapse experiments</span>
 
 <span class="sd">        Output:</span>
-<span class="sd">         return_dict: dictionary of form {&#39;Image&#39;: image, &#39;Continue&#39;: True/False}</span>
+<span class="sd">         return_dict: dictionary of form {&#39;Image&#39;: [images], &#39;Continue&#39;: True/False}</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="n">verbose</span><span class="p">:</span>
             <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n\n</span><span class="s2">Start scanning &quot;</span><span class="p">,</span> <span class="n">sample_object</span><span class="o">.</span><span class="n">get_name</span><span class="p">(),</span> <span class="s2">&quot; (scan_single_ROI)&quot;</span><span class="p">)</span>
@@ -1299,7 +1291,7 @@
                 <span class="s2">&quot;Tile&quot;</span><span class="p">,</span> <span class="n">valid_values</span><span class="o">=</span><span class="n">VALID_TILE_OBJECT</span>
             <span class="p">)</span>
             <span class="n">pos_list</span> <span class="o">=</span> <span class="n">sample_object</span><span class="o">.</span><span class="n">get_tile_positions_list</span><span class="p">(</span>
-                <span class="n">imaging_settings</span><span class="p">,</span> <span class="n">tile_type</span><span class="o">=</span><span class="n">tile_object</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="n">verbose</span>
+                <span class="n">imaging_settings</span><span class="p">,</span> <span class="n">tile_object</span><span class="o">=</span><span class="n">tile_object</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="n">verbose</span>
             <span class="p">)</span>
             <span class="n">images</span> <span class="o">=</span> <span class="n">sample_object</span><span class="o">.</span><span class="n">acquire_images</span><span class="p">(</span>
                 <span class="n">experiment</span><span class="p">,</span>
@@ -1340,18 +1332,23 @@
 
 <span class="sd">         plate_object: object sample list belongs to</span>
 
-<span class="sd">         experiment: dictionary with keys &#39;Experiment&#39;, Repetitions&#39;, &#39;Input&#39;, &#39;Output&#39;</span>
-<span class="sd">         from workflow with information about specific experiment</span>
+<span class="sd">         experiment: dictionary with keys &#39;Experiment&#39;, Repetitions&#39;, &#39;Input&#39;,</span>
+<span class="sd">         &#39;Output&#39;, &#39;WorkflowList&#39;, &#39;WorflowType&#39;, &#39;ObjectsDict&#39; and &#39;OriginalWorkflow&#39;</span>
 
 <span class="sd">         repetition: counter for time lapse experiments</span>
 
 <span class="sd">         wait_after_image: wait preferences as dictionary to determine whether</span>
 <span class="sd">         to wait after execution</span>
 <span class="sd">          Image: Wait after each image</span>
+
 <span class="sd">          Plate: Reset wait status after each plate</span>
+
 <span class="sd">          Repetition: Reset wait status after each repetition</span>
 
-<span class="sd">        Return:</span>
+<span class="sd">          Status: Show last image and allow adjustments if True,</span>
+<span class="sd">          enter fully automatic mode if False</span>
+
+<span class="sd">        Output:</span>
 <span class="sd">         none</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="c1"># get settings from imaging_settings</span>
@@ -1504,7 +1501,7 @@
                     <span class="k">else</span><span class="p">:</span>
                         <span class="n">image</span> <span class="o">=</span> <span class="n">images</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
                         <span class="n">tile_image</span> <span class="o">=</span> <span class="n">sample_object</span><span class="o">.</span><span class="n">get_microscope</span><span class="p">()</span><span class="o">.</span><span class="n">load_image</span><span class="p">(</span>
-                            <span class="n">image</span><span class="p">,</span> <span class="n">getMeta</span><span class="o">=</span><span class="kc">True</span>
+                            <span class="n">image</span><span class="p">,</span> <span class="n">get_meta</span><span class="o">=</span><span class="kc">True</span>
                         <span class="p">)</span>  <span class="c1"># loads the image &amp; metadata</span>
                 <span class="k">except</span> <span class="ne">Exception</span><span class="p">:</span>
                     <span class="n">tile_image</span> <span class="o">=</span> <span class="kc">None</span>
@@ -1544,7 +1541,7 @@
                     <span class="p">)</span>
 
             <span class="c1"># close all images in microscope software</span>
-            <span class="n">sample_object</span><span class="o">.</span><span class="n">remove_images</span><span class="p">(</span><span class="n">tile_image</span><span class="p">)</span>
+            <span class="n">sample_object</span><span class="o">.</span><span class="n">remove_images</span><span class="p">()</span>
 
             <span class="k">if</span> <span class="ow">not</span> <span class="n">return_dict</span><span class="p">[</span><span class="s2">&quot;Continue&quot;</span><span class="p">]:</span>
                 <span class="k">raise</span> <span class="n">StopCollectingError</span><span class="p">(</span>
@@ -1563,17 +1560,10 @@
         <span class="n">pickle_dict</span> <span class="o">=</span> <span class="p">{}</span>
         <span class="n">pickle_dict</span><span class="p">[</span><span class="s2">&quot;next_object_dict&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">all_objects_dict</span>
         <span class="c1"># Pickle the reference object - needed for continuation</span>
-        <span class="k">for</span> <span class="p">(</span>
-            <span class="n">key</span><span class="p">,</span>
-            <span class="n">value</span><span class="p">,</span>
-        <span class="p">)</span> <span class="ow">in</span> <span class="p">(</span>
-            <span class="n">plate_object</span><span class="o">.</span><span class="n">container</span><span class="o">.</span><span class="n">microscope</span><span class="o">.</span><span class="n">microscope_components_ordered_dict</span><span class="o">.</span><span class="n">items</span><span class="p">()</span>
-        <span class="p">):</span>
-            <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="n">hardware_components</span><span class="o">.</span><span class="n">AutoFocus</span><span class="p">):</span>
-                <span class="n">pickle_dict</span><span class="p">[</span><span class="s2">&quot;reference_object&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">value</span><span class="o">.</span><span class="n">get_focus_reference_obj</span><span class="p">()</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">state</span><span class="o">.</span><span class="n">reference_object</span> <span class="o">=</span> <span class="n">value</span><span class="o">.</span><span class="n">get_focus_reference_obj</span><span class="p">()</span>
-                <span class="c1"># Autosave</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">state</span><span class="o">.</span><span class="n">save_state</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">state</span><span class="o">.</span><span class="n">reference_object</span> <span class="o">=</span> <span class="n">plate_object</span><span class="o">.</span><span class="n">get_reference_object</span><span class="p">()</span>
+        <span class="n">pickle_dict</span><span class="p">[</span><span class="s2">&quot;reference_object&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">state</span><span class="o">.</span><span class="n">reference_object</span>
+        <span class="c1"># Autosave</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">state</span><span class="o">.</span><span class="n">save_state</span><span class="p">()</span>
 
         <span class="k">if</span> <span class="p">(</span>
             <span class="s2">&quot;Interrupt&quot;</span> <span class="ow">in</span> <span class="n">experiment</span><span class="o">.</span><span class="n">keys</span><span class="p">()</span>
@@ -1610,16 +1600,21 @@
 
 <span class="sd">         plate_holder_object: Plate Holder object containing all the information</span>
 
-<span class="sd">         experiment: dictionary with keys &#39;Experiment&#39;, Repetitions&#39;, &#39;Input&#39;, &#39;Output&#39;</span>
-<span class="sd">         from workflow with information about specific experiment</span>
+<span class="sd">         experiment: dictionary with keys &#39;Experiment&#39;, Repetitions&#39;, &#39;Input&#39;,</span>
+<span class="sd">         &#39;Output&#39;, &#39;WorkflowList&#39;, &#39;WorflowType&#39;, &#39;ObjectsDict&#39; and &#39;OriginalWorkflow&#39;</span>
 
 <span class="sd">         repetition: counter for time lapse experiments</span>
 
 <span class="sd">         wait_after_image: wait preferences as dictionary to determine whether</span>
 <span class="sd">         to wait after execution</span>
 <span class="sd">          Image: Wait after each image</span>
+
 <span class="sd">          Plate: Reset wait status after each plate</span>
+
 <span class="sd">          Repetition: Reset wait status after each repetition</span>
+
+<span class="sd">          Status: Show last image and allow adjustments if True,</span>
+<span class="sd">          enter fully automatic mode if False</span>
 
 <span class="sd">        Output:</span>
 <span class="sd">         none</span>
@@ -1718,7 +1713,7 @@
             <span class="n">failed_csv_filepath</span><span class="p">,</span>
         <span class="p">)</span> <span class="o">=</span> <span class="n">get_position_csv_path</span><span class="p">(</span><span class="n">imaging_settings</span><span class="p">)</span>
         <span class="c1"># DefaultZ since the z position is not available at this point</span>
-        <span class="n">defualtZ</span> <span class="o">=</span> <span class="n">imaging_settings</span><span class="o">.</span><span class="n">get_pref</span><span class="p">(</span><span class="s2">&quot;PositionDefaultZ&quot;</span><span class="p">)</span>
+        <span class="n">default_z</span> <span class="o">=</span> <span class="n">imaging_settings</span><span class="o">.</span><span class="n">get_pref</span><span class="p">(</span><span class="s2">&quot;PositionDefaultZ&quot;</span><span class="p">)</span>
         <span class="n">position_list_for_csv</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
             <span class="p">[</span><span class="s2">&quot;Name&quot;</span><span class="p">,</span> <span class="s2">&quot;X&quot;</span><span class="p">,</span> <span class="s2">&quot;Y&quot;</span><span class="p">,</span> <span class="s2">&quot;Z&quot;</span><span class="p">,</span> <span class="s2">&quot;Width&quot;</span><span class="p">,</span> <span class="s2">&quot;Height&quot;</span><span class="p">,</span> <span class="s2">&quot;ContourType&quot;</span><span class="p">]</span>
         <span class="p">)</span>
@@ -1783,13 +1778,13 @@
                     <span class="p">)</span>
                     <span class="n">x_pos</span> <span class="o">=</span> <span class="n">location</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">+</span> <span class="n">x_offset</span>
                     <span class="n">y_pos</span> <span class="o">=</span> <span class="n">location</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">+</span> <span class="n">y_offset</span>
-                    <span class="n">pos_info</span> <span class="o">=</span> <span class="p">[</span><span class="n">position_name</span><span class="p">,</span> <span class="n">x_pos</span><span class="p">,</span> <span class="n">y_pos</span><span class="p">,</span> <span class="n">defualtZ</span><span class="p">]</span>
+                    <span class="n">pos_info</span> <span class="o">=</span> <span class="p">[</span><span class="n">position_name</span><span class="p">,</span> <span class="n">x_pos</span><span class="p">,</span> <span class="n">y_pos</span><span class="p">,</span> <span class="n">default_z</span><span class="p">]</span>
                     <span class="n">well_info</span> <span class="o">=</span> <span class="p">[</span>
                         <span class="n">position_name</span><span class="p">,</span>
                         <span class="n">well_object</span><span class="o">.</span><span class="n">get_name</span><span class="p">(),</span>
                         <span class="n">location</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span>
                         <span class="n">location</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span>
-                        <span class="n">defualtZ</span><span class="p">,</span>
+                        <span class="n">default_z</span><span class="p">,</span>
                     <span class="p">]</span>
                     <span class="n">position_list_for_csv</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">pos_info</span><span class="p">)</span>
                     <span class="n">image_location_list_for_csv</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">well_info</span><span class="p">)</span>
@@ -1803,7 +1798,7 @@
                     <span class="n">all_objects_dict</span><span class="p">[</span><span class="nb">object</span><span class="p">]</span> <span class="o">=</span> <span class="n">new_objects_dict</span><span class="p">[</span><span class="nb">object</span><span class="p">]</span>
         <span class="k">finally</span><span class="p">:</span>
             <span class="c1"># write each position to the file</span>
-            <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">position_csv_filepath</span><span class="p">),</span> <span class="n">mode</span><span class="o">=</span><span class="s2">&quot;ab&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">position_file</span><span class="p">:</span>
+            <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">position_csv_filepath</span><span class="p">),</span> <span class="n">mode</span><span class="o">=</span><span class="s2">&quot;a&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">position_file</span><span class="p">:</span>
                 <span class="n">position_writer</span> <span class="o">=</span> <span class="n">csv</span><span class="o">.</span><span class="n">writer</span><span class="p">(</span>
                     <span class="n">position_file</span><span class="p">,</span>
                     <span class="n">delimiter</span><span class="o">=</span><span class="s2">&quot;,&quot;</span><span class="p">,</span>
@@ -1813,7 +1808,7 @@
                 <span class="k">for</span> <span class="n">position</span> <span class="ow">in</span> <span class="n">position_list_for_csv</span><span class="p">:</span>
                     <span class="n">position_writer</span><span class="o">.</span><span class="n">writerow</span><span class="p">(</span><span class="n">position</span><span class="p">)</span>
             <span class="k">with</span> <span class="nb">open</span><span class="p">(</span>
-                <span class="nb">str</span><span class="p">(</span><span class="n">position_wellid_csv_filepath</span><span class="p">),</span> <span class="n">mode</span><span class="o">=</span><span class="s2">&quot;ab&quot;</span>
+                <span class="nb">str</span><span class="p">(</span><span class="n">position_wellid_csv_filepath</span><span class="p">),</span> <span class="n">mode</span><span class="o">=</span><span class="s2">&quot;a&quot;</span>
             <span class="p">)</span> <span class="k">as</span> <span class="n">position_wellid_file</span><span class="p">:</span>
                 <span class="n">position_wellid_writer</span> <span class="o">=</span> <span class="n">csv</span><span class="o">.</span><span class="n">writer</span><span class="p">(</span>
                     <span class="n">position_wellid_file</span><span class="p">,</span>
@@ -1823,7 +1818,7 @@
                 <span class="p">)</span>
                 <span class="k">for</span> <span class="n">position_wellid</span> <span class="ow">in</span> <span class="n">image_location_list_for_csv</span><span class="p">:</span>
                     <span class="n">position_wellid_writer</span><span class="o">.</span><span class="n">writerow</span><span class="p">(</span><span class="n">position_wellid</span><span class="p">)</span>
-            <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">failed_csv_filepath</span><span class="p">),</span> <span class="n">mode</span><span class="o">=</span><span class="s2">&quot;ab&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">fail_position_file</span><span class="p">:</span>
+            <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">failed_csv_filepath</span><span class="p">),</span> <span class="n">mode</span><span class="o">=</span><span class="s2">&quot;a&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">fail_position_file</span><span class="p">:</span>
                 <span class="n">fail_position_writer</span> <span class="o">=</span> <span class="n">csv</span><span class="o">.</span><span class="n">writer</span><span class="p">(</span>
                     <span class="n">fail_position_file</span><span class="p">,</span> <span class="n">quotechar</span><span class="o">=</span><span class="s1">&#39;&quot;&#39;</span><span class="p">,</span> <span class="n">quoting</span><span class="o">=</span><span class="n">csv</span><span class="o">.</span><span class="n">QUOTE_MINIMAL</span>
                 <span class="p">)</span>
@@ -1840,16 +1835,10 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">state</span><span class="o">.</span><span class="n">save_state</span><span class="p">()</span>
         <span class="n">pickle_dict</span> <span class="o">=</span> <span class="p">{}</span>
         <span class="n">pickle_dict</span><span class="p">[</span><span class="s2">&quot;next_object_dict&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">all_objects_dict</span>
-        <span class="c1"># pickle the reference object - needed for continuation</span>
-        <span class="k">for</span> <span class="p">(</span>
-            <span class="n">key</span><span class="p">,</span>
-            <span class="n">value</span><span class="p">,</span>
-        <span class="p">)</span> <span class="ow">in</span> <span class="n">plate_holder_object</span><span class="o">.</span><span class="n">microscope</span><span class="o">.</span><span class="n">microscope_components_ordered_dict</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
-            <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="n">hardware_components</span><span class="o">.</span><span class="n">AutoFocus</span><span class="p">):</span>
-                <span class="n">pickle_dict</span><span class="p">[</span><span class="s2">&quot;reference_object&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">value</span><span class="o">.</span><span class="n">get_focus_reference_obj</span><span class="p">()</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">state</span><span class="o">.</span><span class="n">reference_object</span> <span class="o">=</span> <span class="n">value</span><span class="o">.</span><span class="n">get_focus_reference_obj</span><span class="p">()</span>
-                <span class="c1"># Autosave</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">state</span><span class="o">.</span><span class="n">save_state</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">state</span><span class="o">.</span><span class="n">reference_object</span> <span class="o">=</span> <span class="n">plate_holder_object</span><span class="o">.</span><span class="n">get_reference_object</span><span class="p">()</span>
+        <span class="n">pickle_dict</span><span class="p">[</span><span class="s2">&quot;reference_object&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">state</span><span class="o">.</span><span class="n">reference_object</span>
+        <span class="c1"># Autosave</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">state</span><span class="o">.</span><span class="n">save_state</span><span class="p">()</span>
         <span class="c1"># Once the experiment with multiple objects is finished,</span>
         <span class="c1"># if interrupt is true, pickle and exit</span>
         <span class="c1"># If the experiment needs to be interrupted, save the positions and exit</span>
@@ -1868,13 +1857,16 @@
             <span class="n">filename</span> <span class="o">=</span> <span class="n">get_recovery_settings_path</span><span class="p">(</span>
                 <span class="n">experiment</span><span class="p">[</span><span class="s2">&quot;RecoverySettingsFilePath&quot;</span><span class="p">]</span>
             <span class="p">)</span>
-            <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="s2">&quot;wb&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+            <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="s2">&quot;w&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
                 <span class="n">pickle</span><span class="o">.</span><span class="n">dump</span><span class="p">(</span><span class="n">pickle_dict</span><span class="p">,</span> <span class="n">f</span><span class="p">,</span> <span class="n">pickle</span><span class="o">.</span><span class="n">HIGHEST_PROTOCOL</span><span class="p">)</span>
                 <span class="n">stop_script</span><span class="p">(</span><span class="s2">&quot;Interruption Occurred. Data saved!&quot;</span><span class="p">)</span>
+        <span class="n">daily_folder</span> <span class="o">=</span> <span class="n">get_valid_path_from_prefs</span><span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">prefs</span><span class="p">,</span> <span class="s2">&quot;PathDailyFolder&quot;</span><span class="p">,</span> <span class="n">search_dir</span><span class="o">=</span><span class="kc">True</span>
+        <span class="p">)</span>
         <span class="n">pos_list_saver</span> <span class="o">=</span> <span class="n">PositionWriter</span><span class="p">(</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">prefs</span><span class="o">.</span><span class="n">prefs</span><span class="p">[</span><span class="s2">&quot;Info&quot;</span><span class="p">][</span><span class="s2">&quot;System&quot;</span><span class="p">],</span>
-            <span class="n">plate_object</span><span class="o">.</span><span class="n">barcode</span><span class="p">,</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">prefs</span><span class="o">.</span><span class="n">prefs</span><span class="p">[</span><span class="s2">&quot;PathDailyFolder&quot;</span><span class="p">],</span>
+            <span class="n">plate_object</span><span class="o">.</span><span class="n">get_barcode</span><span class="p">(),</span>
+            <span class="n">daily_folder</span><span class="p">,</span>
         <span class="p">)</span>
         <span class="n">position_list_for_csv</span> <span class="o">=</span> <span class="n">pos_list_saver</span><span class="o">.</span><span class="n">convert_to_stage_coords</span><span class="p">(</span>
             <span class="n">positions_list</span><span class="o">=</span><span class="n">position_list_for_csv</span>
@@ -1929,16 +1921,21 @@
 <span class="sd">         plate_holder_object: object of type PlateHolder</span>
 <span class="sd">         from module sample with well information</span>
 
-<span class="sd">         experiment: dictionary with keys &#39;Experiment&#39;, Repetitions&#39;, &#39;Input&#39;, &#39;Output&#39;</span>
-<span class="sd">         from workflow with information about specific experiment</span>
+<span class="sd">         experiment: dictionary with keys &#39;Experiment&#39;, Repetitions&#39;, &#39;Input&#39;,</span>
+<span class="sd">         &#39;Output&#39;, &#39;WorkflowList&#39;, &#39;WorflowType&#39;, &#39;ObjectsDict&#39; and &#39;OriginalWorkflow&#39;</span>
 
 <span class="sd">         repetition: counter for time lapse experiments</span>
 
 <span class="sd">         wait_after_image: wait preferences as dictionary to determine whether</span>
 <span class="sd">         to wait after execution</span>
 <span class="sd">          Image: Wait after each image</span>
+
 <span class="sd">          Plate: Reset wait status after each plate</span>
+
 <span class="sd">          Repetition: Reset wait status after each repetition</span>
+
+<span class="sd">          Status: Show last image and allow adjustments if True,</span>
+<span class="sd">          enter fully automatic mode if False</span>
 
 <span class="sd">        Output:</span>
 <span class="sd">         none</span>
@@ -1961,13 +1958,13 @@
                         <span class="n">plate_holder_object</span><span class="p">,</span> <span class="n">plate_object</span><span class="p">,</span> <span class="n">experiment</span>
                     <span class="p">)</span>
 
-                <span class="c1"># get objects for wells in welNamesList</span>
-                <span class="n">wellsList</span> <span class="o">=</span> <span class="p">[</span>
+                <span class="c1"># get objects for wells in well_names_list</span>
+                <span class="n">wells_list</span> <span class="o">=</span> <span class="p">[</span>
                     <span class="n">plate_object</span><span class="o">.</span><span class="n">get_well</span><span class="p">(</span><span class="n">well_name</span><span class="p">)</span> <span class="k">for</span> <span class="n">well_name</span> <span class="ow">in</span> <span class="n">well_names_list</span>
                 <span class="p">]</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">scan_all_objects</span><span class="p">(</span>
                     <span class="n">imaging_settings</span><span class="p">,</span>
-                    <span class="n">sample_list</span><span class="o">=</span><span class="n">wellsList</span><span class="p">,</span>
+                    <span class="n">sample_list</span><span class="o">=</span><span class="n">wells_list</span><span class="p">,</span>
                     <span class="n">plate_object</span><span class="o">=</span><span class="n">plate_object</span><span class="p">,</span>
                     <span class="n">experiment</span><span class="o">=</span><span class="n">experiment</span><span class="p">,</span>
                     <span class="n">repetition</span><span class="o">=</span><span class="n">repetition</span><span class="p">,</span>
@@ -1988,7 +1985,7 @@
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">imaging_settings</span><span class="p">,</span>
         <span class="n">plate_holder_object</span><span class="p">,</span>
-        <span class="n">experiment</span><span class="p">,</span>
+        <span class="n">experiment</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
         <span class="n">repetition</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span>
         <span class="n">wait_after_image</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
     <span class="p">):</span>
@@ -1999,11 +1996,11 @@
 <span class="sd">         plate_holder_object: object of type PlateHolder</span>
 <span class="sd">         from module sample with well information</span>
 
-<span class="sd">         experiment: not used but included for consistency</span>
+<span class="sd">         experiment: not used, necessary for compatibility</span>
 
-<span class="sd">         repetition: not used but included for consistency</span>
+<span class="sd">         repetition: not used, necessary for compatibility</span>
 
-<span class="sd">         wait_after_image: not used but included for consistency</span>
+<span class="sd">         wait_after_image: not used, necessary for compatibility</span>
 
 <span class="sd">        Output:</span>
 <span class="sd">         none</span>
@@ -2050,7 +2047,6 @@
 <span class="sd">        Output:</span>
 <span class="sd">         barcode: barcode of plate in plate_holder_object</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-
         <span class="k">return</span> <span class="nb">list</span><span class="p">(</span><span class="n">plate_holder_object</span><span class="o">.</span><span class="n">get_plates</span><span class="p">()</span><span class="o">.</span><span class="n">values</span><span class="p">())[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">barcode</span></div>
 
 <div class="viewcode-block" id="MicroscopeAutomation.recover_previous_settings"><a class="viewcode-back" href="../../microscope_automation.html#microscope_automation.microscope_automation.MicroscopeAutomation.recover_previous_settings">[docs]</a>    <span class="k">def</span> <span class="nf">recover_previous_settings</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">plate_holder_object</span><span class="p">,</span> <span class="n">plate_object</span><span class="p">,</span> <span class="n">experiment</span><span class="p">):</span>
@@ -2063,8 +2059,8 @@
 
 <span class="sd">         plate_object: object of class plate</span>
 
-<span class="sd">         experiment: dictionary with keys &#39;Experiment&#39;, Repetitions&#39;, &#39;Input&#39;, &#39;Output&#39;</span>
-<span class="sd">         from workflow with information about specific experiment</span>
+<span class="sd">         experiment: dictionary with keys &#39;Experiment&#39;, Repetitions&#39;, &#39;Input&#39;,</span>
+<span class="sd">         &#39;Output&#39;, &#39;WorkflowList&#39;, &#39;WorflowType&#39;, &#39;ObjectsDict&#39; and &#39;OriginalWorkflow&#39;</span>
 
 <span class="sd">        Output:</span>
 <span class="sd">         none</span>
@@ -2164,18 +2160,23 @@
 <span class="sd">         plate_holder_object: object of type PlateHolder</span>
 <span class="sd">         from module sample with well information</span>
 
-<span class="sd">         experiment: dictionary with keys &#39;Experiment&#39;, Repetitions&#39;, &#39;Input&#39;, &#39;Output&#39;</span>
-<span class="sd">         from workflow with information about specific experiment</span>
+<span class="sd">         experiment: dictionary with keys &#39;Experiment&#39;, Repetitions&#39;, &#39;Input&#39;,</span>
+<span class="sd">         &#39;Output&#39;, &#39;WorkflowList&#39;, &#39;WorflowType&#39;, &#39;ObjectsDict&#39; and &#39;OriginalWorkflow&#39;</span>
 
 <span class="sd">         repetition: counter for time lapse experiments</span>
 
 <span class="sd">         wait_after_image: wait preferences as dictionary to determine whether</span>
 <span class="sd">         to wait after execution</span>
 <span class="sd">          Image: Wait after each image</span>
+
 <span class="sd">          Plate: Reset wait status after each plate</span>
+
 <span class="sd">          Repetition: Reset wait status after each repetition</span>
 
-<span class="sd">        Return:</span>
+<span class="sd">          Status: Show last image and allow adjustments if True,</span>
+<span class="sd">          enter fully automatic mode if False</span>
+
+<span class="sd">        Output:</span>
 <span class="sd">         none</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">plates</span> <span class="o">=</span> <span class="n">plate_holder_object</span><span class="o">.</span><span class="n">get_plates</span><span class="p">()</span>
@@ -2205,10 +2206,10 @@
                 <span class="p">)</span>
                 <span class="k">if</span> <span class="n">update_z_function_name</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
                     <span class="n">update_z_function_name</span> <span class="o">=</span> <span class="s2">&quot;UpdatePlateWellZero_100x&quot;</span>
-                <span class="n">settings</span> <span class="o">=</span> <span class="n">imaging_settings</span><span class="o">.</span><span class="n">parentPrefs</span><span class="o">.</span><span class="n">get_pref_as_meta</span><span class="p">(</span>
+                <span class="n">settings</span> <span class="o">=</span> <span class="n">imaging_settings</span><span class="o">.</span><span class="n">get_parent_prefs</span><span class="p">()</span><span class="o">.</span><span class="n">get_pref_as_meta</span><span class="p">(</span>
                     <span class="n">update_z_function_name</span>
                 <span class="p">)</span>
-                <span class="n">workflow</span> <span class="o">=</span> <span class="n">imaging_settings</span><span class="o">.</span><span class="n">parentPrefs</span><span class="o">.</span><span class="n">get_pref</span><span class="p">(</span><span class="s2">&quot;Workflow&quot;</span><span class="p">)</span>
+                <span class="n">workflow</span> <span class="o">=</span> <span class="n">imaging_settings</span><span class="o">.</span><span class="n">get_parent_prefs</span><span class="p">()</span><span class="o">.</span><span class="n">get_pref</span><span class="p">(</span><span class="s2">&quot;Workflow&quot;</span><span class="p">)</span>
                 <span class="n">update_plate_exp</span> <span class="o">=</span> <span class="p">[</span>
                     <span class="n">update_plate_exp</span>
                     <span class="k">for</span> <span class="n">update_plate_exp</span> <span class="ow">in</span> <span class="n">workflow</span>
@@ -2221,17 +2222,17 @@
                 <span class="n">experiment_dict</span><span class="p">[</span><span class="s2">&quot;WorkflowList&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">experiment</span><span class="p">[</span><span class="s2">&quot;WorkflowList&quot;</span><span class="p">]</span>
                 <span class="n">experiment_dict</span><span class="p">[</span><span class="s2">&quot;OriginalWorkflow&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">experiment</span><span class="p">[</span><span class="s2">&quot;OriginalWorkflow&quot;</span><span class="p">]</span>
                 <span class="k">if</span> <span class="n">update_z_function_name</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">workflow_list</span><span class="p">:</span>
-                    <span class="bp">self</span><span class="o">.</span><span class="n">update_plate_zZero</span><span class="p">(</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">update_plate_z_zero</span><span class="p">(</span>
                         <span class="n">settings</span><span class="p">,</span> <span class="n">plate_holder_object</span><span class="p">,</span> <span class="n">experiment_dict</span>
                     <span class="p">)</span>
 
                 <span class="c1"># Extract the sample list</span>
-                <span class="n">sampleList</span> <span class="o">=</span> <span class="n">plate_object</span><span class="o">.</span><span class="n">get_from_image_dir</span><span class="p">(</span><span class="n">list_name</span><span class="p">)</span>
-                <span class="n">current_samples</span> <span class="o">=</span> <span class="n">copy</span><span class="o">.</span><span class="n">copy</span><span class="p">(</span><span class="n">sampleList</span><span class="p">)</span>
+                <span class="n">sample_list</span> <span class="o">=</span> <span class="n">plate_object</span><span class="o">.</span><span class="n">get_from_image_dir</span><span class="p">(</span><span class="n">list_name</span><span class="p">)</span>
+                <span class="n">current_samples</span> <span class="o">=</span> <span class="n">copy</span><span class="o">.</span><span class="n">copy</span><span class="p">(</span><span class="n">sample_list</span><span class="p">)</span>
                 <span class="c1"># Update sample list by removing positions that were imaged already</span>
                 <span class="n">last_exp_objects</span> <span class="o">=</span> <span class="n">experiment</span><span class="p">[</span><span class="s2">&quot;LastExpObjects&quot;</span><span class="p">]</span>
-                <span class="k">if</span> <span class="n">sampleList</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-                    <span class="k">for</span> <span class="n">sample</span> <span class="ow">in</span> <span class="n">sampleList</span><span class="p">:</span>
+                <span class="k">if</span> <span class="n">sample_list</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                    <span class="k">for</span> <span class="n">sample</span> <span class="ow">in</span> <span class="n">sample_list</span><span class="p">:</span>
                         <span class="n">name</span> <span class="o">=</span> <span class="n">sample</span><span class="o">.</span><span class="n">get_name</span><span class="p">()</span>
                         <span class="k">if</span> <span class="n">name</span> <span class="ow">in</span> <span class="n">last_exp_objects</span><span class="p">:</span>
                             <span class="n">current_samples</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="n">sample</span><span class="p">)</span>
@@ -2247,14 +2248,9 @@
                 <span class="p">)</span>
 
         <span class="c1"># Update the reference object</span>
-        <span class="k">for</span> <span class="p">(</span>
-            <span class="n">key</span><span class="p">,</span>
-            <span class="n">value</span><span class="p">,</span>
-        <span class="p">)</span> <span class="ow">in</span> <span class="n">plate_holder_object</span><span class="o">.</span><span class="n">microscope</span><span class="o">.</span><span class="n">microscope_components_ordered_dict</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
-            <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="n">hardware_components</span><span class="o">.</span><span class="n">AutoFocus</span><span class="p">):</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">state</span><span class="o">.</span><span class="n">reference_object</span> <span class="o">=</span> <span class="n">value</span><span class="o">.</span><span class="n">get_focus_reference_obj</span><span class="p">()</span>
-                <span class="c1"># Autosave</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">state</span><span class="o">.</span><span class="n">save_state</span><span class="p">()</span></div>
+        <span class="bp">self</span><span class="o">.</span><span class="n">state</span><span class="o">.</span><span class="n">reference_object</span> <span class="o">=</span> <span class="n">plate_holder_object</span><span class="o">.</span><span class="n">get_reference_object</span><span class="p">()</span>
+        <span class="c1"># Autosave</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">state</span><span class="o">.</span><span class="n">save_state</span><span class="p">()</span></div>
 
     <span class="c1">################################################################################</span>
 
@@ -2337,7 +2333,7 @@
 <span class="sd">         none</span>
 <span class="sd">        &quot;&quot;&quot;</span> <span class="s2">&quot;&quot;</span>
         <span class="c1"># start local logging</span>
-        <span class="n">error_handling</span><span class="o">.</span><span class="n">setupLogger</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">prefs</span><span class="p">)</span>
+        <span class="n">error_handling</span><span class="o">.</span><span class="n">setup_logger</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">prefs</span><span class="p">)</span>
         <span class="n">logger</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="s2">&quot;MicroscopeAutomation.microscope_automation&quot;</span><span class="p">)</span>
         <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;automation protocol started&quot;</span><span class="p">)</span>
 
@@ -2354,7 +2350,7 @@
             <span class="p">(</span><span class="s2">&quot;Continue last workflow&quot;</span><span class="p">,</span> <span class="kc">False</span><span class="p">),</span>
         <span class="p">]</span>
         <span class="n">continue_dialog_box</span> <span class="o">=</span> <span class="n">message</span><span class="o">.</span><span class="n">check_box_message</span><span class="p">(</span>
-            <span class="s2">&quot;Please select workflow type:&quot;</span><span class="p">,</span> <span class="n">continue_check_box_list</span><span class="p">,</span> <span class="n">returnCode</span><span class="o">=</span><span class="kc">False</span>
+            <span class="s2">&quot;Please select workflow type:&quot;</span><span class="p">,</span> <span class="n">continue_check_box_list</span><span class="p">,</span> <span class="n">return_code</span><span class="o">=</span><span class="kc">False</span>
         <span class="p">)</span>
 
         <span class="k">if</span> <span class="n">continue_dialog_box</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="mi">1</span><span class="p">]</span> <span class="ow">is</span> <span class="kc">True</span><span class="p">:</span>
@@ -2369,7 +2365,9 @@
                 <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">workflow</span>
             <span class="p">]</span>
             <span class="n">new_check_box_list</span> <span class="o">=</span> <span class="n">message</span><span class="o">.</span><span class="n">check_box_message</span><span class="p">(</span>
-                <span class="s2">&quot;Please select experiment to execute:&quot;</span><span class="p">,</span> <span class="n">check_box_list</span><span class="p">,</span> <span class="n">returnCode</span><span class="o">=</span><span class="kc">False</span>
+                <span class="s2">&quot;Please select experiment to execute:&quot;</span><span class="p">,</span>
+                <span class="n">check_box_list</span><span class="p">,</span>
+                <span class="n">return_code</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
             <span class="p">)</span>
             <span class="n">workflow</span> <span class="o">=</span> <span class="p">[</span>
                 <span class="n">workflow</span><span class="p">[</span><span class="n">i</span><span class="p">]</span>
@@ -2408,7 +2406,9 @@
             <span class="n">pickle_file</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span>
             <span class="k">while</span> <span class="n">pickle_file</span> <span class="o">==</span> <span class="s2">&quot;&quot;</span><span class="p">:</span>
                 <span class="c1"># Ask user which pickle file to recover settings from</span>
-                <span class="n">file_dir</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">prefs</span><span class="o">.</span><span class="n">get_pref</span><span class="p">(</span><span class="s2">&quot;RecoverySettingsFilePath&quot;</span><span class="p">)</span>
+                <span class="n">file_dir</span> <span class="o">=</span> <span class="n">get_valid_path_from_prefs</span><span class="p">(</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">prefs</span><span class="p">,</span> <span class="s2">&quot;RecoverySettingsFilePath&quot;</span><span class="p">,</span> <span class="n">search_dir</span><span class="o">=</span><span class="kc">True</span>
+                <span class="p">)</span>
                 <span class="n">pickle_file</span> <span class="o">=</span> <span class="n">message</span><span class="o">.</span><span class="n">file_select_dialog</span><span class="p">(</span>
                     <span class="n">file_dir</span><span class="p">,</span>
                     <span class="n">filePattern</span><span class="o">=</span><span class="s2">&quot;*.pickle&quot;</span><span class="p">,</span>
@@ -2477,7 +2477,7 @@
         <span class="c1"># Set up the Daily folder with plate barcode</span>
         <span class="c1"># Currently only one plate supported so barcode is extracted from that</span>
         <span class="n">plates</span> <span class="o">=</span> <span class="n">plate_holder_object</span><span class="o">.</span><span class="n">get_plates</span><span class="p">()</span>
-        <span class="n">barcode</span> <span class="o">=</span> <span class="n">plates</span><span class="o">.</span><span class="n">keys</span><span class="p">()[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+        <span class="n">barcode</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">plates</span><span class="o">.</span><span class="n">keys</span><span class="p">())[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
         <span class="c1"># Set up the high level folder with plate barcode</span>
         <span class="n">get_daily_folder</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">prefs</span><span class="p">,</span> <span class="n">barcode</span><span class="p">)</span>
         <span class="c1"># Set up Image Folders and Sub Folders</span>
@@ -2570,7 +2570,7 @@
                         <span class="n">return_code</span> <span class="o">=</span> <span class="mi">1</span>
                     <span class="k">else</span><span class="p">:</span>
                         <span class="n">return_code</span> <span class="o">=</span> <span class="n">message</span><span class="o">.</span><span class="n">information_message</span><span class="p">(</span>
-                            <span class="s2">&quot;</span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">experiment</span><span class="p">[</span><span class="s2">&quot;Experiment&quot;</span><span class="p">]),</span> <span class="s2">&quot;&quot;</span><span class="p">,</span> <span class="n">returnCode</span><span class="o">=</span><span class="kc">True</span>
+                            <span class="s2">&quot;</span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">experiment</span><span class="p">[</span><span class="s2">&quot;Experiment&quot;</span><span class="p">]),</span> <span class="s2">&quot;&quot;</span><span class="p">,</span> <span class="n">return_code</span><span class="o">=</span><span class="kc">True</span>
                         <span class="p">)</span>
 
                 <span class="c1"># If return_code is 0, user pressed cancel</span>
@@ -2712,6 +2712,7 @@
 <li class="toctree-l1"><a class="reference internal" href="../../image_AICS.html">image_AICS</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../load_image_czi.html">load_image_czi</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../meta_data_file.html">meta_data_file</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../microscope_automation.html">microscope_automation package</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../preferences.html">preferences</a></li>
 </ul>
 <p class="caption"><span class="caption-text">Reference Docs</span></p>
@@ -2757,7 +2758,7 @@
       &copy;2020, Allen Institute.
       
       |
-      Powered by <a href="http://sphinx-doc.org/">Sphinx 3.3.1</a>
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 3.4.0</a>
       &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.12</a>
       
     </div>

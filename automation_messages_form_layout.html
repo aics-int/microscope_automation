@@ -12,7 +12,6 @@
     <script src="_static/jquery.js"></script>
     <script src="_static/underscore.js"></script>
     <script src="_static/doctools.js"></script>
-    <script src="_static/language_data.js"></script>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
     <link rel="next" title="error_handling" href="error_handling.html" />
@@ -45,13 +44,13 @@
 messages throughout the project.</p>
 <dl class="py function">
 <dt id="microscope_automation.automation_messages_form_layout.read_string">
-<code class="sig-prename descclassname">microscope_automation.automation_messages_form_layout.</code><code class="sig-name descname">read_string</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">title</span></em>, <em class="sig-param"><span class="n">label</span></em>, <em class="sig-param"><span class="n">default</span></em>, <em class="sig-param"><span class="n">returnCode</span><span class="o">=</span><span class="default_value">False</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/microscope_automation/automation_messages_form_layout.html#read_string"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#microscope_automation.automation_messages_form_layout.read_string" title="Permalink to this definition">¶</a></dt>
+<code class="sig-prename descclassname">microscope_automation.automation_messages_form_layout.</code><code class="sig-name descname">read_string</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">title</span></em>, <em class="sig-param"><span class="n">label</span></em>, <em class="sig-param"><span class="n">default</span></em>, <em class="sig-param"><span class="n">return_code</span><span class="o">=</span><span class="default_value">False</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/microscope_automation/automation_messages_form_layout.html#read_string"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#microscope_automation.automation_messages_form_layout.read_string" title="Permalink to this definition">¶</a></dt>
 <dd><p>Ask for user input and allows option to abort script.</p>
 <dl>
 <dt>Input:</dt><dd><p>title: Title of dialog box</p>
 <p>label: Text to display in front of sting input field</p>
 <p>default: default input</p>
-<p>returnCode: if True, will return after cancel with code 0,
+<p>return_code: if True, will return after cancel with code 0,
 otherwise will call sys.exit()</p>
 </dd>
 <dt>Return:</dt><dd><p>0: User selected to abort script</p>
@@ -62,12 +61,12 @@ otherwise will call sys.exit()</p>
 
 <dl class="py function">
 <dt id="microscope_automation.automation_messages_form_layout.information_message">
-<code class="sig-prename descclassname">microscope_automation.automation_messages_form_layout.</code><code class="sig-name descname">information_message</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">title</span></em>, <em class="sig-param"><span class="n">message</span></em>, <em class="sig-param"><span class="n">returnCode</span><span class="o">=</span><span class="default_value">False</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/microscope_automation/automation_messages_form_layout.html#information_message"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#microscope_automation.automation_messages_form_layout.information_message" title="Permalink to this definition">¶</a></dt>
+<code class="sig-prename descclassname">microscope_automation.automation_messages_form_layout.</code><code class="sig-name descname">information_message</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">title</span></em>, <em class="sig-param"><span class="n">message</span></em>, <em class="sig-param"><span class="n">return_code</span><span class="o">=</span><span class="default_value">False</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/microscope_automation/automation_messages_form_layout.html#information_message"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#microscope_automation.automation_messages_form_layout.information_message" title="Permalink to this definition">¶</a></dt>
 <dd><p>Displays information to user and allows option to abort script.</p>
 <dl>
 <dt>Input:</dt><dd><p>title: Title of dialog box</p>
 <p>message: Message that will be displayed</p>
-<p>returnCode: if True, will return after cancel with code 0,
+<p>return_code: if True, will return after cancel with code 0,
 otherwise will call sys.exit()</p>
 </dd>
 <dt>Return:</dt><dd><p>0: User selected to abort script</p>
@@ -78,11 +77,11 @@ otherwise will call sys.exit()</p>
 
 <dl class="py function">
 <dt id="microscope_automation.automation_messages_form_layout.setup_message">
-<code class="sig-prename descclassname">microscope_automation.automation_messages_form_layout.</code><code class="sig-name descname">setup_message</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">message</span></em>, <em class="sig-param"><span class="n">returnCode</span><span class="o">=</span><span class="default_value">False</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/microscope_automation/automation_messages_form_layout.html#setup_message"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#microscope_automation.automation_messages_form_layout.setup_message" title="Permalink to this definition">¶</a></dt>
+<code class="sig-prename descclassname">microscope_automation.automation_messages_form_layout.</code><code class="sig-name descname">setup_message</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">message</span></em>, <em class="sig-param"><span class="n">return_code</span><span class="o">=</span><span class="default_value">False</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/microscope_automation/automation_messages_form_layout.html#setup_message"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#microscope_automation.automation_messages_form_layout.setup_message" title="Permalink to this definition">¶</a></dt>
 <dd><p>Displays information about setup error and allows option to abort script.</p>
 <dl>
 <dt>Input:</dt><dd><p>message: Message that will be displayed</p>
-<p>returnCode: if True, will return after cancel with code 0,
+<p>return_code: if True, will return after cancel with code 0,
 otherwise will call sys.exit()</p>
 </dd>
 <dt>Return:</dt><dd><p>0: User selected to abort script</p>
@@ -93,11 +92,11 @@ otherwise will call sys.exit()</p>
 
 <dl class="py function">
 <dt id="microscope_automation.automation_messages_form_layout.operate_message">
-<code class="sig-prename descclassname">microscope_automation.automation_messages_form_layout.</code><code class="sig-name descname">operate_message</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">message</span></em>, <em class="sig-param"><span class="n">returnCode</span><span class="o">=</span><span class="default_value">False</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/microscope_automation/automation_messages_form_layout.html#operate_message"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#microscope_automation.automation_messages_form_layout.operate_message" title="Permalink to this definition">¶</a></dt>
+<code class="sig-prename descclassname">microscope_automation.automation_messages_form_layout.</code><code class="sig-name descname">operate_message</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">message</span></em>, <em class="sig-param"><span class="n">return_code</span><span class="o">=</span><span class="default_value">False</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/microscope_automation/automation_messages_form_layout.html#operate_message"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#microscope_automation.automation_messages_form_layout.operate_message" title="Permalink to this definition">¶</a></dt>
 <dd><p>Ask user to operate microscope manually and allows option to abort script.</p>
 <dl>
 <dt>Input:</dt><dd><p>message: Message that will be displayed</p>
-<p>returnCode: if True, will return after cancel with code 0,
+<p>return_code: if True, will return after cancel with code 0,
 otherwise will call sys.exit()</p>
 </dd>
 <dt>Return:</dt><dd><p>0: User selected to abort script</p>
@@ -108,7 +107,7 @@ otherwise will call sys.exit()</p>
 
 <dl class="py function">
 <dt id="microscope_automation.automation_messages_form_layout.check_box_message">
-<code class="sig-prename descclassname">microscope_automation.automation_messages_form_layout.</code><code class="sig-name descname">check_box_message</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">message</span></em>, <em class="sig-param"><span class="n">checkBoxList</span></em>, <em class="sig-param"><span class="n">returnCode</span><span class="o">=</span><span class="default_value">False</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/microscope_automation/automation_messages_form_layout.html#check_box_message"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#microscope_automation.automation_messages_form_layout.check_box_message" title="Permalink to this definition">¶</a></dt>
+<code class="sig-prename descclassname">microscope_automation.automation_messages_form_layout.</code><code class="sig-name descname">check_box_message</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">message</span></em>, <em class="sig-param"><span class="n">checkBoxList</span></em>, <em class="sig-param"><span class="n">return_code</span><span class="o">=</span><span class="default_value">False</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/microscope_automation/automation_messages_form_layout.html#check_box_message"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#microscope_automation.automation_messages_form_layout.check_box_message" title="Permalink to this definition">¶</a></dt>
 <dd><p>Ask user to operate microscope manually and allows option to abort script.</p>
 <dl>
 <dt>Input:</dt><dd><p>message: Message that will be displayed</p>
@@ -116,7 +115,7 @@ otherwise will call sys.exit()</p>
 <dt>checkBoxList: list with check box names and settings in form:</dt><dd><p>[(‘Choice 1’, True), (‘Choice 2’, False)</p>
 </dd>
 </dl>
-<p>returnCode: if True, will return after cancel with code 0,
+<p>return_code: if True, will return after cancel with code 0,
 otherwise will call sys.exit()</p>
 </dd>
 <dt>Return:</dt><dd><p>0: User selected to abort script</p>
@@ -127,11 +126,11 @@ otherwise will call sys.exit()</p>
 
 <dl class="py function">
 <dt id="microscope_automation.automation_messages_form_layout.error_message">
-<code class="sig-prename descclassname">microscope_automation.automation_messages_form_layout.</code><code class="sig-name descname">error_message</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">message</span></em>, <em class="sig-param"><span class="n">returnCode</span><span class="o">=</span><span class="default_value">False</span></em>, <em class="sig-param"><span class="n">blocking</span><span class="o">=</span><span class="default_value">True</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/microscope_automation/automation_messages_form_layout.html#error_message"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#microscope_automation.automation_messages_form_layout.error_message" title="Permalink to this definition">¶</a></dt>
+<code class="sig-prename descclassname">microscope_automation.automation_messages_form_layout.</code><code class="sig-name descname">error_message</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">message</span></em>, <em class="sig-param"><span class="n">return_code</span><span class="o">=</span><span class="default_value">False</span></em>, <em class="sig-param"><span class="n">blocking</span><span class="o">=</span><span class="default_value">True</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/microscope_automation/automation_messages_form_layout.html#error_message"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#microscope_automation.automation_messages_form_layout.error_message" title="Permalink to this definition">¶</a></dt>
 <dd><p>Show error message and allows option to abort script.</p>
 <dl>
 <dt>Input:</dt><dd><p>message: Message that will be displayed</p>
-<p>returnCode: if True, will return after cancel with code 0,
+<p>return_code: if True, will return after cancel with code 0,
 otherwise will call sys.exit()</p>
 <p>blocking: if True use modal dialog for error reporting, otherwise print(message)</p>
 </dd>
@@ -144,11 +143,11 @@ otherwise will call sys.exit()</p>
 
 <dl class="py function">
 <dt id="microscope_automation.automation_messages_form_layout.wait_message">
-<code class="sig-prename descclassname">microscope_automation.automation_messages_form_layout.</code><code class="sig-name descname">wait_message</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">message</span></em>, <em class="sig-param"><span class="n">returnCode</span><span class="o">=</span><span class="default_value">False</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/microscope_automation/automation_messages_form_layout.html#wait_message"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#microscope_automation.automation_messages_form_layout.wait_message" title="Permalink to this definition">¶</a></dt>
+<code class="sig-prename descclassname">microscope_automation.automation_messages_form_layout.</code><code class="sig-name descname">wait_message</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">message</span></em>, <em class="sig-param"><span class="n">return_code</span><span class="o">=</span><span class="default_value">False</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/microscope_automation/automation_messages_form_layout.html#wait_message"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#microscope_automation.automation_messages_form_layout.wait_message" title="Permalink to this definition">¶</a></dt>
 <dd><p>Interrupt script and wait for user to continue.</p>
 <dl>
 <dt>Input:</dt><dd><p>message: Message that will be displayed</p>
-<p>returnCode: if True, will return after cancel with code 0,
+<p>return_code: if True, will return after cancel with code 0,
 otherwise will call sys.exit()</p>
 </dd>
 <dt>Return:</dt><dd><p>0: User selected to abort script</p>
@@ -160,12 +159,12 @@ otherwise will call sys.exit()</p>
 
 <dl class="py function">
 <dt id="microscope_automation.automation_messages_form_layout.select_message">
-<code class="sig-prename descclassname">microscope_automation.automation_messages_form_layout.</code><code class="sig-name descname">select_message</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">message</span></em>, <em class="sig-param"><span class="n">count</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">returnCode</span><span class="o">=</span><span class="default_value">False</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/microscope_automation/automation_messages_form_layout.html#select_message"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#microscope_automation.automation_messages_form_layout.select_message" title="Permalink to this definition">¶</a></dt>
+<code class="sig-prename descclassname">microscope_automation.automation_messages_form_layout.</code><code class="sig-name descname">select_message</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">message</span></em>, <em class="sig-param"><span class="n">count</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">return_code</span><span class="o">=</span><span class="default_value">False</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/microscope_automation/automation_messages_form_layout.html#select_message"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#microscope_automation.automation_messages_form_layout.select_message" title="Permalink to this definition">¶</a></dt>
 <dd><p>Interrupt script and wait for user to continue.</p>
 <dl>
 <dt>Input:</dt><dd><p>message: Message that will be displayed</p>
 <p>count: number of collected positions</p>
-<p>returnCode: if True, will return after cancel with code 0,
+<p>return_code: if True, will return after cancel with code 0,
 otherwise will call sys.exit()</p>
 </dd>
 <dt>Return:</dt><dd><p>0: User selected to abort script</p>
@@ -176,13 +175,13 @@ otherwise will call sys.exit()</p>
 
 <dl class="py function">
 <dt id="microscope_automation.automation_messages_form_layout.file_select_dialog">
-<code class="sig-prename descclassname">microscope_automation.automation_messages_form_layout.</code><code class="sig-name descname">file_select_dialog</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">directory</span></em>, <em class="sig-param"><span class="n">filePattern</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">comment</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">returnCode</span><span class="o">=</span><span class="default_value">False</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/microscope_automation/automation_messages_form_layout.html#file_select_dialog"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#microscope_automation.automation_messages_form_layout.file_select_dialog" title="Permalink to this definition">¶</a></dt>
+<code class="sig-prename descclassname">microscope_automation.automation_messages_form_layout.</code><code class="sig-name descname">file_select_dialog</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">directory</span></em>, <em class="sig-param"><span class="n">filePattern</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">comment</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">return_code</span><span class="o">=</span><span class="default_value">False</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/microscope_automation/automation_messages_form_layout.html#file_select_dialog"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#microscope_automation.automation_messages_form_layout.file_select_dialog" title="Permalink to this definition">¶</a></dt>
 <dd><p>List all files in directory and select one.</p>
 <dl>
 <dt>Input:</dt><dd><p>directory: path to directory with files</p>
 <p>filePattern: string with regular expression.
 If file matches expression it will be pre-selected.</p>
-<p>returnCode: if True, will return after cancel with code 0,
+<p>return_code: if True, will return after cancel with code 0,
 otherwise will call sys.exit()</p>
 </dd>
 <dt>Output:</dt><dd><p>file_path: path to selected file</p>
@@ -299,6 +298,7 @@ stop execution of script or to continue.</p>
 <li class="toctree-l1"><a class="reference internal" href="image_AICS.html">image_AICS</a></li>
 <li class="toctree-l1"><a class="reference internal" href="load_image_czi.html">load_image_czi</a></li>
 <li class="toctree-l1"><a class="reference internal" href="meta_data_file.html">meta_data_file</a></li>
+<li class="toctree-l1"><a class="reference internal" href="microscope_automation.html">microscope_automation package</a></li>
 <li class="toctree-l1"><a class="reference internal" href="preferences.html">preferences</a></li>
 </ul>
 <p class="caption"><span class="caption-text">Reference Docs</span></p>
@@ -342,7 +342,7 @@ stop execution of script or to continue.</p>
       &copy;2020, Allen Institute.
       
       |
-      Powered by <a href="http://sphinx-doc.org/">Sphinx 3.3.1</a>
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 3.4.0</a>
       &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.12</a>
       
       |

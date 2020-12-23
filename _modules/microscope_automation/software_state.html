@@ -12,7 +12,6 @@
     <script src="../../_static/jquery.js"></script>
     <script src="../../_static/underscore.js"></script>
     <script src="../../_static/doctools.js"></script>
-    <script src="../../_static/language_data.js"></script>
     <link rel="index" title="Index" href="../../genindex.html" />
     <link rel="search" title="Search" href="../../search.html" />
    
@@ -110,7 +109,7 @@
         <span class="c1"># Generate the file name for the particular interrupt</span>
         <span class="k">try</span><span class="p">:</span>
             <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">recovery_file_path</span><span class="p">,</span> <span class="s2">&quot;wb&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
-                <span class="n">pickle</span><span class="o">.</span><span class="n">dump</span><span class="p">(</span><span class="n">pickle_dict</span><span class="p">,</span> <span class="n">f</span><span class="p">,</span> <span class="n">pickle</span><span class="o">.</span><span class="n">HIGHEST_PROTOCOL</span><span class="p">)</span>
+                <span class="n">pickle</span><span class="o">.</span><span class="n">dump</span><span class="p">(</span><span class="n">pickle_dict</span><span class="p">,</span> <span class="n">f</span><span class="p">,</span> <span class="n">pickle</span><span class="o">.</span><span class="n">DEFAULT_PROTOCOL</span><span class="p">)</span>
                 <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;State was saved in the recovery file&quot;</span><span class="p">)</span>
                 <span class="n">f</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
         <span class="k">except</span> <span class="ne">Exception</span><span class="p">:</span>
@@ -147,15 +146,15 @@
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">current_object</span> <span class="o">=</span> <span class="n">base_object</span>
         <span class="k">if</span> <span class="n">current_object</span><span class="o">.</span><span class="n">microscope</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="n">current_object</span><span class="o">.</span><span class="n">microscope</span><span class="o">.</span><span class="n">get_control_software</span><span class="p">()</span><span class="o">.</span><span class="n">connection</span><span class="o">.</span><span class="n">Zen</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="n">current_object</span><span class="o">.</span><span class="n">microscope</span><span class="o">.</span><span class="n">_get_control_software</span><span class="p">()</span><span class="o">.</span><span class="n">connection</span><span class="o">.</span><span class="n">Zen</span> <span class="o">=</span> <span class="p">(</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">zen_instance</span>
             <span class="p">)</span>
         <span class="k">while</span> <span class="n">current_object</span><span class="o">.</span><span class="n">container</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
             <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">current_object</span><span class="o">.</span><span class="n">container</span><span class="p">,</span> <span class="n">samples</span><span class="o">.</span><span class="n">PlateHolder</span><span class="p">):</span>
-                <span class="n">current_object</span><span class="o">.</span><span class="n">container</span><span class="o">.</span><span class="n">microscope</span><span class="o">.</span><span class="n">get_control_software</span><span class="p">()</span><span class="o">.</span><span class="n">connection</span><span class="o">.</span><span class="n">Zen</span> <span class="o">=</span> <span class="p">(</span>  <span class="c1"># noqa</span>
+                <span class="n">current_object</span><span class="o">.</span><span class="n">container</span><span class="o">.</span><span class="n">microscope</span><span class="o">.</span><span class="n">_get_control_software</span><span class="p">()</span><span class="o">.</span><span class="n">connection</span><span class="o">.</span><span class="n">Zen</span> <span class="o">=</span> <span class="p">(</span>  <span class="c1"># noqa</span>
                     <span class="bp">self</span><span class="o">.</span><span class="n">zen_instance</span>
                 <span class="p">)</span>
-                <span class="n">current_object</span><span class="o">.</span><span class="n">container</span><span class="o">.</span><span class="n">microscope</span><span class="o">.</span><span class="n">get_control_software</span><span class="p">()</span><span class="o">.</span><span class="n">connection</span><span class="o">.</span><span class="n">image</span> <span class="o">=</span> <span class="p">(</span>  <span class="c1"># noqa</span>
+                <span class="n">current_object</span><span class="o">.</span><span class="n">container</span><span class="o">.</span><span class="n">microscope</span><span class="o">.</span><span class="n">_get_control_software</span><span class="p">()</span><span class="o">.</span><span class="n">connection</span><span class="o">.</span><span class="n">image</span> <span class="o">=</span> <span class="p">(</span>  <span class="c1"># noqa</span>
                     <span class="bp">self</span><span class="o">.</span><span class="n">ref_image</span>
                 <span class="p">)</span>
             <span class="n">current_object</span> <span class="o">=</span> <span class="n">current_object</span><span class="o">.</span><span class="n">container</span></div>
@@ -193,22 +192,22 @@
         <span class="n">current_object</span> <span class="o">=</span> <span class="n">base_object</span>
         <span class="k">if</span> <span class="n">current_object</span><span class="o">.</span><span class="n">microscope</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">zen_instance</span> <span class="o">=</span> <span class="p">(</span>
-                <span class="n">current_object</span><span class="o">.</span><span class="n">microscope</span><span class="o">.</span><span class="n">get_control_software</span><span class="p">()</span><span class="o">.</span><span class="n">connection</span><span class="o">.</span><span class="n">Zen</span>
+                <span class="n">current_object</span><span class="o">.</span><span class="n">microscope</span><span class="o">.</span><span class="n">_get_control_software</span><span class="p">()</span><span class="o">.</span><span class="n">connection</span><span class="o">.</span><span class="n">Zen</span>
             <span class="p">)</span>
-            <span class="n">current_object</span><span class="o">.</span><span class="n">microscope</span><span class="o">.</span><span class="n">get_control_software</span><span class="p">()</span><span class="o">.</span><span class="n">connection</span><span class="o">.</span><span class="n">Zen</span> <span class="o">=</span> <span class="kc">None</span>
+            <span class="n">current_object</span><span class="o">.</span><span class="n">microscope</span><span class="o">.</span><span class="n">_get_control_software</span><span class="p">()</span><span class="o">.</span><span class="n">connection</span><span class="o">.</span><span class="n">Zen</span> <span class="o">=</span> <span class="kc">None</span>
         <span class="k">while</span> <span class="n">current_object</span><span class="o">.</span><span class="n">container</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
             <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">current_object</span><span class="o">.</span><span class="n">container</span><span class="p">,</span> <span class="n">samples</span><span class="o">.</span><span class="n">PlateHolder</span><span class="p">):</span>
                 <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">zen_instance</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
                     <span class="bp">self</span><span class="o">.</span><span class="n">zen_instance</span> <span class="o">=</span> <span class="p">(</span>
-                        <span class="n">current_object</span><span class="o">.</span><span class="n">container</span><span class="o">.</span><span class="n">microscope</span><span class="o">.</span><span class="n">get_control_software</span><span class="p">()</span><span class="o">.</span><span class="n">connection</span><span class="o">.</span><span class="n">Zen</span>  <span class="c1"># noqa</span>
+                        <span class="n">current_object</span><span class="o">.</span><span class="n">container</span><span class="o">.</span><span class="n">microscope</span><span class="o">.</span><span class="n">_get_control_software</span><span class="p">()</span><span class="o">.</span><span class="n">connection</span><span class="o">.</span><span class="n">Zen</span>  <span class="c1"># noqa</span>
                     <span class="p">)</span>
-                <span class="n">current_object</span><span class="o">.</span><span class="n">container</span><span class="o">.</span><span class="n">microscope</span><span class="o">.</span><span class="n">get_control_software</span><span class="p">()</span><span class="o">.</span><span class="n">connection</span><span class="o">.</span><span class="n">Zen</span> <span class="o">=</span> <span class="p">(</span>  <span class="c1"># noqa</span>
+                <span class="n">current_object</span><span class="o">.</span><span class="n">container</span><span class="o">.</span><span class="n">microscope</span><span class="o">.</span><span class="n">_get_control_software</span><span class="p">()</span><span class="o">.</span><span class="n">connection</span><span class="o">.</span><span class="n">Zen</span> <span class="o">=</span> <span class="p">(</span>  <span class="c1"># noqa</span>
                     <span class="kc">None</span>
                 <span class="p">)</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">ref_image</span> <span class="o">=</span> <span class="p">(</span>
-                    <span class="n">current_object</span><span class="o">.</span><span class="n">container</span><span class="o">.</span><span class="n">microscope</span><span class="o">.</span><span class="n">get_control_software</span><span class="p">()</span><span class="o">.</span><span class="n">connection</span><span class="o">.</span><span class="n">image</span>  <span class="c1"># noqa</span>
+                    <span class="n">current_object</span><span class="o">.</span><span class="n">container</span><span class="o">.</span><span class="n">microscope</span><span class="o">.</span><span class="n">_get_control_software</span><span class="p">()</span><span class="o">.</span><span class="n">connection</span><span class="o">.</span><span class="n">image</span>  <span class="c1"># noqa</span>
                 <span class="p">)</span>
-                <span class="n">current_object</span><span class="o">.</span><span class="n">container</span><span class="o">.</span><span class="n">microscope</span><span class="o">.</span><span class="n">get_control_software</span><span class="p">()</span><span class="o">.</span><span class="n">connection</span><span class="o">.</span><span class="n">image</span> <span class="o">=</span> <span class="p">(</span>  <span class="c1"># noqa</span>
+                <span class="n">current_object</span><span class="o">.</span><span class="n">container</span><span class="o">.</span><span class="n">microscope</span><span class="o">.</span><span class="n">_get_control_software</span><span class="p">()</span><span class="o">.</span><span class="n">connection</span><span class="o">.</span><span class="n">image</span> <span class="o">=</span> <span class="p">(</span>  <span class="c1"># noqa</span>
                     <span class="kc">None</span>
                 <span class="p">)</span>
             <span class="n">current_object</span> <span class="o">=</span> <span class="n">current_object</span><span class="o">.</span><span class="n">container</span></div>
@@ -329,6 +328,7 @@
 <li class="toctree-l1"><a class="reference internal" href="../../image_AICS.html">image_AICS</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../load_image_czi.html">load_image_czi</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../meta_data_file.html">meta_data_file</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../microscope_automation.html">microscope_automation package</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../preferences.html">preferences</a></li>
 </ul>
 <p class="caption"><span class="caption-text">Reference Docs</span></p>
@@ -374,7 +374,7 @@
       &copy;2020, Allen Institute.
       
       |
-      Powered by <a href="http://sphinx-doc.org/">Sphinx 3.3.1</a>
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 3.4.0</a>
       &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.12</a>
       
     </div>

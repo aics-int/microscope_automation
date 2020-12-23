@@ -12,7 +12,6 @@
     <script src="../../../_static/jquery.js"></script>
     <script src="../../../_static/underscore.js"></script>
     <script src="../../../_static/doctools.js"></script>
-    <script src="../../../_static/language_data.js"></script>
     <link rel="index" title="Index" href="../../../genindex.html" />
     <link rel="search" title="Search" href="../../../search.html" />
    
@@ -995,7 +994,7 @@
         <span class="c1">#</span>
         <span class="c1"># message.operate_message(</span>
         <span class="c1">#     message=&#39;Please move to and focus on reference position.&#39;,</span>
-        <span class="c1">#     returnCode=False)</span>
+        <span class="c1">#     return_code=False)</span>
         <span class="c1"># #    _z_abs = auto_focus_object.store_focus(</span>
         <span class="c1"># #        communication_object, focus_reference_obj=reference_object)</span>
         <span class="c1">#</span>
@@ -1063,7 +1062,7 @@
         <span class="c1">#</span>
         <span class="c1"># message.operate_message(</span>
         <span class="c1">#     message=&#39;Please move to and focus on reference position.&#39;,</span>
-        <span class="c1">#     returnCode=False)</span>
+        <span class="c1">#     return_code=False)</span>
 
         <span class="c1"># get new position for reference in object coordinates and check if it changed.</span>
         <span class="c1"># This new position is already corrected with current objective offset</span>
@@ -1492,7 +1491,7 @@
                         <span class="s2">&quot;File exists&quot;</span><span class="p">,</span>
                         <span class="n">label</span><span class="o">=</span><span class="s2">&quot;Modify new filename&quot;</span><span class="p">,</span>
                         <span class="n">default</span><span class="o">=</span><span class="n">file_name</span><span class="p">,</span>
-                        <span class="n">returnCode</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+                        <span class="n">return_code</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
                     <span class="p">)</span>
                     <span class="n">file_path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">normcase</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">directory</span><span class="p">,</span> <span class="n">new_file_name</span><span class="p">))</span>
                 <span class="k">else</span><span class="p">:</span>
@@ -1605,6 +1604,7 @@
 <li class="toctree-l1"><a class="reference internal" href="../../../image_AICS.html">image_AICS</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../load_image_czi.html">load_image_czi</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../meta_data_file.html">meta_data_file</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../microscope_automation.html">microscope_automation package</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../preferences.html">preferences</a></li>
 </ul>
 <p class="caption"><span class="caption-text">Reference Docs</span></p>
@@ -1650,7 +1650,7 @@
       &copy;2020, Allen Institute.
       
       |
-      Powered by <a href="http://sphinx-doc.org/">Sphinx 3.3.1</a>
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 3.4.0</a>
       &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.12</a>
       
     </div>

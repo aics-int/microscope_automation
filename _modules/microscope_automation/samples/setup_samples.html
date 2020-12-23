@@ -12,7 +12,6 @@
     <script src="../../../_static/jquery.js"></script>
     <script src="../../../_static/underscore.js"></script>
     <script src="../../../_static/doctools.js"></script>
-    <script src="../../../_static/language_data.js"></script>
     <link rel="index" title="Index" href="../../../genindex.html" />
     <link rel="search" title="Search" href="../../../search.html" />
    
@@ -164,48 +163,48 @@
     <span class="n">wells_select</span> <span class="o">=</span> <span class="n">colonies</span><span class="p">[</span><span class="s2">&quot;Well&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">isin</span><span class="p">(</span><span class="n">well_list</span><span class="p">)</span>
 
     <span class="c1"># scan only wells with a minimum number of colonies in a give well before filtering</span>
-    <span class="n">minCountPerWell</span> <span class="o">=</span> <span class="n">prefs</span><span class="o">.</span><span class="n">get_pref</span><span class="p">(</span><span class="s2">&quot;MinCountPerWell&quot;</span><span class="p">)</span>
-    <span class="n">minCountSelect</span> <span class="o">=</span> <span class="n">colonies</span><span class="o">.</span><span class="n">CountPerWell</span> <span class="o">&gt;=</span> <span class="n">minCountPerWell</span>
+    <span class="n">min_count_per_well</span> <span class="o">=</span> <span class="n">prefs</span><span class="o">.</span><span class="n">get_pref</span><span class="p">(</span><span class="s2">&quot;MinCountPerWell&quot;</span><span class="p">)</span>
+    <span class="n">min_count_select</span> <span class="o">=</span> <span class="n">colonies</span><span class="o">.</span><span class="n">CountPerWell</span> <span class="o">&gt;=</span> <span class="n">min_count_per_well</span>
 
     <span class="c1"># scan only wells with a maximum number of colonies in a give well before filtering</span>
     <span class="n">maxCountPerWell</span> <span class="o">=</span> <span class="n">prefs</span><span class="o">.</span><span class="n">get_pref</span><span class="p">(</span><span class="s2">&quot;MaxCountPerWell&quot;</span><span class="p">)</span>
-    <span class="n">maxCountSelect</span> <span class="o">=</span> <span class="n">colonies</span><span class="o">.</span><span class="n">CountPerWell</span> <span class="o">&lt;=</span> <span class="n">maxCountPerWell</span>
+    <span class="n">max_count_select</span> <span class="o">=</span> <span class="n">colonies</span><span class="o">.</span><span class="n">CountPerWell</span> <span class="o">&lt;=</span> <span class="n">maxCountPerWell</span>
 
     <span class="c1"># scan only colonies that are larger than MinAreaColonies</span>
     <span class="c1"># based on Celigo measurements in mum^2</span>
-    <span class="n">minAreaColonies</span> <span class="o">=</span> <span class="n">prefs</span><span class="o">.</span><span class="n">get_pref</span><span class="p">(</span><span class="s2">&quot;MinAreaColonies&quot;</span><span class="p">)</span>
-    <span class="n">minAreaSelect</span> <span class="o">=</span> <span class="n">colonies</span><span class="o">.</span><span class="n">Area</span> <span class="o">&gt;=</span> <span class="n">minAreaColonies</span>
+    <span class="n">min_area_colonies</span> <span class="o">=</span> <span class="n">prefs</span><span class="o">.</span><span class="n">get_pref</span><span class="p">(</span><span class="s2">&quot;MinAreaColonies&quot;</span><span class="p">)</span>
+    <span class="n">min_area_select</span> <span class="o">=</span> <span class="n">colonies</span><span class="o">.</span><span class="n">Area</span> <span class="o">&gt;=</span> <span class="n">min_area_colonies</span>
 
     <span class="c1"># scan only colonies that are smaller than MinAreaColonies</span>
     <span class="c1"># based on Celigo measurements in mum^2</span>
-    <span class="n">maxAreaColonies</span> <span class="o">=</span> <span class="n">prefs</span><span class="o">.</span><span class="n">get_pref</span><span class="p">(</span><span class="s2">&quot;MaxAreaColonies&quot;</span><span class="p">)</span>
-    <span class="n">maxAreaSelect</span> <span class="o">=</span> <span class="n">colonies</span><span class="o">.</span><span class="n">Area</span> <span class="o">&lt;=</span> <span class="n">maxAreaColonies</span>
+    <span class="n">max_area_colonies</span> <span class="o">=</span> <span class="n">prefs</span><span class="o">.</span><span class="n">get_pref</span><span class="p">(</span><span class="s2">&quot;MaxAreaColonies&quot;</span><span class="p">)</span>
+    <span class="n">max_area_select</span> <span class="o">=</span> <span class="n">colonies</span><span class="o">.</span><span class="n">Area</span> <span class="o">&lt;=</span> <span class="n">max_area_colonies</span>
 
     <span class="c1"># scan only colonies that are within a circle around the well center</span>
     <span class="c1"># with radius MaxDistanceToCenter based on Celigo measurements in mum</span>
-    <span class="n">maxDistanceToCenter</span> <span class="o">=</span> <span class="n">prefs</span><span class="o">.</span><span class="n">get_pref</span><span class="p">(</span><span class="s2">&quot;MaxDistanceToCenter&quot;</span><span class="p">)</span>
-    <span class="n">maxDistanceSelect</span> <span class="o">=</span> <span class="n">colonies</span><span class="o">.</span><span class="n">CenterDistance</span> <span class="o">&lt;=</span> <span class="n">maxDistanceToCenter</span>
+    <span class="n">max_distance_to_center</span> <span class="o">=</span> <span class="n">prefs</span><span class="o">.</span><span class="n">get_pref</span><span class="p">(</span><span class="s2">&quot;MaxDistanceToCenter&quot;</span><span class="p">)</span>
+    <span class="n">max_distance_select</span> <span class="o">=</span> <span class="n">colonies</span><span class="o">.</span><span class="n">CenterDistance</span> <span class="o">&lt;=</span> <span class="n">max_distance_to_center</span>
 
     <span class="c1"># remove colonies that are not in the correct wells</span>
-    <span class="n">filteredColonies</span> <span class="o">=</span> <span class="n">colonies</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span>
-        <span class="n">minCountSelect</span>
-        <span class="o">&amp;</span> <span class="n">maxCountSelect</span>
-        <span class="o">&amp;</span> <span class="n">minAreaSelect</span>
-        <span class="o">&amp;</span> <span class="n">maxAreaSelect</span>
-        <span class="o">&amp;</span> <span class="n">maxDistanceSelect</span>
+    <span class="n">filtered_colonies</span> <span class="o">=</span> <span class="n">colonies</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span>
+        <span class="n">min_count_select</span>
+        <span class="o">&amp;</span> <span class="n">max_count_select</span>
+        <span class="o">&amp;</span> <span class="n">min_area_select</span>
+        <span class="o">&amp;</span> <span class="n">max_area_select</span>
+        <span class="o">&amp;</span> <span class="n">max_distance_select</span>
         <span class="o">&amp;</span> <span class="n">wells_select</span>
     <span class="p">]</span>
 
     <span class="c1"># we want to scan a maximum number of colonies per well</span>
     <span class="c1"># if there are more valid colonies in a given well than select random colonies</span>
     <span class="n">selected_colonies</span> <span class="o">=</span> <span class="n">pandas</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">()</span>
-    <span class="k">for</span> <span class="n">well</span><span class="p">,</span> <span class="n">numberImages</span> <span class="ow">in</span> <span class="n">well_dict</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+    <span class="k">for</span> <span class="n">well</span><span class="p">,</span> <span class="n">number_images</span> <span class="ow">in</span> <span class="n">well_dict</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
         <span class="c1"># find all colonies within well</span>
-        <span class="n">wellSelect</span> <span class="o">=</span> <span class="n">filteredColonies</span><span class="o">.</span><span class="n">Well</span> <span class="o">==</span> <span class="n">well</span>
-        <span class="n">coloniesInWell</span> <span class="o">=</span> <span class="n">filteredColonies</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">wellSelect</span><span class="p">]</span>
-        <span class="k">if</span> <span class="n">coloniesInWell</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">&gt;=</span> <span class="n">numberImages</span><span class="p">:</span>
+        <span class="n">well_select</span> <span class="o">=</span> <span class="n">filtered_colonies</span><span class="o">.</span><span class="n">Well</span> <span class="o">==</span> <span class="n">well</span>
+        <span class="n">colonies_in_well</span> <span class="o">=</span> <span class="n">filtered_colonies</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">well_select</span><span class="p">]</span>
+        <span class="k">if</span> <span class="n">colonies_in_well</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">&gt;=</span> <span class="n">number_images</span><span class="p">:</span>
             <span class="n">selected_colonies</span> <span class="o">=</span> <span class="n">selected_colonies</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
-                <span class="n">coloniesInWell</span><span class="o">.</span><span class="n">sample</span><span class="p">(</span><span class="n">numberImages</span><span class="p">)</span>
+                <span class="n">colonies_in_well</span><span class="o">.</span><span class="n">sample</span><span class="p">(</span><span class="n">number_images</span><span class="p">)</span>
             <span class="p">)</span>
 
     <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;summary statistics about colonies after filtering&quot;</span><span class="p">)</span>
@@ -409,18 +408,6 @@
     <span class="c1"># create immersion delivery system as part of PlateHolder and add to PlateHolder</span>
     <span class="n">pump</span> <span class="o">=</span> <span class="n">specifications</span><span class="o">.</span><span class="n">get_pref_as_meta</span><span class="p">(</span><span class="s2">&quot;Pump&quot;</span><span class="p">)</span>
 
-    <span class="c1"># pumpName = specifications.get_pref(&#39;Pump&#39;)</span>
-    <span class="c1"># safety_id = specifications.get_pref(&#39;PumpSafetyID&#39;)</span>
-    <span class="c1"># pumpObject = microscope_object._get_microscope_object(pumpName)</span>
-    <span class="c1"># center = [float(specifications.get_pref(&#39;xCenterPump&#39;)), \</span>
-    <span class="c1">#           float(specifications.get_pref(&#39;yCenterPump&#39;)), \</span>
-    <span class="c1">#           float(specifications.get_pref(&#39;zCenterPump&#39;))]</span>
-    <span class="c1"># x_flip = int(specifications.get_pref(&#39;xFlipPump&#39;))</span>
-    <span class="c1"># y_flip = int(specifications.get_pref(&#39;yFlipPump&#39;))</span>
-    <span class="c1"># z_flip = int(specifications.get_pref(&#39;zFlipPump&#39;))</span>
-    <span class="c1"># x_correction = float(specifications.get_pref(&#39;xCorrectionPump&#39;))</span>
-    <span class="c1"># y_correction = float(specifications.get_pref(&#39;yCorrectionPump&#39;))</span>
-    <span class="c1"># z_correction = float(specifications.get_pref(&#39;zCorrectionPump&#39;))</span>
     <span class="k">if</span> <span class="n">pump</span><span class="p">:</span>
         <span class="n">immersion_delivery_object</span> <span class="o">=</span> <span class="n">samples</span><span class="o">.</span><span class="n">ImmersionDelivery</span><span class="p">(</span>
             <span class="n">name</span><span class="o">=</span><span class="n">pump</span><span class="o">.</span><span class="n">get_pref</span><span class="p">(</span><span class="s2">&quot;Name&quot;</span><span class="p">),</span>
@@ -438,20 +425,6 @@
             <span class="n">z_correction</span><span class="o">=</span><span class="n">pump</span><span class="o">.</span><span class="n">get_pref</span><span class="p">(</span><span class="s2">&quot;zCorrection&quot;</span><span class="p">),</span>
         <span class="p">)</span>
         <span class="n">plate_holder_object</span><span class="o">.</span><span class="n">immersion_delivery_system</span> <span class="o">=</span> <span class="n">immersion_delivery_object</span>
-
-    <span class="c1"># create Plate as part of PlateHolder and add it to PlateHolder</span>
-    <span class="c1"># get description for plate dimensions and coordinate system from microscopeSpecifications.yml  # noqa</span>
-    <span class="c1"># plateName = specifications.get_pref(&#39;Plate&#39;)</span>
-    <span class="c1"># center = [float(specifications.get_pref(&#39;xCenterPlate&#39;)), \</span>
-    <span class="c1">#           float(specifications.get_pref(&#39;yCenterPlate&#39;)), \</span>
-    <span class="c1">#           float(specifications.get_pref(&#39;zCenterPlate&#39;))]</span>
-    <span class="c1"># x_flip = int(specifications.get_pref(&#39;xFlipPlate&#39;))</span>
-    <span class="c1"># y_flip = int(specifications.get_pref(&#39;yFlipPlate&#39;))</span>
-    <span class="c1"># z_flip = int(specifications.get_pref(&#39;zFlipPlate&#39;))</span>
-    <span class="c1"># x_correction = float(specifications.get_pref(&#39;xCorrectionPlate&#39;))</span>
-    <span class="c1"># y_correction = float(specifications.get_pref(&#39;yCorrectionPlate&#39;))</span>
-    <span class="c1"># z_correction = float(specifications.get_pref(&#39;zCorrectionPlate&#39;))</span>
-    <span class="c1"># reference_well = specifications.get_pref(&#39;InitialReferenceWell&#39;)</span>
 
     <span class="n">plate</span> <span class="o">=</span> <span class="n">specifications</span><span class="o">.</span><span class="n">get_pref_as_meta</span><span class="p">(</span><span class="s2">&quot;Plate&quot;</span><span class="p">)</span>
     <span class="n">plate_object</span> <span class="o">=</span> <span class="n">samples</span><span class="o">.</span><span class="n">Plate</span><span class="p">(</span>
@@ -473,7 +446,7 @@
     <span class="c1"># barcode is typically retrieved from colony file, otherwise prompt for input</span>
     <span class="k">if</span> <span class="n">barcode</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
         <span class="n">barcode</span> <span class="o">=</span> <span class="n">message</span><span class="o">.</span><span class="n">read_string</span><span class="p">(</span>
-            <span class="s2">&quot;Barcode&quot;</span><span class="p">,</span> <span class="s2">&quot;Barcode:&quot;</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="s2">&quot;123&quot;</span><span class="p">,</span> <span class="n">returnCode</span><span class="o">=</span><span class="kc">False</span>
+            <span class="s2">&quot;Barcode&quot;</span><span class="p">,</span> <span class="s2">&quot;Barcode:&quot;</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="s2">&quot;123&quot;</span><span class="p">,</span> <span class="n">return_code</span><span class="o">=</span><span class="kc">False</span>
         <span class="p">)</span>
     <span class="n">plate_object</span><span class="o">.</span><span class="n">set_barcode</span><span class="p">(</span><span class="n">barcode</span><span class="p">)</span>
     <span class="n">plate_holder_object</span><span class="o">.</span><span class="n">add_plates</span><span class="p">(</span><span class="n">plate_object_dict</span><span class="o">=</span><span class="p">{</span><span class="n">barcode</span><span class="p">:</span> <span class="n">plate_object</span><span class="p">})</span>
@@ -528,7 +501,7 @@
         <span class="p">]</span>
 
     <span class="c1"># add reference well</span>
-    <span class="n">reference_well</span> <span class="o">=</span> <span class="n">specifications</span><span class="o">.</span><span class="n">get_pref</span><span class="p">(</span><span class="s2">&quot;InitialReferenceWell&quot;</span><span class="p">)</span>
+    <span class="n">reference_well</span> <span class="o">=</span> <span class="n">plate</span><span class="o">.</span><span class="n">get_pref</span><span class="p">(</span><span class="s2">&quot;InitialReferenceWell&quot;</span><span class="p">)</span>
     <span class="n">reference_object</span> <span class="o">=</span> <span class="n">plate_object</span><span class="o">.</span><span class="n">get_well</span><span class="p">(</span><span class="n">reference_well</span><span class="p">)</span>
     <span class="n">plate_object</span><span class="o">.</span><span class="n">set_reference_object</span><span class="p">(</span><span class="n">reference_object</span><span class="p">)</span>
 
@@ -702,6 +675,7 @@
 <li class="toctree-l1"><a class="reference internal" href="../../../image_AICS.html">image_AICS</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../load_image_czi.html">load_image_czi</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../meta_data_file.html">meta_data_file</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../microscope_automation.html">microscope_automation package</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../preferences.html">preferences</a></li>
 </ul>
 <p class="caption"><span class="caption-text">Reference Docs</span></p>
@@ -747,7 +721,7 @@
       &copy;2020, Allen Institute.
       
       |
-      Powered by <a href="http://sphinx-doc.org/">Sphinx 3.3.1</a>
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 3.4.0</a>
       &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.12</a>
       
     </div>

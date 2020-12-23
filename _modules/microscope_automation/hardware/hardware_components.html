@@ -12,7 +12,6 @@
     <script src="../../../_static/jquery.js"></script>
     <script src="../../../_static/underscore.js"></script>
     <script src="../../../_static/doctools.js"></script>
-    <script src="../../../_static/language_data.js"></script>
     <link rel="index" title="Index" href="../../../genindex.html" />
     <link rel="search" title="Search" href="../../../search.html" />
    
@@ -1439,7 +1438,7 @@
             <span class="k">if</span> <span class="ow">not</span> <span class="n">test</span><span class="p">:</span>
                 <span class="n">message</span><span class="o">.</span><span class="n">operate_message</span><span class="p">(</span>
                     <span class="s2">&quot;Move focus drive </span><span class="si">{}</span><span class="s2"> to load position.&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">get_id</span><span class="p">()),</span>
-                    <span class="n">returnCode</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+                    <span class="n">return_code</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
                 <span class="p">)</span>
             <span class="n">load_pos</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">define_load_position</span><span class="p">(</span><span class="n">communication_object</span><span class="p">)</span>
             <span class="k">if</span> <span class="n">load_pos</span> <span class="o">&gt;</span> <span class="bp">self</span><span class="o">.</span><span class="n">max_load_position</span><span class="p">:</span>
@@ -1473,7 +1472,7 @@
                     <span class="s1">&#39;Please move focus drive &quot;</span><span class="si">{}</span><span class="s1">&quot; to work position.&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
                         <span class="bp">self</span><span class="o">.</span><span class="n">get_id</span><span class="p">()</span>
                     <span class="p">),</span>
-                    <span class="n">returnCode</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+                    <span class="n">return_code</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
                 <span class="p">)</span>
             <span class="n">work_pos</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">define_work_position</span><span class="p">(</span><span class="n">communication_object</span><span class="p">)</span>
             <span class="k">if</span> <span class="n">work_pos</span> <span class="o">&lt;</span> <span class="bp">self</span><span class="o">.</span><span class="n">min_work_position</span><span class="p">:</span>
@@ -1800,11 +1799,11 @@
                     <span class="k">else</span><span class="p">:</span>
                         <span class="n">message</span><span class="o">.</span><span class="n">operate_message</span><span class="p">(</span>
                             <span class="n">message</span><span class="o">=</span><span class="s2">&quot;Please focus on top of cover slip.&quot;</span><span class="p">,</span>
-                            <span class="n">returnCode</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+                            <span class="n">return_code</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
                         <span class="p">)</span>
                         <span class="n">message</span><span class="o">.</span><span class="n">operate_message</span><span class="p">(</span>
                             <span class="n">message</span><span class="o">=</span><span class="s2">&quot;1) Bring the objective to focus position using the TFT</span><span class="se">\n</span><span class="s2">2) Click Find Surface in ZenBlue&quot;</span><span class="p">,</span>  <span class="c1"># noqa</span>
-                            <span class="n">returnCode</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+                            <span class="n">return_code</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
                         <span class="p">)</span>
 
                     <span class="bp">self</span><span class="o">.</span><span class="n">microscope_object</span><span class="o">.</span><span class="n">setup_microscope_for_initialization</span><span class="p">(</span>
@@ -2235,6 +2234,7 @@
 <li class="toctree-l1"><a class="reference internal" href="../../../image_AICS.html">image_AICS</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../load_image_czi.html">load_image_czi</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../meta_data_file.html">meta_data_file</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../microscope_automation.html">microscope_automation package</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../preferences.html">preferences</a></li>
 </ul>
 <p class="caption"><span class="caption-text">Reference Docs</span></p>
@@ -2280,7 +2280,7 @@
       &copy;2020, Allen Institute.
       
       |
-      Powered by <a href="http://sphinx-doc.org/">Sphinx 3.3.1</a>
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 3.4.0</a>
       &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.12</a>
       
     </div>

@@ -12,7 +12,6 @@
     <script src="_static/jquery.js"></script>
     <script src="_static/underscore.js"></script>
     <script src="_static/doctools.js"></script>
-    <script src="_static/language_data.js"></script>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
     <link rel="next" title="setup_samples" href="setup_samples.html" />
@@ -623,7 +622,7 @@ Subclasses have additional tile_objects (e.g. ColonySize, Well).</p>
 <dl>
 <dt>Input:</dt><dd><p>prefs: Preferences object with preferences for tiling</p>
 <dl>
-<dt>tile_type: tile object passed in by preferences. Possible options:</dt><dd><p>‘NoTiling’: do not tile</p>
+<dt>tile_object: tile object passed in by preferences. Possible options:</dt><dd><p>‘NoTiling’: do not tile</p>
 <p>‘Fixed’: calculate tiling to image a rectangular area</p>
 <p>‘Well’: cover a well with tiles using an elliptical area</p>
 <p>‘ColonySize’: cover a colony with tiles using an ellipse</p>
@@ -1882,15 +1881,16 @@ At this moment {‘Sample’, ‘Barcode’, ‘Colony’} are supported</p>
 
 <dl class="py method">
 <dt id="microscope_automation.samples.samples.Well.get_tile_positions_list">
-<code class="sig-name descname">get_tile_positions_list</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">prefs</span></em>, <em class="sig-param"><span class="n">tile_type</span><span class="o">=</span><span class="default_value">'Well'</span></em>, <em class="sig-param"><span class="n">verbose</span><span class="o">=</span><span class="default_value">True</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/microscope_automation/samples/samples.html#Well.get_tile_positions_list"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#microscope_automation.samples.samples.Well.get_tile_positions_list" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">get_tile_positions_list</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">prefs</span></em>, <em class="sig-param"><span class="n">tile_object</span><span class="o">=</span><span class="default_value">'Well'</span></em>, <em class="sig-param"><span class="n">verbose</span><span class="o">=</span><span class="default_value">True</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/microscope_automation/samples/samples.html#Well.get_tile_positions_list"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#microscope_automation.samples.samples.Well.get_tile_positions_list" title="Permalink to this definition">¶</a></dt>
 <dd><p>Get positions for tiles in absolute coordinates.
 Other classes have additional tile_objects (e.g. ColonySize).</p>
 <dl>
 <dt>Input:</dt><dd><p>prefs: Preferences object with preferences for tiling</p>
 <dl>
-<dt>tile_type: type of tiling.  Possible options:</dt><dd><p>‘None’: do not tile</p>
-<p>‘Fixed’: use fixed number of tiles</p>
-<p>‘Well’: use enough tiles to cover one well</p>
+<dt>tile_object: tile object passed in by preferences. Possible options:</dt><dd><p>‘NoTiling’: do not tile</p>
+<p>‘Fixed’: calculate tiling to image a rectangular area</p>
+<p>‘Well’: cover a well with tiles using an elliptical area</p>
+<p>‘ColonySize’: cover a colony with tiles using an ellipse</p>
 </dd>
 </dl>
 <p>verbose: print debugging information</p>
@@ -2448,6 +2448,7 @@ The center of well A1 = (0,0)</p>
 <li class="toctree-l1"><a class="reference internal" href="image_AICS.html">image_AICS</a></li>
 <li class="toctree-l1"><a class="reference internal" href="load_image_czi.html">load_image_czi</a></li>
 <li class="toctree-l1"><a class="reference internal" href="meta_data_file.html">meta_data_file</a></li>
+<li class="toctree-l1"><a class="reference internal" href="microscope_automation.html">microscope_automation package</a></li>
 <li class="toctree-l1"><a class="reference internal" href="preferences.html">preferences</a></li>
 </ul>
 <p class="caption"><span class="caption-text">Reference Docs</span></p>
@@ -2491,7 +2492,7 @@ The center of well A1 = (0,0)</p>
       &copy;2020, Allen Institute.
       
       |
-      Powered by <a href="http://sphinx-doc.org/">Sphinx 3.3.1</a>
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 3.4.0</a>
       &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.12</a>
       
       |

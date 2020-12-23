@@ -62,6 +62,7 @@ Welcome to Microscope Automation's documentation!
    image_AICS
    load_image_czi
    meta_data_file
+   microscope_automation
    preferences
 
 .. toctree::

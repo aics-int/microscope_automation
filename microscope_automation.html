@@ -12,9 +12,10 @@
     <script src="_static/jquery.js"></script>
     <script src="_static/underscore.js"></script>
     <script src="_static/doctools.js"></script>
-    <script src="_static/language_data.js"></script>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="microscope_automation.hardware package" href="microscope_automation.hardware.html" />
+    <link rel="prev" title="meta_data_file" href="meta_data_file.html" />
    
   <link rel="stylesheet" href="_static/custom.css" type="text/css" />
   
@@ -527,7 +528,7 @@ Created on Jun 7, 2017</p>
 <p>&#64;author: winfriedw</p>
 <dl class="py function">
 <dt id="microscope_automation.automation_messages_form_layout.check_box_message">
-<code class="sig-prename descclassname">microscope_automation.automation_messages_form_layout.</code><code class="sig-name descname">check_box_message</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">message</span></em>, <em class="sig-param"><span class="n">checkBoxList</span></em>, <em class="sig-param"><span class="n">returnCode</span><span class="o">=</span><span class="default_value">False</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/microscope_automation/automation_messages_form_layout.html#check_box_message"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#microscope_automation.automation_messages_form_layout.check_box_message" title="Permalink to this definition">¶</a></dt>
+<code class="sig-prename descclassname">microscope_automation.automation_messages_form_layout.</code><code class="sig-name descname">check_box_message</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">message</span></em>, <em class="sig-param"><span class="n">checkBoxList</span></em>, <em class="sig-param"><span class="n">return_code</span><span class="o">=</span><span class="default_value">False</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/microscope_automation/automation_messages_form_layout.html#check_box_message"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#microscope_automation.automation_messages_form_layout.check_box_message" title="Permalink to this definition">¶</a></dt>
 <dd><p>Ask user to operate microscope manually and allows option to abort script.</p>
 <dl>
 <dt>Input:</dt><dd><p>message: Message that will be displayed</p>
@@ -535,7 +536,7 @@ Created on Jun 7, 2017</p>
 <dt>checkBoxList: list with check box names and settings in form:</dt><dd><p>[(‘Choice 1’, True), (‘Choice 2’, False)</p>
 </dd>
 </dl>
-<p>returnCode: if True, will return after cancel with code 0,
+<p>return_code: if True, will return after cancel with code 0,
 otherwise will call sys.exit()</p>
 </dd>
 <dt>Return:</dt><dd><p>0: User selected to abort script</p>
@@ -546,11 +547,11 @@ otherwise will call sys.exit()</p>
 
 <dl class="py function">
 <dt id="microscope_automation.automation_messages_form_layout.error_message">
-<code class="sig-prename descclassname">microscope_automation.automation_messages_form_layout.</code><code class="sig-name descname">error_message</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">message</span></em>, <em class="sig-param"><span class="n">returnCode</span><span class="o">=</span><span class="default_value">False</span></em>, <em class="sig-param"><span class="n">blocking</span><span class="o">=</span><span class="default_value">True</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/microscope_automation/automation_messages_form_layout.html#error_message"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#microscope_automation.automation_messages_form_layout.error_message" title="Permalink to this definition">¶</a></dt>
+<code class="sig-prename descclassname">microscope_automation.automation_messages_form_layout.</code><code class="sig-name descname">error_message</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">message</span></em>, <em class="sig-param"><span class="n">return_code</span><span class="o">=</span><span class="default_value">False</span></em>, <em class="sig-param"><span class="n">blocking</span><span class="o">=</span><span class="default_value">True</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/microscope_automation/automation_messages_form_layout.html#error_message"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#microscope_automation.automation_messages_form_layout.error_message" title="Permalink to this definition">¶</a></dt>
 <dd><p>Show error message and allows option to abort script.</p>
 <dl>
 <dt>Input:</dt><dd><p>message: Message that will be displayed</p>
-<p>returnCode: if True, will return after cancel with code 0,
+<p>return_code: if True, will return after cancel with code 0,
 otherwise will call sys.exit()</p>
 <p>blocking: if True use modal dialog for error reporting, otherwise print(message)</p>
 </dd>
@@ -563,13 +564,13 @@ otherwise will call sys.exit()</p>
 
 <dl class="py function">
 <dt id="microscope_automation.automation_messages_form_layout.file_select_dialog">
-<code class="sig-prename descclassname">microscope_automation.automation_messages_form_layout.</code><code class="sig-name descname">file_select_dialog</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">directory</span></em>, <em class="sig-param"><span class="n">filePattern</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">comment</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">returnCode</span><span class="o">=</span><span class="default_value">False</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/microscope_automation/automation_messages_form_layout.html#file_select_dialog"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#microscope_automation.automation_messages_form_layout.file_select_dialog" title="Permalink to this definition">¶</a></dt>
+<code class="sig-prename descclassname">microscope_automation.automation_messages_form_layout.</code><code class="sig-name descname">file_select_dialog</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">directory</span></em>, <em class="sig-param"><span class="n">filePattern</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">comment</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">return_code</span><span class="o">=</span><span class="default_value">False</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/microscope_automation/automation_messages_form_layout.html#file_select_dialog"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#microscope_automation.automation_messages_form_layout.file_select_dialog" title="Permalink to this definition">¶</a></dt>
 <dd><p>List all files in directory and select one.</p>
 <dl>
 <dt>Input:</dt><dd><p>directory: path to directory with files</p>
 <p>filePattern: string with regular expression.
 If file matches expression it will be pre-selected.</p>
-<p>returnCode: if True, will return after cancel with code 0,
+<p>return_code: if True, will return after cancel with code 0,
 otherwise will call sys.exit()</p>
 </dd>
 <dt>Output:</dt><dd><p>file_path: path to selected file</p>
@@ -579,12 +580,12 @@ otherwise will call sys.exit()</p>
 
 <dl class="py function">
 <dt id="microscope_automation.automation_messages_form_layout.information_message">
-<code class="sig-prename descclassname">microscope_automation.automation_messages_form_layout.</code><code class="sig-name descname">information_message</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">title</span></em>, <em class="sig-param"><span class="n">message</span></em>, <em class="sig-param"><span class="n">returnCode</span><span class="o">=</span><span class="default_value">False</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/microscope_automation/automation_messages_form_layout.html#information_message"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#microscope_automation.automation_messages_form_layout.information_message" title="Permalink to this definition">¶</a></dt>
+<code class="sig-prename descclassname">microscope_automation.automation_messages_form_layout.</code><code class="sig-name descname">information_message</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">title</span></em>, <em class="sig-param"><span class="n">message</span></em>, <em class="sig-param"><span class="n">return_code</span><span class="o">=</span><span class="default_value">False</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/microscope_automation/automation_messages_form_layout.html#information_message"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#microscope_automation.automation_messages_form_layout.information_message" title="Permalink to this definition">¶</a></dt>
 <dd><p>Displays information to user and allows option to abort script.</p>
 <dl>
 <dt>Input:</dt><dd><p>title: Title of dialog box</p>
 <p>message: Message that will be displayed</p>
-<p>returnCode: if True, will return after cancel with code 0,
+<p>return_code: if True, will return after cancel with code 0,
 otherwise will call sys.exit()</p>
 </dd>
 <dt>Return:</dt><dd><p>0: User selected to abort script</p>
@@ -595,11 +596,11 @@ otherwise will call sys.exit()</p>
 
 <dl class="py function">
 <dt id="microscope_automation.automation_messages_form_layout.operate_message">
-<code class="sig-prename descclassname">microscope_automation.automation_messages_form_layout.</code><code class="sig-name descname">operate_message</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">message</span></em>, <em class="sig-param"><span class="n">returnCode</span><span class="o">=</span><span class="default_value">False</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/microscope_automation/automation_messages_form_layout.html#operate_message"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#microscope_automation.automation_messages_form_layout.operate_message" title="Permalink to this definition">¶</a></dt>
+<code class="sig-prename descclassname">microscope_automation.automation_messages_form_layout.</code><code class="sig-name descname">operate_message</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">message</span></em>, <em class="sig-param"><span class="n">return_code</span><span class="o">=</span><span class="default_value">False</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/microscope_automation/automation_messages_form_layout.html#operate_message"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#microscope_automation.automation_messages_form_layout.operate_message" title="Permalink to this definition">¶</a></dt>
 <dd><p>Ask user to operate microscope manually and allows option to abort script.</p>
 <dl>
 <dt>Input:</dt><dd><p>message: Message that will be displayed</p>
-<p>returnCode: if True, will return after cancel with code 0,
+<p>return_code: if True, will return after cancel with code 0,
 otherwise will call sys.exit()</p>
 </dd>
 <dt>Return:</dt><dd><p>0: User selected to abort script</p>
@@ -623,13 +624,13 @@ otherwise will call sys.exit()</p>
 
 <dl class="py function">
 <dt id="microscope_automation.automation_messages_form_layout.read_string">
-<code class="sig-prename descclassname">microscope_automation.automation_messages_form_layout.</code><code class="sig-name descname">read_string</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">title</span></em>, <em class="sig-param"><span class="n">label</span></em>, <em class="sig-param"><span class="n">default</span></em>, <em class="sig-param"><span class="n">returnCode</span><span class="o">=</span><span class="default_value">False</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/microscope_automation/automation_messages_form_layout.html#read_string"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#microscope_automation.automation_messages_form_layout.read_string" title="Permalink to this definition">¶</a></dt>
+<code class="sig-prename descclassname">microscope_automation.automation_messages_form_layout.</code><code class="sig-name descname">read_string</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">title</span></em>, <em class="sig-param"><span class="n">label</span></em>, <em class="sig-param"><span class="n">default</span></em>, <em class="sig-param"><span class="n">return_code</span><span class="o">=</span><span class="default_value">False</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/microscope_automation/automation_messages_form_layout.html#read_string"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#microscope_automation.automation_messages_form_layout.read_string" title="Permalink to this definition">¶</a></dt>
 <dd><p>Ask for user input and allows option to abort script.</p>
 <dl>
 <dt>Input:</dt><dd><p>title: Title of dialog box</p>
 <p>label: Text to display in front of sting input field</p>
 <p>default: default input</p>
-<p>returnCode: if True, will return after cancel with code 0,
+<p>return_code: if True, will return after cancel with code 0,
 otherwise will call sys.exit()</p>
 </dd>
 <dt>Return:</dt><dd><p>0: User selected to abort script</p>
@@ -640,12 +641,12 @@ otherwise will call sys.exit()</p>
 
 <dl class="py function">
 <dt id="microscope_automation.automation_messages_form_layout.select_message">
-<code class="sig-prename descclassname">microscope_automation.automation_messages_form_layout.</code><code class="sig-name descname">select_message</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">message</span></em>, <em class="sig-param"><span class="n">count</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">returnCode</span><span class="o">=</span><span class="default_value">False</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/microscope_automation/automation_messages_form_layout.html#select_message"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#microscope_automation.automation_messages_form_layout.select_message" title="Permalink to this definition">¶</a></dt>
+<code class="sig-prename descclassname">microscope_automation.automation_messages_form_layout.</code><code class="sig-name descname">select_message</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">message</span></em>, <em class="sig-param"><span class="n">count</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">return_code</span><span class="o">=</span><span class="default_value">False</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/microscope_automation/automation_messages_form_layout.html#select_message"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#microscope_automation.automation_messages_form_layout.select_message" title="Permalink to this definition">¶</a></dt>
 <dd><p>Interrupt script and wait for user to continue.</p>
 <dl>
 <dt>Input:</dt><dd><p>message: Message that will be displayed</p>
 <p>count: number of collected positions</p>
-<p>returnCode: if True, will return after cancel with code 0,
+<p>return_code: if True, will return after cancel with code 0,
 otherwise will call sys.exit()</p>
 </dd>
 <dt>Return:</dt><dd><p>0: User selected to abort script</p>
@@ -656,11 +657,11 @@ otherwise will call sys.exit()</p>
 
 <dl class="py function">
 <dt id="microscope_automation.automation_messages_form_layout.setup_message">
-<code class="sig-prename descclassname">microscope_automation.automation_messages_form_layout.</code><code class="sig-name descname">setup_message</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">message</span></em>, <em class="sig-param"><span class="n">returnCode</span><span class="o">=</span><span class="default_value">False</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/microscope_automation/automation_messages_form_layout.html#setup_message"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#microscope_automation.automation_messages_form_layout.setup_message" title="Permalink to this definition">¶</a></dt>
+<code class="sig-prename descclassname">microscope_automation.automation_messages_form_layout.</code><code class="sig-name descname">setup_message</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">message</span></em>, <em class="sig-param"><span class="n">return_code</span><span class="o">=</span><span class="default_value">False</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/microscope_automation/automation_messages_form_layout.html#setup_message"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#microscope_automation.automation_messages_form_layout.setup_message" title="Permalink to this definition">¶</a></dt>
 <dd><p>Displays information about setup error and allows option to abort script.</p>
 <dl>
 <dt>Input:</dt><dd><p>message: Message that will be displayed</p>
-<p>returnCode: if True, will return after cancel with code 0,
+<p>return_code: if True, will return after cancel with code 0,
 otherwise will call sys.exit()</p>
 </dd>
 <dt>Return:</dt><dd><p>0: User selected to abort script</p>
@@ -701,11 +702,11 @@ True or False for whether the value(s) were acceptable</p>
 
 <dl class="py function">
 <dt id="microscope_automation.automation_messages_form_layout.wait_message">
-<code class="sig-prename descclassname">microscope_automation.automation_messages_form_layout.</code><code class="sig-name descname">wait_message</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">message</span></em>, <em class="sig-param"><span class="n">returnCode</span><span class="o">=</span><span class="default_value">False</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/microscope_automation/automation_messages_form_layout.html#wait_message"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#microscope_automation.automation_messages_form_layout.wait_message" title="Permalink to this definition">¶</a></dt>
+<code class="sig-prename descclassname">microscope_automation.automation_messages_form_layout.</code><code class="sig-name descname">wait_message</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">message</span></em>, <em class="sig-param"><span class="n">return_code</span><span class="o">=</span><span class="default_value">False</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/microscope_automation/automation_messages_form_layout.html#wait_message"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#microscope_automation.automation_messages_form_layout.wait_message" title="Permalink to this definition">¶</a></dt>
 <dd><p>Interrupt script and wait for user to continue.</p>
 <dl>
 <dt>Input:</dt><dd><p>message: Message that will be displayed</p>
-<p>returnCode: if True, will return after cancel with code 0,
+<p>return_code: if True, will return after cancel with code 0,
 otherwise will call sys.exit()</p>
 </dd>
 <dt>Return:</dt><dd><p>0: User selected to abort script</p>
@@ -1317,13 +1318,12 @@ Created on Jun 9, 2016</p>
 <dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.9)"><code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></a></p>
 <dl class="py method">
 <dt id="microscope_automation.microscope_automation.MicroscopeAutomation.calculate_all_wells_correction">
-<code class="sig-name descname">calculate_all_wells_correction</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">prefs</span></em>, <em class="sig-param"><span class="n">plate_holder_object</span></em>, <em class="sig-param"><span class="n">experiment</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/microscope_automation/microscope_automation.html#MicroscopeAutomation.calculate_all_wells_correction"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#microscope_automation.microscope_automation.MicroscopeAutomation.calculate_all_wells_correction" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">calculate_all_wells_correction</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">prefs</span></em>, <em class="sig-param"><span class="n">plate_holder_object</span></em>, <em class="sig-param"><span class="n">_experiment</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/microscope_automation/microscope_automation.html#MicroscopeAutomation.calculate_all_wells_correction"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#microscope_automation.microscope_automation.MicroscopeAutomation.calculate_all_wells_correction" title="Permalink to this definition">¶</a></dt>
 <dd><p>Calculate correction factor for well coordinate system for all wells.</p>
 <dl>
 <dt>Input:</dt><dd><p>prefs: dictionary with preferences</p>
 <p>plate_holder_object: object for plateholder that contains well</p>
-<p>experiment: dictionary with keys ‘Experiment’, Repetitions’, ‘Input’, ‘Output’
-from workflow with information about specific experiment</p>
+<p>_experiment: not used, necessary for compatibility</p>
 </dd>
 <dt>Output:</dt><dd><p>none</p>
 </dd>
@@ -1332,13 +1332,12 @@ from workflow with information about specific experiment</p>
 
 <dl class="py method">
 <dt id="microscope_automation.microscope_automation.MicroscopeAutomation.calculate_plate_correction">
-<code class="sig-name descname">calculate_plate_correction</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">prefs</span></em>, <em class="sig-param"><span class="n">plate_holder_object</span></em>, <em class="sig-param"><span class="n">experiment</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/microscope_automation/microscope_automation.html#MicroscopeAutomation.calculate_plate_correction"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#microscope_automation.microscope_automation.MicroscopeAutomation.calculate_plate_correction" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">calculate_plate_correction</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">prefs</span></em>, <em class="sig-param"><span class="n">plate_holder_object</span></em>, <em class="sig-param"><span class="n">_experiment</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/microscope_automation/microscope_automation.html#MicroscopeAutomation.calculate_plate_correction"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#microscope_automation.microscope_automation.MicroscopeAutomation.calculate_plate_correction" title="Permalink to this definition">¶</a></dt>
 <dd><p>Calculate correction factor for plate coordinate system.</p>
 <dl>
 <dt>Input:</dt><dd><p>prefs: dictionary with preferences</p>
 <p>plate_holder_object: object for plate that contains well</p>
-<p>experiment: dictionary with keys ‘Experiment’, Repetitions’, ‘Input’, ‘Output’
-from workflow with information about specific experiment</p>
+<p>_experiment: not used, necessary for compatibility</p>
 </dd>
 <dt>Output:</dt><dd><p>none</p>
 </dd>
@@ -1400,15 +1399,14 @@ from workflow with information about specific experiment</p>
 
 <dl class="py method">
 <dt id="microscope_automation.microscope_automation.MicroscopeAutomation.initialize_microscope">
-<code class="sig-name descname">initialize_microscope</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">initialize_prefs</span></em>, <em class="sig-param"><span class="n">plate_holder_object</span></em>, <em class="sig-param"><span class="n">experiment</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/microscope_automation/microscope_automation.html#MicroscopeAutomation.initialize_microscope"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#microscope_automation.microscope_automation.MicroscopeAutomation.initialize_microscope" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">initialize_microscope</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">initialize_prefs</span></em>, <em class="sig-param"><span class="n">plate_holder_object</span></em>, <em class="sig-param"><span class="n">_experiment</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/microscope_automation/microscope_automation.html#MicroscopeAutomation.initialize_microscope"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#microscope_automation.microscope_automation.MicroscopeAutomation.initialize_microscope" title="Permalink to this definition">¶</a></dt>
 <dd><p>Update z positions for plate (upper side of coverslip)
 Set load and work positions for focus drive.</p>
 <dl>
 <dt>Input:</dt><dd><p>initialize_prefs: dictionary with preferences</p>
 <p>plate_holder_object: object of type PlateHolder
 from module sample with well information</p>
-<p>experiment: dictionary with keys ‘Experiment’, Repetitions’, ‘Input’, ‘Output’
-from workflow with information about specific experiment</p>
+<p>_experiment: not used, necessary for compatibility</p>
 </dd>
 <dt>Output:</dt><dd><p>none</p>
 </dd>
@@ -1439,7 +1437,7 @@ from module sample with well information</p>
 <p>well: well the barcode is associated with in format ‘A1’.
 If empty ask user to navigate to barcode.</p>
 </dd>
-<dt>Return:</dt><dd><p>barcode: id encoded in barcode</p>
+<dt>Output:</dt><dd><p>barcode: id encoded in barcode</p>
 </dd>
 </dl>
 </dd></dl>
@@ -1467,8 +1465,8 @@ and attach them to the right objects.</p>
 <dt>Input:</dt><dd><p>plate_holder_object: object of type PlateHolder
 from module sample with well information</p>
 <p>plate_object: object of class plate</p>
-<p>experiment: dictionary with keys ‘Experiment’, Repetitions’, ‘Input’, ‘Output’
-from workflow with information about specific experiment</p>
+<p>experiment: dictionary with keys ‘Experiment’, Repetitions’, ‘Input’,
+‘Output’, ‘WorkflowList’, ‘WorflowType’, ‘ObjectsDict’ and ‘OriginalWorkflow’</p>
 </dd>
 <dt>Output:</dt><dd><p>none</p>
 </dd>
@@ -1477,14 +1475,14 @@ from workflow with information about specific experiment</p>
 
 <dl class="py method">
 <dt id="microscope_automation.microscope_automation.MicroscopeAutomation.run_macro">
-<code class="sig-name descname">run_macro</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">imaging_settings</span></em>, <em class="sig-param"><span class="n">plate_holder_object</span></em>, <em class="sig-param"><span class="n">experiment</span></em>, <em class="sig-param"><span class="n">repetition</span><span class="o">=</span><span class="default_value">0</span></em>, <em class="sig-param"><span class="n">wait_after_image</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/microscope_automation/microscope_automation.html#MicroscopeAutomation.run_macro"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#microscope_automation.microscope_automation.MicroscopeAutomation.run_macro" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">run_macro</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">imaging_settings</span></em>, <em class="sig-param"><span class="n">plate_holder_object</span></em>, <em class="sig-param"><span class="n">experiment</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">repetition</span><span class="o">=</span><span class="default_value">0</span></em>, <em class="sig-param"><span class="n">wait_after_image</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/microscope_automation/microscope_automation.html#MicroscopeAutomation.run_macro"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#microscope_automation.microscope_automation.MicroscopeAutomation.run_macro" title="Permalink to this definition">¶</a></dt>
 <dd><dl>
 <dt>Input:</dt><dd><p>imaging_settings: dictionary with preferences</p>
 <p>plate_holder_object: object of type PlateHolder
 from module sample with well information</p>
-<p>experiment: not used but included for consistency</p>
-<p>repetition: not used but included for consistency</p>
-<p>wait_after_image: not used but included for consistency</p>
+<p>experiment: not used, necessary for compatibility</p>
+<p>repetition: not used, necessary for compatibility</p>
+<p>wait_after_image: not used, necessary for compatibility</p>
 </dd>
 <dt>Output:</dt><dd><p>none</p>
 </dd>
@@ -1516,18 +1514,20 @@ well segmentation and represent which positions will be imaged in 100X</p>
 <dt>Input:</dt><dd><p>imaging_settings: dictionary with preferences</p>
 <p>sample_list: list with all objects to scan</p>
 <p>plate_object: object sample list belongs to</p>
-<p>experiment: dictionary with keys ‘Experiment’, Repetitions’, ‘Input’, ‘Output’
-from workflow with information about specific experiment</p>
+<p>experiment: dictionary with keys ‘Experiment’, Repetitions’, ‘Input’,
+‘Output’, ‘WorkflowList’, ‘WorflowType’, ‘ObjectsDict’ and ‘OriginalWorkflow’</p>
 <p>repetition: counter for time lapse experiments</p>
 <p>wait_after_image: wait preferences as dictionary to determine whether
 to wait after execution</p>
 <blockquote>
-<div><p>Image: Wait after each image
-Plate: Reset wait status after each plate
-Repetition: Reset wait status after each repetition</p>
+<div><p>Image: Wait after each image</p>
+<p>Plate: Reset wait status after each plate</p>
+<p>Repetition: Reset wait status after each repetition</p>
+<p>Status: Show last image and allow adjustments if True,
+enter fully automatic mode if False</p>
 </div></blockquote>
 </dd>
-<dt>Return:</dt><dd><p>none</p>
+<dt>Output:</dt><dd><p>none</p>
 </dd>
 </dl>
 </dd></dl>
@@ -1540,15 +1540,17 @@ Repetition: Reset wait status after each repetition</p>
 <dt>Input:</dt><dd><p>imaging_settings: dictionary with preferences</p>
 <p>plate_holder_object: object of type PlateHolder
 from module sample with well information</p>
-<p>experiment: dictionary with keys ‘Experiment’, Repetitions’, ‘Input’, ‘Output’
-from workflow with information about specific experiment</p>
+<p>experiment: dictionary with keys ‘Experiment’, Repetitions’, ‘Input’,
+‘Output’, ‘WorkflowList’, ‘WorflowType’, ‘ObjectsDict’ and ‘OriginalWorkflow’</p>
 <p>repetition: counter for time lapse experiments</p>
 <p>wait_after_image: wait preferences as dictionary to determine whether
 to wait after execution</p>
 <blockquote>
-<div><p>Image: Wait after each image
-Plate: Reset wait status after each plate
-Repetition: Reset wait status after each repetition</p>
+<div><p>Image: Wait after each image</p>
+<p>Plate: Reset wait status after each plate</p>
+<p>Repetition: Reset wait status after each repetition</p>
+<p>Status: Show last image and allow adjustments if True,
+enter fully automatic mode if False</p>
 </div></blockquote>
 </dd>
 <dt>Output:</dt><dd><p>none</p>
@@ -1564,18 +1566,20 @@ Repetition: Reset wait status after each repetition</p>
 <dt>Input:</dt><dd><p>imaging_settings: dictionary with preferences</p>
 <p>plate_holder_object: object of type PlateHolder
 from module sample with well information</p>
-<p>experiment: dictionary with keys ‘Experiment’, Repetitions’, ‘Input’, ‘Output’
-from workflow with information about specific experiment</p>
+<p>experiment: dictionary with keys ‘Experiment’, Repetitions’, ‘Input’,
+‘Output’, ‘WorkflowList’, ‘WorflowType’, ‘ObjectsDict’ and ‘OriginalWorkflow’</p>
 <p>repetition: counter for time lapse experiments</p>
 <p>wait_after_image: wait preferences as dictionary to determine whether
 to wait after execution</p>
 <blockquote>
-<div><p>Image: Wait after each image
-Plate: Reset wait status after each plate
-Repetition: Reset wait status after each repetition</p>
+<div><p>Image: Wait after each image</p>
+<p>Plate: Reset wait status after each plate</p>
+<p>Repetition: Reset wait status after each repetition</p>
+<p>Status: Show last image and allow adjustments if True,
+enter fully automatic mode if False</p>
 </div></blockquote>
 </dd>
-<dt>Return:</dt><dd><p>none</p>
+<dt>Output:</dt><dd><p>none</p>
 </dd>
 </dl>
 </dd></dl>
@@ -1583,7 +1587,7 @@ Repetition: Reset wait status after each repetition</p>
 <dl class="py method">
 <dt id="microscope_automation.microscope_automation.MicroscopeAutomation.scan_single_ROI">
 <code class="sig-name descname">scan_single_ROI</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">imaging_settings</span></em>, <em class="sig-param"><span class="n">experiment_dict</span></em>, <em class="sig-param"><span class="n">sample_object</span></em>, <em class="sig-param"><span class="n">reference_object</span></em>, <em class="sig-param"><span class="n">image_path</span></em>, <em class="sig-param"><span class="n">meta_dict</span></em>, <em class="sig-param"><span class="n">verbose</span><span class="o">=</span><span class="default_value">True</span></em>, <em class="sig-param"><span class="n">number_selected_postions</span><span class="o">=</span><span class="default_value">0</span></em>, <em class="sig-param"><span class="n">repetition</span><span class="o">=</span><span class="default_value">0</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/microscope_automation/microscope_automation.html#MicroscopeAutomation.scan_single_ROI"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#microscope_automation.microscope_automation.MicroscopeAutomation.scan_single_ROI" title="Permalink to this definition">¶</a></dt>
-<dd><p>Acquire tiled image as defined in posList</p>
+<dd><p>Acquire tiled image as defined in pos_list</p>
 <dl>
 <dt>Input:</dt><dd><p>imaging_settings: dictionary with preferences</p>
 <p>experiment_dict: The dictionary with full information about the experiment</p>
@@ -1598,7 +1602,7 @@ Default=None: no saving</p>
 <p>number_selected_postions: number of positions collected so far</p>
 <p>repetition: counter for time lapse experiments</p>
 </dd>
-<dt>Output:</dt><dd><p>return_dict: dictionary of form {‘Image’: image, ‘Continue’: True/False}</p>
+<dt>Output:</dt><dd><p>return_dict: dictionary of form {‘Image’: [images], ‘Continue’: True/False}</p>
 </dd>
 </dl>
 </dd></dl>
@@ -1606,17 +1610,17 @@ Default=None: no saving</p>
 <dl class="py method">
 <dt id="microscope_automation.microscope_automation.MicroscopeAutomation.scan_wells_zero">
 <code class="sig-name descname">scan_wells_zero</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">prefs</span></em>, <em class="sig-param"><span class="n">plate_holder_object</span></em>, <em class="sig-param"><span class="n">barcode</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/microscope_automation/microscope_automation.html#MicroscopeAutomation.scan_wells_zero"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#microscope_automation.microscope_automation.MicroscopeAutomation.scan_wells_zero" title="Permalink to this definition">¶</a></dt>
-<dd><p>Scan selected wells at center.</p>
+<dd><p>Scan selected wells at center.
+This method is mainly used to test calibrations.</p>
 <dl>
 <dt>Input:</dt><dd><p>prefs: dictionary with preferences</p>
 <p>plate_holder_object: object of type PlateHolder
 from module sample with well information</p>
 <p>barcode: barcode for plate, often used as plate name</p>
 </dd>
-<dt>Return:</dt><dd><p>none</p>
+<dt>Output:</dt><dd><p>none</p>
 </dd>
 </dl>
-<p>This method is mainly used to test calibrations.</p>
 </dd></dl>
 
 <dl class="py method">
@@ -1626,15 +1630,17 @@ from module sample with well information</p>
 <dl>
 <dt>Input:</dt><dd><p>imaging_settings: dictionary with preferences</p>
 <p>plate_holder_object: Plate Holder object containing all the information</p>
-<p>experiment: dictionary with keys ‘Experiment’, Repetitions’, ‘Input’, ‘Output’
-from workflow with information about specific experiment</p>
+<p>experiment: dictionary with keys ‘Experiment’, Repetitions’, ‘Input’,
+‘Output’, ‘WorkflowList’, ‘WorflowType’, ‘ObjectsDict’ and ‘OriginalWorkflow’</p>
 <p>repetition: counter for time lapse experiments</p>
 <p>wait_after_image: wait preferences as dictionary to determine whether
 to wait after execution</p>
 <blockquote>
-<div><p>Image: Wait after each image
-Plate: Reset wait status after each plate
-Repetition: Reset wait status after each repetition</p>
+<div><p>Image: Wait after each image</p>
+<p>Plate: Reset wait status after each plate</p>
+<p>Repetition: Reset wait status after each repetition</p>
+<p>Status: Show last image and allow adjustments if True,
+enter fully automatic mode if False</p>
 </div></blockquote>
 </dd>
 <dt>Output:</dt><dd><p>none</p>
@@ -1650,8 +1656,7 @@ Repetition: Reset wait status after each repetition</p>
 <dt>Input:</dt><dd><p>offset_prefs: dictionary with preferences based on preferences.yml</p>
 <p>plate_holder_object: object that contains all plates
 and all wells with sample information.</p>
-<p>_experiment: dictionary with keys ‘Experiment’, Repetitions’, ‘Input’, ‘Output’
-(not used, for compatibility only)</p>
+<p>_experiment: not used, necessary for compatibility</p>
 </dd>
 <dt>Output:</dt><dd><p>none</p>
 </dd>
@@ -1659,8 +1664,8 @@ and all wells with sample information.</p>
 </dd></dl>
 
 <dl class="py method">
-<dt id="microscope_automation.microscope_automation.MicroscopeAutomation.set_up_Koehler">
-<code class="sig-name descname">set_up_Koehler</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">initialize_prefs</span></em>, <em class="sig-param"><span class="n">plate_object</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/microscope_automation/microscope_automation.html#MicroscopeAutomation.set_up_Koehler"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#microscope_automation.microscope_automation.MicroscopeAutomation.set_up_Koehler" title="Permalink to this definition">¶</a></dt>
+<dt id="microscope_automation.microscope_automation.MicroscopeAutomation.set_up_koehler">
+<code class="sig-name descname">set_up_koehler</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">initialize_prefs</span></em>, <em class="sig-param"><span class="n">plate_object</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/microscope_automation/microscope_automation.html#MicroscopeAutomation.set_up_koehler"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#microscope_automation.microscope_automation.MicroscopeAutomation.set_up_koehler" title="Permalink to this definition">¶</a></dt>
 <dd><p>Set up Koehler illumination.</p>
 <dl>
 <dt>Input:</dt><dd><p>initialize_prefs: dictionary with preferences based on preferences.yml</p>
@@ -1692,7 +1697,7 @@ from module sample with well information</p>
 <dd><p>Setup system to deliver immersion water</p>
 <dl>
 <dt>Input:</dt><dd><p>prefs: dictionary with preferences</p>
-<p>plate_holder_instance: instance for plateholder that contains well</p>
+<p>plate_holder_instance: instance for plateholder that contains immersion system</p>
 </dd>
 <dt>Output:</dt><dd><p>none</p>
 </dd>
@@ -1700,16 +1705,16 @@ from module sample with well information</p>
 </dd></dl>
 
 <dl class="py method">
-<dt id="microscope_automation.microscope_automation.MicroscopeAutomation.update_plate_zZero">
-<code class="sig-name descname">update_plate_zZero</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">image_settings</span></em>, <em class="sig-param"><span class="n">plate_holder_object</span></em>, <em class="sig-param"><span class="n">experiment</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/microscope_automation/microscope_automation.html#MicroscopeAutomation.update_plate_zZero"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#microscope_automation.microscope_automation.MicroscopeAutomation.update_plate_zZero" title="Permalink to this definition">¶</a></dt>
+<dt id="microscope_automation.microscope_automation.MicroscopeAutomation.update_plate_z_zero">
+<code class="sig-name descname">update_plate_z_zero</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">image_settings</span></em>, <em class="sig-param"><span class="n">plate_holder_object</span></em>, <em class="sig-param"><span class="n">experiment</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/microscope_automation/microscope_automation.html#MicroscopeAutomation.update_plate_z_zero"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#microscope_automation.microscope_automation.MicroscopeAutomation.update_plate_z_zero" title="Permalink to this definition">¶</a></dt>
 <dd><p>Update z positions for plate (upper side of coverslip)
 Set load and work positions for focus drive.</p>
 <dl>
 <dt>Input:</dt><dd><p>image_settings: dictionary with preferences</p>
 <p>plate_holder_object: object of type PlateHolder
 from module sample with well information</p>
-<p>experiment: dictionary with keys ‘Experiment’, Repetitions’, ‘Input’, ‘Output’
-from workflow with information about specific experiment</p>
+<p>experiment: dictionary with keys ‘Experiment’, Repetitions’, ‘Input’,
+‘Output’, ‘WorkflowList’, ‘WorflowType’, ‘ObjectsDict’ and ‘OriginalWorkflow’</p>
 </dd>
 <dt>Output:</dt><dd><p>none</p>
 </dd>
@@ -2022,7 +2027,7 @@ and exiting the software.</p>
 <li class="toctree-l1"><a class="reference internal" href="slidebook_experiment_info.html">slidebook_experiment_info</a></li>
 </ul>
 <p class="caption"><span class="caption-text">General Methods</span></p>
-<ul>
+<ul class="current">
 <li class="toctree-l1"><a class="reference internal" href="automation_exceptions.html">automation_exceptions</a></li>
 <li class="toctree-l1"><a class="reference internal" href="automation_messages_form_layout.html">automation_messages_form_layout</a></li>
 <li class="toctree-l1"><a class="reference internal" href="error_handling.html">error_handling</a></li>
@@ -2030,6 +2035,7 @@ and exiting the software.</p>
 <li class="toctree-l1"><a class="reference internal" href="image_AICS.html">image_AICS</a></li>
 <li class="toctree-l1"><a class="reference internal" href="load_image_czi.html">load_image_czi</a></li>
 <li class="toctree-l1"><a class="reference internal" href="meta_data_file.html">meta_data_file</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">microscope_automation package</a></li>
 <li class="toctree-l1"><a class="reference internal" href="preferences.html">preferences</a></li>
 </ul>
 <p class="caption"><span class="caption-text">Reference Docs</span></p>
@@ -2042,6 +2048,8 @@ and exiting the software.</p>
 <h3>Related Topics</h3>
 <ul>
   <li><a href="index.html">Documentation overview</a><ul>
+      <li>Previous: <a href="meta_data_file.html" title="previous chapter">meta_data_file</a></li>
+      <li>Next: <a href="microscope_automation.hardware.html" title="next chapter">microscope_automation.hardware package</a></li>
   </ul></li>
 </ul>
 </div>
@@ -2071,7 +2079,7 @@ and exiting the software.</p>
       &copy;2020, Allen Institute.
       
       |
-      Powered by <a href="http://sphinx-doc.org/">Sphinx 3.3.1</a>
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 3.4.0</a>
       &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.12</a>
       
       |
