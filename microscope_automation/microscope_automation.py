@@ -1687,8 +1687,6 @@ class MicroscopeAutomation(object):
         image_location_list_for_csv.append(
             ["Name", "WellID", "X", "Y", "Z", "Width", "Height", "ContourType"]
         )
-        print(images_list)
-        print(segmentation_info_dict)
         try:
             # Display each image for point approval
 

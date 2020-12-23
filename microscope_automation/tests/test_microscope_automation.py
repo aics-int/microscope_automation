@@ -1078,24 +1078,60 @@ def test_scan_all_objects(
         "barcode, expected"
     ),
     [
-        (
-            "data/preferences_ZSD_2_test.yml",
-            "ScanPlate",
-            {
-                "Experiment": "UpdatePlateWellZero",
-                "Repetitions": 1,
-                "Input": None,
-                "Output": {},
-                "OriginalWorkflow": ["Koehler", "UpdatePlateWellZero", "RunMacro"],
-                "WorkflowList": ["Koehler", "UpdatePlateWellZero", "RunMacro"],
-                "WorkflowType": "new",
-            },
-            ["E7"],
-            0,
-            {"Status": True},
-            1234,
-            "TypeError",
-        ),
+        # (
+        #     "data/preferences_ZSD_2_test.yml",
+        #     "ScanPlate",
+        #     {
+        #         "Experiment": "UpdatePlateWellZero",
+        #         "Repetitions": 1,
+        #         "Input": None,
+        #         "Output": {},
+        #         "OriginalWorkflow": ["Koehler", "UpdatePlateWellZero", "RunMacro"],
+        #         "WorkflowList": ["Koehler", "UpdatePlateWellZero", "RunMacro"],
+        #         "WorkflowType": "new",
+        #     },
+        #     ["E7"],
+        #     0,
+        #     {"Status": True},
+        #     1234,
+        #     "TypeError",
+        # ),
+        # (
+        #     "data/preferences_ZSD_2_test.yml",
+        #     "SegmentWells",
+        #     {
+        #         "Experiment": "UpdatePlateWellZero",
+        #         "Repetitions": 1,
+        #         "Input": None,
+        #         "Output": {},
+        #         "OriginalWorkflow": ["Koehler", "UpdatePlateWellZero", "RunMacro"],
+        #         "WorkflowList": ["Koehler", "UpdatePlateWellZero", "RunMacro"],
+        #         "WorkflowType": "new",
+        #     },
+        #     ["B2", "B11", "G11"],
+        #     0,
+        #     {"Status": True},
+        #     None,
+        #     "ValueError",
+        # ),
+        # (
+        #     "data/preferences_ZSD_2_test.yml",
+        #     "SegmentWells",
+        #     {
+        #         "Experiment": "UpdatePlateWellZero",
+        #         "Repetitions": 1,
+        #         "Input": None,
+        #         "Output": {},
+        #         "OriginalWorkflow": ["Koehler", "UpdatePlateWellZero", "RunMacro"],
+        #         "WorkflowList": ["Koehler", "UpdatePlateWellZero", "RunMacro"],
+        #         "WorkflowType": "new",
+        #     },
+        #     ["B2", "B11", "G11"],
+        #     0,
+        #     {"Status": True},
+        #     "invalid_barcode",
+        #     "OSError",
+        # ),
         (
             "data/preferences_ZSD_2_test.yml",
             "SegmentWells",
@@ -1111,63 +1147,27 @@ def test_scan_all_objects(
             ["B2", "B11", "G11"],
             0,
             {"Status": True},
+            1234,
             None,
-            "ValueError",
         ),
-        (
-            "data/preferences_ZSD_2_test.yml",
-            "SegmentWells",
-            {
-                "Experiment": "UpdatePlateWellZero",
-                "Repetitions": 1,
-                "Input": None,
-                "Output": {},
-                "OriginalWorkflow": ["Koehler", "UpdatePlateWellZero", "RunMacro"],
-                "WorkflowList": ["Koehler", "UpdatePlateWellZero", "RunMacro"],
-                "WorkflowType": "new",
-            },
-            ["B2", "B11", "G11"],
-            0,
-            {"Status": True},
-            "invalid_barcode",
-            "OSError",
-        ),
-        (
-            "data/preferences_ZSD_2_test.yml",
-            "SegmentWells",
-            {
-                "Experiment": "UpdatePlateWellZero",
-                "Repetitions": 1,
-                "Input": None,
-                "Output": {},
-                "OriginalWorkflow": ["Koehler", "UpdatePlateWellZero", "RunMacro"],
-                "WorkflowList": ["Koehler", "UpdatePlateWellZero", "RunMacro"],
-                "WorkflowType": "new",
-            },
-            ["B2", "B11", "G11"],
-            0,
-            {"Status": True},
-            1234,
-            None,
-        ),
-        (
-            "data/preferences_ZSD_test.yml",
-            "SegmentWells",
-            {
-                "Experiment": "UpdatePlateWellZero",
-                "Repetitions": 1,
-                "Input": None,
-                "Output": {},
-                "OriginalWorkflow": ["Koehler", "UpdatePlateWellZero", "RunMacro"],
-                "WorkflowList": ["Koehler", "UpdatePlateWellZero", "RunMacro"],
-                "WorkflowType": "new",
-            },
-            ["B2", "B11", "G11", "C2"],
-            0,
-            {"Status": True},
-            1234,
-            "NameError",
-        ),
+        # (
+        #     "data/preferences_ZSD_test.yml",
+        #     "SegmentWells",
+        #     {
+        #         "Experiment": "UpdatePlateWellZero",
+        #         "Repetitions": 1,
+        #         "Input": None,
+        #         "Output": {},
+        #         "OriginalWorkflow": ["Koehler", "UpdatePlateWellZero", "RunMacro"],
+        #         "WorkflowList": ["Koehler", "UpdatePlateWellZero", "RunMacro"],
+        #         "WorkflowType": "new",
+        #     },
+        #     ["B2", "B11", "G11", "C2"],
+        #     0,
+        #     {"Status": True},
+        #     1234,
+        #     "NameError",
+        # ),
     ],
 )
 def test_segment_wells(
@@ -1227,16 +1227,16 @@ def test_segment_wells(
         plate_object.add_wells({name: well})
 
     mic_auto = helpers.setup_local_microscope_automation(prefs_path)
-    try:
-        result = mic_auto.segment_wells(
-            Preferences(prefs_path).get_pref_as_meta(pref_name),
-            plate_holder_object,
-            experiment,
-            repetition=repetition,
-            wait_after_image=wait_after_image,
-        )
-    except Exception as err:
-        result = type(err).__name__
+    # try:
+    result = mic_auto.segment_wells(
+        Preferences(prefs_path).get_pref_as_meta(pref_name),
+        plate_holder_object,
+        experiment,
+        repetition=repetition,
+        wait_after_image=wait_after_image,
+    )
+    # except Exception as err:
+    #     result = type(err).__name__
 
     assert result == expected
 
@@ -1939,46 +1939,46 @@ def test_control_autofocus(
 @pytest.mark.parametrize(
     ("file_name, check_box_val, barcode, prefs_path, less_dialog, expected"),
     [
-        (
-            None,
-            [("Start new workflow", False), ("Continue last workflow", False)],
-            None,
-            "data/preferences_ZSD_2_test.yml",
-            None,
-            "UnboundLocalError",
-        ),
-        (
-            None,
-            [("Start new workflow", True), ("Continue last workflow", False)],
-            None,
-            "data/preferences_ZSD_2_test.yml",
-            None,
-            "AttributeError",
-        ),
-        (
-            None,
-            [("Start new workflow", True), ("Continue last workflow", False)],
-            "1234",
-            "data/preferences_ZSD_test.yml",
-            False,
-            None,
-        ),
-        (
-            None,
-            [("Start new workflow", True), ("Continue last workflow", False)],
-            "1234",
-            "data/preferences_ZSD_test.yml",
-            True,
-            None,
-        ),
-        (
-            ".gitignore",
-            [("Start new workflow", False), ("Continue last workflow", True)],
-            "1234",
-            "data/preferences_ZSD_test.yml",
-            False,
-            "UnpicklingError",
-        ),
+        # (
+        #     None,
+        #     [("Start new workflow", False), ("Continue last workflow", False)],
+        #     None,
+        #     "data/preferences_ZSD_2_test.yml",
+        #     None,
+        #     "UnboundLocalError",
+        # ),
+        # (
+        #     None,
+        #     [("Start new workflow", True), ("Continue last workflow", False)],
+        #     None,
+        #     "data/preferences_ZSD_2_test.yml",
+        #     None,
+        #     "AttributeError",
+        # ),
+        # (
+        #     None,
+        #     [("Start new workflow", True), ("Continue last workflow", False)],
+        #     "1234",
+        #     "data/preferences_ZSD_test.yml",
+        #     False,
+        #     None,
+        # ),
+        # (
+        #     None,
+        #     [("Start new workflow", True), ("Continue last workflow", False)],
+        #     "1234",
+        #     "data/preferences_ZSD_test.yml",
+        #     True,
+        #     None,
+        # ),
+        # (
+        #     ".gitignore",
+        #     [("Start new workflow", False), ("Continue last workflow", True)],
+        #     "1234",
+        #     "data/preferences_ZSD_test.yml",
+        #     False,
+        #     "UnpicklingError",
+        # ),
         (
             "test_recovery.pickle",
             [("Start new workflow", False), ("Continue last workflow", True)],
@@ -2011,9 +2011,9 @@ def test_microscope_automation(
 
     mic_auto = helpers.setup_local_microscope_automation(prefs_path)
     mic_auto.less_dialog = less_dialog
-    try:
-        result = mic_auto.microscope_automation()
-    except Exception as err:
-        result = type(err).__name__
+    # try:
+    result = mic_auto.microscope_automation()
+    # except Exception as err:
+    #     result = type(err).__name__
 
     assert result == expected
