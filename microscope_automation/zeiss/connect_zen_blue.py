@@ -945,7 +945,6 @@ class ConnectMicroscope:
          objectives_dict: dictionary of all objectives mounted at microscope
          in form {'magnification': {'Position': position, 'Name': name}
         """
-
         try:
             # retrieve ZEN ObjectiveChanger object
             objective_changer = self.Zen.Devices.ObjectiveChanger

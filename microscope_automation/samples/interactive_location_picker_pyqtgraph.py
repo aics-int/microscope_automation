@@ -325,7 +325,7 @@ def test_ImageLocationPicker(prefs, image_save_path, app, verbose=False):
     input("Move to image position")
     images = slide_object.acquire_images(
         "Setup_20x",
-        "Camera1 (Back)",
+        "Camera1 (back)",
         reference_object=slide_object.get_reference_object(),
         file_path=image_save_path + "image1.czi",
         pos_list=None,

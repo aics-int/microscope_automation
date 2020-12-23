@@ -961,7 +961,7 @@ class SpinningDiskZeiss(BaseMicroscope):
         #
         # message.operate_message(
         #     message='Please move to and focus on reference position.',
-        #     returnCode=False)
+        #     return_code=False)
         # #    _z_abs = auto_focus_object.store_focus(
         # #        communication_object, focus_reference_obj=reference_object)
         #
@@ -1029,7 +1029,7 @@ class SpinningDiskZeiss(BaseMicroscope):
         #
         # message.operate_message(
         #     message='Please move to and focus on reference position.',
-        #     returnCode=False)
+        #     return_code=False)
 
         # get new position for reference in object coordinates and check if it changed.
         # This new position is already corrected with current objective offset
@@ -1458,7 +1458,7 @@ class SpinningDiskZeiss(BaseMicroscope):
                         "File exists",
                         label="Modify new filename",
                         default=file_name,
-                        returnCode=False,
+                        return_code=False,
                     )
                     file_path = os.path.normcase(os.path.join(directory, new_file_name))
                 else:

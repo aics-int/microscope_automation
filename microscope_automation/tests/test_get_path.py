@@ -105,12 +105,25 @@ def test_set_up_subfolders(parent_folder_path, subfolder, expected):
 @pytest.mark.parametrize(
     "prefs_path, barcode, expected",
     [
-        ("data/preferences_3i_test.yml", None, os.path.join(DATE_STR, "3iW1-0")),
-        ("data/preferences_ZSD_test.yml", None, os.path.join(DATE_STR, "Zeiss SD 1")),
+        (
+            "data/preferences_3i_test.yml",
+            None,
+            os.path.join("data", "Production", "Daily", DATE_STR, "3iW1-0"),
+        ),
+        (
+            "data/preferences_ZSD_special_colony_path.yml",
+            None,
+            os.path.join(DATE_STR, "Zeiss SD 1"),
+        ),
+        (
+            "data/preferences_ZSD_test.yml",
+            None,
+            os.path.join("data", "Production", "Daily", DATE_STR, "Zeiss SD 1"),
+        ),
         (
             "data/preferences_ZSD_test.yml",
             "test_code",
-            os.path.join("test_code", "Zeiss SD 1"),
+            os.path.join("data", "Production", "Daily", "test_code", "Zeiss SD 1"),
         ),
     ],
 )
@@ -125,17 +138,7 @@ def test_get_daily_folder(prefs_path, barcode, expected):
     "prefs_path, pref_name, barcode, expected",
     [
         (
-            "data/preferences_3i_test.yml",
-            "SegmentWells",
-            None,
-            (
-                Path(os.path.join(DATE_STR, "3iW1-0", "positions.csv")),
-                Path(os.path.join(DATE_STR, "3iW1-0", "positions_wellid.csv")),
-                Path(os.path.join(DATE_STR, "3iW1-0", "failed_wells.csv")),
-            ),
-        ),
-        (
-            "data/preferences_ZSD_test.yml",
+            "data/preferences_ZSD_special_colony_path.yml",
             "SegmentWells",
             None,
             (
@@ -145,13 +148,114 @@ def test_get_daily_folder(prefs_path, barcode, expected):
             ),
         ),
         (
+            "data/preferences_3i_test.yml",
+            "SegmentWells",
+            None,
+            (
+                Path(
+                    os.path.join(
+                        "data",
+                        "Production",
+                        "Daily",
+                        DATE_STR,
+                        "3iW1-0",
+                        "positions.csv",
+                    )
+                ),
+                Path(
+                    os.path.join(
+                        "data",
+                        "Production",
+                        "Daily",
+                        DATE_STR,
+                        "3iW1-0",
+                        "positions_wellid.csv",
+                    )
+                ),
+                Path(
+                    os.path.join(
+                        "data",
+                        "Production",
+                        "Daily",
+                        DATE_STR,
+                        "3iW1-0",
+                        "failed_wells.csv",
+                    )
+                ),
+            ),
+        ),
+        (
+            "data/preferences_ZSD_test.yml",
+            "SegmentWells",
+            None,
+            (
+                Path(
+                    os.path.join(
+                        "data",
+                        "Production",
+                        "Daily",
+                        DATE_STR,
+                        "Zeiss SD 1",
+                        "positions.csv",
+                    )
+                ),
+                Path(
+                    os.path.join(
+                        "data",
+                        "Production",
+                        "Daily",
+                        DATE_STR,
+                        "Zeiss SD 1",
+                        "positions_wellid.csv",
+                    )
+                ),
+                Path(
+                    os.path.join(
+                        "data",
+                        "Production",
+                        "Daily",
+                        DATE_STR,
+                        "Zeiss SD 1",
+                        "failed_wells.csv",
+                    )
+                ),
+            ),
+        ),
+        (
             "data/preferences_ZSD_test.yml",
             "SegmentWells",
             "test_code",
             (
-                Path(os.path.join("test_code", "Zeiss SD 1", "positions.csv")),
-                Path(os.path.join("test_code", "Zeiss SD 1", "positions_wellid.csv")),
-                Path(os.path.join("test_code", "Zeiss SD 1", "failed_wells.csv")),
+                Path(
+                    os.path.join(
+                        "data",
+                        "Production",
+                        "Daily",
+                        "test_code",
+                        "Zeiss SD 1",
+                        "positions.csv",
+                    )
+                ),
+                Path(
+                    os.path.join(
+                        "data",
+                        "Production",
+                        "Daily",
+                        "test_code",
+                        "Zeiss SD 1",
+                        "positions_wellid.csv",
+                    )
+                ),
+                Path(
+                    os.path.join(
+                        "data",
+                        "Production",
+                        "Daily",
+                        "test_code",
+                        "Zeiss SD 1",
+                        "failed_wells.csv",
+                    )
+                ),
             ),
         ),
     ],
@@ -189,17 +293,28 @@ def test_get_log_file_path(prefs_path, expected):
         (
             "data/preferences_3i_test.yml",
             None,
-            os.path.join(DATE_STR, "3iW1-0", "MetaData.csv"),
+            os.path.join(
+                "data", "Production", "Daily", DATE_STR, "3iW1-0", "MetaData.csv"
+            ),
         ),
         (
-            "data/preferences_ZSD_test.yml",
+            "data/preferences_ZSD_special_colony_path.yml",
             None,
             os.path.join(DATE_STR, "Zeiss SD 1", "MetaData.csv"),
         ),
         (
             "data/preferences_ZSD_test.yml",
+            None,
+            os.path.join(
+                "data", "Production", "Daily", DATE_STR, "Zeiss SD 1", "MetaData.csv"
+            ),
+        ),
+        (
+            "data/preferences_ZSD_test.yml",
             "test_code",
-            os.path.join("test_code", "Zeiss SD 1", "MetaData.csv"),
+            os.path.join(
+                "data", "Production", "Daily", "test_code", "Zeiss SD 1", "MetaData.csv"
+            ),
         ),
     ],
 )
@@ -284,17 +399,38 @@ def test_get_recovery_settings_path(prefs_path, expected):
         (
             "data/preferences_3i_test.yml",
             None,
-            os.path.join(DATE_STR, "3iW1-0", "CeligoColonyData"),
+            os.path.join(
+                "data", "Production", "Daily", DATE_STR, "3iW1-0", "CeligoColonyData"
+            ),
+        ),
+        (
+            "data/preferences_ZSD_special_colony_path.yml",
+            None,
+            os.path.join("data", "PlateSpecifications"),
         ),
         (
             "data/preferences_ZSD_test.yml",
             None,
-            os.path.join(DATE_STR, "Zeiss SD 1", "CeligoColonyData"),
+            os.path.join(
+                "data",
+                "Production",
+                "Daily",
+                DATE_STR,
+                "Zeiss SD 1",
+                "CeligoColonyData",
+            ),
         ),
         (
             "data/preferences_ZSD_test.yml",
             "test_code",
-            os.path.join("test_code", "Zeiss SD 1", "CeligoColonyData"),
+            os.path.join(
+                "data",
+                "Production",
+                "Daily",
+                "test_code",
+                "Zeiss SD 1",
+                "CeligoColonyData",
+            ),
         ),
     ],
 )
@@ -334,19 +470,49 @@ def test_get_colony_remote_dir_path(prefs_path, pref_name, expected):
             "data/preferences_3i_test.yml",
             "test.csv",
             None,
-            os.path.join(DATE_STR, "3iW1-0", "CeligoColonyData", "test.csv"),
+            os.path.join(
+                "data",
+                "Production",
+                "Daily",
+                DATE_STR,
+                "3iW1-0",
+                "CeligoColonyData",
+                "test.csv",
+            ),
+        ),
+        (
+            "data/preferences_ZSD_special_colony_path.yml",
+            "test.csv",
+            None,
+            os.path.join("data", "PlateSpecifications", "test.csv"),
         ),
         (
             "data/preferences_ZSD_test.yml",
             "test.csv",
             None,
-            os.path.join(DATE_STR, "Zeiss SD 1", "CeligoColonyData", "test.csv"),
+            os.path.join(
+                "data",
+                "Production",
+                "Daily",
+                DATE_STR,
+                "Zeiss SD 1",
+                "CeligoColonyData",
+                "test.csv",
+            ),
         ),
         (
             "data/preferences_ZSD_test.yml",
             "test.csv",
             "test_code",
-            os.path.join("test_code", "Zeiss SD 1", "CeligoColonyData", "test.csv"),
+            os.path.join(
+                "data",
+                "Production",
+                "Daily",
+                "test_code",
+                "Zeiss SD 1",
+                "CeligoColonyData",
+                "test.csv",
+            ),
         ),
         (
             "data/preferences_ZSD_test.yml",
@@ -392,17 +558,28 @@ def test_get_hardware_settings_path(prefs_path, expected):
         (
             "data/preferences_3i_test.yml",
             None,
-            os.path.join(DATE_STR, "3iW1-0", "References"),
+            os.path.join(
+                "data", "Production", "Daily", DATE_STR, "3iW1-0", "References"
+            ),
         ),
         (
-            "data/preferences_ZSD_test.yml",
+            "data/preferences_ZSD_special_colony_path.yml",
             None,
             os.path.join(DATE_STR, "Zeiss SD 1", "References"),
         ),
         (
             "data/preferences_ZSD_test.yml",
+            None,
+            os.path.join(
+                "data", "Production", "Daily", DATE_STR, "Zeiss SD 1", "References"
+            ),
+        ),
+        (
+            "data/preferences_ZSD_test.yml",
             "test_code",
-            os.path.join("test_code", "Zeiss SD 1", "References"),
+            os.path.join(
+                "data", "Production", "Daily", "test_code", "Zeiss SD 1", "References"
+            ),
         ),
     ],
 )
@@ -420,16 +597,18 @@ def test_get_references_path(prefs_path, barcode, expected):
             "data/preferences_3i_test.yml",
             None,
             None,
-            os.path.join(DATE_STR, "3iW1-0"),
+            os.path.join("data", "Production", "Daily", DATE_STR, "3iW1-0"),
         ),
         (
             "data/preferences_3i_test.yml",
             "test_sub_dir",
             None,
-            os.path.join(DATE_STR, "3iW1-0", "test_sub_dir"),
+            os.path.join(
+                "data", "Production", "Daily", DATE_STR, "3iW1-0", "test_sub_dir"
+            ),
         ),
         (
-            "data/preferences_ZSD_test.yml",
+            "data/preferences_ZSD_special_colony_path.yml",
             None,
             None,
             os.path.join(DATE_STR, "Zeiss SD 1"),
@@ -437,8 +616,14 @@ def test_get_references_path(prefs_path, barcode, expected):
         (
             "data/preferences_ZSD_test.yml",
             None,
+            None,
+            os.path.join("data", "Production", "Daily", DATE_STR, "Zeiss SD 1"),
+        ),
+        (
+            "data/preferences_ZSD_test.yml",
+            None,
             "test_code",
-            os.path.join("test_code", "Zeiss SD 1"),
+            os.path.join("data", "Production", "Daily", "test_code", "Zeiss SD 1"),
         ),
     ],
 )
@@ -475,17 +660,26 @@ def test_get_calibration_path(prefs_path, expected):
         (
             "data/preferences_3i_test.yml",
             None,
-            os.path.join(DATE_STR, "3iW1-0", "WellEdge"),
+            os.path.join("data", "Production", "Daily", DATE_STR, "3iW1-0", "WellEdge"),
         ),
         (
-            "data/preferences_ZSD_test.yml",
+            "data/preferences_ZSD_special_colony_path.yml",
             None,
             os.path.join(DATE_STR, "Zeiss SD 1", "WellEdge"),
         ),
         (
             "data/preferences_ZSD_test.yml",
+            None,
+            os.path.join(
+                "data", "Production", "Daily", DATE_STR, "Zeiss SD 1", "WellEdge"
+            ),
+        ),
+        (
+            "data/preferences_ZSD_test.yml",
             "test_code",
-            os.path.join("test_code", "Zeiss SD 1", "WellEdge"),
+            os.path.join(
+                "data", "Production", "Daily", "test_code", "Zeiss SD 1", "WellEdge"
+            ),
         ),
     ],
 )

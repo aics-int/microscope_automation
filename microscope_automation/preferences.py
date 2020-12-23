@@ -87,6 +87,9 @@ class Preferences:
         """
         from .automation_messages_form_layout import pull_down_select_dialog
 
+        if not isinstance(self.prefs, type(dict())):
+            print("\n")
+            print(self.prefs)
         pref = self.prefs.get(name)
         if pref is None and self.parent_prefs is not None:
             parentPref = self.parent_prefs.get_pref(name)

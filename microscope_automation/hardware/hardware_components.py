@@ -1405,7 +1405,7 @@ class FocusDrive(MicroscopeComponent):
             if not test:
                 message.operate_message(
                     "Move focus drive {} to load position.".format(self.get_id()),
-                    returnCode=False,
+                    return_code=False,
                 )
             load_pos = self.define_load_position(communication_object)
             if load_pos > self.max_load_position:
@@ -1439,7 +1439,7 @@ class FocusDrive(MicroscopeComponent):
                     'Please move focus drive "{}" to work position.'.format(
                         self.get_id()
                     ),
-                    returnCode=False,
+                    return_code=False,
                 )
             work_pos = self.define_work_position(communication_object)
             if work_pos < self.min_work_position:
@@ -1766,11 +1766,11 @@ class AutoFocus(MicroscopeComponent):
                     else:
                         message.operate_message(
                             message="Please focus on top of cover slip.",
-                            returnCode=False,
+                            return_code=False,
                         )
                         message.operate_message(
                             message="1) Bring the objective to focus position using the TFT\n2) Click Find Surface in ZenBlue",  # noqa
-                            returnCode=False,
+                            return_code=False,
                         )
 
                     self.microscope_object.setup_microscope_for_initialization(

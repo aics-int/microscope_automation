@@ -23,6 +23,7 @@ import microscope_automation.hardware.setup_microscope as setup_microscope
 import microscope_automation.preferences as preferences
 import microscope_automation.hardware.hardware_components as h_comp
 import microscope_automation.samples.samples as samples
+import microscope_automation.microscope_automation as mic_auto
 
 
 @pytest.fixture
@@ -101,6 +102,11 @@ def test_image_black_reference():
 
 
 class Helpers:
+    @staticmethod
+    def setup_local_microscope_automation(prefs_path):
+        """Create microscope automation object"""
+        return mic_auto.MicroscopeAutomation(prefs_path)
+
     @staticmethod
     def setup_local_microscope(prefs_path):
         """Create microscope object"""
@@ -440,7 +446,7 @@ class Helpers:
         y_flip=1,
         z_flip=1,
     ):
-        """Create PlateHolder object"""
+        """Create ImmersionDelivery object"""
         if prefs_path:
             microscope_object = self.setup_local_microscope(prefs_path)
         else:
@@ -613,6 +619,7 @@ class Helpers:
             self,
             stage_id,
             safe_area=safe_area_id,
+            safe_position=(0, 0),
             objective_changer=obj_changer_id,
             prefs_path=prefs_path,
         )
@@ -622,9 +629,10 @@ class Helpers:
             n_positions=6,
             objectives=objectives,
             prefs_path=prefs_path,
+            ref_objective="Plan-Apochromat 10x/0.45",
         )
         autofocus = self.setup_local_autofocus(
-            self, autofocus_id, obj_changer=obj_changer
+            self, autofocus_id, obj_changer=obj_changer, default_camera="Camera1 (back)"
         )
         focus_drive = self.setup_local_focus_drive(
             self,

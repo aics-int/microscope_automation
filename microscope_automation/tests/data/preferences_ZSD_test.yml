@@ -27,7 +27,7 @@ Workflow: [
            {'Experiment': 'InitializeMicroscope', 'Repetitions': 1, 'Input': None, 'Output': {}},
            {'Experiment': 'ObjectiveOffsets', 'Repetitions': 1, 'Input': None, 'Output': {}},
            {'Experiment': 'UpdatePlateWellZero_10x', 'Repetitions': 1, 'Input': None, 'Output': {}},
-           {'Experiment': 'Koehler', 'Repetitions': 1, 'Input': None, 'Output': {}},
+           #{'Experiment': 'Koehler', 'Repetitions': 1, 'Input': None, 'Output': {}},
            #{'Experiment': 'ScanPlate', 'Repetitions': 1, 'Input': Wells, 'Output': {ScanCells: Cell}},
            {'Experiment': 'ScanPlate', 'Repetitions': 1, 'Input': Wells, 'Output': {Wells_Selected: Well}},
            {'Experiment': 'SegmentWells', 'Repetitions': 1, 'Input': Wells_Selected, 'Output': {ScanCells: Cell}},
@@ -60,6 +60,9 @@ WellEdgeDirPath: WellEdge
 MetaDataPath: MetaData.csv
 MetaDataFormat: csv
 
+# Path to Empty positions.czsh file- save_position_list uses this to write a filled positions.czsh file with coordinates from the Automation software.
+PathDummy: 'data\dummy_tile_positions.czsh'
+
 # Whether to show all dialog boxes or less depending on the user's skill level
 LessDialog: False                                # Set "False": All diag boxes (default)   |   Set "True": Minimal diag boxes
 
@@ -74,11 +77,11 @@ InitializeMicroscope:
  ColonyDirPath: *ColonyDirPathRef
  AddColonies: False                               # add colony information from Hamilton to plate
  Hardware: True                                   # Initialize hardware
- Experiment: Setup_10x.czexp                      # Experiment setting in ZEN blue used for microscope initialization
+ Experiment: WellTile_10x.czexp                      # Experiment setting in ZEN blue used for microscope initialization
  Camera: Camera1 (back)
  UseAutoFocus: False                              # use autofocus instead of values based on calibration
  FindLoad: True                                   # Ask user to move objective in load position and save
- MaxLoadPosition: 50                              # Maximum focus position that will be accepted as load
+ MaxLoadPosition: 500                             # Maximum focus position that will be accepted as load
  LaserSafety: True                                # Enable laser safety
  Koehler: False                                   # Set Koehler illumination
  StageID: Marzhauser                              # Name of stage used to set up Koehler illumination
@@ -102,7 +105,7 @@ Koehler:
  ColonyDirPath: *ColonyDirPathRef
  AddColonies: False                               # add colony information from Hamilton to plate
  Hardware: False                                  # Initialize hardware
- Experiment: Setup_10x.czexp                      # Experiment setting in ZEN blue used for microscope initialization
+ Experiment: WellTile_10x.czexp                      # Experiment setting in ZEN blue used for microscope initialization
  Camera: Camera1 (back)
  UseAutoFocus: True                               # use autofocus instead of values based on calibration
  FindLoad: False                                  # Ask user to move objective in load position and save
@@ -170,7 +173,7 @@ ObjectiveOffsets:
  NumberTrials: 3                                  # How often a user is given the chance to set up the system in a correct way
  UseAutoFocus: True
  Experiment: NoExperiment
- ExperimentsList: ['Setup_20x','Setup_10x', 'Setup_100x']       # List with experiments used to determine offset (one experiment per objective in order as listed)
+ ExperimentsList: ['WellTile_10x']       # List with experiments used to determine offset (one experiment per objective in order as listed)
  # ExperimentsList: ['Setup_10x', 'Setup_100x']       # List with experiments used to determine offset (one experiment per objective in order as listed)
  Wait:                                            # Wait for user input after imaging and before removing image from display (has no effect in this experiment module)
   Image: False                                      # Wait after each image
@@ -180,7 +183,7 @@ ObjectiveOffsets:
 
 # Set z-zero positions for plate and wells
 UpdatePlateWellZero_10x:
- FunctionName: update_plate_zZero               # Name of function in Python code in module microscopeAutomation that will process this experiment
+ FunctionName: update_plate_z_zero               # Name of function in Python code in module microscopeAutomation that will process this experiment
  Verbose: False                                 # print debug messages?
  NumberTrials: 3                                  # How often a user is given the chance to set up the system in a correct way
  Wait:                                            # Wait for user input after imaging and before removing image from display (has no effect in this experiment module)
@@ -191,7 +194,7 @@ UpdatePlateWellZero_10x:
  Blocking: False                                # open modal dialog in case of error (has no effect in this experiment module)
  Well: E8                                       # Well used to set well zero
  UseAutoFocus: False                            # use autofocus instead of values based on calibration
- Experiment: Setup_10x.czexp
+ Experiment: WellTile_10x.czexp
  Camera: Camera1 (back)
  AddImmersionWater: False                       # Add immersion water to objective after a predefined number of images
  NameImmersionSystem: BraintreeScientific       # Name for immersion delivery system
@@ -199,7 +202,7 @@ UpdatePlateWellZero_10x:
  WellsBeforeAddImmersionWater: 0                # Number of wells to be imaged before water is added to objective. Water will be added before first well.
 
 UpdatePlateWellZero_20x:
- FunctionName: update_plate_zZero               # Name of function in Python code in module microscopeAutomation that will process this experiment
+ FunctionName: update_plate_z_zero               # Name of function in Python code in module microscopeAutomation that will process this experiment
  Verbose: False                                 # print debug messages?
  NumberTrials: 3                                  # How often a user is given the chance to set up the system in a correct way
  Wait:                                            # Wait for user input after imaging and before removing image from display (has no effect in this experiment module)
@@ -218,7 +221,7 @@ UpdatePlateWellZero_20x:
  WellsBeforeAddImmersionWater: 0                # Number of wells to be imaged before water is added to objective. Water will be added before first well.
 
 UpdatePlateWellZero_100x:
- FunctionName: update_plate_zZero               # Name of function in Python code in module microscopeAutomation that will process this experiment
+ FunctionName: update_plate_z_zero               # Name of function in Python code in module microscopeAutomation that will process this experiment
  Verbose: False                                 # print debug messages?
  NumberTrials: 3                                  # How often a user is given the chance to set up the system in a correct way
  Wait:                                            # Wait for user input after imaging and before removing image from display (has no effect in this experiment module)
@@ -229,7 +232,7 @@ UpdatePlateWellZero_100x:
  Blocking: False                                # open modal dialog in case of error (has no effect in this experiment module)
  Well: E8                                       # Well used to set well zero
  UseAutoFocus: False                            # use autofocus instead of values based on calibration
- Experiment: Setup_100x.czexp
+ Experiment: WellTile_10x.czexp
  Camera: Camera1 (back)
  AddImmersionWater: False                       # Add immersion water to objective after a predefined number of images
  NameImmersionSystem: BraintreeScientific       # Name for immersion delivery system
@@ -258,6 +261,7 @@ ScanPlate:
                                                 # entries that start with '#' will be replaced with meta data values with the same key
  FileName: ['#aics_barcode', '_', '#aics_objectiveMagnification', 'X_', '#aics_dateStartShort', '_', '#aics_well','.czi']
  UseAutoFocus: True                             # use autofocus instead of values based on calibration
+ UseReference: False
  ManualRefocus: False                           # give user option to manually refocus
  ManualRefocusAfterRepetitions: 1               # manually refocus after n repetitions (0: no refocus)
  SnapImage: True                                # take image and save it, not required for pre-scans

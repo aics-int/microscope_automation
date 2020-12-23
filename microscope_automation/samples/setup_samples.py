@@ -130,48 +130,48 @@ def filter_colonies(prefs, colonies, well_dict):
     wells_select = colonies["Well"].isin(well_list)
 
     # scan only wells with a minimum number of colonies in a give well before filtering
-    minCountPerWell = prefs.get_pref("MinCountPerWell")
-    minCountSelect = colonies.CountPerWell >= minCountPerWell
+    min_count_per_well = prefs.get_pref("MinCountPerWell")
+    min_count_select = colonies.CountPerWell >= min_count_per_well
 
     # scan only wells with a maximum number of colonies in a give well before filtering
     maxCountPerWell = prefs.get_pref("MaxCountPerWell")
-    maxCountSelect = colonies.CountPerWell <= maxCountPerWell
+    max_count_select = colonies.CountPerWell <= maxCountPerWell
 
     # scan only colonies that are larger than MinAreaColonies
     # based on Celigo measurements in mum^2
-    minAreaColonies = prefs.get_pref("MinAreaColonies")
-    minAreaSelect = colonies.Area >= minAreaColonies
+    min_area_colonies = prefs.get_pref("MinAreaColonies")
+    min_area_select = colonies.Area >= min_area_colonies
 
     # scan only colonies that are smaller than MinAreaColonies
     # based on Celigo measurements in mum^2
-    maxAreaColonies = prefs.get_pref("MaxAreaColonies")
-    maxAreaSelect = colonies.Area <= maxAreaColonies
+    max_area_colonies = prefs.get_pref("MaxAreaColonies")
+    max_area_select = colonies.Area <= max_area_colonies
 
     # scan only colonies that are within a circle around the well center
     # with radius MaxDistanceToCenter based on Celigo measurements in mum
-    maxDistanceToCenter = prefs.get_pref("MaxDistanceToCenter")
-    maxDistanceSelect = colonies.CenterDistance <= maxDistanceToCenter
+    max_distance_to_center = prefs.get_pref("MaxDistanceToCenter")
+    max_distance_select = colonies.CenterDistance <= max_distance_to_center
 
     # remove colonies that are not in the correct wells
-    filteredColonies = colonies.loc[
-        minCountSelect
-        & maxCountSelect
-        & minAreaSelect
-        & maxAreaSelect
-        & maxDistanceSelect
+    filtered_colonies = colonies.loc[
+        min_count_select
+        & max_count_select
+        & min_area_select
+        & max_area_select
+        & max_distance_select
         & wells_select
     ]
 
     # we want to scan a maximum number of colonies per well
     # if there are more valid colonies in a given well than select random colonies
     selected_colonies = pandas.DataFrame()
-    for well, numberImages in well_dict.items():
+    for well, number_images in well_dict.items():
         # find all colonies within well
-        wellSelect = filteredColonies.Well == well
-        coloniesInWell = filteredColonies.loc[wellSelect]
-        if coloniesInWell.shape[0] >= numberImages:
+        well_select = filtered_colonies.Well == well
+        colonies_in_well = filtered_colonies.loc[well_select]
+        if colonies_in_well.shape[0] >= number_images:
             selected_colonies = selected_colonies.append(
-                coloniesInWell.sample(numberImages)
+                colonies_in_well.sample(number_images)
             )
 
     print("summary statistics about colonies after filtering")
@@ -375,18 +375,6 @@ def setup_plate(prefs, colony_file=None, microscope_object=None, barcode=None):
     # create immersion delivery system as part of PlateHolder and add to PlateHolder
     pump = specifications.get_pref_as_meta("Pump")
 
-    # pumpName = specifications.get_pref('Pump')
-    # safety_id = specifications.get_pref('PumpSafetyID')
-    # pumpObject = microscope_object._get_microscope_object(pumpName)
-    # center = [float(specifications.get_pref('xCenterPump')), \
-    #           float(specifications.get_pref('yCenterPump')), \
-    #           float(specifications.get_pref('zCenterPump'))]
-    # x_flip = int(specifications.get_pref('xFlipPump'))
-    # y_flip = int(specifications.get_pref('yFlipPump'))
-    # z_flip = int(specifications.get_pref('zFlipPump'))
-    # x_correction = float(specifications.get_pref('xCorrectionPump'))
-    # y_correction = float(specifications.get_pref('yCorrectionPump'))
-    # z_correction = float(specifications.get_pref('zCorrectionPump'))
     if pump:
         immersion_delivery_object = samples.ImmersionDelivery(
             name=pump.get_pref("Name"),
@@ -404,20 +392,6 @@ def setup_plate(prefs, colony_file=None, microscope_object=None, barcode=None):
             z_correction=pump.get_pref("zCorrection"),
         )
         plate_holder_object.immersion_delivery_system = immersion_delivery_object
-
-    # create Plate as part of PlateHolder and add it to PlateHolder
-    # get description for plate dimensions and coordinate system from microscopeSpecifications.yml  # noqa
-    # plateName = specifications.get_pref('Plate')
-    # center = [float(specifications.get_pref('xCenterPlate')), \
-    #           float(specifications.get_pref('yCenterPlate')), \
-    #           float(specifications.get_pref('zCenterPlate'))]
-    # x_flip = int(specifications.get_pref('xFlipPlate'))
-    # y_flip = int(specifications.get_pref('yFlipPlate'))
-    # z_flip = int(specifications.get_pref('zFlipPlate'))
-    # x_correction = float(specifications.get_pref('xCorrectionPlate'))
-    # y_correction = float(specifications.get_pref('yCorrectionPlate'))
-    # z_correction = float(specifications.get_pref('zCorrectionPlate'))
-    # reference_well = specifications.get_pref('InitialReferenceWell')
 
     plate = specifications.get_pref_as_meta("Plate")
     plate_object = samples.Plate(
@@ -439,7 +413,7 @@ def setup_plate(prefs, colony_file=None, microscope_object=None, barcode=None):
     # barcode is typically retrieved from colony file, otherwise prompt for input
     if barcode is None:
         barcode = message.read_string(
-            "Barcode", "Barcode:", default="123", returnCode=False
+            "Barcode", "Barcode:", default="123", return_code=False
         )
     plate_object.set_barcode(barcode)
     plate_holder_object.add_plates(plate_object_dict={barcode: plate_object})
@@ -494,7 +468,7 @@ def setup_plate(prefs, colony_file=None, microscope_object=None, barcode=None):
         ]
 
     # add reference well
-    reference_well = specifications.get_pref("InitialReferenceWell")
+    reference_well = plate.get_pref("InitialReferenceWell")
     reference_object = plate_object.get_well(reference_well)
     plate_object.set_reference_object(reference_object)
 

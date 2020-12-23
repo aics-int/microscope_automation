@@ -62,13 +62,7 @@ def test_write():
     try:
         testclass.write(
             converted_list,
-            dummy="data"
-            + os.path.sep
-            + "1234"
-            + os.path.sep
-            + "testZsd"
-            + os.path.sep
-            + "positions_output_a.czsh",
+            dummy=os.path.join("data", "1234", "testZsd", "positions_output_a.czsh"),
         )
     except Exception as err:
         assert type(err).__name__ == "ParseError"

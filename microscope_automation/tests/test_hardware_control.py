@@ -1096,7 +1096,7 @@ def test_run_macro(prefs_path, macro_name, macro_param, expected, helpers):
 @patch("microscope_automation.zeiss.connect_zen_blue.ConnectMicroscope.save_image")
 @patch(
     "microscope_automation.zeiss.connect_zen_blue.ConnectMicroscope.close_experiment"
-)  # noqa
+)
 @pytest.mark.skipif(skip_all_tests, reason="Exclude all tests")
 @pytest.mark.parametrize(
     ("prefs_path, software, experiment, file_path, " "z_start, expected"),

@@ -5,7 +5,7 @@ from microscope_automation.zeiss.zen_experiment_info import ZenExperiment
 
 os.chdir(os.path.dirname(__file__))
 
-experiment_name = "WellTile_10x.czexp"
+experiment_name = "WellTile_10x_false.czexp"
 
 
 @pytest.fixture()

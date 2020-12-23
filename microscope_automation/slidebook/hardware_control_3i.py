@@ -418,7 +418,7 @@ class SpinningDisk3i(BaseMicroscope):
                         "File exists",
                         label="Modify new filename",
                         default=file_name,
-                        returnCode=False,
+                        return_code=False,
                     )
                     file_path = os.path.normcase(os.path.join(directory, new_file_name))
                 else:
