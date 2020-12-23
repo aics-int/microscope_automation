@@ -52,10 +52,6 @@ class PositionWriter(object):
         self.plate = plate
         self.path = os.path.join(production_path, plate, zsd)
 
-        print(self.path)
-        print(os.path.exists(self.path))
-        print(os.path.exists(os.path.dirname(self.path)))
-
         if not os.path.exists(self.path):
             raise OSError(
                 "Please check zsd, plate, and production path"
