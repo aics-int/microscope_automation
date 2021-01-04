@@ -17,10 +17,6 @@ import matplotlib.pyplot as plt
 from scipy import ndimage
 
 
-debug = False  # if True, debug images will be shown
-summaryDebug = True  # if True, summary debug images will be shown
-
-
 def show_hist(image):
     """Plot histogram.
 
@@ -42,7 +38,7 @@ def show_hist(image):
     plt.show()
 
 
-def show_debug_image(image):
+def show_debug_image(image, debug):
     """Show ImageAICS when in debug mode.
 
     Input:
@@ -56,7 +52,8 @@ def show_debug_image(image):
         plt.show()
 
 
-def show_debug_summary(image, well_image, correlation, t_image, corr_x, corr_y):
+def show_debug_summary(image, well_image, correlation, t_image, corr_x, corr_y,
+                       summary_debug):
     """Show all images to calculate new center.
 
     Input:
@@ -73,7 +70,7 @@ def show_debug_summary(image, well_image, correlation, t_image, corr_x, corr_y):
     Output:
      none
     """
-    if summaryDebug:
+    if summary_debug:
         fig, axes = plt.subplots(nRows=2, nCols=3)
 
         axes[0, 0].imshow(image)
@@ -112,9 +109,9 @@ def show_debug_summary(image, well_image, correlation, t_image, corr_x, corr_y):
         plt.show()
 
 
-def create_well_image(diameter):
+def create_well_image(diameter, debug=False):
     """Create mask for whole well. Using the whole well for alignment will
-    improve accuracy on the cost of speed.
+    improve accuracy at the cost of speed.
     We recommend to use create_edge_image if possible
 
     Input:
@@ -127,11 +124,11 @@ def create_well_image(diameter):
     im = numpy.zeros((diameter, diameter))
     rr, cc = draw.circle(diameter / 2, diameter / 2, diameter / 2.0, im.shape)
     im[rr, cc] = 1
-    show_debug_image(im)
+    show_debug_image(im, debug)
     return im
 
 
-def create_edge_image(diameter, length, r, phi, add_noise=False):
+def create_edge_image(diameter, length, r, phi, add_noise=False, debug=False):
     """Create ImageAICS for well edge used for alignment and test purposes.
 
     Input:
@@ -143,7 +140,7 @@ def create_edge_image(diameter, length, r, phi, add_noise=False):
 
      phi: direction of image
 
-     addNoise: add noise for test purposes. Default is False.
+     add_noise: add noise for test purposes. Default is False.
 
     Output:
      im: well edge image to be used for alignment
@@ -170,11 +167,11 @@ def create_edge_image(diameter, length, r, phi, add_noise=False):
     # add Gauss noise
     if add_noise:
         im = im + (numpy.random.random(im.shape) - 0.5) * 0.2
-    show_debug_image(im)
+    show_debug_image(im, debug)
     return im
 
 
-def find_well_center(image, well_diameter, percentage, phi):
+def find_well_center(image, well_diameter, percentage, phi, summary_debug=True):
     """Find center of well based on edge ImageAICS.
 
     Input:
@@ -232,9 +229,11 @@ def find_well_center(image, well_diameter, percentage, phi):
     #  in the response (output) image.
 
     corr = feature.match_template(well_image, img_mask, pad_input=True)
+    print(corr)
 
     # find maximum of correlation
     x, y = numpy.unravel_index(corr.argmax(), corr.shape)
+    print(x, y)
     # we use complex numbers to calculate the offest between the image center
     # and the well radius calculations are simplified in polar coordinates
     # offCompl=complex(x-corr.shape[0]/2,y-corr.shape[1]/2)
@@ -244,9 +243,11 @@ def find_well_center(image, well_diameter, percentage, phi):
     # convert to coordinate system with origin in center of simulated well
     x_center = x - corr.shape[0] / 2
     y_center = y - corr.shape[1] / 2
+    print(x_center, y_center)
     # offsetX=offset.real
     # offsetY=offset.imag
-    show_debug_summary(image, well_image, img_mask, corr, x, y, x_center, y_center)
+    show_debug_summary(image, well_image, img_mask, corr, x, y, x_center, y_center,
+                       summary_debug)
     return x_center, y_center
 
 
