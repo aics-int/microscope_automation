@@ -102,6 +102,7 @@
             <span class="p">),</span>
         <span class="p">)</span>
     <span class="p">]</span>
+    <span class="n">selected_plate_id_list</span> <span class="o">=</span> <span class="p">[</span><span class="nb">int</span><span class="p">(</span><span class="n">i</span><span class="p">)</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">selected_plate_id_list</span><span class="p">]</span>
     <span class="n">plate_selector</span> <span class="o">=</span> <span class="n">colonies_all</span><span class="o">.</span><span class="n">loc</span><span class="p">[:,</span> <span class="s2">&quot;PlateID&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">isin</span><span class="p">(</span><span class="n">selected_plate_id_list</span><span class="p">)</span>
 
     <span class="c1"># select columns as defined in preferences.yml file</span>
@@ -721,7 +722,7 @@
       &copy;2020, Allen Institute.
       
       |
-      Powered by <a href="http://sphinx-doc.org/">Sphinx 3.4.0</a>
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 3.4.2</a>
       &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.12</a>
       
     </div>
