@@ -69,6 +69,7 @@ def get_colony_data(prefs, colony_file):
             ),
         )
     ]
+    selected_plate_id_list = [int(i) for i in selected_plate_id_list]
     plate_selector = colonies_all.loc[:, "PlateID"].isin(selected_plate_id_list)
 
     # select columns as defined in preferences.yml file
