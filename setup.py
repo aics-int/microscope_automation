@@ -50,7 +50,7 @@ requirements = [
     "lxml>=4.5.2,<4.7",
     "pathlib>=1.0.1,<1.1",
     "pyserial>=3.4,<3.5",
-    "pywin32>=227",
+    "pywin32",
     "scikit-image>=0.16.2,<0.19",
     "scipy>=1.6.0,<1.7",
 ]
