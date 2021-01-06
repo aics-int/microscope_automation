@@ -30,27 +30,29 @@ dev_requirements = [
     "coverage>=5.1",
     "ipython>=7.15.0",
     "pytest-runner>=5.2",
-    "Sphinx>=3",
-    "sphinx_rtd_theme>=0.4.3",
+    "Sphinx>=3,<3.5",
+    "sphinx_rtd_theme>=0.4.3,<0.6",
     "tox>=3.15.2",
     "twine>=3.1.1",
     "wheel>=0.34.2",
 ]
 
 requirements = [
-    'tifffile>=2020.8.25',
-    'aicsimageio>=3.2.3',
-    'pandas>=1.1.1',
-    'numpy>=1.19.1',
-    'pyyaml>=5.3.1',
-    'pyqtgraph>=0.11.0',
-    'PyQt5>=5.12.3',
-    'matplotlib>=3.3.1',
-    'formlayout>=1.2.0',
-    'lxml>=4.5.2',
-    'pathlib>=1.0.1',
-    'pyserial>=3.4',
-    'scikit-image>=0.16.2'
+    "tifffile>=2020.8.25,<2021",
+    "aicsimageio>=3.2.3,<3.4",
+    "pandas>=1.1.1,<1.3",
+    "numpy>=1.19.1,<1.20",
+    "pyyaml>=5.3.1,<5.4",
+    "pyqtgraph>=0.11.0,<0.12",
+    "PyQt5>=5.12.3,<5.16",
+    "matplotlib>=3.3.1,<3.4",
+    "formlayout>=1.2.0,<1.3",
+    "lxml>=4.5.2,<4.7",
+    "pathlib>=1.0.1,<1.1",
+    "pyserial>=3.4,<3.5",
+    "pywin32>=227,<301"
+    "scikit-image>=0.16.2,<0.19"
+    "scipy>=1.6.0,<1.7"
 ]
 
 extra_requirements = {
