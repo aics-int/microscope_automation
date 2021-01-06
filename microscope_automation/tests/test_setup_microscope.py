@@ -49,3 +49,10 @@ def test_setup_microscope(prefs_path, expected_components):
         list(microscope_object.microscope_components_ordered_dict.keys())
         == expected_components
     )
+
+
+@pytest.mark.skipif(skip_all_tests, reason="Exclude all tests")
+def test_import_pywin32():
+    # if pywin32 isn't installed this will throw ImportError and never assert True
+    import win32com.client  # noqa
+    assert True
