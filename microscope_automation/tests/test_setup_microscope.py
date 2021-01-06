@@ -6,6 +6,7 @@ Created on May 20, 2020
 """
 
 import pytest
+from sys import platform
 import microscope_automation.preferences as preferences
 from microscope_automation.hardware.setup_microscope import setup_microscope
 import os
@@ -54,5 +55,7 @@ def test_setup_microscope(prefs_path, expected_components):
 @pytest.mark.skipif(skip_all_tests, reason="Exclude all tests")
 def test_import_pywin32():
     # if pywin32 isn't installed this will throw ImportError and never assert True
-    import win32com.client  # noqa
+    if platform == "win32" or platform == "cygwin":
+        import win32com.client  # noqa
+        
     assert True
