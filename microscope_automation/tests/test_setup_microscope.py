@@ -57,5 +57,5 @@ def test_import_pywin32():
     # if pywin32 isn't installed this will throw ImportError and never assert True
     if platform == "win32" or platform == "cygwin":
         import win32com.client  # noqa
-        
+
     assert True
