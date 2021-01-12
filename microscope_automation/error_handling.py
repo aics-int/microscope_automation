@@ -17,11 +17,19 @@ def setup_logger(prefs, log_level="DEBUG"):
     # create logger with 'microscope_automation'
     logger = logging.getLogger(__name__.split(".")[0])
 
+    # if logger has any old handlers clean them up
+    for handler in logger.handlers:
+        handler.flush()
+        handler.close()
+        logger.removeHandler(handler)
+
     # create file handler which logs even debug messages
     log_file = get_log_file_path(prefs)
     fh = logging.FileHandler(log_file)
 
     logger.setLevel(logging.DEBUG)
+    if log_level == "DEBUG":
+        fh.setLevel(logging.DEBUG)
     if log_level == "INFO":
         fh.setLevel(logging.INFO)
     elif log_level == "WARNING":
