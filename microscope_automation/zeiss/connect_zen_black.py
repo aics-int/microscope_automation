@@ -16,7 +16,7 @@ import os
 from ..image_AICS import ImageAICS
 
 # Create Logger
-log = logging.getLogger("connect_zen_black")
+log = logging.getLogger(__name__)
 
 
 class ConnectMicroscope:

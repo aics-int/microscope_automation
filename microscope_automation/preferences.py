@@ -9,7 +9,7 @@ import yaml
 import logging
 
 # create logger
-module_logger = logging.getLogger("microscope_automation")
+module_logger = logging.getLogger(__name__.split('.')[0])
 
 
 class Preferences:
@@ -31,7 +31,7 @@ class Preferences:
          Object of class preferences
         """
         # setup logging
-        self.logger = logging.getLogger("microscope_automation.preferences.Preferences")
+        self.logger = logging.getLogger(__name__)
 
         # check for valid input
         # We should add checking for valid filename etc.

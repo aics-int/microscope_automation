@@ -1,5 +1,5 @@
 # Microscope specifications for microscope automation
-# Used by Python script MicroscopeAutomation.py to control different types of microscopes
+# Used by Python script microscope_automation.py to control different types of microscopes
 #
 # based on yaml specification Version 1.2
 # http://www.yaml.org/spec/1.2/spec.html

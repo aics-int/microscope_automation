@@ -26,7 +26,7 @@ except ImportError:
     from ..hardware.RS232_dummy import Braintree
 
 # Create Logger
-log = logging.getLogger("microscopeAutomation connect_zen_blue")
+log = logging.getLogger(__name__)
 
 ################################################################################
 #

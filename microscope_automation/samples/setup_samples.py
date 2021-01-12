@@ -20,7 +20,7 @@ from . import samples
 # create logger
 import logging
 
-logger = logging.getLogger("microscope_automation")
+logger = logging.getLogger(__name__.split('.')[0])
 
 
 ###########################################################################
@@ -42,9 +42,7 @@ def get_colony_data(prefs, colony_file):
      colonies: pandas frame with content of .csv file
     """
     # setup logging
-    logger = logging.getLogger(  # noqa
-        "microscope_automation.samples.setup_samples.get_colony_data"
-    )
+    logger = logging.getLogger(__name__)  # noqa
 
     ##############################
     # this portion will be replaces by calls to LIMS system
