@@ -15,7 +15,7 @@ def setup_logger(prefs, log_level="DEBUG"):
     see https://docs.python.org/2/howto/logging-cookbook.html#using-logging-in-multiple-modules"""  # noqa
 
     # create logger with 'microscope_automation'
-    logger = logging.getLogger(__name__.split('.')[0])
+    logger = logging.getLogger(__name__.split(".")[0])
 
     # create file handler which logs even debug messages
     log_file = get_log_file_path(prefs)

@@ -9,7 +9,7 @@ import yaml
 import logging
 
 # create logger
-module_logger = logging.getLogger(__name__.split('.')[0])
+module_logger = logging.getLogger(__name__.split(".")[0])
 
 
 class Preferences:
