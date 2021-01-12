@@ -144,7 +144,7 @@ class ConnectMicroscope:
         """
         try:
             self.image.Save_2(fileName)
-            log.info("save ImageAICS to " + fileName)
+            log.info("save ImageAICS to {}".format(fileName))
         except Exception as err:
             log.exception(err)
             raise HardwareError("Error in save_image to {}.".format(fileName))
@@ -185,7 +185,7 @@ class ConnectMicroscope:
         Output:
          none
         """
-        log.info("snap image using experiment ", experiment)
+        log.info("snap image using experiment {}".format(experiment))
 
         # if method switches objective the stored position for definite focus is invalid
         current_objective = self.get_objective_name()
@@ -856,12 +856,12 @@ class ConnectMicroscope:
         Output:
          z_work: current focus position in mum
         """
-        zWork = self.get_focus_pos()
-        self.zWork = zWork
+        z_work = self.get_focus_pos()
+        self.zWork = z_work
 
-        log.info("Stored current focus position as work position", str(zWork))
+        log.info("Stored current focus position as work position" + str(z_work))
 
-        return zWork
+        return z_work
 
     def set_focus_load_position(self):
         """retrieve current position and set as load position.
@@ -872,12 +872,12 @@ class ConnectMicroscope:
         Output:
          zLoad: current focus position in mum
         """
-        zLoad = self.get_focus_pos()
-        self.zLoad = zLoad
+        z_load = self.get_focus_pos()
+        self.zLoad = z_load
 
-        log.info("Stored current focus position as load position: %s", str(zLoad))
+        log.info("Stored current focus position as load position: " + (str(z_load)))
 
-        return zLoad
+        return z_load
 
     def move_focus_to_load(self):
         """Move focus to load position if defined.
@@ -901,7 +901,7 @@ class ConnectMicroscope:
         # move to load position if defined
         z_focus = self.move_focus_to(self.zLoad)
 
-        log.info("moved focus to load position: %s", str(z_focus))
+        log.info("moved focus to load position: " + str(z_focus))
 
         return z_focus
 
@@ -922,11 +922,11 @@ class ConnectMicroscope:
             )
 
         # move to load position if defined
-        zFocus = self.move_focus_to(self.zWork)
+        z_focus = self.move_focus_to(self.zWork)
 
-        log.info("moved focus to load position: %s", str(zFocus))
+        log.info("Moved focus to load position: " + str(z_focus))
 
-        return zFocus
+        return z_focus
 
     ###############################################################################
     #
@@ -1149,7 +1149,7 @@ class ConnectMicroscope:
          Microscope: name of Microscope"""
 
         name = "get_microscope_name not implemented"
-        log.info("This class controls the microscope: %s", name)
+        log.info("This class controls the microscope: " + name)
         return name
 
     def stop(self):
