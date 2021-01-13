@@ -111,7 +111,7 @@ class ImageLocationPicker(object):
         Output:
          flipped_location_list: list with (x, y) tuples after transformation
         """
-        xdim, ydim = self.image.shape
+        xdim, ydim = self.image.squeeze().shape
         flipped_location_list = []
 
         # handle single tuple as well as list of tuples
