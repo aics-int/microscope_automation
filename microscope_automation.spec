@@ -3,8 +3,7 @@
 block_cipher = None
 
 
-a = Analysis(['microscope_automation.py'],
-             pathex=['C:\\Users\\fletcher.chapin\\Documents\\Git\\microscope_automation\\microscope_automation'],
+a = Analysis(['microscope_automation\\microscope_automation.py'],
              binaries=[],
              datas=[],
              hiddenimports=[],
