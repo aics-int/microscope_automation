@@ -30,6 +30,7 @@ dev_requirements = [
     "coverage>=5.1",
     "ipython>=7.15.0",
     "pytest-runner>=5.2",
+    "pyinstaller>=4.0"
     "Sphinx>=3,<3.5",
     "sphinx_rtd_theme>=0.4.3,<0.6",
     "tox>=3.15.2",
