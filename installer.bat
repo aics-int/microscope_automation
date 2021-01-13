@@ -1,1 +1,1 @@
-pyinstaller --log-level=WARN microscope_automation.spec
+pyinstaller --log-level=WARN --noconfirm microscope_automation.spec
