@@ -83,7 +83,7 @@ class PositionWriter(object):
 
         converted_list = []
         obj_offset = [offset_x, offset_y]
-        for i in range(0, len(positions_list)):
+        for i in range(1, len(positions_list)):
             # positions_list[i][0] is name of position from automation software
             this_position = dict()
             this_position["name"] = positions_list[i][0]
