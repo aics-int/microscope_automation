@@ -16,7 +16,7 @@ from ..get_path import get_hardware_settings_path, get_experiment_path
 # create logger
 import logging
 
-logger = logging.getLogger("microscopeAutomation")
+logger = logging.getLogger(__name__.split(".")[0])
 
 
 def setup_cameras(specs, microscope):

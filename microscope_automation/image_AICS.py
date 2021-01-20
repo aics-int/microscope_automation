@@ -14,7 +14,7 @@ import os
 # create logger
 import logging
 
-logger = logging.getLogger("microscopeAutomation")
+logger = logging.getLogger(__name__.split(".")[0])
 
 
 class ImageAICS:

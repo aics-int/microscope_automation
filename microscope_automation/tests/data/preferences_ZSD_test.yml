@@ -1,6 +1,6 @@
 
 # Describes parameters for pipeline experiment to measure hIPS cells
-# Used by Python script MicroscopeAutomation.py to control different types of microscopes
+# Used by Python script microscope_automation.py to control different types of microscopes
 #
 # based on yaml specification Version 1.2
 # http://www.yaml.org/spec/1.2/spec.html
@@ -68,7 +68,7 @@ LessDialog: False                                # Set "False": All diag boxes (
 
 # Settings to initialize microscope
 InitializeMicroscope:
- FunctionName: initialize_microscope              # Name of function in Python code in module microscopeAutomation that will process this experiment
+ FunctionName: initialize_microscope              # Name of function in Python code in module microscope_automation that will process this experiment
  Verbose: False                                   # print debug messages?
  NumberTrials: 3                                  # How often a user is given the chance to set up the system in a correct way
  SetupFolders: True                               # Setup image folder
@@ -96,7 +96,7 @@ InitializeMicroscope:
  Blocking: False                                  # open modal dialog in case of error (has no effect in this experiment module)
 
 Koehler:
- FunctionName: initialize_microscope              # Name of function in Python code in module microscopeAutomation that will process this experiment
+ FunctionName: initialize_microscope              # Name of function in Python code in module microscope_automation that will process this experiment
  Verbose: False                                   # print debug messages?
  NumberTrials: 3                                  # How often a user is given the chance to set up the system in a correct way
  SetupFolders: False                              # Setup image folder
@@ -125,7 +125,7 @@ Koehler:
 
 # Settings for colonies
 AddColonies:
- FunctionName: none                               # Name of function in Python code in module microscopeAutomation that will process this experiment
+ FunctionName: none                               # Name of function in Python code in module microscope_automation that will process this experiment
  NextName: ColonyPreScan                          # name of next experiment. Objects selected during this experiment will be added to the next one.
  ColonyDirPath: *ColonyDirPathRef
  FileName: 'PipelineData_.*'                      # Regular expression to preselect file
@@ -168,7 +168,7 @@ AddColonies:
 
 # Settings to setup objectives (find offset in x, y, and z between objectives
 ObjectiveOffsets:
- FunctionName: set_objective_offset               # Name of function in Python code in module microscopeAutomation that will process this experiment
+ FunctionName: set_objective_offset               # Name of function in Python code in module microscope_automation that will process this experiment
  Verbose: False                                   # print debug messages?
  NumberTrials: 3                                  # How often a user is given the chance to set up the system in a correct way
  UseAutoFocus: True
@@ -183,7 +183,7 @@ ObjectiveOffsets:
 
 # Set z-zero positions for plate and wells
 UpdatePlateWellZero_10x:
- FunctionName: update_plate_z_zero               # Name of function in Python code in module microscopeAutomation that will process this experiment
+ FunctionName: update_plate_z_zero               # Name of function in Python code in module microscope_automation that will process this experiment
  Verbose: False                                 # print debug messages?
  NumberTrials: 3                                  # How often a user is given the chance to set up the system in a correct way
  Wait:                                            # Wait for user input after imaging and before removing image from display (has no effect in this experiment module)
@@ -202,7 +202,7 @@ UpdatePlateWellZero_10x:
  WellsBeforeAddImmersionWater: 0                # Number of wells to be imaged before water is added to objective. Water will be added before first well.
 
 UpdatePlateWellZero_20x:
- FunctionName: update_plate_z_zero               # Name of function in Python code in module microscopeAutomation that will process this experiment
+ FunctionName: update_plate_z_zero               # Name of function in Python code in module microscope_automation that will process this experiment
  Verbose: False                                 # print debug messages?
  NumberTrials: 3                                  # How often a user is given the chance to set up the system in a correct way
  Wait:                                            # Wait for user input after imaging and before removing image from display (has no effect in this experiment module)
@@ -221,7 +221,7 @@ UpdatePlateWellZero_20x:
  WellsBeforeAddImmersionWater: 0                # Number of wells to be imaged before water is added to objective. Water will be added before first well.
 
 UpdatePlateWellZero_100x:
- FunctionName: update_plate_z_zero               # Name of function in Python code in module microscopeAutomation that will process this experiment
+ FunctionName: update_plate_z_zero               # Name of function in Python code in module microscope_automation that will process this experiment
  Verbose: False                                 # print debug messages?
  NumberTrials: 3                                  # How often a user is given the chance to set up the system in a correct way
  Wait:                                            # Wait for user input after imaging and before removing image from display (has no effect in this experiment module)
@@ -241,7 +241,7 @@ UpdatePlateWellZero_100x:
 
 # Take overview images of selected wells
 ScanPlate:
- FunctionName: scan_plate                       # Name of function in Python code in module microscopeAutomation that will process this experiment
+ FunctionName: scan_plate                       # Name of function in Python code in module microscope_automation that will process this experiment
  Name: ScanPlate                                # name of experiment
 # NextName: ScanCells                            # name of next experiment. Objects selected during this experiment will be added to the next one.
  Verbose: False                                   # print debug messages?
@@ -310,7 +310,7 @@ ScanPlate:
 
 
 SegmentWells:
- FunctionName: segment_wells                       # Name of function in Python code in module microscopeAutomation that will process this experiment
+ FunctionName: segment_wells                       # Name of function in Python code in module microscope_automation that will process this experiment
  Experiment: NoExperiment
  Name: SegmentWells                                # name of experiment
  UseAutoFocus: True
@@ -337,7 +337,7 @@ SegmentWells:
 
 # Settings to scan cells
 ScanCells:
- FunctionName: scan_samples                                   # Name of function in Python code in module microscopeAutomation that will process this experiment
+ FunctionName: scan_samples                                   # Name of function in Python code in module microscope_automation that will process this experiment
  Name: CellScan                                               # name of experiment
  NextName:                                                    # name of next experiment. Objects selected during this experiment will be added to the next one.
  Verbose: False                                   # print debug messages?

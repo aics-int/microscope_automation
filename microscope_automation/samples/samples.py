@@ -38,7 +38,7 @@ from ..automation_exceptions import (
 from ..hardware import hardware_components
 
 # create logger
-logger = logging.getLogger("microscopeAutomation")
+logger = logging.getLogger(__name__.split(".")[0])
 
 ################################################################################
 #
@@ -396,7 +396,7 @@ class ImagingSystem(object):
 
         location_list: The list of coordinates to be pre plotted on the image.
 
-        app: pyqt application object initialized in microscopeAutomation.py
+        app: pyqt application object initialized in microscope_automation.py
 
         Output:
          location_list: Returns the list of colonies selected by the user
@@ -3527,7 +3527,7 @@ class Well(ImagingSystem):
 
          location_list: The list of coordinates to be pre plotted on the image.
 
-         app: pyqt application object initialized in microscopeAutomation.py
+         app: pyqt application object initialized in microscope_automation.py
 
         Output:
          location_list: Returns the list of colonies selected by the user

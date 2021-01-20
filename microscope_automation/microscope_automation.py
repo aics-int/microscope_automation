@@ -2301,7 +2301,7 @@ class MicroscopeAutomation(object):
         """ ""
         # start local logging
         error_handling.setup_logger(self.prefs)
-        logger = logging.getLogger("MicroscopeAutomation.microscope_automation")
+        logger = logging.getLogger(__name__)
         logger.info("automation protocol started")
 
         # setup microscope

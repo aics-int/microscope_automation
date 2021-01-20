@@ -8,29 +8,35 @@ Created on Jul 31, 2016
 import logging
 from .get_path import get_log_file_path
 
-logLevel = "DEBUG"
 
-
-def setup_logger(prefs, logLevel=logLevel):
+def setup_logger(prefs, log_level="DEBUG"):
     """Initialize logger. Will work over multiple modules
 
     see https://docs.python.org/2/howto/logging-cookbook.html#using-logging-in-multiple-modules"""  # noqa
 
-    # create logger with 'MicroscopeAutomation'
-    logger = logging.getLogger(__name__)
-    logger.setLevel(logging.DEBUG)
+    # create logger with 'microscope_automation'
+    logger = logging.getLogger(__name__.split(".")[0])
+
+    # if logger has any old handlers clean them up
+    for handler in logger.handlers:
+        handler.flush()
+        handler.close()
+        logger.removeHandler(handler)
+
     # create file handler which logs even debug messages
     log_file = get_log_file_path(prefs)
     fh = logging.FileHandler(log_file)
-    if logLevel == "DEBUG":
+
+    logger.setLevel(logging.DEBUG)
+    if log_level == "DEBUG":
         fh.setLevel(logging.DEBUG)
-    elif logLevel == "INFO":
+    if log_level == "INFO":
         fh.setLevel(logging.INFO)
-    elif logLevel == "WARNING":
+    elif log_level == "WARNING":
         fh.setLevel(logging.WARNING)
-    elif logLevel == "ERROR":
+    elif log_level == "ERROR":
         fh.setLevel(logging.ERROR)
-    elif logLevel == "CRITICAL":
+    elif log_level == "CRITICAL":
         fh.setLevel(logging.CRITICAL)
 
     # create console handler with a higher log level

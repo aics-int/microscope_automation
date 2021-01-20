@@ -54,7 +54,7 @@ class ImageLocationPicker(object):
          of the points selected
 
          app: QtGui application object initialized in the beginning
-         to automation software in microscopeAutomation.py
+         to automation software in microscope_automation.py
 
         Output:
          none

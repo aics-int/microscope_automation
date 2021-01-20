@@ -30,7 +30,7 @@ except ImportError:
     from ..hardware.RS232_dummy import Braintree
 
 # Create Logger
-log = logging.getLogger("microscopeAutomation connect_slidebook")
+log = logging.getLogger(__name__)
 
 
 def show_image(image, meta_data):
