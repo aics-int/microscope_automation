@@ -49,7 +49,7 @@
 <span class="c1"># create logger</span>
 <span class="kn">import</span> <span class="nn">logging</span>
 
-<span class="n">logger</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="s2">&quot;microscopeAutomation&quot;</span><span class="p">)</span>
+<span class="n">logger</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="vm">__name__</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;.&quot;</span><span class="p">)[</span><span class="mi">0</span><span class="p">])</span>
 
 
 <div class="viewcode-block" id="setup_cameras"><a class="viewcode-back" href="../../../setup_microscope.html#microscope_automation.hardware.setup_microscope.setup_cameras">[docs]</a><span class="k">def</span> <span class="nf">setup_cameras</span><span class="p">(</span><span class="n">specs</span><span class="p">,</span> <span class="n">microscope</span><span class="p">):</span>

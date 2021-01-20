@@ -71,7 +71,7 @@
 <span class="kn">from</span> <span class="nn">..hardware</span> <span class="kn">import</span> <span class="n">hardware_components</span>
 
 <span class="c1"># create logger</span>
-<span class="n">logger</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="s2">&quot;microscopeAutomation&quot;</span><span class="p">)</span>
+<span class="n">logger</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="vm">__name__</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;.&quot;</span><span class="p">)[</span><span class="mi">0</span><span class="p">])</span>
 
 <span class="c1">################################################################################</span>
 <span class="c1">#</span>
@@ -429,7 +429,7 @@
 
 <span class="sd">        location_list: The list of coordinates to be pre plotted on the image.</span>
 
-<span class="sd">        app: pyqt application object initialized in microscopeAutomation.py</span>
+<span class="sd">        app: pyqt application object initialized in microscope_automation.py</span>
 
 <span class="sd">        Output:</span>
 <span class="sd">         location_list: Returns the list of colonies selected by the user</span>
@@ -3560,7 +3560,7 @@
 
 <span class="sd">         location_list: The list of coordinates to be pre plotted on the image.</span>
 
-<span class="sd">         app: pyqt application object initialized in microscopeAutomation.py</span>
+<span class="sd">         app: pyqt application object initialized in microscope_automation.py</span>
 
 <span class="sd">        Output:</span>
 <span class="sd">         location_list: Returns the list of colonies selected by the user</span>

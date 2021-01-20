@@ -42,7 +42,7 @@
 <span class="kn">import</span> <span class="nn">logging</span>
 
 <span class="c1"># create logger</span>
-<span class="n">module_logger</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="s2">&quot;microscope_automation&quot;</span><span class="p">)</span>
+<span class="n">module_logger</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="vm">__name__</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;.&quot;</span><span class="p">)[</span><span class="mi">0</span><span class="p">])</span>
 
 
 <div class="viewcode-block" id="Preferences"><a class="viewcode-back" href="../../preferences.html#microscope_automation.preferences.Preferences">[docs]</a><span class="k">class</span> <span class="nc">Preferences</span><span class="p">:</span>
@@ -64,7 +64,7 @@
 <span class="sd">         Object of class preferences</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="c1"># setup logging</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">logger</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="s2">&quot;microscope_automation.preferences.Preferences&quot;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">logger</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="vm">__name__</span><span class="p">)</span>
 
         <span class="c1"># check for valid input</span>
         <span class="c1"># We should add checking for valid filename etc.</span>

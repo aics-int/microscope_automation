@@ -2334,7 +2334,7 @@
 <span class="sd">        &quot;&quot;&quot;</span> <span class="s2">&quot;&quot;</span>
         <span class="c1"># start local logging</span>
         <span class="n">error_handling</span><span class="o">.</span><span class="n">setup_logger</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">prefs</span><span class="p">)</span>
-        <span class="n">logger</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="s2">&quot;MicroscopeAutomation.microscope_automation&quot;</span><span class="p">)</span>
+        <span class="n">logger</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="vm">__name__</span><span class="p">)</span>
         <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;automation protocol started&quot;</span><span class="p">)</span>
 
         <span class="c1"># setup microscope</span>

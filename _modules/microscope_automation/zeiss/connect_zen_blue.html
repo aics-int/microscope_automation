@@ -59,7 +59,7 @@
     <span class="kn">from</span> <span class="nn">..hardware.RS232_dummy</span> <span class="kn">import</span> <span class="n">Braintree</span>
 
 <span class="c1"># Create Logger</span>
-<span class="n">log</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="s2">&quot;microscopeAutomation connect_zen_blue&quot;</span><span class="p">)</span>
+<span class="n">log</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="vm">__name__</span><span class="p">)</span>
 
 <span class="c1">################################################################################</span>
 <span class="c1">#</span>
@@ -177,7 +177,7 @@
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">try</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">image</span><span class="o">.</span><span class="n">Save_2</span><span class="p">(</span><span class="n">fileName</span><span class="p">)</span>
-            <span class="n">log</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;save ImageAICS to &quot;</span> <span class="o">+</span> <span class="n">fileName</span><span class="p">)</span>
+            <span class="n">log</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;save ImageAICS to </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">fileName</span><span class="p">))</span>
         <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">err</span><span class="p">:</span>
             <span class="n">log</span><span class="o">.</span><span class="n">exception</span><span class="p">(</span><span class="n">err</span><span class="p">)</span>
             <span class="k">raise</span> <span class="n">HardwareError</span><span class="p">(</span><span class="s2">&quot;Error in save_image to </span><span class="si">{}</span><span class="s2">.&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">fileName</span><span class="p">))</span></div>
@@ -218,7 +218,7 @@
 <span class="sd">        Output:</span>
 <span class="sd">         none</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="n">log</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;snap image using experiment &quot;</span><span class="p">,</span> <span class="n">experiment</span><span class="p">)</span>
+        <span class="n">log</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;snap image using experiment </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">experiment</span><span class="p">))</span>
 
         <span class="c1"># if method switches objective the stored position for definite focus is invalid</span>
         <span class="n">current_objective</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_objective_name</span><span class="p">()</span>
@@ -889,12 +889,12 @@
 <span class="sd">        Output:</span>
 <span class="sd">         z_work: current focus position in mum</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="n">zWork</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_focus_pos</span><span class="p">()</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">zWork</span> <span class="o">=</span> <span class="n">zWork</span>
+        <span class="n">z_work</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_focus_pos</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">zWork</span> <span class="o">=</span> <span class="n">z_work</span>
 
-        <span class="n">log</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Stored current focus position as work position&quot;</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="n">zWork</span><span class="p">))</span>
+        <span class="n">log</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Stored current focus position as work position&quot;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">z_work</span><span class="p">))</span>
 
-        <span class="k">return</span> <span class="n">zWork</span></div>
+        <span class="k">return</span> <span class="n">z_work</span></div>
 
 <div class="viewcode-block" id="ConnectMicroscope.set_focus_load_position"><a class="viewcode-back" href="../../../microscope_automation.zeiss.html#microscope_automation.zeiss.connect_zen_blue.ConnectMicroscope.set_focus_load_position">[docs]</a>    <span class="k">def</span> <span class="nf">set_focus_load_position</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;retrieve current position and set as load position.</span>
@@ -905,12 +905,12 @@
 <span class="sd">        Output:</span>
 <span class="sd">         zLoad: current focus position in mum</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="n">zLoad</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_focus_pos</span><span class="p">()</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">zLoad</span> <span class="o">=</span> <span class="n">zLoad</span>
+        <span class="n">z_load</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_focus_pos</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">zLoad</span> <span class="o">=</span> <span class="n">z_load</span>
 
-        <span class="n">log</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Stored current focus position as load position: </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="n">zLoad</span><span class="p">))</span>
+        <span class="n">log</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Stored current focus position as load position: &quot;</span> <span class="o">+</span> <span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">z_load</span><span class="p">)))</span>
 
-        <span class="k">return</span> <span class="n">zLoad</span></div>
+        <span class="k">return</span> <span class="n">z_load</span></div>
 
 <div class="viewcode-block" id="ConnectMicroscope.move_focus_to_load"><a class="viewcode-back" href="../../../microscope_automation.zeiss.html#microscope_automation.zeiss.connect_zen_blue.ConnectMicroscope.move_focus_to_load">[docs]</a>    <span class="k">def</span> <span class="nf">move_focus_to_load</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Move focus to load position if defined.</span>
@@ -934,7 +934,7 @@
         <span class="c1"># move to load position if defined</span>
         <span class="n">z_focus</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">move_focus_to</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">zLoad</span><span class="p">)</span>
 
-        <span class="n">log</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;moved focus to load position: </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="n">z_focus</span><span class="p">))</span>
+        <span class="n">log</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;moved focus to load position: &quot;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">z_focus</span><span class="p">))</span>
 
         <span class="k">return</span> <span class="n">z_focus</span></div>
 
@@ -955,11 +955,11 @@
             <span class="p">)</span>
 
         <span class="c1"># move to load position if defined</span>
-        <span class="n">zFocus</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">move_focus_to</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">zWork</span><span class="p">)</span>
+        <span class="n">z_focus</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">move_focus_to</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">zWork</span><span class="p">)</span>
 
-        <span class="n">log</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;moved focus to load position: </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="n">zFocus</span><span class="p">))</span>
+        <span class="n">log</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Moved focus to load position: &quot;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">z_focus</span><span class="p">))</span>
 
-        <span class="k">return</span> <span class="n">zFocus</span></div>
+        <span class="k">return</span> <span class="n">z_focus</span></div>
 
     <span class="c1">###############################################################################</span>
     <span class="c1">#</span>
@@ -1182,7 +1182,7 @@
 <span class="sd">         Microscope: name of Microscope&quot;&quot;&quot;</span>
 
         <span class="n">name</span> <span class="o">=</span> <span class="s2">&quot;get_microscope_name not implemented&quot;</span>
-        <span class="n">log</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;This class controls the microscope: </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">name</span><span class="p">)</span>
+        <span class="n">log</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;This class controls the microscope: &quot;</span> <span class="o">+</span> <span class="n">name</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">name</span></div>
 
 <div class="viewcode-block" id="ConnectMicroscope.stop"><a class="viewcode-back" href="../../../microscope_automation.zeiss.html#microscope_automation.zeiss.connect_zen_blue.ConnectMicroscope.stop">[docs]</a>    <span class="k">def</span> <span class="nf">stop</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>

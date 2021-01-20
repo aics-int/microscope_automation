@@ -53,7 +53,7 @@
 <span class="c1"># create logger</span>
 <span class="kn">import</span> <span class="nn">logging</span>
 
-<span class="n">logger</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="s2">&quot;microscope_automation&quot;</span><span class="p">)</span>
+<span class="n">logger</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="vm">__name__</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;.&quot;</span><span class="p">)[</span><span class="mi">0</span><span class="p">])</span>
 
 
 <span class="c1">###########################################################################</span>
@@ -75,9 +75,7 @@
 <span class="sd">     colonies: pandas frame with content of .csv file</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="c1"># setup logging</span>
-    <span class="n">logger</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span>  <span class="c1"># noqa</span>
-        <span class="s2">&quot;microscope_automation.samples.setup_samples.get_colony_data&quot;</span>
-    <span class="p">)</span>
+    <span class="n">logger</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="vm">__name__</span><span class="p">)</span>  <span class="c1"># noqa</span>
 
     <span class="c1">##############################</span>
     <span class="c1"># this portion will be replaces by calls to LIMS system</span>

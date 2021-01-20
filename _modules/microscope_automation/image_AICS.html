@@ -47,7 +47,7 @@
 <span class="c1"># create logger</span>
 <span class="kn">import</span> <span class="nn">logging</span>
 
-<span class="n">logger</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="s2">&quot;microscopeAutomation&quot;</span><span class="p">)</span>
+<span class="n">logger</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="vm">__name__</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;.&quot;</span><span class="p">)[</span><span class="mi">0</span><span class="p">])</span>
 
 
 <div class="viewcode-block" id="ImageAICS"><a class="viewcode-back" href="../../microscope_automation.html#microscope_automation.image_AICS.ImageAICS">[docs]</a><span class="k">class</span> <span class="nc">ImageAICS</span><span class="p">:</span>
