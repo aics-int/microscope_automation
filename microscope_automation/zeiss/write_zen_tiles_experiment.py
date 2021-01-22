@@ -144,7 +144,8 @@ class PositionWriter(object):
                 ET.SubElement(tile, "IsUsedForAcquisition").text = "true"
 
         # Write Values
-        tree.write(os.path.join(self.path, name_czsh))
+        # tree.write(os.path.join(self.path, name_czsh))
+        tree.write(to_write)
 
     def iter_all_strings(self):
         for size in itertools.count(1):
@@ -176,6 +177,8 @@ class PositionWriter(object):
                 if filename.startswith("positions_output_")
             ]
 
+        if len(prefixed) == 0:
+            return 'a'
         # Split extension from name of file
         split = prefixed[len(prefixed) - 1].split(".")
         # split filename to get letter
