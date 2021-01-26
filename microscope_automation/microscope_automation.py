@@ -117,48 +117,6 @@ VALID_FINDTYPE = [
 VALID_WELLS = [x + str(y) for x in string.ascii_uppercase[0:8] for y in range(1, 13)]
 VALID_BLOCKING = [True, False]
 
-################################################################################
-#
-# local maintenance functions
-#
-################################################################################
-
-
-def stop_script(message_text=None, allow_continue=False):
-    """Stop processing and ask to leave automation script.
-
-    Input:
-     message_text: Message to user explaining why processing should be stopped.
-
-     allow_continue: if True, allow user to continue. Default: False
-
-    Output:
-     none if user selects 'Continue', otherwise calls sys.exit()
-
-    Script will stop all Microscope action immediately and
-    ask user to stop execution of script or to continue.
-    """
-    # Microscope.stop_microscope()
-    if allow_continue:
-        if message_text is None:
-            message_text = "If you want to abort script press ok.\notherwise Continue"
-        con = message.information_message("Exit script", message_text, return_code=True)
-    else:
-        if message_text is None:
-            message_text = "Exit"
-        con = message.information_message(
-            "Exit script", message_text, return_code=False
-        )
-        con = 0
-
-    if con == 0:
-        # logger.info('User aborted operation')
-        print("User aborted operation")
-        sys.exit()
-
-
-################################################################################
-
 
 class MicroscopeAutomation(object):
     def __init__(self, prefs_path):
@@ -1548,7 +1506,7 @@ class MicroscopeAutomation(object):
             )
             with open(filename, "wb") as f:
                 pickle.dump(pickle_dict, f, pickle.HIGHEST_PROTOCOL)
-                stop_script("Interruption Occurred. Data saved!")
+                message.stop_script("Interruption Occurred. Data saved!")
 
     ################################################################################
 
@@ -1826,7 +1784,7 @@ class MicroscopeAutomation(object):
             )
             with open(filename, "w") as f:
                 pickle.dump(pickle_dict, f, pickle.HIGHEST_PROTOCOL)
-                stop_script("Interruption Occurred. Data saved!")
+                message.stop_script("Interruption Occurred. Data saved!")
         daily_folder = get_valid_path_from_prefs(
             self.prefs, "PathDailyFolder", search_dir=True
         )
@@ -2259,7 +2217,7 @@ class MicroscopeAutomation(object):
                 valid_experiment = zen_experiment.validate_experiment()
                 num_try = num_try + 1
             if valid_experiment is False:
-                stop_script(
+                message.stop_script(
                     "The Experiment "
                     + experiment_name
                     + " is not defined in the ZEN software. Exiting the software."

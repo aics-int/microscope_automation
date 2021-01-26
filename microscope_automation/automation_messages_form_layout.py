@@ -37,10 +37,6 @@ import logging
 
 logger = logging.getLogger("microscope_automation")
 
-# get function to abort program
-# from microscopeAutomation import stop_script
-# TODO: fix circular imports, current implementation has stop_script in this file
-
 
 def read_string(title, label, default, return_code=False):
     """Ask for user input and allows option to abort script.
@@ -408,20 +404,18 @@ def value_calibration_form(title, comment, default, *form_fields):
 
 
 def stop_script(message_text=None, allow_continue=False):
-    """Stop processing and ask to leave automation script.
+    """Script will stop all Microscope action immediately and
+    ask user to stop execution of script or to continue.
 
     Input:
      message_text: Message to user explaining why processing should be stopped.
 
      allow_continue: if True, allow user to continue. Default: False
 
-    Script will stop all Microscope action immediately and ask user to
-    stop execution of script or to continue.
-
-    Returns if user selects 'Continue', otherwise calls sys.exit()
+    Output:
+     none if user selects 'Continue', otherwise calls sys.exit()
     """
-
-    #     Microscope.stop_microscope()
+    # Microscope.stop_microscope()
     if allow_continue:
         if message_text is None:
             message_text = "If you want to abort script press ok.\notherwise Continue"
@@ -429,11 +423,12 @@ def stop_script(message_text=None, allow_continue=False):
     else:
         if message_text is None:
             message_text = "Exit"
-        con = information_message("Exit script", message_text, return_code=False)
+        con = information_message(
+            "Exit script", message_text, return_code=False
+        )
         con = 0
 
     if con == 0:
         # logger.info('User aborted operation')
-        print("Operation Aborted")
-        # cleanup after image displaying
-        os._exit(1)
+        print("User aborted operation")
+        sys.exit()
