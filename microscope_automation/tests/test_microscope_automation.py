@@ -36,9 +36,7 @@ DATE_STR = str(today.year) + "_" + str(today.month) + "_" + str(today.day)
 )
 def test_stop_script(mock_message, text, allow_continue, expected):
     try:
-        result = stop_script(
-            message_text=text, allow_continue=allow_continue
-        )
+        result = stop_script(message_text=text, allow_continue=allow_continue)
     except SystemExit as err:
         result = type(err).__name__
     assert result == expected
@@ -156,8 +154,7 @@ def test_read_barcode(
 
 
 @patch(
-    "microscope_automation.automation_messages_form_layout.read_string",
-    return_value=""
+    "microscope_automation.automation_messages_form_layout.read_string", return_value=""
 )
 @pytest.mark.skipif(skip_all_tests, reason="Exclude all tests")
 @pytest.mark.parametrize(
@@ -232,8 +229,7 @@ def test_calculate_all_wells_correction(
 
 
 @patch(
-    "microscope_automation.automation_messages_form_layout.read_string",
-    return_value=""
+    "microscope_automation.automation_messages_form_layout.read_string", return_value=""
 )
 @patch("microscope_automation.automation_messages_form_layout.operate_message")
 @patch("microscope_automation.hardware.hardware_components.Safety.show_safe_areas")
@@ -899,8 +895,7 @@ def test_scan_single_ROI(
 )
 @patch("microscope_automation.hardware.hardware_components.Safety.show_safe_areas")
 @patch(
-    "microscope_automation.automation_messages_form_layout.read_string",
-    return_value=""
+    "microscope_automation.automation_messages_form_layout.read_string", return_value=""
 )
 @patch("microscope_automation.automation_messages_form_layout.wait_message")
 @patch("microscope_automation.automation_messages_form_layout.information_message")
@@ -1083,8 +1078,7 @@ def test_scan_all_objects(
 
 
 @patch(
-    "microscope_automation.automation_messages_form_layout.read_string",
-    return_value=""
+    "microscope_automation.automation_messages_form_layout.read_string", return_value=""
 )
 @patch("microscope_automation.zeiss.write_zen_tiles_experiment.PositionWriter.write")
 @patch(
@@ -1466,8 +1460,7 @@ def test_scan_plate(
 
 
 @patch(
-    "microscope_automation.automation_messages_form_layout.read_string",
-    return_value=""
+    "microscope_automation.automation_messages_form_layout.read_string", return_value=""
 )
 @pytest.mark.skipif(skip_all_tests, reason="Exclude all tests")
 @pytest.mark.parametrize(
@@ -1668,8 +1661,7 @@ def test_save_segmented_image(
     "microscope_automation.microscope_automation.MicroscopeAutomation.scan_all_objects"
 )
 @patch(
-    "microscope_automation.automation_messages_form_layout.read_string",
-    return_value=""
+    "microscope_automation.automation_messages_form_layout.read_string", return_value=""
 )
 @pytest.mark.skipif(skip_all_tests, reason="Exclude all tests")
 @pytest.mark.parametrize(
