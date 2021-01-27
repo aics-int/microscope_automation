@@ -1660,7 +1660,7 @@ def test_save_segmented_image(
     "microscope_automation.orchestrator.microscope_automation.MicroscopeAutomation.update_plate_z_zero"  # noqa
 )
 @patch(
-    "microscope_automation.orchestrator.microscope_automation.MicroscopeAutomation.scan_all_objects"    # noqa
+    "microscope_automation.orchestrator.microscope_automation.MicroscopeAutomation.scan_all_objects"  # noqa
 )
 @patch(
     "microscope_automation.util.automation_messages_form_layout.read_string", return_value=""
