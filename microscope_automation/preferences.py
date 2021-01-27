@@ -98,7 +98,7 @@ class Preferences:
                 return parent_pref
             pref = read_string(
                 "Key " + name + " is not defined and there are no parent preferences",
-                label="Enter a value for" + name + ":",
+                label="Enter a value for " + name + ":",
                 default="",
                 return_code=True,
             )

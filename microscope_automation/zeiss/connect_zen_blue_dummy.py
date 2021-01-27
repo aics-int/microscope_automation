@@ -397,6 +397,7 @@ class Application(object):
 
     def RunMacro(self, macro_name):
         print(("Test mode: Running Macro: ", macro_name))
+        return 'ok'
 
     def RunMacro_2(self, macro_name, macro_params):
         print(
@@ -407,6 +408,7 @@ class Application(object):
                 + macro_params[0]
             )
         )
+        return 'ok'
 
 
 ######################################################################################

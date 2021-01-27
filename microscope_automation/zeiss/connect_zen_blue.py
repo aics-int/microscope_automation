@@ -1096,7 +1096,7 @@ class ConnectMicroscope:
                 # prompt user to fix macro_name
                 new_macro_name = read_string(
                     "Invalid Macro Name" + macro_name,
-                    label="Modify macro name:",
+                    label="Modified macro name:",
                     default=macro_name,
                     return_code=True,
                 )
