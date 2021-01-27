@@ -86,16 +86,25 @@ class Preferences:
          pref: value for key 'name' in preferences
         """
         from .automation_messages_form_layout import pull_down_select_dialog
+        from .automation_messages_form_layout import read_string
 
         if not isinstance(self.prefs, type(dict())):
             print("\n")
             print(self.prefs)
         pref = self.prefs.get(name)
         if pref is None and self.parent_prefs is not None:
-            parentPref = self.parent_prefs.get_pref(name)
-            if parentPref is not None:
-                return parentPref
-            print("Key ", name, " is not defined and there are no parent preferences")
+            parent_pref = self.parent_prefs.get_pref(name)
+            if parent_pref is not None:
+                return parent_pref
+            pref = read_string(
+                "Key " + name + " is not defined and there are no parent preferences",
+                label="Enter a value for" + name + ":",
+                default="",
+                return_code=True,
+            )
+
+            if pref == 0 or pref == "":
+                pref = None
 
         if valid_values is not None:
             if isinstance(pref, list):
