@@ -15,27 +15,27 @@ import warnings
 from collections import OrderedDict
 
 # import modules from project microscope_automation
-from ..get_path import (
+from microscope_automation.util.get_path import (
     get_images_path,
     add_suffix,
     get_well_edge_path,
 )
-from .draw_plate import draw_plate
-from .. import automation_messages_form_layout as message
-from . import find_well_center
-from . import correct_background
-from . import tile_images
-from ..load_image_czi import LoadImageCzi
-from .positions_list import CreateTilePositions
-from .interactive_location_picker_pyqtgraph import ImageLocationPicker
-from ..automation_exceptions import (
+from microscope_automation.samples.draw_plate import draw_plate
+from microscope_automation.util import automation_messages_form_layout as message
+from microscope_automation.samples import find_well_center
+from microscope_automation.samples import correct_background
+from microscope_automation.samples import tile_images
+from microscope_automation.util.load_image_czi import LoadImageCzi
+from microscope_automation.samples.positions_list import CreateTilePositions
+from microscope_automation.samples.interactive_location_picker_pyqtgraph import ImageLocationPicker  # noqa
+from microscope_automation.util.automation_exceptions import (
     ObjectiveNotDefinedError,
     FileExistsError,
     MetaDataNotSavedError,
 )
 
 # we need module hardware only for testing
-from ..hardware import hardware_components
+from microscope_automation.hardware import hardware_components
 
 # create logger
 logger = logging.getLogger(__name__.split(".")[0])
@@ -4386,7 +4386,7 @@ class Colony(ImagingSystem):
         Output:
          none
         """
-        from . import find_cells
+        from microscope_automation.samples import find_cells
 
         if image.get_data() is None:
             # TODO: Works only with Zeiss, not with 3i

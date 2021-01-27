@@ -12,8 +12,8 @@ import time
 import multiprocessing
 import psutil
 import gc
-from .samples import Cell
-from .. import automation_messages_form_layout as form
+from microscope_automation.samples.samples import Cell
+from microscope_automation.util import automation_messages_form_layout as form
 
 
 class CellFinder:

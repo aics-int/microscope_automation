@@ -17,9 +17,9 @@ import math
 import inspect
 
 # import modules from project microscope_automation
-from ..image_AICS import ImageAICS
-from .. import automation_messages_form_layout as message
-from ..automation_exceptions import (
+from microscope_automation.util.image_AICS import ImageAICS
+from microscope_automation.util import automation_messages_form_layout as message
+from microscope_automation.util.automation_exceptions import (
     ExperimentNotExistError,
     AutofocusError,
     AutofocusNotSetError,
@@ -417,27 +417,27 @@ class ControlSoftware(MicroscopeComponent):
         """
         log_method(self, "connect_to_microscope_software")
         if self.get_id() == "ZEN Blue":
-            from ..zeiss.connect_zen_blue import ConnectMicroscope
+            from microscope_automation.zeiss.connect_zen_blue import ConnectMicroscope
 
             self.connection = ConnectMicroscope()
         elif self.get_id() == "ZEN Black":
-            from ..zeiss.connect_zen_black import ConnectMicroscope
+            from microscope_automation.zeiss.connect_zen_black import ConnectMicroscope
 
             self.connection = ConnectMicroscope()
         elif self.get_id() == "Slidebook":
             # this is the only way to import modules starting with numbers
-            from ..slidebook.connect_slidebook import ConnectMicroscope
+            from microscope_automation.slidebook.connect_slidebook import ConnectMicroscope  # noqa
 
             self.connection = ConnectMicroscope()
         elif self.get_id() == "ZEN Blue Dummy":
             # create microscope Zeiss spinning disk simulation
             # Uses same module as standard Zen Blue microscope, but without dll
-            from ..zeiss.connect_zen_blue import ConnectMicroscope
+            from microscope_automation.zeiss.connect_zen_blue import ConnectMicroscope
 
             self.connection = ConnectMicroscope(connect_dll=False)
         elif self.get_id() == "Slidebook Dummy":
             # this is the only way to import modules starting with numbers
-            from ..slidebook.connect_slidebook import ConnectMicroscope
+            from microscope_automation.slidebook.connect_slidebook import ConnectMicroscope
 
             self.connection = ConnectMicroscope(dummy=True)
 

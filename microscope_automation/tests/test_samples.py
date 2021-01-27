@@ -8,9 +8,9 @@ Created on October 5, 2020
 import pytest
 import numpy as np
 from mock import patch
-from microscope_automation.image_AICS import ImageAICS
-from microscope_automation.preferences import Preferences
-from microscope_automation.meta_data_file import MetaDataFile
+from microscope_automation.util.image_AICS import ImageAICS
+from microscope_automation.settings.preferences import Preferences
+from microscope_automation.settings.meta_data_file import MetaDataFile
 from microscope_automation.samples import samples
 import os
 
@@ -2261,7 +2261,7 @@ def test_acquire_images(
 
 
 @patch(
-    "microscope_automation.automation_messages_form_layout.read_string", return_value=""
+    "microscope_automation.util.automation_messages_form_layout.read_string", return_value=""
 )
 @pytest.mark.skipif(skip_all_tests, reason="Exclude all tests")
 @pytest.mark.parametrize(
@@ -2393,7 +2393,7 @@ def test_compute_tile_positions_list(tile_params, expected, helpers):
 
 
 @patch(
-    "microscope_automation.automation_messages_form_layout.read_string", return_value=""
+    "microscope_automation.util.automation_messages_form_layout.read_string", return_value=""
 )
 @pytest.mark.skipif(skip_all_tests, reason="Exclude all tests")
 @pytest.mark.parametrize(
@@ -2541,14 +2541,14 @@ def test_get_images(
             "test_image_all_black",
             "data/preferences_ZSD_test.yml",
             "ScanPlate",
-            "<class 'microscope_automation.image_AICS.ImageAICS'>",
+            "<class 'microscope_automation.util.image_AICS.ImageAICS'>",
         ),
         (
             "plate_holder",
             "test_image_all_white",
             "data/preferences_ZSD_test.yml",
             "ScanPlate",
-            "<class 'microscope_automation.image_AICS.ImageAICS'>",
+            "<class 'microscope_automation.util.image_AICS.ImageAICS'>",
         ),
     ],
 )
@@ -2612,7 +2612,7 @@ def test_background_correction(
             ["test_image_all_black", "test_image_all_white"],
             "data/preferences_ZSD_test.yml",
             "ScanPlate",
-            ["<class 'microscope_automation.image_AICS.ImageAICS'>", [5], [5]],
+            ["<class 'microscope_automation.util.image_AICS.ImageAICS'>", [5], [5]],
         ),
     ],
 )
@@ -3043,8 +3043,8 @@ def test_trigger_pump(prefs_path, set_pump_id, func_pump_id, expected, helpers):
     assert result == expected
 
 
-@patch("microscope_automation.automation_messages_form_layout.operate_message")
-@patch("microscope_automation.automation_messages_form_layout.error_message")
+@patch("microscope_automation.util.automation_messages_form_layout.operate_message")
+@patch("microscope_automation.util.automation_messages_form_layout.error_message")
 @patch(
     "microscope_automation.zeiss.hardware_control_zeiss.SpinningDiskZeiss.recover_hardware"  # noqa
 )
@@ -4190,9 +4190,12 @@ def test_find_cells_cell_profiler(name, expected, helpers):
 @patch("psutil.Process.kill")
 @patch("microscope_automation.samples.find_cells.CellFinder.validate")
 @patch(
-    "microscope_automation.automation_messages_form_layout.read_string", return_value=""
+    "microscope_automation.util.automation_messages_form_layout.read_string",
+    return_value=""
 )
-@patch("microscope_automation.automation_messages_form_layout.pull_down_select_dialog")
+@patch(
+    "microscope_automation.util.automation_messages_form_layout.pull_down_select_dialog"
+)
 @pytest.mark.skipif(skip_all_tests, reason="Exclude all tests")
 @pytest.mark.parametrize(
     ("prefs_path, pref_name, image_name, expected"),

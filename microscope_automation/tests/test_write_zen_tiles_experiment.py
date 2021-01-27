@@ -80,7 +80,7 @@ def test_convert_to_stage_coords(sample_coords, header):
 
 
 @patch(
-    "microscope_automation.automation_messages_form_layout.read_string",
+    "microscope_automation.util.automation_messages_form_layout.read_string",
     return_value="invalid.czsh",
 )
 @pytest.mark.parametrize(

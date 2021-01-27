@@ -7,8 +7,8 @@ Created on May 25, 2020
 
 import pytest
 from mock import patch
-from microscope_automation.image_AICS import ImageAICS
-from microscope_automation.automation_exceptions import (
+from microscope_automation.util.image_AICS import ImageAICS
+from microscope_automation.util.automation_exceptions import (
     AutomationError,
     AutofocusError,
     CrashDangerError,
@@ -23,10 +23,10 @@ os.chdir(os.path.dirname(__file__))
 skip_all_tests = False
 
 
-@patch("microscope_automation.automation_exceptions.HardwareError.error_dialog")
-@patch("microscope_automation.automation_exceptions.AutofocusError.error_dialog")
-@patch("microscope_automation.automation_exceptions.CrashDangerError.error_dialog")
-@patch("microscope_automation.automation_exceptions.LoadNotDefinedError.error_dialog")
+@patch("microscope_automation.util.automation_exceptions.HardwareError.error_dialog")
+@patch("microscope_automation.util.automation_exceptions.AutofocusError.error_dialog")
+@patch("microscope_automation.util.automation_exceptions.CrashDangerError.error_dialog")
+@patch("microscope_automation.util.automation_exceptions.LoadNotDefinedError.error_dialog")
 @pytest.mark.skipif(skip_all_tests, reason="Exclude all tests")
 @pytest.mark.parametrize(
     "prefs_path, error, expected",
@@ -1080,7 +1080,7 @@ def test_move_to_abs_pos(
     assert result == expected
 
 
-@patch("microscope_automation.automation_messages_form_layout.read_string")
+@patch("microscope_automation.util.automation_messages_form_layout.read_string")
 @patch("microscope_automation.zeiss.connect_zen_blue_dummy.Application.RunMacro_2")
 @patch("microscope_automation.zeiss.connect_zen_blue_dummy.Application.RunMacro")
 @pytest.mark.skipif(skip_all_tests, reason="Exclude all tests")

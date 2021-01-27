@@ -12,7 +12,7 @@ labels: "Docs, Needs Triage"
 ---
 
 ## Location of Documentation
-*This should provide the location of the documentation, e.g. "microscope_automation.preferences" or the URL of the documentation, e.g. "https://aics-int.github.io/microscope_automation/preferences.html"*
+*This should provide the location of the documentation, e.g. "microscope_automation.settings.preferences" or the URL of the documentation, e.g. "https://aics-int.github.io/microscope_automation/preferences.html"*
 
 ## Documentation Problem
 *This should provide a description of what documentation you believe needs to be fixed/improved*

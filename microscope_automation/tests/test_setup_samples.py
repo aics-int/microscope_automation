@@ -7,7 +7,7 @@ Created on Nov 16, 2020
 
 import pytest
 from mock import patch
-from microscope_automation.preferences import Preferences
+from microscope_automation.settings.preferences import Preferences
 from microscope_automation.samples import samples
 import microscope_automation.samples.setup_samples as setup
 import pandas
@@ -40,7 +40,7 @@ def add_colonies_input():
     return result
 
 
-@patch("microscope_automation.automation_messages_form_layout.pull_down_select_dialog")
+@patch("microscope_automation.util.automation_messages_form_layout.pull_down_select_dialog")
 @pytest.mark.skipif(skip_all_tests, reason="Exclude all tests")
 @pytest.mark.parametrize(
     "prefs_path, colony_file, expected_plate, expected_name",
@@ -104,10 +104,11 @@ def test_add_barcode(name, layout_path, helpers):
 
 
 @patch(
-    "microscope_automation.automation_messages_form_layout.read_string", return_value=""
+    "microscope_automation.util.automation_messages_form_layout.read_string",
+    return_value=""
 )
 @patch(
-    "microscope_automation.automation_messages_form_layout.pull_down_select_dialog",
+    "microscope_automation.util.automation_messages_form_layout.pull_down_select_dialog",  # noqa
     return_value="3500000938",
 )
 @pytest.mark.skipif(skip_all_tests, reason="Exclude all tests")

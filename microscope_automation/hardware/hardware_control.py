@@ -8,7 +8,7 @@ Split into hardware_control and hardware_components on May 25, 2020
 """
 
 import collections
-from ..automation_exceptions import (
+from microscope_automation.util.automation_exceptions import (
     HardwareError,
     AutofocusError,
     HardwareCommandNotDefinedError,
@@ -16,7 +16,7 @@ from ..automation_exceptions import (
     LoadNotDefinedError,
     CrashDangerError,
 )
-from . import hardware_components
+from microscope_automation.hardware import hardware_components
 
 # setup logging
 import logging

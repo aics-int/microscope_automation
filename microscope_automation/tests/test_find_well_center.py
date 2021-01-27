@@ -8,7 +8,7 @@ Created on Nov 24, 2020
 import os
 import pytest
 from mock import patch
-from microscope_automation.image_AICS import ImageAICS
+from microscope_automation.util.image_AICS import ImageAICS
 from microscope_automation.samples import find_well_center
 
 os.chdir(os.path.dirname(__file__))

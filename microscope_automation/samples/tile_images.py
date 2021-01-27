@@ -1,5 +1,5 @@
 import numpy as np
-from ..image_AICS import ImageAICS
+from microscope_automation.util.image_AICS import ImageAICS
 import os
 import logging
 

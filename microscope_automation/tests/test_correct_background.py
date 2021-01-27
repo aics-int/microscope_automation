@@ -8,7 +8,7 @@ Created on Nov 17, 2020
 import os
 import pytest
 import numpy as np
-from microscope_automation.image_AICS import ImageAICS
+from microscope_automation.util.image_AICS import ImageAICS
 from microscope_automation.samples import correct_background
 
 os.chdir(os.path.dirname(__file__))

@@ -306,7 +306,7 @@ def test_ImageLocationPicker(prefs, image_save_path, app, verbose=False):
      None
     """
     # setup microscope
-    from . import setup_samples
+    from microscope_automation.samples import setup_samples
 
     microscope_object = setup_samples.setup_microscope(prefs)
 
@@ -363,7 +363,7 @@ def test_offline():
 def test_online():
     # import modules used only for testing
     import argparse
-    from ..preferences import Preferences
+    from microscope_automation.settings.preferences import Preferences
     import pyqtgraph
     from pyqtgraph.Qt import QtGui
 
