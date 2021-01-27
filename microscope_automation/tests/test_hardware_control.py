@@ -1080,16 +1080,64 @@ def test_move_to_abs_pos(
     assert result == expected
 
 
+@patch("microscope_automation.automation_messages_form_layout.read_string")
+@patch("microscope_automation.zeiss.connect_zen_blue_dummy.Application.RunMacro_2")
+@patch("microscope_automation.zeiss.connect_zen_blue_dummy.Application.RunMacro")
 @pytest.mark.skipif(skip_all_tests, reason="Exclude all tests")
 @pytest.mark.parametrize(
-    ("prefs_path, macro_name, macro_param, expected"),
-    [("data/preferences_ZSD_test.yml", None, None, None)],
+    ("prefs_path, macro_name, macro_param, run_result, "
+     "read_string_result, expected"),
+    [
+        (
+            "data/preferences_ZSD_test.yml",
+            "10x_stitch",
+            None,
+            (
+                "C:\\Users\\winfriedw\\Documents\\Carl Zeiss\\ZEN\\Documents\\Macros\\"
+                "10x_stitch.czmac(6):Could not find a part of the path 'D:\\Production"
+                "\\3500003095\\ZSD1\\10XwellScan\\TapeOnly'."
+            ),
+            "10x_stitch",
+            "AutomationError",
+        ),
+        (
+            "data/preferences_ZSD_test.yml",
+            "10x_stitch",
+            None,
+            (
+                "C:\\Users\\winfriedw\\Documents\\Carl Zeiss\\ZEN\\Documents\\Macros\\"
+                "10x_stitch.czmac(6):Could not find a part of the path 'D:\\Production"
+                "\\3500003095\\ZSD1\\10XwellScan\\TapeOnly'."
+            ),
+            0,
+            "AutomationError",
+        ),
+        ("data/preferences_ZSD_test.yml", "test", None, "ok", None, None),
+        ("data/preferences_ZSD_test.yml", "test", ["test_param"], "ok", None, None),
+    ],
 )
-def test_run_macro(prefs_path, macro_name, macro_param, expected, helpers):
+def test_run_macro(
+    mock_run,
+    mock_run_2,
+    mock_read_string,
+    prefs_path,
+    macro_name,
+    macro_param,
+    run_result,
+    read_string_result,
+    expected,
+    helpers,
+):
+    mock_run.return_value = run_result
+    mock_run_2.return_value = run_result
+    mock_read_string.return_value = read_string_result
+
     microscope = helpers.setup_local_microscope(prefs_path)
 
-    result = microscope.run_macro(macro_name, macro_param)
-
+    try:
+        result = microscope.run_macro(macro_name, macro_param)
+    except Exception as err:
+        result = type(err).__name__
     assert result == expected
 
 

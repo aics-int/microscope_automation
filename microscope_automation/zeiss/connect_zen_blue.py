@@ -7,7 +7,7 @@ import time
 import os.path
 import logging
 from serial.serialutil import SerialException
-from ..automation_messages_form_layout import read_string
+from .. import automation_messages_form_layout as message
 from ..load_image_czi import LoadImageCzi
 from ..automation_exceptions import (
     AutomationError,
@@ -1094,8 +1094,9 @@ class ConnectMicroscope:
             # if only one trial don't give the user a chance to recover
             if trials > 1:
                 # prompt user to fix macro_name
-                new_macro_name = read_string(
-                    "Invalid Macro Name" + macro_name,
+                # print(macro_name)
+                new_macro_name = message.read_string(
+                    "Invalid Macro Name: " + macro_name,
                     label="Modified macro name:",
                     default=macro_name,
                     return_code=True,

@@ -423,9 +423,7 @@ def stop_script(message_text=None, allow_continue=False):
     else:
         if message_text is None:
             message_text = "Exit"
-        con = information_message(
-            "Exit script", message_text, return_code=False
-        )
+        con = information_message("Exit script", message_text, return_code=False)
         con = 0
 
     if con == 0:

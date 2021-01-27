@@ -1935,7 +1935,7 @@ class MicroscopeAutomation(object):
         param_list = imaging_settings.get_pref("MacroParams")
 
         # Check for no params passed in preferences file
-        # No param key, empty string,   empty list
+        # No param key, empty string, empty list
         if not param_list:
             plate_holder_object.microscope.run_macro(macro_name)
             return
