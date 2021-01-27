@@ -445,7 +445,7 @@ def test_set_up_koehler(
 
 @patch("microscope_automation.util.automation_messages_form_layout.file_select_dialog")
 @patch(
-    "microscope_automation.orchestrator.microscope_automation.MicroscopeAutomation.set_up_koehler"
+    "microscope_automation.orchestrator.microscope_automation.MicroscopeAutomation.set_up_koehler"  # noqa
 )
 @patch("microscope_automation.util.automation_messages_form_layout.operate_message")
 @pytest.mark.skipif(skip_all_tests, reason="Exclude all tests")
@@ -1660,7 +1660,7 @@ def test_save_segmented_image(
     "microscope_automation.orchestrator.microscope_automation.MicroscopeAutomation.update_plate_z_zero"  # noqa
 )
 @patch(
-    "microscope_automation.orchestrator.microscope_automation.MicroscopeAutomation.scan_all_objects"
+    "microscope_automation.orchestrator.microscope_automation.MicroscopeAutomation.scan_all_objects"    # noqa
 )
 @patch(
     "microscope_automation.util.automation_messages_form_layout.read_string", return_value=""
@@ -1956,7 +1956,9 @@ def test_control_autofocus(
 @patch("microscope_automation.util.automation_messages_form_layout.check_box_message")
 @patch("microscope_automation.util.automation_messages_form_layout.information_message")
 @patch("microscope_automation.util.automation_messages_form_layout.operate_message")
-@patch("microscope_automation.util.automation_messages_form_layout.pull_down_select_dialog")
+@patch(
+    "microscope_automation.util.automation_messages_form_layout.pull_down_select_dialog"
+)
 @patch("microscope_automation.util.automation_messages_form_layout.file_select_dialog")
 @pytest.mark.skipif(skip_all_tests, reason="Exclude all tests")
 @pytest.mark.parametrize(

@@ -2261,7 +2261,8 @@ def test_acquire_images(
 
 
 @patch(
-    "microscope_automation.util.automation_messages_form_layout.read_string", return_value=""
+    "microscope_automation.util.automation_messages_form_layout.read_string",
+    return_value=""
 )
 @pytest.mark.skipif(skip_all_tests, reason="Exclude all tests")
 @pytest.mark.parametrize(

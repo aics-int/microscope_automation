@@ -10,7 +10,9 @@ import numpy as np
 import skimage
 
 # Import the resource/controllers we're testing
-from microscope_automation.util.automation_exceptions import HardwareCommandNotDefinedError
+from microscope_automation.util.automation_exceptions import (
+    HardwareCommandNotDefinedError,
+)
 from microscope_automation.util.image_AICS import ImageAICS
 from microscope_automation.slidebook.connect_slidebook import ConnectMicroscope
 

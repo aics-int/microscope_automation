@@ -63,7 +63,9 @@ class ConnectMicroscope:
         # setup logging
         # Import the ZEN OAD Scripting into Python
         if not connect_dll:
-            from microscope_automation.zeiss import connect_zen_blue_dummy as microscopeConnection  # noqa
+            from microscope_automation.zeiss import (
+                connect_zen_blue_dummy as microscopeConnection,
+            )  # noqa
 
             print("Running in Test Mode - Connecting to Simulated hardware")
         else:
@@ -72,7 +74,9 @@ class ConnectMicroscope:
 
                 print("Connected to microscope hardware - Zen Blue")
             except ImportError:
-                from microscope_automation.zeiss import connect_zen_blue_dummy as microscopeConnection  # noqa
+                from microscope_automation.zeiss import (
+                    connect_zen_blue_dummy as microscopeConnection,
+                )  # noqa
                 from microscope_automation.hardware.RS232_dummy import Braintree  # noqa
 
                 print(

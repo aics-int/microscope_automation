@@ -26,7 +26,9 @@ skip_all_tests = False
 @patch("microscope_automation.util.automation_exceptions.HardwareError.error_dialog")
 @patch("microscope_automation.util.automation_exceptions.AutofocusError.error_dialog")
 @patch("microscope_automation.util.automation_exceptions.CrashDangerError.error_dialog")
-@patch("microscope_automation.util.automation_exceptions.LoadNotDefinedError.error_dialog")
+@patch(
+    "microscope_automation.util.automation_exceptions.LoadNotDefinedError.error_dialog"
+)
 @pytest.mark.skipif(skip_all_tests, reason="Exclude all tests")
 @pytest.mark.parametrize(
     "prefs_path, error, expected",

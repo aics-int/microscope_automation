@@ -426,7 +426,9 @@ class ControlSoftware(MicroscopeComponent):
             self.connection = ConnectMicroscope()
         elif self.get_id() == "Slidebook":
             # this is the only way to import modules starting with numbers
-            from microscope_automation.slidebook.connect_slidebook import ConnectMicroscope  # noqa
+            from microscope_automation.slidebook.connect_slidebook import (
+                ConnectMicroscope,
+            )  # noqa
 
             self.connection = ConnectMicroscope()
         elif self.get_id() == "ZEN Blue Dummy":
@@ -437,7 +439,9 @@ class ControlSoftware(MicroscopeComponent):
             self.connection = ConnectMicroscope(connect_dll=False)
         elif self.get_id() == "Slidebook Dummy":
             # this is the only way to import modules starting with numbers
-            from microscope_automation.slidebook.connect_slidebook import ConnectMicroscope
+            from microscope_automation.slidebook.connect_slidebook import (
+                ConnectMicroscope,
+            )
 
             self.connection = ConnectMicroscope(dummy=True)
 

@@ -27,7 +27,9 @@ from microscope_automation.samples import correct_background
 from microscope_automation.samples import tile_images
 from microscope_automation.util.load_image_czi import LoadImageCzi
 from microscope_automation.samples.positions_list import CreateTilePositions
-from microscope_automation.samples.interactive_location_picker_pyqtgraph import ImageLocationPicker  # noqa
+from microscope_automation.samples.interactive_location_picker_pyqtgraph import (
+    ImageLocationPicker,
+)  # noqa
 from microscope_automation.util.automation_exceptions import (
     ObjectiveNotDefinedError,
     FileExistsError,
