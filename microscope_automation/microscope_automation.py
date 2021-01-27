@@ -359,7 +359,7 @@ class MicroscopeAutomation(object):
 
         # move away from delivery system to avoid later collisions
         immersion_delivery.move_to_safe()
-        magnification = prefs.get_pref("MaginificationImmersionSystem")
+        magnification = prefs.get_pref("MagnificationImmersionSystem")
         immersion_delivery.magnification = magnification
 
     ################################################################################

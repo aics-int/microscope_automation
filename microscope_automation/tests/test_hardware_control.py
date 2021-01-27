@@ -1085,8 +1085,10 @@ def test_move_to_abs_pos(
 @patch("microscope_automation.zeiss.connect_zen_blue_dummy.Application.RunMacro")
 @pytest.mark.skipif(skip_all_tests, reason="Exclude all tests")
 @pytest.mark.parametrize(
-    ("prefs_path, macro_name, macro_param, run_result, "
-     "read_string_result, expected"),
+    (
+        "prefs_path, macro_name, macro_param, run_result, "
+        "read_string_result, expected"
+    ),
     [
         (
             "data/preferences_ZSD_test.yml",
