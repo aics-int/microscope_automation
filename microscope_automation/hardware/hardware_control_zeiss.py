@@ -15,8 +15,8 @@ import collections
 from microscope_automation.util import automation_messages_form_layout as message
 from microscope_automation.hardware.hardware_control import BaseMicroscope
 from microscope_automation.hardware import hardware_components
-from microscope_automation.zeiss import test_zen_experiment
-from microscope_automation.zeiss import zen_experiment_info
+from microscope_automation.settings import test_zen_experiment
+from microscope_automation.settings import zen_experiment_info
 from microscope_automation.util.automation_exceptions import (
     HardwareError,
     AutofocusError,

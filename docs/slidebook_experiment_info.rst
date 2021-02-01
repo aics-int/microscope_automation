@@ -14,5 +14,5 @@ SlideBook software. This allows for reading and editing experiment files.
 class SlidebookExperiment(object)
 =================================
 
-.. autoclass:: microscope_automation.slidebook.slidebook_experiment_info.SlidebookExperiment
+.. autoclass:: microscope_automation.settings.slidebook_experiment_info.SlidebookExperiment
     :members:

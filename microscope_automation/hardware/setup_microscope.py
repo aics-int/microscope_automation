@@ -8,8 +8,8 @@ Split into it's own module: May 21, 2020
 
 from microscope_automation.hardware import hardware_components
 from microscope_automation.settings import preferences
-from microscope_automation.zeiss.hardware_control_zeiss import SpinningDiskZeiss
-from microscope_automation.slidebook.hardware_control_3i import SpinningDisk3i
+from microscope_automation.hardware.hardware_control_zeiss import SpinningDiskZeiss
+from microscope_automation.hardware.hardware_control_3i import SpinningDisk3i
 from microscope_automation.util import automation_exceptions as ae
 from microscope_automation.util.get_path import (
     get_hardware_settings_path,

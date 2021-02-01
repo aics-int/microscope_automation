@@ -19,7 +19,7 @@ from microscope_automation.util.automation_exceptions import (
     ExperimentError,
     ExperimentNotExistError,
 )
-from microscope_automation.zeiss.zen_experiment_info import ZenExperiment
+from microscope_automation.settings.zen_experiment_info import ZenExperiment
 
 try:
     from microscope_automation.hardware.RS232 import Braintree
@@ -63,7 +63,7 @@ class ConnectMicroscope:
         # setup logging
         # Import the ZEN OAD Scripting into Python
         if not connect_dll:
-            from microscope_automation.zeiss import (
+            from microscope_automation.connectors import (
                 connect_zen_blue_dummy as microscopeConnection,
             )  # noqa
 
@@ -74,7 +74,7 @@ class ConnectMicroscope:
 
                 print("Connected to microscope hardware - Zen Blue")
             except ImportError:
-                from microscope_automation.zeiss import (
+                from microscope_automation.connectors import (
                     connect_zen_blue_dummy as microscopeConnection,
                 )  # noqa
                 from microscope_automation.hardware.RS232_dummy import Braintree  # noqa

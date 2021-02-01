@@ -114,5 +114,5 @@ class ConnectMicroscope()
 =========================
 Class to control 3i hardware through SlideBook software.
 
-.. autoclass:: microscope_automation.slidebook.connect_slidebook.ConnectMicroscope
+.. autoclass:: microscope_automation.connectors.connect_slidebook.ConnectMicroscope
     :members:

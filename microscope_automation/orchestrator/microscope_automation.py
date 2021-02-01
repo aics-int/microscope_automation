@@ -57,7 +57,7 @@ from microscope_automation.orchestrator.find_positions import (
     create_output_objects_from_parent_object,
     convert_location_list,
 )
-from microscope_automation.zeiss.write_zen_tiles_experiment import PositionWriter
+from microscope_automation.orchestrator.write_zen_tiles_experiment import PositionWriter
 from microscope_automation.util.image_AICS import ImageAICS
 from microscope_automation.samples.well_segmentation_refined import WellSegmentation
 

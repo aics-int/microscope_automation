@@ -73,11 +73,11 @@ The :ref:`hardware_control_3i_SpinningDisk3i` uses objects from
 
 The most important methods are:
 
-.. autofunction:: microscope_automation.slidebook.hardware_control_3i.SpinningDisk3i.add_control_software
-.. autofunction:: microscope_automation.slidebook.hardware_control_3i.SpinningDisk3i.add_microscope_object
-.. autofunction:: microscope_automation.slidebook.hardware_control_3i.SpinningDisk3i.create_experiment_path
-.. autofunction:: microscope_automation.slidebook.hardware_control_3i.SpinningDisk3i.execute_experiment
-.. autofunction:: microscope_automation.slidebook.hardware_control_3i.SpinningDisk3i.load_image
-.. autofunction:: microscope_automation.slidebook.hardware_control_3i.SpinningDisk3i.move_to_abs_pos
-.. autofunction:: microscope_automation.slidebook.hardware_control_3i.SpinningDisk3i.remove_images
-.. autofunction:: microscope_automation.slidebook.hardware_control_3i.SpinningDisk3i.stop_microscope
+.. autofunction:: microscope_automation.hardware.hardware_control_3i.SpinningDisk3i.add_control_software
+.. autofunction:: microscope_automation.hardware.hardware_control_3i.SpinningDisk3i.add_microscope_object
+.. autofunction:: microscope_automation.hardware.hardware_control_3i.SpinningDisk3i.create_experiment_path
+.. autofunction:: microscope_automation.hardware.hardware_control_3i.SpinningDisk3i.execute_experiment
+.. autofunction:: microscope_automation.hardware.hardware_control_3i.SpinningDisk3i.load_image
+.. autofunction:: microscope_automation.hardware.hardware_control_3i.SpinningDisk3i.move_to_abs_pos
+.. autofunction:: microscope_automation.hardware.hardware_control_3i.SpinningDisk3i.remove_images
+.. autofunction:: microscope_automation.hardware.hardware_control_3i.SpinningDisk3i.stop_microscope

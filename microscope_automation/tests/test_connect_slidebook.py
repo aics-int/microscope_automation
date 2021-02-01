@@ -14,7 +14,7 @@ from microscope_automation.util.automation_exceptions import (
     HardwareCommandNotDefinedError,
 )
 from microscope_automation.util.image_AICS import ImageAICS
-from microscope_automation.slidebook.connect_slidebook import ConnectMicroscope
+from microscope_automation.connectors.connect_slidebook import ConnectMicroscope
 
 
 # Set to True if you want to skip all tests, e.g. when developing a new function

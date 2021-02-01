@@ -16,7 +16,7 @@ class SlidebookExperiment(object):
         Initializing the experiment class
 
         Input:
-         experiment_name: Name of the experiment as defined in the Zen software
+         experiment_name: Name of the experiment as defined in the Slidebook software
          & preference file
 
          prefs: the preference file for the workflow

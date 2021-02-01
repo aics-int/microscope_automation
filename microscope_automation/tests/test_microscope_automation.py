@@ -318,7 +318,7 @@ def test_setup_immersion_system(
 
 @patch("microscope_automation.util.automation_messages_form_layout.operate_message")
 @patch(
-    "microscope_automation.zeiss.connect_zen_blue.ConnectMicroscope.get_all_objectives"
+    "microscope_automation.connectors.connect_zen_blue.ConnectMicroscope.get_all_objectives"
 )
 @pytest.mark.skipif(skip_all_tests, reason="Exclude all tests")
 @pytest.mark.parametrize(
@@ -585,14 +585,14 @@ def test_update_plate_z_zero(
 
 
 @patch("microscope_automation.samples.samples.Well.find_well_center_fine")
-@patch("microscope_automation.zeiss.connect_zen_blue.ConnectMicroscope.load_image")
-@patch("microscope_automation.zeiss.connect_zen_blue.ConnectMicroscope.save_image")
+@patch("microscope_automation.connectors.connect_zen_blue.ConnectMicroscope.load_image")
+@patch("microscope_automation.connectors.connect_zen_blue.ConnectMicroscope.save_image")
 @patch(
-    "microscope_automation.zeiss.connect_zen_blue.ConnectMicroscope.close_experiment"
+    "microscope_automation.connectors.connect_zen_blue.ConnectMicroscope.close_experiment"
 )
 @patch("microscope_automation.util.automation_messages_form_layout.operate_message")
 @patch(
-    "microscope_automation.zeiss.hardware_control_zeiss.SpinningDiskZeiss.reference_position"  # noqa
+    "microscope_automation.hardware.hardware_control_zeiss.SpinningDiskZeiss.reference_position"  # noqa
 )
 @pytest.mark.skipif(skip_all_tests, reason="Exclude all tests")
 @pytest.mark.parametrize(
@@ -677,9 +677,9 @@ def test_calculate_plate_correction(
 
 
 @patch("microscope_automation.hardware.hardware_components.Safety.show_safe_areas")
-@patch("microscope_automation.zeiss.connect_zen_blue.ConnectMicroscope.save_image")
+@patch("microscope_automation.connectors.connect_zen_blue.ConnectMicroscope.save_image")
 @patch(
-    "microscope_automation.zeiss.connect_zen_blue.ConnectMicroscope.close_experiment"
+    "microscope_automation.connectors.connect_zen_blue.ConnectMicroscope.close_experiment"
 )
 @patch("microscope_automation.util.automation_messages_form_layout.operate_message")
 @pytest.mark.skipif(skip_all_tests, reason="Exclude all tests")
@@ -755,7 +755,7 @@ def test_scan_wells_zero(
 
 
 @patch(
-    "microscope_automation.zeiss.connect_zen_blue.ConnectMicroscope.close_experiment"
+    "microscope_automation.connectors.connect_zen_blue.ConnectMicroscope.close_experiment"
 )
 @patch("microscope_automation.hardware.hardware_components.Safety.show_safe_areas")
 @patch("microscope_automation.util.automation_messages_form_layout.operate_message")
@@ -889,10 +889,10 @@ def test_scan_single_ROI(
         assert result == expected
 
 
-@patch("microscope_automation.zeiss.connect_zen_blue.ConnectMicroscope.load_image")
-@patch("microscope_automation.zeiss.connect_zen_blue.ConnectMicroscope.save_image")
+@patch("microscope_automation.connectors.connect_zen_blue.ConnectMicroscope.load_image")
+@patch("microscope_automation.connectors.connect_zen_blue.ConnectMicroscope.save_image")
 @patch(
-    "microscope_automation.zeiss.connect_zen_blue.ConnectMicroscope.close_experiment"
+    "microscope_automation.connectors.connect_zen_blue.ConnectMicroscope.close_experiment"
 )
 @patch("microscope_automation.hardware.hardware_components.Safety.show_safe_areas")
 @patch(
@@ -1082,9 +1082,11 @@ def test_scan_all_objects(
 @patch(
     "microscope_automation.util.automation_messages_form_layout.read_string", return_value=""
 )
-@patch("microscope_automation.zeiss.write_zen_tiles_experiment.PositionWriter.write")
 @patch(
-    "microscope_automation.zeiss.write_zen_tiles_experiment.PositionWriter.convert_to_stage_coords"  # noqa
+    "microscope_automation.orchestrator.write_zen_tiles_experiment.PositionWriter.write"
+)
+@patch(
+    "microscope_automation.orchestrator.write_zen_tiles_experiment.PositionWriter.convert_to_stage_coords"  # noqa
 )
 @pytest.mark.skipif(skip_all_tests, reason="Exclude all tests")
 @pytest.mark.parametrize(
@@ -1287,10 +1289,10 @@ def test_get_objective_offsets(prefs_path, magnification, expected, helpers):
     assert result == expected
 
 
-@patch("microscope_automation.zeiss.connect_zen_blue.ConnectMicroscope.load_image")
-@patch("microscope_automation.zeiss.connect_zen_blue.ConnectMicroscope.save_image")
+@patch("microscope_automation.connectors.connect_zen_blue.ConnectMicroscope.load_image")
+@patch("microscope_automation.connectors.connect_zen_blue.ConnectMicroscope.save_image")
 @patch(
-    "microscope_automation.zeiss.connect_zen_blue.ConnectMicroscope.close_experiment"
+    "microscope_automation.connectors.connect_zen_blue.ConnectMicroscope.close_experiment"
 )
 @patch("microscope_automation.hardware.hardware_components.Safety.show_safe_areas")
 @patch("microscope_automation.util.automation_messages_form_layout.wait_message")
@@ -1570,7 +1572,7 @@ def test_recover_previous_settings(prefs_path, experiment, expected, helpers):
 
 @patch("matplotlib.image.imsave")
 @patch(
-    "microscope_automation.zeiss.connect_zen_blue.ConnectMicroscope.get_objective_name"
+    "microscope_automation.connectors.connect_zen_blue.ConnectMicroscope.get_objective_name"
 )
 @pytest.mark.skipif(skip_all_tests, reason="Exclude all tests")
 @pytest.mark.parametrize(

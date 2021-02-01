@@ -21,9 +21,9 @@ from microscope_automation.util.automation_exceptions import (
     HardwareCommandNotDefinedError,
     ExperimentNotExistError,
 )
-from microscope_automation.slidebook.slidebook_experiment_info import (
+from microscope_automation.settings.slidebook_experiment_info import (
     SlidebookExperiment,
-)  # noqa
+)
 from microscope_automation.util.image_AICS import ImageAICS
 
 try:

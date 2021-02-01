@@ -44,20 +44,20 @@ file.
 Most of the methods described below take this "experiment" name as input.
 The most important methods are:
 
-.. autofunction:: microscope_automation.zeiss.hardware_control_zeiss.SpinningDiskZeiss.add_control_software
-.. autofunction:: microscope_automation.zeiss.hardware_control_zeiss.SpinningDiskZeiss.add_microscope_object
-.. autofunction:: microscope_automation.zeiss.hardware_control_zeiss.SpinningDiskZeiss.change_objective
-.. autofunction:: microscope_automation.zeiss.hardware_control_zeiss.SpinningDiskZeiss.create_experiment_path
-.. autofunction:: microscope_automation.zeiss.hardware_control_zeiss.SpinningDiskZeiss.execute_experiment
-.. autofunction:: microscope_automation.zeiss.hardware_control_zeiss.SpinningDiskZeiss.get_information
-.. autofunction:: microscope_automation.zeiss.hardware_control_zeiss.SpinningDiskZeiss.get_objective_is_ready
-.. autofunction:: microscope_automation.zeiss.hardware_control_zeiss.SpinningDiskZeiss.initialize_hardware
-.. autofunction:: microscope_automation.zeiss.hardware_control_zeiss.SpinningDiskZeiss.live_mode
-.. autofunction:: microscope_automation.zeiss.hardware_control_zeiss.SpinningDiskZeiss.load_image
-.. autofunction:: microscope_automation.zeiss.hardware_control_zeiss.SpinningDiskZeiss.microscope_is_ready
-.. autofunction:: microscope_automation.zeiss.hardware_control_zeiss.SpinningDiskZeiss.move_to_abs_pos
-.. autofunction:: microscope_automation.zeiss.hardware_control_zeiss.SpinningDiskZeiss.remove_images
-.. autofunction:: microscope_automation.zeiss.hardware_control_zeiss.SpinningDiskZeiss.run_macro
-.. autofunction:: microscope_automation.zeiss.hardware_control_zeiss.SpinningDiskZeiss.save_image
-.. autofunction:: microscope_automation.zeiss.hardware_control_zeiss.SpinningDiskZeiss.set_microscope
-.. autofunction:: microscope_automation.zeiss.hardware_control_zeiss.SpinningDiskZeiss.stop_microscope
+.. autofunction:: microscope_automation.hardware.hardware_control_zeiss.SpinningDiskZeiss.add_control_software
+.. autofunction:: microscope_automation.hardware.hardware_control_zeiss.SpinningDiskZeiss.add_microscope_object
+.. autofunction:: microscope_automation.hardware.hardware_control_zeiss.SpinningDiskZeiss.change_objective
+.. autofunction:: microscope_automation.hardware.hardware_control_zeiss.SpinningDiskZeiss.create_experiment_path
+.. autofunction:: microscope_automation.hardware.hardware_control_zeiss.SpinningDiskZeiss.execute_experiment
+.. autofunction:: microscope_automation.hardware.hardware_control_zeiss.SpinningDiskZeiss.get_information
+.. autofunction:: microscope_automation.hardware.hardware_control_zeiss.SpinningDiskZeiss.get_objective_is_ready
+.. autofunction:: microscope_automation.hardware.hardware_control_zeiss.SpinningDiskZeiss.initialize_hardware
+.. autofunction:: microscope_automation.hardware.hardware_control_zeiss.SpinningDiskZeiss.live_mode
+.. autofunction:: microscope_automation.hardware.hardware_control_zeiss.SpinningDiskZeiss.load_image
+.. autofunction:: microscope_automation.hardware.hardware_control_zeiss.SpinningDiskZeiss.microscope_is_ready
+.. autofunction:: microscope_automation.hardware.hardware_control_zeiss.SpinningDiskZeiss.move_to_abs_pos
+.. autofunction:: microscope_automation.hardware.hardware_control_zeiss.SpinningDiskZeiss.remove_images
+.. autofunction:: microscope_automation.hardware.hardware_control_zeiss.SpinningDiskZeiss.run_macro
+.. autofunction:: microscope_automation.hardware.hardware_control_zeiss.SpinningDiskZeiss.save_image
+.. autofunction:: microscope_automation.hardware.hardware_control_zeiss.SpinningDiskZeiss.set_microscope
+.. autofunction:: microscope_automation.hardware.hardware_control_zeiss.SpinningDiskZeiss.stop_microscope

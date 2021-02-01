@@ -13,5 +13,5 @@ whose methods convert positions to stage coordinates and save the results.
 class PositionWriter(object)
 ============================
 
-.. autoclass:: microscope_automation.zeiss.write_zen_tiles_experiment.PositionWriter
+.. autoclass:: microscope_automation.orchestrator.write_zen_tiles_experiment.PositionWriter
     :members:

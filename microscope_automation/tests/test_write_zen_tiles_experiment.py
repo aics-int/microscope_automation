@@ -1,7 +1,7 @@
 import os
 import pytest
 from mock import patch
-import microscope_automation.zeiss.write_zen_tiles_experiment as write_zen
+import microscope_automation.orchestrator.write_zen_tiles_experiment as write_zen
 
 os.chdir(os.path.dirname(__file__))
 

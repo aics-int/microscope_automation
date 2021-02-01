@@ -12,10 +12,19 @@ Welcome to Microscope Automation's documentation!
 
 .. toctree::
    :maxdepth: 1
+   :caption: Orchestrator
+
+   microscope_automation
+   write_zen_tiles_experiment
+
+.. toctree::
+   :maxdepth: 1
    :caption: Hardware
 
    hardware_components
    hardware_control
+   hardware_control_3i
+   hardware_control_zeiss
    RS232
    setup_microscope
 
@@ -35,25 +44,24 @@ Welcome to Microscope Automation's documentation!
 
 .. toctree::
    :maxdepth: 1
-   :caption: Zeiss Microscopes
+   :caption: Connectors
 
+   connect_slidebook
    connect_zen_blue
    connect_zen_black
-   hardware_control_zeiss
-   write_zen_tiles_experiment
+
+.. toctree::
+   :maxdepth: 1
+   :caption: Settings
+
+   meta_data_file
+   preferences
+   slidebook_experiment_info
    zen_experiment_info
 
 .. toctree::
    :maxdepth: 1
-   :caption: 3i Microscopes
-
-   hardware_control_3i
-   connect_slidebook
-   slidebook_experiment_info
-
-.. toctree::
-   :maxdepth: 1
-   :caption: General Methods
+   :caption: Utility
 
    automation_exceptions
    automation_messages_form_layout
@@ -61,9 +69,6 @@ Welcome to Microscope Automation's documentation!
    get_path
    image_AICS
    load_image_czi
-   meta_data_file
-   microscope_automation
-   preferences
 
 .. toctree::
    :maxdepth: 1
