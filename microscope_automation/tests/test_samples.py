@@ -1903,7 +1903,7 @@ def test_live_mode_start_stop(
 
 @patch("microscope_automation.connectors.connect_zen_blue.ConnectMicroscope.save_image")
 @patch(
-    "microscope_automation.connectors.connect_zen_blue.ConnectMicroscope.close_experiment"
+    "microscope_automation.connectors.connect_zen_blue.ConnectMicroscope.close_experiment"  # noqa
 )
 @pytest.mark.skipif(skip_all_tests, reason="Exclude all tests")
 @pytest.mark.parametrize(
@@ -2103,7 +2103,7 @@ def test_execute_experiment(
 @patch("microscope_automation.hardware.hardware_components.Safety.show_safe_areas")
 @patch("microscope_automation.connectors.connect_zen_blue.ConnectMicroscope.save_image")
 @patch(
-    "microscope_automation.connectors.connect_zen_blue.ConnectMicroscope.close_experiment"
+    "microscope_automation.connectors.connect_zen_blue.ConnectMicroscope.close_experiment"  # noqa
 )
 @pytest.mark.skipif(skip_all_tests, reason="Exclude all tests")
 @pytest.mark.parametrize(
@@ -3737,7 +3737,7 @@ def test_add_barcode(barcode_name0, barcode_name1, expected_keys, helpers):
 )
 @patch("microscope_automation.hardware.hardware_components.Safety.show_safe_areas")
 @patch(
-    "microscope_automation.connectors.connect_zen_blue.ConnectMicroscope.close_experiment"
+    "microscope_automation.connectors.connect_zen_blue.ConnectMicroscope.close_experiment"  # noqa
 )
 @patch("microscope_automation.connectors.connect_zen_blue.ConnectMicroscope.load_image")
 @patch("microscope_automation.connectors.connect_zen_blue.ConnectMicroscope.save_image")
@@ -3858,7 +3858,7 @@ def test_find_well_center_fine(
 
 @patch("microscope_automation.connectors.connect_zen_blue.ConnectMicroscope.save_image")
 @patch(
-    "microscope_automation.connectors.connect_zen_blue.ConnectMicroscope.close_experiment"
+    "microscope_automation.connectors.connect_zen_blue.ConnectMicroscope.close_experiment"  # noqa
 )
 @pytest.mark.skipif(skip_all_tests, reason="Exclude all tests")
 @pytest.mark.parametrize(
@@ -3939,7 +3939,7 @@ def test_read_barcode_data_acquisition(
 @patch("microscope_automation.connectors.connect_zen_blue.ConnectMicroscope.load_image")
 @patch("microscope_automation.connectors.connect_zen_blue.ConnectMicroscope.save_image")
 @patch(
-    "microscope_automation.connectors.connect_zen_blue.ConnectMicroscope.close_experiment"
+    "microscope_automation.connectors.connect_zen_blue.ConnectMicroscope.close_experiment"  # noqa
 )
 @pytest.mark.skipif(skip_all_tests, reason="Exclude all tests")
 @pytest.mark.parametrize(

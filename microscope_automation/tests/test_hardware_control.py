@@ -740,7 +740,9 @@ def test__get_microscope_object(prefs_path, object_to_get, expected, helpers):
     assert result == expected
 
 
-@patch("microscope_automation.connectors.connect_zen_blue.ConnectMicroscope.live_mode_start")
+@patch(
+    "microscope_automation.connectors.connect_zen_blue.ConnectMicroscope.live_mode_start"  # noqa
+)
 @pytest.mark.skipif(skip_all_tests, reason="Exclude all tests")
 @pytest.mark.parametrize(
     ("prefs_path, experiment, objective_changer_id, " "camera_id, expected"),
@@ -1147,7 +1149,7 @@ def test_run_macro(
 
 @patch("microscope_automation.connectors.connect_zen_blue.ConnectMicroscope.save_image")
 @patch(
-    "microscope_automation.connectors.connect_zen_blue.ConnectMicroscope.close_experiment"
+    "microscope_automation.connectors.connect_zen_blue.ConnectMicroscope.close_experiment"  # noqa
 )
 @pytest.mark.skipif(skip_all_tests, reason="Exclude all tests")
 @pytest.mark.parametrize(
@@ -1260,7 +1262,7 @@ def test_live_mode(
 
 @patch("microscope_automation.connectors.connect_zen_blue.ConnectMicroscope.save_image")
 @patch(
-    "microscope_automation.connectors.connect_zen_blue.ConnectMicroscope.close_experiment"
+    "microscope_automation.connectors.connect_zen_blue.ConnectMicroscope.close_experiment"  # noqa
 )  # noqa
 @pytest.mark.skipif(skip_all_tests, reason="Exclude all tests")
 @pytest.mark.parametrize(

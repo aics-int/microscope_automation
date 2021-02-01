@@ -14,6 +14,7 @@ Welcome to Microscope Automation's documentation!
    :maxdepth: 1
    :caption: Orchestrator
 
+   find_positions
    microscope_automation
    write_zen_tiles_experiment
 
@@ -69,6 +70,14 @@ Welcome to Microscope Automation's documentation!
    get_path
    image_AICS
    load_image_czi
+   software_state
+
+.. toctree::
+   :maxdepth: 1
+   :caption: Import Helpers
+
+   intelligent_imaging_innovations
+   zeiss
 
 .. toctree::
    :maxdepth: 1

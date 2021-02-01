@@ -5,10 +5,10 @@ from microscope_automation.connectors import connect_zen_blue_dummy
 from microscope_automation.connectors import connect_zen_black
 
 
-__all__ = ['experiment_info', 'hardware_control',
-           'connect_zen_blue', 'connect_zen_blue_dummy', 'connect_zen_black']
-
-# TODO: add below info to docs
-# to use, do:
-# import microscope_automation.imports.zeiss as zeiss
-# zeiss.connect_zen_blue.ConnectMicroscope()
+__all__ = [
+    "experiment_info",
+    "hardware_control",
+    "connect_zen_blue",
+    "connect_zen_blue_dummy",
+    "connect_zen_black",
+]

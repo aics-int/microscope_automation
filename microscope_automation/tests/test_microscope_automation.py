@@ -318,7 +318,7 @@ def test_setup_immersion_system(
 
 @patch("microscope_automation.util.automation_messages_form_layout.operate_message")
 @patch(
-    "microscope_automation.connectors.connect_zen_blue.ConnectMicroscope.get_all_objectives"
+    "microscope_automation.connectors.connect_zen_blue.ConnectMicroscope.get_all_objectives"  # noqa
 )
 @pytest.mark.skipif(skip_all_tests, reason="Exclude all tests")
 @pytest.mark.parametrize(
@@ -588,7 +588,7 @@ def test_update_plate_z_zero(
 @patch("microscope_automation.connectors.connect_zen_blue.ConnectMicroscope.load_image")
 @patch("microscope_automation.connectors.connect_zen_blue.ConnectMicroscope.save_image")
 @patch(
-    "microscope_automation.connectors.connect_zen_blue.ConnectMicroscope.close_experiment"
+    "microscope_automation.connectors.connect_zen_blue.ConnectMicroscope.close_experiment"  # noqa
 )
 @patch("microscope_automation.util.automation_messages_form_layout.operate_message")
 @patch(
@@ -679,7 +679,7 @@ def test_calculate_plate_correction(
 @patch("microscope_automation.hardware.hardware_components.Safety.show_safe_areas")
 @patch("microscope_automation.connectors.connect_zen_blue.ConnectMicroscope.save_image")
 @patch(
-    "microscope_automation.connectors.connect_zen_blue.ConnectMicroscope.close_experiment"
+    "microscope_automation.connectors.connect_zen_blue.ConnectMicroscope.close_experiment"  # noqa
 )
 @patch("microscope_automation.util.automation_messages_form_layout.operate_message")
 @pytest.mark.skipif(skip_all_tests, reason="Exclude all tests")
@@ -755,7 +755,7 @@ def test_scan_wells_zero(
 
 
 @patch(
-    "microscope_automation.connectors.connect_zen_blue.ConnectMicroscope.close_experiment"
+    "microscope_automation.connectors.connect_zen_blue.ConnectMicroscope.close_experiment"  # noqa
 )
 @patch("microscope_automation.hardware.hardware_components.Safety.show_safe_areas")
 @patch("microscope_automation.util.automation_messages_form_layout.operate_message")
@@ -892,7 +892,7 @@ def test_scan_single_ROI(
 @patch("microscope_automation.connectors.connect_zen_blue.ConnectMicroscope.load_image")
 @patch("microscope_automation.connectors.connect_zen_blue.ConnectMicroscope.save_image")
 @patch(
-    "microscope_automation.connectors.connect_zen_blue.ConnectMicroscope.close_experiment"
+    "microscope_automation.connectors.connect_zen_blue.ConnectMicroscope.close_experiment"  # noqa
 )
 @patch("microscope_automation.hardware.hardware_components.Safety.show_safe_areas")
 @patch(
@@ -1292,7 +1292,7 @@ def test_get_objective_offsets(prefs_path, magnification, expected, helpers):
 @patch("microscope_automation.connectors.connect_zen_blue.ConnectMicroscope.load_image")
 @patch("microscope_automation.connectors.connect_zen_blue.ConnectMicroscope.save_image")
 @patch(
-    "microscope_automation.connectors.connect_zen_blue.ConnectMicroscope.close_experiment"
+    "microscope_automation.connectors.connect_zen_blue.ConnectMicroscope.close_experiment"  # noqa
 )
 @patch("microscope_automation.hardware.hardware_components.Safety.show_safe_areas")
 @patch("microscope_automation.util.automation_messages_form_layout.wait_message")
@@ -1572,7 +1572,7 @@ def test_recover_previous_settings(prefs_path, experiment, expected, helpers):
 
 @patch("matplotlib.image.imsave")
 @patch(
-    "microscope_automation.connectors.connect_zen_blue.ConnectMicroscope.get_objective_name"
+    "microscope_automation.connectors.connect_zen_blue.ConnectMicroscope.get_objective_name"  # noqa
 )
 @pytest.mark.skipif(skip_all_tests, reason="Exclude all tests")
 @pytest.mark.parametrize(

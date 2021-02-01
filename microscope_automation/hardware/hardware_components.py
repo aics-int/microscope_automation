@@ -417,11 +417,15 @@ class ControlSoftware(MicroscopeComponent):
         """
         log_method(self, "connect_to_microscope_software")
         if self.get_id() == "ZEN Blue":
-            from microscope_automation.connectors.connect_zen_blue import ConnectMicroscope
+            from microscope_automation.connectors.connect_zen_blue import (
+                ConnectMicroscope,
+            )
 
             self.connection = ConnectMicroscope()
         elif self.get_id() == "ZEN Black":
-            from microscope_automation.connectors.connect_zen_black import ConnectMicroscope
+            from microscope_automation.connectors.connect_zen_black import (
+                ConnectMicroscope,
+            )
 
             self.connection = ConnectMicroscope()
         elif self.get_id() == "Slidebook":
@@ -434,7 +438,9 @@ class ControlSoftware(MicroscopeComponent):
         elif self.get_id() == "ZEN Blue Dummy":
             # create microscope Zeiss spinning disk simulation
             # Uses same module as standard Zen Blue microscope, but without dll
-            from microscope_automation.connectors.connect_zen_blue import ConnectMicroscope
+            from microscope_automation.connectors.connect_zen_blue import (
+                ConnectMicroscope,
+            )
 
             self.connection = ConnectMicroscope(connect_dll=False)
         elif self.get_id() == "Slidebook Dummy":
