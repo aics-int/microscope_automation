@@ -1794,7 +1794,7 @@ class MicroscopeAutomation(object):
             daily_folder,
         )
         position_list_for_csv = pos_list_saver.convert_to_stage_coords(
-            positions_list=position_list_for_csv
+            positions_list=position_list_for_csv, header=True
         )
         pos_list_saver.write(
             converted=position_list_for_csv, dummy=self.prefs.prefs["PathDummy"]

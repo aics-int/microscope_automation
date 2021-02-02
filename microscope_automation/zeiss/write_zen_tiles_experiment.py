@@ -9,6 +9,7 @@ import xml.etree.ElementTree as ET
 import itertools
 import string
 import os
+from .. import automation_messages_form_layout as message
 
 
 class PositionWriter(object):
@@ -60,7 +61,9 @@ class PositionWriter(object):
         self.zsd = zsd
         self.gen = self.iter_all_strings()
 
-    def convert_to_stage_coords(self, offset_x=0, offset_y=0, positions_list=[]):
+    def convert_to_stage_coords(
+        self, offset_x=0, offset_y=0, positions_list=[], header=False
+    ):
         """Converts the distance of points from center of image to x-y coordinates in
         stage with 10 to 100x objective offsets.
 
@@ -70,6 +73,9 @@ class PositionWriter(object):
          offset_y: y_offset to accoutn for in stage coordinate conversion
 
          positions_list: center of well positions to convert to stage coordinates
+
+         header: boolean of whether positions_list includes a header. Skips the
+         first row if True. Default: False
 
         Output:
          converted_list: stage coordinates of positions converted
@@ -83,7 +89,8 @@ class PositionWriter(object):
 
         converted_list = []
         obj_offset = [offset_x, offset_y]
-        for i in range(0, len(positions_list)):
+        start = 1 if header else 0
+        for i in range(start, len(positions_list)):
             # positions_list[i][0] is name of position from automation software
             this_position = dict()
             this_position["name"] = positions_list[i][0]
@@ -129,10 +136,17 @@ class PositionWriter(object):
                 "Need positions to write, Did you call convert_to_stage_coords()?"
             )
         # Get empty file
-        tree = ET.parse(os.path.abspath(dummy))
+        try:
+            tree = ET.parse(os.path.abspath(dummy))
+        except FileNotFoundError:
+            dummy = message.read_string(
+                "Dummy positions file " + dummy + " could not be found.",
+                label="Enter a valid file path:",
+                default="",
+            )
+            tree = ET.parse(os.path.abspath(dummy))
         root = tree.getroot()
         for single_tiles in root.iter("SingleTileRegions"):
-
             for n in converted:
                 # Assign Values for writing
                 tile = ET.SubElement(single_tiles, "SingleTileRegion")
@@ -144,7 +158,7 @@ class PositionWriter(object):
                 ET.SubElement(tile, "IsUsedForAcquisition").text = "true"
 
         # Write Values
-        tree.write(os.path.join(self.path, name_czsh))
+        tree.write(to_write)
 
     def iter_all_strings(self):
         for size in itertools.count(1):
@@ -176,6 +190,9 @@ class PositionWriter(object):
                 if filename.startswith("positions_output_")
             ]
 
+        # if there's no existing output files start with the leter 'a'
+        if len(prefixed) == 0:
+            return "a"
         # Split extension from name of file
         split = prefixed[len(prefixed) - 1].split(".")
         # split filename to get letter

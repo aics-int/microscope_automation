@@ -1,0 +1,82 @@
+<?xml version="1.0" encoding="utf-8"?>
+<SampleHolder>
+  <Overlap>0.1</Overlap>
+  <ScanMode>Meander</ScanMode>
+  <PositionedRegionsScanMode>FirstYThenX</PositionedRegionsScanMode>
+  <TemplateShapesScanMode>Meander</TemplateShapesScanMode>
+  <IsConstantTiles>false</IsConstantTiles>
+  <TileRegionAnchorMode>Center</TileRegionAnchorMode>
+  <StageReferencePoint>0,0</StageReferencePoint>
+  <UseStageBacklashCorrection>true</UseStageBacklashCorrection>
+  <UseFocusBacklashCorrection>true</UseFocusBacklashCorrection>
+  <IsOptimizedPositionedRegionsSorting>true</IsOptimizedPositionedRegionsSorting>
+  <IsOptimizedTemplateShapesSorting>true</IsOptimizedTemplateShapesSorting>
+  <UseStageContinualSpeed>false</UseStageContinualSpeed>
+  <StageContinualSpeed>1</StageContinualSpeed>
+  <MoveToLoadPositionBetweenShapes>false</MoveToLoadPositionBetweenShapes>
+  <SplitScenesInSeparateFiles>false</SplitScenesInSeparateFiles>
+  <TileRegionCoveringMode>AlignedToLocalTileRegion</TileRegionCoveringMode>
+  <TemplateShapesFillMode>FillGrade</TemplateShapesFillMode>
+  <TemplateShapesFillGrade>0.4</TemplateShapesFillGrade>
+  <TemplateShapesFillWidth>10</TemplateShapesFillWidth>
+  <TemplateShapesFillHeight>10</TemplateShapesFillHeight>
+  <IsOnlineStitchingEnabled>false</IsOnlineStitchingEnabled>
+  <IsOnlinePyramidEnabled>true</IsOnlinePyramidEnabled>
+  <GlobalInterpolationExpansionDegree>2</GlobalInterpolationExpansionDegree>
+  <LocalInterpolationExpansionDegree>2</LocalInterpolationExpansionDegree>
+  <IsFocusSurfaceOutlierRemovingEnabled>true</IsFocusSurfaceOutlierRemovingEnabled>
+  <FocusSurfaceOutlierExpansionDegree>1</FocusSurfaceOutlierExpansionDegree>
+  <FocusSurfaceOutlierThresholdSigma>2.75</FocusSurfaceOutlierThresholdSigma>
+  <UseDefaultSurfaceFit>true</UseDefaultSurfaceFit>
+  <UsedSurfaceFitTypeName></UsedSurfaceFitTypeName>
+  <DelayAfterStageMove>0</DelayAfterStageMove>
+  <OnlineStitchingParameter>
+    <UseFocusReferenceChannel>true</UseFocusReferenceChannel>
+    <ReferenceChannelId>0</ReferenceChannelId>
+  </OnlineStitchingParameter>
+  <AllowedScanArea IsActivated="false">
+    <ContourType>Rectangle</ContourType>
+    <Center>0,0</Center>
+    <Size>0,0</Size>
+  </AllowedScanArea>
+  <TileRegions />
+  <SingleTileRegions>
+  </SingleTileRegions>
+  <SingleTileRegionArrays />
+  <Template Name="IVS 96-well">
+    <AnchorPoint>-7827.129,-6281.614</AnchorPoint>
+    <BoundsSize>127600,85750</BoundsSize>
+    <Category>Multiwell</Category>
+    <HasRegularShapes>true</HasRegularShapes>
+    <ReferencePoint>14300,11360</ReferencePoint>
+    <ReferencePointLocationMode>Custom</ReferencePointLocationMode>
+    <ShapeType>Ellipse</ShapeType>
+    <ShapeColumns>12</ShapeColumns>
+    <ShapeRows>8</ShapeRows>
+    <ShapeWidth>6107.327</ShapeWidth>
+    <ShapeHeight>6107.327</ShapeHeight>
+    <ShapeDistanceX>8994.819</ShapeDistanceX>
+    <ShapeDistanceY>9001.893</ShapeDistanceY>
+    <OriginalShapeWidth>6210</OriginalShapeWidth>
+    <OriginalShapeHeight>6210</OriginalShapeHeight>
+    <OriginalShapeDistanceX>9000</OriginalShapeDistanceX>
+    <OriginalShapeDistanceY>9000</OriginalShapeDistanceY>
+    <AreShapesCenteredX>true</AreShapesCenteredX>
+    <AreShapesCenteredY>true</AreShapesCenteredY>
+    <ShapesDistanceToBorderX>0</ShapesDistanceToBorderX>
+    <ShapesDistanceToBorderY>0</ShapesDistanceToBorderY>
+    <Rotation>-0.066</Rotation>
+    <ImmersionPoint>13000,13000</ImmersionPoint>
+    <BottomMaterial>Glass</BottomMaterial>
+    <BottomThickness>170</BottomThickness>
+    <BottomOffset>1500</BottomOffset>
+    <BottomOffsetMeasured>NaN</BottomOffsetMeasured>
+    <BottomRefractiveIndex>1.52</BottomRefractiveIndex>
+    <InsertType>Default</InsertType>
+    <PartOfInsertName></PartOfInsertName>
+    <BottomColor>Unknown</BottomColor>
+    <UsageHints></UsageHints>
+    <BottomDetectionShape>A1</BottomDetectionShape>
+    <SupportPoints />
+  </Template>
+</SampleHolder>
