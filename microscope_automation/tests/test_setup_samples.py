@@ -106,16 +106,12 @@ def test_add_barcode(name, layout_path, helpers):
 
 
 @patch(
-<<<<<<< HEAD
     "microscope_automation.util.automation_messages_form_layout.read_string",
     return_value=""
 )
 @patch(
     "microscope_automation.util.automation_messages_form_layout.pull_down_select_dialog",  # noqa
     return_value="3500000938",
-=======
-    "microscope_automation.util.automation_messages_form_layout.pull_down_select_dialog"
->>>>>>> 6c60380... Ran black and flake8
 )
 @pytest.mark.skipif(skip_all_tests, reason="Exclude all tests")
 @pytest.mark.parametrize(

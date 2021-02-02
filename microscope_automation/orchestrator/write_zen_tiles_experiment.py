@@ -9,7 +9,7 @@ import xml.etree.ElementTree as ET
 import itertools
 import string
 import os
-from .. import automation_messages_form_layout as message
+from microscope_automation.util import automation_messages_form_layout as message
 
 
 class PositionWriter(object):

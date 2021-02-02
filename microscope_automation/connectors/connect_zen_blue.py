@@ -10,6 +10,7 @@ from serial.serialutil import SerialException
 from microscope_automation.util import automation_messages_form_layout as message
 from microscope_automation.util.load_image_czi import LoadImageCzi
 from microscope_automation.util.automation_exceptions import (
+    AutomationError,
     HardwareError,
     AutofocusError,
     AutofocusObjectiveChangedError,

@@ -1085,8 +1085,8 @@ def test_move_to_abs_pos(
 
 
 @patch("microscope_automation.util.automation_messages_form_layout.read_string")
-@patch("microscope_automation.zeiss.connect_zen_blue_dummy.Application.RunMacro_2")
-@patch("microscope_automation.zeiss.connect_zen_blue_dummy.Application.RunMacro")
+@patch("microscope_automation.connectors.connect_zen_blue_dummy.Application.RunMacro_2")
+@patch("microscope_automation.connectors.connect_zen_blue_dummy.Application.RunMacro")
 @pytest.mark.skipif(skip_all_tests, reason="Exclude all tests")
 @pytest.mark.parametrize(
     (
