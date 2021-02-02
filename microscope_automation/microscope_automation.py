@@ -1696,10 +1696,10 @@ class MicroscopeAutomation(object):
                         plate_holder_object, 100
                     )
                     x_offset = (
-                        well_object.xZero + well_object.container.xZero + x_obj_offset
+                        well_object.x_zero + well_object.container.x_zero + x_obj_offset
                     )
                     y_offset = (
-                        well_object.yZero + well_object.container.yZero + y_obj_offset
+                        well_object.y_zero + well_object.container.y_zero + y_obj_offset
                     )
                     x_pos = location[0] + x_offset
                     y_pos = location[1] + y_offset
