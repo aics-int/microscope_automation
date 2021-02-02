@@ -186,6 +186,9 @@ class PositionWriter(object):
                 if filename.startswith("positions_output_")
             ]
 
+        # if there's no existing output files start with the leter 'a'
+        if len(prefixed) == 0:
+            return 'a'
         # Split extension from name of file
         split = prefixed[len(prefixed) - 1].split(".")
         # split filename to get letter

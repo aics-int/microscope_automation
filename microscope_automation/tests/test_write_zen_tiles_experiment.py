@@ -23,13 +23,13 @@ converted_list_no_header = testclass.convert_to_stage_coords(
 )
 
 sample_coords_with_header = [
-    ["Name", "X", "Y", "Z"]
+    ["Name", "X", "Y", "Z"],
     ["name0", 0.1, 0.1, 0.1],
     ["name1", 100.0, 100.0, 100.0],
     ["name2", 200.5, 200.5, 200.5],
 ]
 converted_list_header = testclass.convert_to_stage_coords(
-    offset_x=1.0, offset_y=1.0, positions_list=sample_coords_with_header, header=False
+    offset_x=1.0, offset_y=1.0, positions_list=sample_coords_with_header, header=True
 )
 
 
@@ -78,12 +78,17 @@ def test_write():
     except Exception as err:
         assert type(err).__name__ == "ParseError"
 
+    testclass2 = write_zen.PositionWriter(zsd="testZsd", plate=1234, production_path="data")
+    testclass2.write(
+        converted_list_header,
+        dummy=os.path.join("data", "1234", "testZsd", "dummy_tile_positions.czsh"),
+    )
+
 
 def test_get_next_pos_name():
     testclass = write_zen.PositionWriter(
         zsd="testZsd", plate=1234, production_path="data"
     )
-    # Does file get next letter correctly?
     assert (
         testclass.get_next_pos_name(
             test_mode=True, test_file_names=["positions_output_a"]
@@ -91,7 +96,6 @@ def test_get_next_pos_name():
         == "b"
     )
 
-    # Not backfilling files?
     testclass = write_zen.PositionWriter(
         zsd="testZsd", plate=1234, production_path="data"
     )
@@ -105,7 +109,6 @@ def test_get_next_pos_name():
     testclass = write_zen.PositionWriter(
         zsd="testZsd", plate=1234, production_path="data"
     )
-    # Using two letters as expected
     assert (
         testclass.get_next_pos_name(
             test_mode=True,
@@ -117,3 +120,10 @@ def test_get_next_pos_name():
         )
         == "aa"
     )
+
+    testclass = write_zen.PositionWriter(
+        zsd="testZsd", plate=1234, production_path="data"
+    )
+    assert (testclass.get_next_pos_name(test_mode=True, test_file_names=[]) == "a")
+
+    # assert testclass.get_next_pos_name(test_mode=False) == "b"
