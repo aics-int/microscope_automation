@@ -1647,7 +1647,6 @@ class MicroscopeAutomation(object):
         )
         try:
             # Display each image for point approval
-
             for well_object in segmentation_info_dict.keys():
                 image_data = segmentation_info_dict[well_object]["image"].get_data()
                 segmented_position_list = segmentation_info_dict[well_object][
@@ -1785,20 +1784,21 @@ class MicroscopeAutomation(object):
             with open(filename, "w") as f:
                 pickle.dump(pickle_dict, f, pickle.HIGHEST_PROTOCOL)
                 message.stop_script("Interruption Occurred. Data saved!")
-        daily_folder = get_valid_path_from_prefs(
-            self.prefs, "PathDailyFolder", search_dir=True
-        )
-        pos_list_saver = PositionWriter(
-            self.prefs.prefs["Info"]["System"],
-            plate_object.get_barcode(),
-            daily_folder,
-        )
-        position_list_for_csv = pos_list_saver.convert_to_stage_coords(
-            positions_list=position_list_for_csv, header=True
-        )
-        pos_list_saver.write(
-            converted=position_list_for_csv, dummy=self.prefs.prefs["PathDummy"]
-        )
+        if len(position_list_for_csv) > 1:
+            daily_folder = get_valid_path_from_prefs(
+                self.prefs, "PathDailyFolder", search_dir=True
+            )
+            pos_list_saver = PositionWriter(
+                self.prefs.prefs["Info"]["System"],
+                plate_object.get_barcode(),
+                daily_folder,
+            )
+            position_list_for_csv = pos_list_saver.convert_to_stage_coords(
+                positions_list=position_list_for_csv
+            )
+            pos_list_saver.write(
+                converted=position_list_for_csv, dummy=self.prefs.prefs["PathDummy"]
+            )
 
     def get_objective_offsets(self, plate_holder_object, magnification):
         """Function to return the objective offsets
