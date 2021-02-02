@@ -48,27 +48,29 @@
 <span class="kn">from</span> <span class="nn">collections</span> <span class="kn">import</span> <span class="n">OrderedDict</span>
 
 <span class="c1"># import modules from project microscope_automation</span>
-<span class="kn">from</span> <span class="nn">..get_path</span> <span class="kn">import</span> <span class="p">(</span>
+<span class="kn">from</span> <span class="nn">microscope_automation.util.get_path</span> <span class="kn">import</span> <span class="p">(</span>
     <span class="n">get_images_path</span><span class="p">,</span>
     <span class="n">add_suffix</span><span class="p">,</span>
     <span class="n">get_well_edge_path</span><span class="p">,</span>
 <span class="p">)</span>
-<span class="kn">from</span> <span class="nn">.draw_plate</span> <span class="kn">import</span> <span class="n">draw_plate</span>
-<span class="kn">from</span> <span class="nn">..</span> <span class="kn">import</span> <span class="n">automation_messages_form_layout</span> <span class="k">as</span> <span class="n">message</span>
-<span class="kn">from</span> <span class="nn">.</span> <span class="kn">import</span> <span class="n">find_well_center</span>
-<span class="kn">from</span> <span class="nn">.</span> <span class="kn">import</span> <span class="n">correct_background</span>
-<span class="kn">from</span> <span class="nn">.</span> <span class="kn">import</span> <span class="n">tile_images</span>
-<span class="kn">from</span> <span class="nn">..load_image_czi</span> <span class="kn">import</span> <span class="n">LoadImageCzi</span>
-<span class="kn">from</span> <span class="nn">.positions_list</span> <span class="kn">import</span> <span class="n">CreateTilePositions</span>
-<span class="kn">from</span> <span class="nn">.interactive_location_picker_pyqtgraph</span> <span class="kn">import</span> <span class="n">ImageLocationPicker</span>
-<span class="kn">from</span> <span class="nn">..automation_exceptions</span> <span class="kn">import</span> <span class="p">(</span>
+<span class="kn">from</span> <span class="nn">microscope_automation.samples.draw_plate</span> <span class="kn">import</span> <span class="n">draw_plate</span>
+<span class="kn">from</span> <span class="nn">microscope_automation.util</span> <span class="kn">import</span> <span class="n">automation_messages_form_layout</span> <span class="k">as</span> <span class="n">message</span>
+<span class="kn">from</span> <span class="nn">microscope_automation.samples</span> <span class="kn">import</span> <span class="n">find_well_center</span>
+<span class="kn">from</span> <span class="nn">microscope_automation.samples</span> <span class="kn">import</span> <span class="n">correct_background</span>
+<span class="kn">from</span> <span class="nn">microscope_automation.samples</span> <span class="kn">import</span> <span class="n">tile_images</span>
+<span class="kn">from</span> <span class="nn">microscope_automation.util.load_image_czi</span> <span class="kn">import</span> <span class="n">LoadImageCzi</span>
+<span class="kn">from</span> <span class="nn">microscope_automation.samples.positions_list</span> <span class="kn">import</span> <span class="n">CreateTilePositions</span>
+<span class="kn">from</span> <span class="nn">microscope_automation.samples.interactive_location_picker_pyqtgraph</span> <span class="kn">import</span> <span class="p">(</span>
+    <span class="n">ImageLocationPicker</span><span class="p">,</span>
+<span class="p">)</span>  <span class="c1"># noqa</span>
+<span class="kn">from</span> <span class="nn">microscope_automation.util.automation_exceptions</span> <span class="kn">import</span> <span class="p">(</span>
     <span class="n">ObjectiveNotDefinedError</span><span class="p">,</span>
     <span class="ne">FileExistsError</span><span class="p">,</span>
     <span class="n">MetaDataNotSavedError</span><span class="p">,</span>
 <span class="p">)</span>
 
 <span class="c1"># we need module hardware only for testing</span>
-<span class="kn">from</span> <span class="nn">..hardware</span> <span class="kn">import</span> <span class="n">hardware_components</span>
+<span class="kn">from</span> <span class="nn">microscope_automation.hardware</span> <span class="kn">import</span> <span class="n">hardware_components</span>
 
 <span class="c1"># create logger</span>
 <span class="n">logger</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="vm">__name__</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;.&quot;</span><span class="p">)[</span><span class="mi">0</span><span class="p">])</span>
@@ -4419,7 +4421,7 @@
 <span class="sd">        Output:</span>
 <span class="sd">         none</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="kn">from</span> <span class="nn">.</span> <span class="kn">import</span> <span class="n">find_cells</span>
+        <span class="kn">from</span> <span class="nn">microscope_automation.samples</span> <span class="kn">import</span> <span class="n">find_cells</span>
 
         <span class="k">if</span> <span class="n">image</span><span class="o">.</span><span class="n">get_data</span><span class="p">()</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
             <span class="c1"># TODO: Works only with Zeiss, not with 3i</span>
@@ -4886,10 +4888,18 @@
 <li class="toctree-l1"><a class="reference internal" href="../../../index.html">README</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../installation.html">Installation</a></li>
 </ul>
+<p class="caption"><span class="caption-text">Orchestrator</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../find_positions.html">find_positions</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../microscope_automation.html">microscope_automation package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../write_zen_tiles_experiment.html">write_zen_tiles_experiment</a></li>
+</ul>
 <p class="caption"><span class="caption-text">Hardware</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="../../../hardware_components.html">hardware_components</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../hardware_control.html">hardware_control</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../hardware_control_3i.html">hardware_control_3i</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../hardware_control_zeiss.html">hardware_control_zeiss</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../RS232.html">RS232</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../setup_microscope.html">setup_microscope</a></li>
 </ul>
@@ -4905,21 +4915,20 @@
 <li class="toctree-l1"><a class="reference internal" href="../../../setup_samples.html">setup_samples</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../tile_images.html">tile_images</a></li>
 </ul>
-<p class="caption"><span class="caption-text">Zeiss Microscopes</span></p>
+<p class="caption"><span class="caption-text">Connectors</span></p>
 <ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../connect_slidebook.html">connect_slidebook</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../connect_zen_blue.html">connect_zen_blue</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../connect_zen_black.html">connect_zen_black</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../../hardware_control_zeiss.html">hardware_control_zeiss</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../../write_zen_tiles_experiment.html">write_zen_tiles_experiment</a></li>
+</ul>
+<p class="caption"><span class="caption-text">Settings</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../meta_data_file.html">meta_data_file</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../preferences.html">preferences</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../slidebook_experiment_info.html">slidebook_experiment_info</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../zen_experiment_info.html">zen_experiment_info</a></li>
 </ul>
-<p class="caption"><span class="caption-text">3i Microscopes</span></p>
-<ul>
-<li class="toctree-l1"><a class="reference internal" href="../../../hardware_control_3i.html">hardware_control_3i</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../../connect_slidebook.html">connect_slidebook</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../../slidebook_experiment_info.html">slidebook_experiment_info</a></li>
-</ul>
-<p class="caption"><span class="caption-text">General Methods</span></p>
+<p class="caption"><span class="caption-text">Utility</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="../../../automation_exceptions.html">automation_exceptions</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../automation_messages_form_layout.html">automation_messages_form_layout</a></li>
@@ -4927,9 +4936,12 @@
 <li class="toctree-l1"><a class="reference internal" href="../../../get_path.html">get_path</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../image_AICS.html">image_AICS</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../load_image_czi.html">load_image_czi</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../../meta_data_file.html">meta_data_file</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../../microscope_automation.html">microscope_automation package</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../../preferences.html">preferences</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../software_state.html">software_state</a></li>
+</ul>
+<p class="caption"><span class="caption-text">Import Helpers</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../intelligent_imaging_innovations.html">3i Imports</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../zeiss.html">Zeiss Imports</a></li>
 </ul>
 <p class="caption"><span class="caption-text">Reference Docs</span></p>
 <ul>

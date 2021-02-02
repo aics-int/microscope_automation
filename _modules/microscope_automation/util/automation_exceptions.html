@@ -1,0 +1,714 @@
+
+<!DOCTYPE html>
+
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>microscope_automation.util.automation_exceptions &#8212; Microscope Automation 0.0 documentation</title>
+    <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+    <link rel="stylesheet" href="../../../_static/alabaster.css" type="text/css" />
+    <script id="documentation_options" data-url_root="../../../" src="../../../_static/documentation_options.js"></script>
+    <script src="../../../_static/jquery.js"></script>
+    <script src="../../../_static/underscore.js"></script>
+    <script src="../../../_static/doctools.js"></script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" />
+   
+  <link rel="stylesheet" href="../../../_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head><body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          
+
+          <div class="body" role="main">
+            
+  <h1>Source code for microscope_automation.util.automation_exceptions</h1><div class="highlight"><pre>
+<span></span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">Classes for exceptions</span>
+<span class="sd">Do not name module exceptions. It will conflict with system exceptions.</span>
+<span class="sd">Created on Jun 7, 2017</span>
+
+<span class="sd">@author: winfriedw</span>
+<span class="sd">&quot;&quot;&quot;</span>
+
+<span class="kn">from</span> <span class="nn">microscope_automation.util.automation_messages_form_layout</span> <span class="kn">import</span> <span class="n">error_message</span>
+
+<span class="c1"># global variable to control blocking behavior of error messages</span>
+<span class="n">blocking</span> <span class="o">=</span> <span class="kc">True</span>
+
+
+<span class="c1">################################################################################</span>
+<span class="c1">#</span>
+<span class="c1"># Helper functions</span>
+<span class="c1">#</span>
+<span class="c1">################################################################################</span>
+
+
+<div class="viewcode-block" id="set_error_blocking"><a class="viewcode-back" href="../../../microscope_automation.util.html#microscope_automation.util.automation_exceptions.set_error_blocking">[docs]</a><span class="k">def</span> <span class="nf">set_error_blocking</span><span class="p">(</span><span class="n">block</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Set blocking behavior of error dialogs.</span>
+
+<span class="sd">    Input:</span>
+<span class="sd">     block: if True use modal dialog for error reporting, otherwise print message</span>
+
+<span class="sd">    Output:</span>
+<span class="sd">     None</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">global</span> <span class="n">blocking</span>
+    <span class="n">blocking</span> <span class="o">=</span> <span class="n">block</span></div>
+
+
+<div class="viewcode-block" id="get_error_blocking"><a class="viewcode-back" href="../../../microscope_automation.util.html#microscope_automation.util.automation_exceptions.get_error_blocking">[docs]</a><span class="k">def</span> <span class="nf">get_error_blocking</span><span class="p">():</span>
+    <span class="sd">&quot;&quot;&quot;Retrieve blocking behavior of error dialogs.</span>
+
+<span class="sd">    Input:</span>
+<span class="sd">     none</span>
+<span class="sd">    Output:</span>
+<span class="sd">     blocking: if True use modal dialog for error reporting, otherwise print message</span>
+
+<span class="sd">    Output:</span>
+<span class="sd">     None</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="n">blocking</span></div>
+
+
+<span class="c1">################################################################################</span>
+<span class="c1">#</span>
+<span class="c1"># Base exception</span>
+<span class="c1">#</span>
+<span class="c1">################################################################################</span>
+
+
+<div class="viewcode-block" id="AutomationError"><a class="viewcode-back" href="../../../microscope_automation.util.html#microscope_automation.util.automation_exceptions.AutomationError">[docs]</a><span class="k">class</span> <span class="nc">AutomationError</span><span class="p">(</span><span class="ne">Exception</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Base exception for all errors in package microscopeautomation&quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">message</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">error_component</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Initialize automation exceptions.</span>
+
+<span class="sd">        Input:</span>
+<span class="sd">         message: error message</span>
+
+<span class="sd">         error_component: instance of hardware instance that caused exception.</span>
+<span class="sd">         Default: None</span>
+
+<span class="sd">        Output:</span>
+<span class="sd">         none</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">message</span> <span class="o">=</span> <span class="n">message</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">error_component</span> <span class="o">=</span> <span class="n">error_component</span>
+
+    <span class="k">def</span> <span class="fm">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="nb">repr</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">message</span><span class="p">)</span></div>
+
+
+<span class="c1">################################################################################</span>
+<span class="c1">#</span>
+<span class="c1"># Hardware exceptions</span>
+<span class="c1">#</span>
+<span class="c1">################################################################################</span>
+<div class="viewcode-block" id="HardwareError"><a class="viewcode-back" href="../../../microscope_automation.util.html#microscope_automation.util.automation_exceptions.HardwareError">[docs]</a><span class="k">class</span> <span class="nc">HardwareError</span><span class="p">(</span><span class="n">AutomationError</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Exception for failures in hardware.&quot;&quot;&quot;</span>
+
+<div class="viewcode-block" id="HardwareError.error_dialog"><a class="viewcode-back" href="../../../microscope_automation.util.html#microscope_automation.util.automation_exceptions.HardwareError.error_dialog">[docs]</a>    <span class="k">def</span> <span class="nf">error_dialog</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Show error message to user.</span>
+
+<span class="sd">        Input:</span>
+<span class="sd">         none</span>
+
+<span class="sd">        Output:</span>
+<span class="sd">         none</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="n">error_message</span><span class="p">(</span>
+            <span class="p">(</span>
+                <span class="s2">&quot;Hardware Error.&quot;</span>
+                <span class="s2">&quot;</span><span class="se">\n</span><span class="s2">Please check for problems with hardware</span><span class="se">\n</span><span class="s2">&quot;</span>
+                <span class="s2">&quot; e.g. laser safety not engaged&quot;</span>
+            <span class="p">),</span>
+            <span class="n">return_code</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+            <span class="n">blocking</span><span class="o">=</span><span class="n">get_error_blocking</span><span class="p">(),</span>
+        <span class="p">)</span></div></div>
+
+
+<div class="viewcode-block" id="HardwareDoesNotExistError"><a class="viewcode-back" href="../../../microscope_automation.util.html#microscope_automation.util.automation_exceptions.HardwareDoesNotExistError">[docs]</a><span class="k">class</span> <span class="nc">HardwareDoesNotExistError</span><span class="p">(</span><span class="n">HardwareError</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Exception if hardware was not defined.&quot;&quot;&quot;</span>
+
+<div class="viewcode-block" id="HardwareDoesNotExistError.error_dialog"><a class="viewcode-back" href="../../../microscope_automation.util.html#microscope_automation.util.automation_exceptions.HardwareDoesNotExistError.error_dialog">[docs]</a>    <span class="k">def</span> <span class="nf">error_dialog</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">advice</span><span class="o">=</span><span class="s2">&quot;&quot;</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Show error message to user.</span>
+
+<span class="sd">        Input:</span>
+<span class="sd">         none</span>
+
+<span class="sd">        Output:</span>
+<span class="sd">         none</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="n">error_message</span><span class="p">(</span>
+            <span class="p">(</span><span class="s2">&quot;Hardware Does Not Exist Error:&quot;</span> <span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&#39;</span><span class="si">{}</span><span class="s2">&#39;&#39; does not exist.</span><span class="se">\n</span><span class="s2">&#39;</span><span class="si">{}</span><span class="s2">&#39;&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">error_component</span><span class="p">,</span> <span class="n">advice</span>
+            <span class="p">),</span>
+            <span class="n">return_code</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+            <span class="n">blocking</span><span class="o">=</span><span class="n">get_error_blocking</span><span class="p">(),</span>
+        <span class="p">)</span></div></div>
+
+
+<div class="viewcode-block" id="CrashDangerError"><a class="viewcode-back" href="../../../microscope_automation.util.html#microscope_automation.util.automation_exceptions.CrashDangerError">[docs]</a><span class="k">class</span> <span class="nc">CrashDangerError</span><span class="p">(</span><span class="n">AutomationError</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Exception if danger for hardware was detected.&quot;&quot;&quot;</span>
+
+<div class="viewcode-block" id="CrashDangerError.error_dialog"><a class="viewcode-back" href="../../../microscope_automation.util.html#microscope_automation.util.automation_exceptions.CrashDangerError.error_dialog">[docs]</a>    <span class="k">def</span> <span class="nf">error_dialog</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">advice</span><span class="o">=</span><span class="s2">&quot;&quot;</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Show error message to user.</span>
+
+<span class="sd">        Input:</span>
+<span class="sd">         advice: str with advice to user of how to avoid crash.</span>
+
+<span class="sd">        Output:</span>
+<span class="sd">         none</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="n">error_message</span><span class="p">(</span>
+            <span class="s1">&#39;Crash Danger Error:</span><span class="se">\n</span><span class="s1">&quot;</span><span class="si">{}</span><span class="s1">&quot;</span><span class="se">\n</span><span class="si">{}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">message</span><span class="p">,</span> <span class="n">advice</span><span class="p">),</span>
+            <span class="n">return_code</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+            <span class="n">blocking</span><span class="o">=</span><span class="n">get_error_blocking</span><span class="p">(),</span>
+        <span class="p">)</span></div></div>
+
+
+<div class="viewcode-block" id="HardwareNotReadyError"><a class="viewcode-back" href="../../../microscope_automation.util.html#microscope_automation.util.automation_exceptions.HardwareNotReadyError">[docs]</a><span class="k">class</span> <span class="nc">HardwareNotReadyError</span><span class="p">(</span><span class="n">AutomationError</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Exception if hardware is not ready for experiment.&quot;&quot;&quot;</span>
+
+<div class="viewcode-block" id="HardwareNotReadyError.error_dialog"><a class="viewcode-back" href="../../../microscope_automation.util.html#microscope_automation.util.automation_exceptions.HardwareNotReadyError.error_dialog">[docs]</a>    <span class="k">def</span> <span class="nf">error_dialog</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">advice</span><span class="o">=</span><span class="s2">&quot;&quot;</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Show error message to user.</span>
+
+<span class="sd">        Input:</span>
+<span class="sd">         advice: str with advice to user of how to avoid crash.</span>
+
+<span class="sd">        Output:</span>
+<span class="sd">         none</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="n">error_message</span><span class="p">(</span>
+            <span class="s1">&#39;Hardware is not ready for experiment:</span><span class="se">\n</span><span class="s1">&quot;</span><span class="si">{}</span><span class="s1">&quot;</span><span class="se">\n</span><span class="si">{}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">message</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">error_component</span>
+            <span class="p">),</span>
+            <span class="n">return_code</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+            <span class="n">blocking</span><span class="o">=</span><span class="n">get_error_blocking</span><span class="p">(),</span>
+        <span class="p">)</span></div></div>
+
+
+<div class="viewcode-block" id="HardwareCommandNotDefinedError"><a class="viewcode-back" href="../../../microscope_automation.util.html#microscope_automation.util.automation_exceptions.HardwareCommandNotDefinedError">[docs]</a><span class="k">class</span> <span class="nc">HardwareCommandNotDefinedError</span><span class="p">(</span><span class="n">AutomationError</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Exception if experiment is not defined for this microscope.&quot;&quot;&quot;</span>
+
+<div class="viewcode-block" id="HardwareCommandNotDefinedError.error_dialog"><a class="viewcode-back" href="../../../microscope_automation.util.html#microscope_automation.util.automation_exceptions.HardwareCommandNotDefinedError.error_dialog">[docs]</a>    <span class="k">def</span> <span class="nf">error_dialog</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">advice</span><span class="o">=</span><span class="s2">&quot;&quot;</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Show error message to user.</span>
+
+<span class="sd">        Input:</span>
+<span class="sd">         advice: str with advice to user of how to avoid crash.</span>
+
+<span class="sd">        Output:</span>
+<span class="sd">         none</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="n">error_message</span><span class="p">(</span>
+            <span class="s1">&#39;Action not supported by hardware:</span><span class="se">\n</span><span class="s1">&quot;</span><span class="si">{}</span><span class="s1">&quot;</span><span class="se">\n</span><span class="si">{}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">message</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">error_component</span>
+            <span class="p">),</span>
+            <span class="n">return_code</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+            <span class="n">blocking</span><span class="o">=</span><span class="n">get_error_blocking</span><span class="p">(),</span>
+        <span class="p">)</span></div></div>
+
+
+<span class="c1">################################################################################</span>
+<span class="c1">#</span>
+<span class="c1"># Autofocus exceptions</span>
+<span class="c1">#</span>
+<span class="c1">################################################################################</span>
+<div class="viewcode-block" id="AutofocusError"><a class="viewcode-back" href="../../../microscope_automation.util.html#microscope_automation.util.automation_exceptions.AutofocusError">[docs]</a><span class="k">class</span> <span class="nc">AutofocusError</span><span class="p">(</span><span class="n">HardwareError</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Exception if autofocus failed.&quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">message</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">error_component</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">focus_reference_obj_id</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Raise autofocus exception.</span>
+
+<span class="sd">        Input:</span>
+<span class="sd">         message: error message</span>
+
+<span class="sd">         error_component: instance of hardware instance that caused exception</span>
+<span class="sd">         Default: None</span>
+
+<span class="sd">         focus_reference_obj_id: Sample object used as reference for autofocus</span>
+
+<span class="sd">         message: Test to display as error message</span>
+
+<span class="sd">        Output:</span>
+<span class="sd">         none</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">message</span> <span class="o">=</span> <span class="n">message</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">error_component</span> <span class="o">=</span> <span class="n">error_component</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">set_focus_reference_obj_id</span><span class="p">(</span><span class="n">focus_reference_obj_id</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="fm">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="nb">repr</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">message</span><span class="p">)</span>
+
+<div class="viewcode-block" id="AutofocusError.error_dialog"><a class="viewcode-back" href="../../../microscope_automation.util.html#microscope_automation.util.automation_exceptions.AutofocusError.error_dialog">[docs]</a>    <span class="k">def</span> <span class="nf">error_dialog</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Show error message to user.</span>
+
+<span class="sd">        Input:</span>
+<span class="sd">         none</span>
+
+<span class="sd">        Output:</span>
+<span class="sd">         none</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="n">error_message</span><span class="p">(</span>
+            <span class="p">(</span>
+                <span class="s2">&quot;Autofocus did not work.</span><span class="se">\n</span><span class="s2">&quot;</span>
+                <span class="s2">&quot;Please fix the following issue:</span><span class="se">\n</span><span class="si">{}</span><span class="se">\n</span><span class="s2">&quot;</span>
+                <span class="s2">&quot;You will be prompted to refocus.&quot;</span>
+            <span class="p">)</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">message</span><span class="p">),</span>
+            <span class="n">blocking</span><span class="o">=</span><span class="n">get_error_blocking</span><span class="p">(),</span>
+        <span class="p">)</span></div>
+
+<div class="viewcode-block" id="AutofocusError.set_focus_reference_obj_id"><a class="viewcode-back" href="../../../microscope_automation.util.html#microscope_automation.util.automation_exceptions.AutofocusError.set_focus_reference_obj_id">[docs]</a>    <span class="k">def</span> <span class="nf">set_focus_reference_obj_id</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">focus_reference_obj_id</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Set object (typcially plate) that is used as reference for autofocus offset.</span>
+
+<span class="sd">        Input:</span>
+<span class="sd">         focus_reference_obj_id: Sample object used as reference for autofocus</span>
+
+<span class="sd">        Output:</span>
+<span class="sd">         None</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">focus_reference_obj_id</span> <span class="o">=</span> <span class="n">focus_reference_obj_id</span></div>
+
+<div class="viewcode-block" id="AutofocusError.get_focus_reference_obj_id"><a class="viewcode-back" href="../../../microscope_automation.util.html#microscope_automation.util.automation_exceptions.AutofocusError.get_focus_reference_obj_id">[docs]</a>    <span class="k">def</span> <span class="nf">get_focus_reference_obj_id</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Retrieve object (typcially plate) that is used as reference for autofocus</span>
+<span class="sd">         offset.</span>
+
+<span class="sd">        Input:</span>
+<span class="sd">         none</span>
+
+<span class="sd">        Output:</span>
+<span class="sd">         focus_reference_obj_id: Sample object used as reference for autofocus</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">focus_reference_obj_id</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="n">AutofocusNoReferenceObjectError</span><span class="p">(</span>
+                <span class="n">message</span><span class="o">=</span><span class="s2">&quot;Could not retrieve focus reference.&quot;</span>
+            <span class="p">)</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">focus_reference_obj_id</span></div></div>
+
+
+<div class="viewcode-block" id="AutofocusObjectiveChangedError"><a class="viewcode-back" href="../../../microscope_automation.util.html#microscope_automation.util.automation_exceptions.AutofocusObjectiveChangedError">[docs]</a><span class="k">class</span> <span class="nc">AutofocusObjectiveChangedError</span><span class="p">(</span><span class="n">AutofocusError</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Exception if objective was changed since autofocus was initialized</span>
+
+<span class="sd">    Input:</span>
+<span class="sd">     focus_reference_obj_id: Sample object used as reference for autofocus</span>
+
+<span class="sd">     message: Test to display as error message</span>
+
+<span class="sd">    Output:</span>
+<span class="sd">     none</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+<div class="viewcode-block" id="AutofocusObjectiveChangedError.error_dialog"><a class="viewcode-back" href="../../../microscope_automation.util.html#microscope_automation.util.automation_exceptions.AutofocusObjectiveChangedError.error_dialog">[docs]</a>    <span class="k">def</span> <span class="nf">error_dialog</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Show error message to user.</span>
+
+<span class="sd">        Input:</span>
+<span class="sd">         none</span>
+
+<span class="sd">        Output:</span>
+<span class="sd">         none</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="n">error_message</span><span class="p">(</span>
+            <span class="p">(</span>
+                <span class="s2">&quot;Objective changed since last use of autofocus.</span><span class="se">\n</span><span class="s2">&quot;</span>
+                <span class="s2">&quot;Error message:</span><span class="se">\n</span><span class="s2">&#39;</span><span class="si">{}</span><span class="s2">&#39;&quot;</span>
+            <span class="p">)</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">message</span><span class="p">),</span>
+            <span class="n">blocking</span><span class="o">=</span><span class="n">get_error_blocking</span><span class="p">(),</span>
+        <span class="p">)</span></div></div>
+
+
+<div class="viewcode-block" id="AutofocusNotSetError"><a class="viewcode-back" href="../../../microscope_automation.util.html#microscope_automation.util.automation_exceptions.AutofocusNotSetError">[docs]</a><span class="k">class</span> <span class="nc">AutofocusNotSetError</span><span class="p">(</span><span class="n">AutofocusError</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Exception if objective was changed since autofocus was initialized</span>
+
+<span class="sd">    Input:</span>
+<span class="sd">     focus_reference_obj_id: Sample object used as reference for autofocus</span>
+
+<span class="sd">     message: Test to display as error message</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+<div class="viewcode-block" id="AutofocusNotSetError.error_dialog"><a class="viewcode-back" href="../../../microscope_automation.util.html#microscope_automation.util.automation_exceptions.AutofocusNotSetError.error_dialog">[docs]</a>    <span class="k">def</span> <span class="nf">error_dialog</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Show error message to user.</span>
+
+<span class="sd">        Input:</span>
+<span class="sd">         none</span>
+
+<span class="sd">        Output:</span>
+<span class="sd">         none</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="n">error_message</span><span class="p">(</span>
+            <span class="s1">&#39;Autofocus position not set.</span><span class="se">\n</span><span class="s1">Error message:</span><span class="se">\n</span><span class="s1">&quot;</span><span class="si">{}</span><span class="s1">&quot;&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">message</span><span class="p">),</span>
+            <span class="n">blocking</span><span class="o">=</span><span class="n">get_error_blocking</span><span class="p">(),</span>
+        <span class="p">)</span></div></div>
+
+
+<div class="viewcode-block" id="AutofocusNoReferenceObjectError"><a class="viewcode-back" href="../../../microscope_automation.util.html#microscope_automation.util.automation_exceptions.AutofocusNoReferenceObjectError">[docs]</a><span class="k">class</span> <span class="nc">AutofocusNoReferenceObjectError</span><span class="p">(</span><span class="n">AutofocusError</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Exception if no reference object was selected for autofocus</span>
+
+<span class="sd">    Input:</span>
+<span class="sd">     focus_reference_obj_id: Sample object used as reference for autofocus</span>
+
+<span class="sd">     message: Test to display as error message</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+<div class="viewcode-block" id="AutofocusNoReferenceObjectError.error_dialog"><a class="viewcode-back" href="../../../microscope_automation.util.html#microscope_automation.util.automation_exceptions.AutofocusNoReferenceObjectError.error_dialog">[docs]</a>    <span class="k">def</span> <span class="nf">error_dialog</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Show error message to user.</span>
+
+<span class="sd">        Input:</span>
+<span class="sd">         none</span>
+
+<span class="sd">        Output:</span>
+<span class="sd">         none</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="n">error_message</span><span class="p">(</span>
+            <span class="s1">&#39;No autofocus reference.</span><span class="se">\n</span><span class="s1">Error message:</span><span class="se">\n</span><span class="s1">&quot;</span><span class="si">{}</span><span class="s1">&quot;&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">message</span><span class="p">),</span>
+            <span class="n">blocking</span><span class="o">=</span><span class="n">get_error_blocking</span><span class="p">(),</span>
+        <span class="p">)</span></div></div>
+
+
+<span class="c1">################################################################################</span>
+<span class="c1">#</span>
+<span class="c1"># Focus Drive exceptions</span>
+<span class="c1">#</span>
+<span class="c1">################################################################################</span>
+<div class="viewcode-block" id="LoadNotDefinedError"><a class="viewcode-back" href="../../../microscope_automation.util.html#microscope_automation.util.automation_exceptions.LoadNotDefinedError">[docs]</a><span class="k">class</span> <span class="nc">LoadNotDefinedError</span><span class="p">(</span><span class="n">HardwareError</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Exception if load position for focus drive is not defined.&quot;&quot;&quot;</span>
+
+<div class="viewcode-block" id="LoadNotDefinedError.error_dialog"><a class="viewcode-back" href="../../../microscope_automation.util.html#microscope_automation.util.automation_exceptions.LoadNotDefinedError.error_dialog">[docs]</a>    <span class="k">def</span> <span class="nf">error_dialog</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Show error message to user.</span>
+
+<span class="sd">        Input:</span>
+<span class="sd">         none</span>
+
+<span class="sd">        Output:</span>
+<span class="sd">         none</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="n">error_message</span><span class="p">(</span>
+            <span class="p">(</span>
+                <span class="s2">&quot;Please move objective to load position or cancel&quot;</span>
+                <span class="s2">&quot; program.</span><span class="se">\n</span><span class="s2">Error message:</span><span class="se">\n</span><span class="s2">&#39;</span><span class="si">{}</span><span class="s2">&#39;&quot;</span>
+            <span class="p">)</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">message</span><span class="p">),</span>
+            <span class="n">return_code</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+            <span class="n">blocking</span><span class="o">=</span><span class="n">get_error_blocking</span><span class="p">(),</span>
+        <span class="p">)</span></div></div>
+
+
+<div class="viewcode-block" id="WorkNotDefinedError"><a class="viewcode-back" href="../../../microscope_automation.util.html#microscope_automation.util.automation_exceptions.WorkNotDefinedError">[docs]</a><span class="k">class</span> <span class="nc">WorkNotDefinedError</span><span class="p">(</span><span class="n">HardwareError</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Exception if work position for focus drive is not defined.&quot;&quot;&quot;</span>
+
+<div class="viewcode-block" id="WorkNotDefinedError.error_dialog"><a class="viewcode-back" href="../../../microscope_automation.util.html#microscope_automation.util.automation_exceptions.WorkNotDefinedError.error_dialog">[docs]</a>    <span class="k">def</span> <span class="nf">error_dialog</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Show error message to user.</span>
+
+<span class="sd">        Input:</span>
+<span class="sd">         none</span>
+
+<span class="sd">        Output:</span>
+<span class="sd">         none</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="n">error_message</span><span class="p">(</span>
+            <span class="p">(</span>
+                <span class="s2">&quot;Please move objective to work position or cancel&quot;</span>
+                <span class="s2">&quot; program.</span><span class="se">\n</span><span class="s2">Error message:</span><span class="se">\n</span><span class="s2">&#39;</span><span class="si">{}</span><span class="s2">&#39;&quot;</span>
+            <span class="p">)</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">message</span><span class="p">),</span>
+            <span class="n">return_code</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+            <span class="n">blocking</span><span class="o">=</span><span class="n">get_error_blocking</span><span class="p">(),</span>
+        <span class="p">)</span></div></div>
+
+
+<span class="c1">################################################################################</span>
+<span class="c1">#</span>
+<span class="c1"># Objective exceptions</span>
+<span class="c1">#</span>
+<span class="c1">################################################################################</span>
+<div class="viewcode-block" id="ObjectiveNotDefinedError"><a class="viewcode-back" href="../../../microscope_automation.util.html#microscope_automation.util.automation_exceptions.ObjectiveNotDefinedError">[docs]</a><span class="k">class</span> <span class="nc">ObjectiveNotDefinedError</span><span class="p">(</span><span class="n">HardwareError</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Exception if selected objective was not defined.&quot;&quot;&quot;</span>
+
+<div class="viewcode-block" id="ObjectiveNotDefinedError.error_dialog"><a class="viewcode-back" href="../../../microscope_automation.util.html#microscope_automation.util.automation_exceptions.ObjectiveNotDefinedError.error_dialog">[docs]</a>    <span class="k">def</span> <span class="nf">error_dialog</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Show error message to user.</span>
+
+<span class="sd">        Input:</span>
+<span class="sd">         none</span>
+
+<span class="sd">        Output:</span>
+<span class="sd">         none</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="n">error_message</span><span class="p">(</span>
+            <span class="s1">&#39;Objective not defined.</span><span class="se">\n</span><span class="s1">Error message:</span><span class="se">\n</span><span class="s1">&quot;</span><span class="si">{}</span><span class="s1">&quot;&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">message</span><span class="p">),</span>
+            <span class="n">return_code</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+            <span class="n">blocking</span><span class="o">=</span><span class="n">get_error_blocking</span><span class="p">(),</span>
+        <span class="p">)</span></div></div>
+
+
+<span class="c1">################################################################################</span>
+<span class="c1">#</span>
+<span class="c1"># Acquisition exceptions</span>
+<span class="c1">#</span>
+<span class="c1">################################################################################</span>
+<div class="viewcode-block" id="ExperimentError"><a class="viewcode-back" href="../../../microscope_automation.util.html#microscope_automation.util.automation_exceptions.ExperimentError">[docs]</a><span class="k">class</span> <span class="nc">ExperimentError</span><span class="p">(</span><span class="n">HardwareError</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Exception for failures experiment execution.&quot;&quot;&quot;</span>
+
+<div class="viewcode-block" id="ExperimentError.error_dialog"><a class="viewcode-back" href="../../../microscope_automation.util.html#microscope_automation.util.automation_exceptions.ExperimentError.error_dialog">[docs]</a>    <span class="k">def</span> <span class="nf">error_dialog</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Show error message to user.</span>
+
+<span class="sd">        Input:</span>
+<span class="sd">         none</span>
+
+<span class="sd">        Output:</span>
+<span class="sd">         none</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="n">error_message</span><span class="p">(</span>
+            <span class="p">(</span>
+                <span class="s2">&quot;Cannot execute experiment.&quot;</span>
+                <span class="s2">&quot;</span><span class="se">\n</span><span class="s2">Please check for problems with hardware</span><span class="se">\n</span><span class="s2">&quot;</span>
+                <span class="s2">&quot; e.g. laser safety not engaged&quot;</span>
+            <span class="p">),</span>
+            <span class="n">return_code</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+            <span class="n">blocking</span><span class="o">=</span><span class="n">get_error_blocking</span><span class="p">(),</span>
+        <span class="p">)</span></div></div>
+
+
+<div class="viewcode-block" id="ExperimentNotExistError"><a class="viewcode-back" href="../../../microscope_automation.util.html#microscope_automation.util.automation_exceptions.ExperimentNotExistError">[docs]</a><span class="k">class</span> <span class="nc">ExperimentNotExistError</span><span class="p">(</span><span class="n">ExperimentError</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Exception for failures experiment execution.&quot;&quot;&quot;</span>
+
+<div class="viewcode-block" id="ExperimentNotExistError.error_dialog"><a class="viewcode-back" href="../../../microscope_automation.util.html#microscope_automation.util.automation_exceptions.ExperimentNotExistError.error_dialog">[docs]</a>    <span class="k">def</span> <span class="nf">error_dialog</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Show error message to user.</span>
+
+<span class="sd">        Input:</span>
+<span class="sd">         none</span>
+
+<span class="sd">        Output:</span>
+<span class="sd">         none</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="n">error_message</span><span class="p">(</span>
+            <span class="s1">&#39;Experiment &quot;</span><span class="si">{}</span><span class="s1">&quot; does not exist.&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">error_component</span><span class="p">),</span>
+            <span class="n">return_code</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+            <span class="n">blocking</span><span class="o">=</span><span class="n">get_error_blocking</span><span class="p">(),</span>
+        <span class="p">)</span></div></div>
+
+
+<span class="c1">################################################################################</span>
+<span class="c1">#</span>
+<span class="c1"># I/O exceptions</span>
+<span class="c1">#</span>
+<span class="c1">################################################################################</span>
+<div class="viewcode-block" id="IOError"><a class="viewcode-back" href="../../../microscope_automation.util.html#microscope_automation.util.automation_exceptions.IOError">[docs]</a><span class="k">class</span> <span class="nc">IOError</span><span class="p">(</span><span class="n">AutomationError</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Exception for I/O errors.&quot;&quot;&quot;</span>
+
+<div class="viewcode-block" id="IOError.error_dialog"><a class="viewcode-back" href="../../../microscope_automation.util.html#microscope_automation.util.automation_exceptions.IOError.error_dialog">[docs]</a>    <span class="k">def</span> <span class="nf">error_dialog</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Show error message to user.</span>
+
+<span class="sd">        Input:</span>
+<span class="sd">         none</span>
+
+<span class="sd">        Output:</span>
+<span class="sd">         none</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="n">error_message</span><span class="p">(</span>
+            <span class="s1">&#39;I/O Error.</span><span class="se">\n</span><span class="s1">Error:</span><span class="se">\n</span><span class="s1">&quot;</span><span class="si">{}</span><span class="s1">&quot;&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">message</span><span class="p">),</span>
+            <span class="n">return_code</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+            <span class="n">blocking</span><span class="o">=</span><span class="n">get_error_blocking</span><span class="p">(),</span>
+        <span class="p">)</span></div></div>
+
+
+<div class="viewcode-block" id="FileExistsError"><a class="viewcode-back" href="../../../microscope_automation.util.html#microscope_automation.util.automation_exceptions.FileExistsError">[docs]</a><span class="k">class</span> <span class="nc">FileExistsError</span><span class="p">(</span><span class="n">AutomationError</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Exception if file exists to prevent overriding it.&quot;&quot;&quot;</span>
+
+<div class="viewcode-block" id="FileExistsError.error_dialog"><a class="viewcode-back" href="../../../microscope_automation.util.html#microscope_automation.util.automation_exceptions.FileExistsError.error_dialog">[docs]</a>    <span class="k">def</span> <span class="nf">error_dialog</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Show error message to user.</span>
+
+<span class="sd">        Input:</span>
+<span class="sd">         none</span>
+
+<span class="sd">        Output:</span>
+<span class="sd">         none</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="n">error_message</span><span class="p">(</span>
+            <span class="p">(</span><span class="s2">&quot;A file with this name already exists.</span><span class="se">\n</span><span class="s2">&quot;</span> <span class="s2">&quot;Error:</span><span class="se">\n</span><span class="s2">&#39;</span><span class="si">{}</span><span class="s2">&#39;&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">message</span>
+            <span class="p">),</span>
+            <span class="n">return_code</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+            <span class="n">blocking</span><span class="o">=</span><span class="n">get_error_blocking</span><span class="p">(),</span>
+        <span class="p">)</span></div></div>
+
+
+<div class="viewcode-block" id="MetaDataNotSavedError"><a class="viewcode-back" href="../../../microscope_automation.util.html#microscope_automation.util.automation_exceptions.MetaDataNotSavedError">[docs]</a><span class="k">class</span> <span class="nc">MetaDataNotSavedError</span><span class="p">(</span><span class="n">AutomationError</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Exception if data could not be saved to meta data file.&quot;&quot;&quot;</span>
+
+<div class="viewcode-block" id="MetaDataNotSavedError.error_dialog"><a class="viewcode-back" href="../../../microscope_automation.util.html#microscope_automation.util.automation_exceptions.MetaDataNotSavedError.error_dialog">[docs]</a>    <span class="k">def</span> <span class="nf">error_dialog</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Show error message to user.</span>
+
+<span class="sd">        Input:</span>
+<span class="sd">         none</span>
+
+<span class="sd">        Output:</span>
+<span class="sd">         none</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="n">error_message</span><span class="p">(</span>
+            <span class="p">(</span><span class="s2">&quot;Could not save meta data to file.</span><span class="se">\n</span><span class="s2">&quot;</span> <span class="s2">&quot;Error:</span><span class="se">\n</span><span class="s2">&#39;</span><span class="si">{}</span><span class="s2">&#39;&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">message</span><span class="p">),</span>
+            <span class="n">return_code</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+            <span class="n">blocking</span><span class="o">=</span><span class="n">get_error_blocking</span><span class="p">(),</span>
+        <span class="p">)</span></div></div>
+
+
+<span class="c1">################################################################################</span>
+<span class="c1">#</span>
+<span class="c1"># Program flow exceptions</span>
+<span class="c1">#</span>
+<span class="c1">################################################################################</span>
+<div class="viewcode-block" id="StopCollectingError"><a class="viewcode-back" href="../../../microscope_automation.util.html#microscope_automation.util.automation_exceptions.StopCollectingError">[docs]</a><span class="k">class</span> <span class="nc">StopCollectingError</span><span class="p">(</span><span class="n">AutomationError</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Stop collecting sample positions.&quot;&quot;&quot;</span>
+
+<div class="viewcode-block" id="StopCollectingError.error_dialog"><a class="viewcode-back" href="../../../microscope_automation.util.html#microscope_automation.util.automation_exceptions.StopCollectingError.error_dialog">[docs]</a>    <span class="k">def</span> <span class="nf">error_dialog</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Show error message to user.</span>
+
+<span class="sd">        Input:</span>
+<span class="sd">         none</span>
+
+<span class="sd">        Output:</span>
+<span class="sd">         none</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="n">error_message</span><span class="p">(</span>
+            <span class="p">(</span><span class="s2">&quot;User stopped collecting image positions.</span><span class="se">\n</span><span class="s2">&quot;</span> <span class="s2">&quot;Message:</span><span class="se">\n</span><span class="s2">&#39;</span><span class="si">{}</span><span class="s2">&#39;&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">message</span>
+            <span class="p">),</span>
+            <span class="n">return_code</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+            <span class="n">blocking</span><span class="o">=</span><span class="n">get_error_blocking</span><span class="p">(),</span>
+        <span class="p">)</span></div></div>
+</pre></div>
+
+          </div>
+          
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<h1 class="logo"><a href="../../../index.html">Microscope Automation</a></h1>
+
+
+
+
+
+
+
+
+<h3>Navigation</h3>
+<p class="caption"><span class="caption-text">Overview</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../index.html">README</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../installation.html">Installation</a></li>
+</ul>
+<p class="caption"><span class="caption-text">Orchestrator</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../find_positions.html">find_positions</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../microscope_automation.html">microscope_automation package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../write_zen_tiles_experiment.html">write_zen_tiles_experiment</a></li>
+</ul>
+<p class="caption"><span class="caption-text">Hardware</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../hardware_components.html">hardware_components</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../hardware_control.html">hardware_control</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../hardware_control_3i.html">hardware_control_3i</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../hardware_control_zeiss.html">hardware_control_zeiss</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../RS232.html">RS232</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../setup_microscope.html">setup_microscope</a></li>
+</ul>
+<p class="caption"><span class="caption-text">Samples</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../correct_background.html">correct_background</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../draw_plate.html">draw_plate</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../find_well_center.html">find_well_center</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../find_cells.html">find_cells</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../interactive_location_picker_pyqtgraph.html">interactive_location_picker_pyqtgraph</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../positions_list.html">positions_list</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../samples.html">samples</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../setup_samples.html">setup_samples</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../tile_images.html">tile_images</a></li>
+</ul>
+<p class="caption"><span class="caption-text">Connectors</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../connect_slidebook.html">connect_slidebook</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../connect_zen_blue.html">connect_zen_blue</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../connect_zen_black.html">connect_zen_black</a></li>
+</ul>
+<p class="caption"><span class="caption-text">Settings</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../meta_data_file.html">meta_data_file</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../preferences.html">preferences</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../slidebook_experiment_info.html">slidebook_experiment_info</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../zen_experiment_info.html">zen_experiment_info</a></li>
+</ul>
+<p class="caption"><span class="caption-text">Utility</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../automation_exceptions.html">automation_exceptions</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../automation_messages_form_layout.html">automation_messages_form_layout</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../error_handling.html">error_handling</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../get_path.html">get_path</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../image_AICS.html">image_AICS</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../load_image_czi.html">load_image_czi</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../software_state.html">software_state</a></li>
+</ul>
+<p class="caption"><span class="caption-text">Import Helpers</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../intelligent_imaging_innovations.html">3i Imports</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../zeiss.html">Zeiss Imports</a></li>
+</ul>
+<p class="caption"><span class="caption-text">Reference Docs</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../CONTRIBUTING.html">Allen Institute Contribution Agreement</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../LICENSE.html">LICENSE</a></li>
+</ul>
+
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="../../../index.html">Documentation overview</a><ul>
+  <li><a href="../../index.html">Module code</a><ul>
+  <li><a href="../../microscope_automation.html">microscope_automation</a><ul>
+  </ul></li>
+  </ul></li>
+  </ul></li>
+</ul>
+</div>
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../../../search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" />
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script>$('#searchbox').show(0);</script>
+
+
+
+
+
+
+
+
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2020, Allen Institute.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 3.4.3</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.12</a>
+      
+    </div>
+
+    
+
+    
+  </body>
+</html>

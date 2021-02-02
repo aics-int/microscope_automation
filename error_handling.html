@@ -43,8 +43,8 @@
 <p>This module consists of a single method which sets up a logger that will handle
 errors during automation execution.</p>
 <dl class="py function">
-<dt id="microscope_automation.error_handling.setup_logger">
-<code class="sig-prename descclassname">microscope_automation.error_handling.</code><code class="sig-name descname">setup_logger</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">prefs</span></em>, <em class="sig-param"><span class="n">log_level</span><span class="o">=</span><span class="default_value">'DEBUG'</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/microscope_automation/error_handling.html#setup_logger"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#microscope_automation.error_handling.setup_logger" title="Permalink to this definition">¶</a></dt>
+<dt id="microscope_automation.util.error_handling.setup_logger">
+<code class="sig-prename descclassname">microscope_automation.util.error_handling.</code><code class="sig-name descname">setup_logger</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">prefs</span></em>, <em class="sig-param"><span class="n">log_level</span><span class="o">=</span><span class="default_value">'DEBUG'</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/microscope_automation/util/error_handling.html#setup_logger"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#microscope_automation.util.error_handling.setup_logger" title="Permalink to this definition">¶</a></dt>
 <dd><p>Initialize logger. Will work over multiple modules</p>
 <p>see <a class="reference external" href="https://docs.python.org/2/howto/logging-cookbook.html#using-logging-in-multiple-modules">https://docs.python.org/2/howto/logging-cookbook.html#using-logging-in-multiple-modules</a></p>
 </dd></dl>
@@ -73,10 +73,18 @@ errors during automation execution.</p>
 <li class="toctree-l1"><a class="reference internal" href="index.html">README</a></li>
 <li class="toctree-l1"><a class="reference internal" href="installation.html">Installation</a></li>
 </ul>
+<p class="caption"><span class="caption-text">Orchestrator</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="find_positions.html">find_positions</a></li>
+<li class="toctree-l1"><a class="reference internal" href="microscope_automation.html">microscope_automation package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="write_zen_tiles_experiment.html">write_zen_tiles_experiment</a></li>
+</ul>
 <p class="caption"><span class="caption-text">Hardware</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="hardware_components.html">hardware_components</a></li>
 <li class="toctree-l1"><a class="reference internal" href="hardware_control.html">hardware_control</a></li>
+<li class="toctree-l1"><a class="reference internal" href="hardware_control_3i.html">hardware_control_3i</a></li>
+<li class="toctree-l1"><a class="reference internal" href="hardware_control_zeiss.html">hardware_control_zeiss</a></li>
 <li class="toctree-l1"><a class="reference internal" href="RS232.html">RS232</a></li>
 <li class="toctree-l1"><a class="reference internal" href="setup_microscope.html">setup_microscope</a></li>
 </ul>
@@ -92,21 +100,20 @@ errors during automation execution.</p>
 <li class="toctree-l1"><a class="reference internal" href="setup_samples.html">setup_samples</a></li>
 <li class="toctree-l1"><a class="reference internal" href="tile_images.html">tile_images</a></li>
 </ul>
-<p class="caption"><span class="caption-text">Zeiss Microscopes</span></p>
+<p class="caption"><span class="caption-text">Connectors</span></p>
 <ul>
+<li class="toctree-l1"><a class="reference internal" href="connect_slidebook.html">connect_slidebook</a></li>
 <li class="toctree-l1"><a class="reference internal" href="connect_zen_blue.html">connect_zen_blue</a></li>
 <li class="toctree-l1"><a class="reference internal" href="connect_zen_black.html">connect_zen_black</a></li>
-<li class="toctree-l1"><a class="reference internal" href="hardware_control_zeiss.html">hardware_control_zeiss</a></li>
-<li class="toctree-l1"><a class="reference internal" href="write_zen_tiles_experiment.html">write_zen_tiles_experiment</a></li>
+</ul>
+<p class="caption"><span class="caption-text">Settings</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="meta_data_file.html">meta_data_file</a></li>
+<li class="toctree-l1"><a class="reference internal" href="preferences.html">preferences</a></li>
+<li class="toctree-l1"><a class="reference internal" href="slidebook_experiment_info.html">slidebook_experiment_info</a></li>
 <li class="toctree-l1"><a class="reference internal" href="zen_experiment_info.html">zen_experiment_info</a></li>
 </ul>
-<p class="caption"><span class="caption-text">3i Microscopes</span></p>
-<ul>
-<li class="toctree-l1"><a class="reference internal" href="hardware_control_3i.html">hardware_control_3i</a></li>
-<li class="toctree-l1"><a class="reference internal" href="connect_slidebook.html">connect_slidebook</a></li>
-<li class="toctree-l1"><a class="reference internal" href="slidebook_experiment_info.html">slidebook_experiment_info</a></li>
-</ul>
-<p class="caption"><span class="caption-text">General Methods</span></p>
+<p class="caption"><span class="caption-text">Utility</span></p>
 <ul class="current">
 <li class="toctree-l1"><a class="reference internal" href="automation_exceptions.html">automation_exceptions</a></li>
 <li class="toctree-l1"><a class="reference internal" href="automation_messages_form_layout.html">automation_messages_form_layout</a></li>
@@ -114,9 +121,12 @@ errors during automation execution.</p>
 <li class="toctree-l1"><a class="reference internal" href="get_path.html">get_path</a></li>
 <li class="toctree-l1"><a class="reference internal" href="image_AICS.html">image_AICS</a></li>
 <li class="toctree-l1"><a class="reference internal" href="load_image_czi.html">load_image_czi</a></li>
-<li class="toctree-l1"><a class="reference internal" href="meta_data_file.html">meta_data_file</a></li>
-<li class="toctree-l1"><a class="reference internal" href="microscope_automation.html">microscope_automation package</a></li>
-<li class="toctree-l1"><a class="reference internal" href="preferences.html">preferences</a></li>
+<li class="toctree-l1"><a class="reference internal" href="software_state.html">software_state</a></li>
+</ul>
+<p class="caption"><span class="caption-text">Import Helpers</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="intelligent_imaging_innovations.html">3i Imports</a></li>
+<li class="toctree-l1"><a class="reference internal" href="zeiss.html">Zeiss Imports</a></li>
 </ul>
 <p class="caption"><span class="caption-text">Reference Docs</span></p>
 <ul>

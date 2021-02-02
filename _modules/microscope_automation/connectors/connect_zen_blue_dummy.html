@@ -1,0 +1,595 @@
+
+<!DOCTYPE html>
+
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>microscope_automation.connectors.connect_zen_blue_dummy &#8212; Microscope Automation 0.0 documentation</title>
+    <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+    <link rel="stylesheet" href="../../../_static/alabaster.css" type="text/css" />
+    <script id="documentation_options" data-url_root="../../../" src="../../../_static/documentation_options.js"></script>
+    <script src="../../../_static/jquery.js"></script>
+    <script src="../../../_static/underscore.js"></script>
+    <script src="../../../_static/doctools.js"></script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" />
+   
+  <link rel="stylesheet" href="../../../_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head><body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          
+
+          <div class="body" role="main">
+            
+  <h1>Source code for microscope_automation.connectors.connect_zen_blue_dummy</h1><div class="highlight"><pre>
+<span></span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">Dummy function for ZEN blue conection</span>
+<span class="sd">Created on Sep 23, 2016</span>
+
+<span class="sd">@author: winfriedw</span>
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="kn">from</span> <span class="nn">shutil</span> <span class="kn">import</span> <span class="n">copy2</span>
+
+<span class="k">try</span><span class="p">:</span>
+    <span class="kn">import</span> <span class="nn">pathlib</span>
+<span class="k">except</span> <span class="ne">ImportError</span><span class="p">:</span>
+    <span class="kn">import</span> <span class="nn">pathlib2</span> <span class="k">as</span> <span class="nn">pathlib</span>  <span class="c1"># noqa</span>
+<span class="kn">import</span> <span class="nn">os</span>
+
+<span class="c1"># if True, print out debug messages</span>
+<span class="n">test_messages</span> <span class="o">=</span> <span class="kc">False</span>
+
+
+<div class="viewcode-block" id="MicroscopeStatus"><a class="viewcode-back" href="../../../microscope_automation.connectors.html#microscope_automation.connectors.connect_zen_blue_dummy.MicroscopeStatus">[docs]</a><span class="k">class</span> <span class="nc">MicroscopeStatus</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Create instance of this class to keeps track of microscope status.</span>
+
+<span class="sd">    Input:</span>
+<span class="sd">     none</span>
+
+<span class="sd">    Output:</span>
+<span class="sd">     none</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_xPos</span> <span class="o">=</span> <span class="mi">60000</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_yPos</span> <span class="o">=</span> <span class="mi">40000</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_zPos</span> <span class="o">=</span> <span class="mi">500</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_objective_position</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_objective_name</span> <span class="o">=</span> <span class="s2">&quot;Dummy Objective&quot;</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">xPos</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Get absolute x position for stage&quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">test_messages</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">((</span><span class="s2">&quot;MicroscopeStatus returned x as </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_xPos</span><span class="p">)))</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_xPos</span>
+
+    <span class="nd">@xPos</span><span class="o">.</span><span class="n">setter</span>
+    <span class="k">def</span> <span class="nf">xPos</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Set absolute x position for stage&quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_xPos</span> <span class="o">=</span> <span class="n">x</span>
+        <span class="k">if</span> <span class="n">test_messages</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">((</span><span class="s2">&quot;MicroscopeStatus set x as </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_xPos</span><span class="p">)))</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">yPos</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Get absolute y position for stage&quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">test_messages</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">((</span><span class="s2">&quot;MicroscopeStatus returned y as </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_yPos</span><span class="p">)))</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_yPos</span>
+
+    <span class="nd">@yPos</span><span class="o">.</span><span class="n">setter</span>
+    <span class="k">def</span> <span class="nf">yPos</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">y</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Set absolute y position for stage&quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_yPos</span> <span class="o">=</span> <span class="n">y</span>
+        <span class="k">if</span> <span class="n">test_messages</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">((</span><span class="s2">&quot;MicroscopeStatus set y as </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_yPos</span><span class="p">)))</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">zPos</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Get absolute z position for focus drive&quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">test_messages</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">((</span><span class="s2">&quot;MicroscopeStatus returned z as </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_zPos</span><span class="p">)))</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_zPos</span>
+
+    <span class="nd">@zPos</span><span class="o">.</span><span class="n">setter</span>
+    <span class="k">def</span> <span class="nf">zPos</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">z</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Set absolute z position for focus drive&quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_zPos</span> <span class="o">=</span> <span class="n">z</span>
+        <span class="k">if</span> <span class="n">test_messages</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">((</span><span class="s2">&quot;MicroscopeStatus set z as </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_zPos</span><span class="p">)))</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">objective_position</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Get position for objective in objective changer&quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">test_messages</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span>
+                <span class="p">(</span>
+                    <span class="s2">&quot;MicroscopeStatus returned objective_position as </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
+                        <span class="bp">self</span><span class="o">.</span><span class="n">_objective_position</span>
+                    <span class="p">)</span>
+                <span class="p">)</span>
+            <span class="p">)</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_objective_position</span>
+
+    <span class="nd">@objective_position</span><span class="o">.</span><span class="n">setter</span>
+    <span class="k">def</span> <span class="nf">objective_position</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">objective_position</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Set position for objective in objective changer&quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_objective_position</span> <span class="o">=</span> <span class="n">objective_position</span>
+        <span class="k">if</span> <span class="n">test_messages</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span>
+                <span class="p">(</span>
+                    <span class="s2">&quot;MicroscopeStatus set objective_position as </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
+                        <span class="bp">self</span><span class="o">.</span><span class="n">_objective_position</span>
+                    <span class="p">)</span>
+                <span class="p">)</span>
+            <span class="p">)</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">objective_name</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Get name for actual objective&quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">test_messages</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span>
+                <span class="p">(</span>
+                    <span class="s2">&quot;MicroscopeStatus returned objective_name as </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
+                        <span class="bp">self</span><span class="o">.</span><span class="n">_objective_name</span>
+                    <span class="p">)</span>
+                <span class="p">)</span>
+            <span class="p">)</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_objective_name</span>
+
+    <span class="nd">@objective_name</span><span class="o">.</span><span class="n">setter</span>
+    <span class="k">def</span> <span class="nf">objective_name</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">objective_name</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Set name for actual objective&quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_objective_name</span> <span class="o">=</span> <span class="n">objective_name</span>
+        <span class="k">if</span> <span class="n">test_messages</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span>
+                <span class="p">(</span>
+                    <span class="s2">&quot;MicroscopeStatus set objective_name as </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
+                        <span class="bp">self</span><span class="o">.</span><span class="n">_objective_name</span>
+                    <span class="p">)</span>
+                <span class="p">)</span>
+            <span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="Focus"><a class="viewcode-back" href="../../../microscope_automation.connectors.html#microscope_automation.connectors.connect_zen_blue_dummy.Focus">[docs]</a><span class="k">class</span> <span class="nc">Focus</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">microscope_status</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Class in Zeiss.Micro.Scripting.Core namespace that gives access to focus.</span>
+
+<span class="sd">        Input:</span>
+<span class="sd">         none</span>
+
+<span class="sd">        Output:</span>
+<span class="sd">         none</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># Properties of class ZenFocus</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">TargetPosition</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_microscope_status</span> <span class="o">=</span> <span class="n">microscope_status</span>
+
+    <span class="c1"># Attributes for focus</span>
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">ActualPosition</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Get the current z position for focus drive&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_microscope_status</span><span class="o">.</span><span class="n">zPos</span>
+
+    <span class="c1"># Methods of class ZenFocus</span>
+<div class="viewcode-block" id="Focus.Apply"><a class="viewcode-back" href="../../../microscope_automation.connectors.html#microscope_automation.connectors.connect_zen_blue_dummy.Focus.Apply">[docs]</a>    <span class="k">def</span> <span class="nf">Apply</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Applies the target parameter values.</span>
+
+<span class="sd">        Input:</span>
+<span class="sd">         none</span>
+
+<span class="sd">        Output:</span>
+<span class="sd">         none</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_microscope_status</span><span class="o">.</span><span class="n">zPos</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">TargetPosition</span></div>
+
+<div class="viewcode-block" id="Focus.MoveTo"><a class="viewcode-back" href="../../../microscope_automation.connectors.html#microscope_automation.connectors.connect_zen_blue_dummy.Focus.MoveTo">[docs]</a>    <span class="k">def</span> <span class="nf">MoveTo</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">z</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Moves to the specified focus position.</span>
+
+<span class="sd">        Input:</span>
+<span class="sd">         z: Focus position in um</span>
+
+<span class="sd">        Output:</span>
+<span class="sd">         none</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_microscope_status</span><span class="o">.</span><span class="n">zPos</span> <span class="o">=</span> <span class="n">z</span>
+        <span class="k">return</span> <span class="kc">None</span></div></div>
+
+
+<div class="viewcode-block" id="ObjectiveChanger"><a class="viewcode-back" href="../../../microscope_automation.connectors.html#microscope_automation.connectors.connect_zen_blue_dummy.ObjectiveChanger">[docs]</a><span class="k">class</span> <span class="nc">ObjectiveChanger</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">microscope_status</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">TargetPosition</span> <span class="o">=</span> <span class="mi">1</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">Magnification</span> <span class="o">=</span> <span class="mi">10</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_microscope_status</span> <span class="o">=</span> <span class="n">microscope_status</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">ActualPositionName</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Get name of actual objectve&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_microscope_status</span><span class="o">.</span><span class="n">objective_name</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">ActualPosition</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Get name of actual objective position in ojbective turret&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_microscope_status</span><span class="o">.</span><span class="n">objective_position</span>
+
+<div class="viewcode-block" id="ObjectiveChanger.Apply"><a class="viewcode-back" href="../../../microscope_automation.connectors.html#microscope_automation.connectors.connect_zen_blue_dummy.ObjectiveChanger.Apply">[docs]</a>    <span class="k">def</span> <span class="nf">Apply</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_microscope_status</span><span class="o">.</span><span class="n">objective_position</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">TargetPosition</span></div>
+
+<div class="viewcode-block" id="ObjectiveChanger.GetMagnificationByPosition"><a class="viewcode-back" href="../../../microscope_automation.connectors.html#microscope_automation.connectors.connect_zen_blue_dummy.ObjectiveChanger.GetMagnificationByPosition">[docs]</a>    <span class="k">def</span> <span class="nf">GetMagnificationByPosition</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">position</span><span class="p">):</span>
+        <span class="k">return</span> <span class="s2">&quot;&quot;</span></div>
+
+<div class="viewcode-block" id="ObjectiveChanger.GetNameByPosition"><a class="viewcode-back" href="../../../microscope_automation.connectors.html#microscope_automation.connectors.connect_zen_blue_dummy.ObjectiveChanger.GetNameByPosition">[docs]</a>    <span class="k">def</span> <span class="nf">GetNameByPosition</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">position</span><span class="p">):</span>
+        <span class="k">return</span> <span class="kc">None</span></div></div>
+
+
+<div class="viewcode-block" id="Stage"><a class="viewcode-back" href="../../../microscope_automation.connectors.html#microscope_automation.connectors.connect_zen_blue_dummy.Stage">[docs]</a><span class="k">class</span> <span class="nc">Stage</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">microscope_status</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">TargetPositionY</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_microscope_status</span> <span class="o">=</span> <span class="n">microscope_status</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">ActualPositionX</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Get actual x position for stage&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_microscope_status</span><span class="o">.</span><span class="n">xPos</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">ActualPositionY</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Get actual y position for stage&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_microscope_status</span><span class="o">.</span><span class="n">yPos</span>
+
+<div class="viewcode-block" id="Stage.Apply"><a class="viewcode-back" href="../../../microscope_automation.connectors.html#microscope_automation.connectors.connect_zen_blue_dummy.Stage.Apply">[docs]</a>    <span class="k">def</span> <span class="nf">Apply</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_microscope_status</span><span class="o">.</span><span class="n">xPos</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">TargetPositionX</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_microscope_status</span><span class="o">.</span><span class="n">yPos</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">TargetPositionY</span></div></div>
+
+
+<div class="viewcode-block" id="Devices"><a class="viewcode-back" href="../../../microscope_automation.connectors.html#microscope_automation.connectors.connect_zen_blue_dummy.Devices">[docs]</a><span class="k">class</span> <span class="nc">Devices</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Simulated device objects&quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">microscope_status</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Create Zen devices object&quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">Focus</span> <span class="o">=</span> <span class="n">Focus</span><span class="p">(</span><span class="n">microscope_status</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">ObjectiveChanger</span> <span class="o">=</span> <span class="n">ObjectiveChanger</span><span class="p">(</span><span class="n">microscope_status</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">Stage</span> <span class="o">=</span> <span class="n">Stage</span><span class="p">(</span><span class="n">microscope_status</span><span class="p">)</span></div>
+
+
+<span class="c1">######################################################################################</span>
+<span class="c1">#</span>
+<span class="c1"># Classes for Acquisition</span>
+<span class="c1">#</span>
+<span class="c1">######################################################################################</span>
+
+
+<div class="viewcode-block" id="Experiments"><a class="viewcode-back" href="../../../microscope_automation.connectors.html#microscope_automation.connectors.connect_zen_blue_dummy.Experiments">[docs]</a><span class="k">class</span> <span class="nc">Experiments</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">microscope_status</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_microscope_status</span> <span class="o">=</span> <span class="n">microscope_status</span>
+
+<div class="viewcode-block" id="Experiments.GetByName"><a class="viewcode-back" href="../../../microscope_automation.connectors.html#microscope_automation.connectors.connect_zen_blue_dummy.Experiments.GetByName">[docs]</a>    <span class="k">def</span> <span class="nf">GetByName</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">experiment</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">experiment</span></div>
+
+<div class="viewcode-block" id="Experiments.ActiveExperiment"><a class="viewcode-back" href="../../../microscope_automation.connectors.html#microscope_automation.connectors.connect_zen_blue_dummy.Experiments.ActiveExperiment">[docs]</a>    <span class="k">def</span> <span class="nf">ActiveExperiment</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="s2">&quot;Experiment&quot;</span></div>
+
+<div class="viewcode-block" id="Experiments.Contains"><a class="viewcode-back" href="../../../microscope_automation.connectors.html#microscope_automation.connectors.connect_zen_blue_dummy.Experiments.Contains">[docs]</a>    <span class="k">def</span> <span class="nf">Contains</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">expClass</span><span class="p">):</span>
+        <span class="k">return</span> <span class="kc">True</span></div></div>
+
+
+<div class="viewcode-block" id="Image"><a class="viewcode-back" href="../../../microscope_automation.connectors.html#microscope_automation.connectors.connect_zen_blue_dummy.Image">[docs]</a><span class="k">class</span> <span class="nc">Image</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+<div class="viewcode-block" id="Image.Save_2"><a class="viewcode-back" href="../../../microscope_automation.connectors.html#microscope_automation.connectors.connect_zen_blue_dummy.Image.Save_2">[docs]</a>    <span class="k">def</span> <span class="nf">Save_2</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">fileName</span><span class="p">):</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">fileName</span><span class="p">)):</span>
+            <span class="n">exampleImage</span> <span class="o">=</span> <span class="s2">&quot;../data/testImages/WellEdge_0.czi&quot;</span>
+            <span class="n">copy2</span><span class="p">(</span><span class="n">exampleImage</span><span class="p">,</span> <span class="n">fileName</span><span class="p">)</span></div></div>
+
+
+<div class="viewcode-block" id="Acquisition"><a class="viewcode-back" href="../../../microscope_automation.connectors.html#microscope_automation.connectors.connect_zen_blue_dummy.Acquisition">[docs]</a><span class="k">class</span> <span class="nc">Acquisition</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Simulate image acquisition&quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">microscope_status</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">Experiments</span> <span class="o">=</span> <span class="n">Experiments</span><span class="p">(</span><span class="n">microscope_status</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">storedAutofocus</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_microscope_status</span> <span class="o">=</span> <span class="n">microscope_status</span>
+
+    <span class="k">def</span> <span class="nf">_set_objective</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">experiment</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Sets for debug purposes active objective name based on experiment name.&quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="s2">&quot;10x&quot;</span> <span class="ow">in</span> <span class="n">experiment</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_microscope_status</span><span class="o">.</span><span class="n">objective_name</span> <span class="o">=</span> <span class="s2">&quot;Plan-Apochromat 10x/0.45&quot;</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_microscope_status</span><span class="o">.</span><span class="n">objective_position</span> <span class="o">=</span> <span class="mi">1</span>
+        <span class="k">if</span> <span class="s2">&quot;20x&quot;</span> <span class="ow">in</span> <span class="n">experiment</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_microscope_status</span><span class="o">.</span><span class="n">objective_name</span> <span class="o">=</span> <span class="s2">&quot;Plan-Apochromat 20x/0.8 M27&quot;</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_microscope_status</span><span class="o">.</span><span class="n">objective_position</span> <span class="o">=</span> <span class="mi">2</span>
+        <span class="k">if</span> <span class="s2">&quot;100x&quot;</span> <span class="ow">in</span> <span class="n">experiment</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_microscope_status</span><span class="o">.</span><span class="n">objective_name</span> <span class="o">=</span> <span class="p">(</span>
+                <span class="s2">&quot;C-Apochromat 100x/1.25 W Korr UV VIS IR&quot;</span>
+            <span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_microscope_status</span><span class="o">.</span><span class="n">objective_position</span> <span class="o">=</span> <span class="mi">3</span>
+
+<div class="viewcode-block" id="Acquisition.Execute"><a class="viewcode-back" href="../../../microscope_automation.connectors.html#microscope_automation.connectors.connect_zen_blue_dummy.Acquisition.Execute">[docs]</a>    <span class="k">def</span> <span class="nf">Execute</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">experiment</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_set_objective</span><span class="p">(</span><span class="n">experiment</span><span class="p">)</span>
+        <span class="n">im</span> <span class="o">=</span> <span class="n">Image</span><span class="p">()</span>
+        <span class="k">return</span> <span class="n">im</span></div>
+
+<div class="viewcode-block" id="Acquisition.AcquireImage_3"><a class="viewcode-back" href="../../../microscope_automation.connectors.html#microscope_automation.connectors.connect_zen_blue_dummy.Acquisition.AcquireImage_3">[docs]</a>    <span class="k">def</span> <span class="nf">AcquireImage_3</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">expClass</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_set_objective</span><span class="p">(</span><span class="n">expClass</span><span class="p">)</span>
+        <span class="n">im</span> <span class="o">=</span> <span class="n">Image</span><span class="p">()</span>
+        <span class="k">return</span> <span class="n">im</span></div>
+
+<div class="viewcode-block" id="Acquisition.StartLive"><a class="viewcode-back" href="../../../microscope_automation.connectors.html#microscope_automation.connectors.connect_zen_blue_dummy.Acquisition.StartLive">[docs]</a>    <span class="k">def</span> <span class="nf">StartLive</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">im</span> <span class="o">=</span> <span class="n">Image</span><span class="p">()</span>
+        <span class="k">return</span> <span class="n">im</span></div>
+
+<div class="viewcode-block" id="Acquisition.StartLive_2"><a class="viewcode-back" href="../../../microscope_automation.connectors.html#microscope_automation.connectors.connect_zen_blue_dummy.Acquisition.StartLive_2">[docs]</a>    <span class="k">def</span> <span class="nf">StartLive_2</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">experiment</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_set_objective</span><span class="p">(</span><span class="n">experiment</span><span class="p">)</span>
+        <span class="n">im</span> <span class="o">=</span> <span class="n">Image</span><span class="p">()</span>
+        <span class="k">return</span> <span class="n">im</span></div>
+
+<div class="viewcode-block" id="Acquisition.StopLive_2"><a class="viewcode-back" href="../../../microscope_automation.connectors.html#microscope_automation.connectors.connect_zen_blue_dummy.Acquisition.StopLive_2">[docs]</a>    <span class="k">def</span> <span class="nf">StopLive_2</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">expClass</span><span class="p">):</span>
+        <span class="k">pass</span></div>
+
+<div class="viewcode-block" id="Acquisition.StopLive"><a class="viewcode-back" href="../../../microscope_automation.connectors.html#microscope_automation.connectors.connect_zen_blue_dummy.Acquisition.StopLive">[docs]</a>    <span class="k">def</span> <span class="nf">StopLive</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">pass</span></div>
+
+<div class="viewcode-block" id="Acquisition.FindSurface"><a class="viewcode-back" href="../../../microscope_automation.connectors.html#microscope_automation.connectors.connect_zen_blue_dummy.Acquisition.FindSurface">[docs]</a>    <span class="k">def</span> <span class="nf">FindSurface</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Finds the surface using definite focus.</span>
+
+<span class="sd">        Input:</span>
+<span class="sd">         none</span>
+
+<span class="sd">        Output:</span>
+<span class="sd">         none</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_microscope_status</span><span class="o">.</span><span class="n">zPos</span> <span class="o">=</span> <span class="mi">9000</span>
+        <span class="k">return</span> <span class="kc">None</span></div>
+
+<div class="viewcode-block" id="Acquisition.StoreFocus"><a class="viewcode-back" href="../../../microscope_automation.connectors.html#microscope_automation.connectors.connect_zen_blue_dummy.Acquisition.StoreFocus">[docs]</a>    <span class="k">def</span> <span class="nf">StoreFocus</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Initializes the definite focus on the current position.</span>
+
+<span class="sd">        Input:</span>
+<span class="sd">         none</span>
+
+<span class="sd">        Output:</span>
+<span class="sd">         none</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">storedAutofocus</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_microscope_status</span><span class="o">.</span><span class="n">zPos</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">storedAutofocus</span></div>
+
+<div class="viewcode-block" id="Acquisition.RecallFocus"><a class="viewcode-back" href="../../../microscope_automation.connectors.html#microscope_automation.connectors.connect_zen_blue_dummy.Acquisition.RecallFocus">[docs]</a>    <span class="k">def</span> <span class="nf">RecallFocus</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Finds the surface + offset.</span>
+
+<span class="sd">        Input:</span>
+<span class="sd">         none</span>
+
+<span class="sd">        Output</span>
+<span class="sd">         none</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_microscope_status</span><span class="o">.</span><span class="n">zPos</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">storedAutofocus</span> <span class="o">+</span> <span class="mi">100</span>
+        <span class="k">return</span> <span class="kc">None</span></div>
+
+<div class="viewcode-block" id="Acquisition.FindAutoFocus"><a class="viewcode-back" href="../../../microscope_automation.connectors.html#microscope_automation.connectors.connect_zen_blue_dummy.Acquisition.FindAutoFocus">[docs]</a>    <span class="k">def</span> <span class="nf">FindAutoFocus</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Use the autofocus of the current experiment to find the sample.</span>
+
+<span class="sd">        Input:</span>
+<span class="sd">         none</span>
+
+<span class="sd">        Output:</span>
+<span class="sd">         none</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_microscope_status</span><span class="o">.</span><span class="n">zPos</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">storedAutofocus</span>
+        <span class="k">return</span> <span class="kc">None</span></div>
+
+<div class="viewcode-block" id="Acquisition.FindAutoFocus_2"><a class="viewcode-back" href="../../../microscope_automation.connectors.html#microscope_automation.connectors.connect_zen_blue_dummy.Acquisition.FindAutoFocus_2">[docs]</a>    <span class="k">def</span> <span class="nf">FindAutoFocus_2</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">experiment</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Use the autofocus of the current experiment to find the sample.</span>
+
+<span class="sd">        Input:</span>
+<span class="sd">         experiment: String name of experiment in ZEN blue software</span>
+
+<span class="sd">        Output:</span>
+<span class="sd">         none</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_microscope_status</span><span class="o">.</span><span class="n">zPos</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">storedAutofocus</span>
+        <span class="k">return</span> <span class="kc">None</span></div></div>
+
+
+<span class="c1">######################################################################################</span>
+<span class="c1">#</span>
+<span class="c1"># Classes for Documents</span>
+<span class="c1">#</span>
+<span class="c1">######################################################################################</span>
+
+
+<div class="viewcode-block" id="Documents"><a class="viewcode-back" href="../../../microscope_automation.connectors.html#microscope_automation.connectors.connect_zen_blue_dummy.Documents">[docs]</a><span class="k">class</span> <span class="nc">Documents</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+<div class="viewcode-block" id="Documents.RemoveAll"><a class="viewcode-back" href="../../../microscope_automation.connectors.html#microscope_automation.connectors.connect_zen_blue_dummy.Documents.RemoveAll">[docs]</a>    <span class="k">def</span> <span class="nf">RemoveAll</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">remove</span><span class="p">):</span>
+        <span class="k">pass</span></div>
+
+<div class="viewcode-block" id="Documents.Add"><a class="viewcode-back" href="../../../microscope_automation.connectors.html#microscope_automation.connectors.connect_zen_blue_dummy.Documents.Add">[docs]</a>    <span class="k">def</span> <span class="nf">Add</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">image</span><span class="p">):</span>
+        <span class="k">pass</span></div></div>
+
+
+<span class="c1">######################################################################################</span>
+<span class="c1">#</span>
+<span class="c1"># Classes for Application</span>
+<span class="c1">#</span>
+<span class="c1">######################################################################################</span>
+
+
+<div class="viewcode-block" id="Application"><a class="viewcode-back" href="../../../microscope_automation.connectors.html#microscope_automation.connectors.connect_zen_blue_dummy.Application">[docs]</a><span class="k">class</span> <span class="nc">Application</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">microscope_status</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">Documents</span> <span class="o">=</span> <span class="n">Documents</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">microscope_status</span> <span class="o">=</span> <span class="n">microscope_status</span>
+
+<div class="viewcode-block" id="Application.Pause"><a class="viewcode-back" href="../../../microscope_automation.connectors.html#microscope_automation.connectors.connect_zen_blue_dummy.Application.Pause">[docs]</a>    <span class="k">def</span> <span class="nf">Pause</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">message</span><span class="p">):</span>
+        <span class="k">pass</span></div>
+
+<div class="viewcode-block" id="Application.RunMacro"><a class="viewcode-back" href="../../../microscope_automation.connectors.html#microscope_automation.connectors.connect_zen_blue_dummy.Application.RunMacro">[docs]</a>    <span class="k">def</span> <span class="nf">RunMacro</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">macro_name</span><span class="p">):</span>
+        <span class="nb">print</span><span class="p">((</span><span class="s2">&quot;Test mode: Running Macro: &quot;</span><span class="p">,</span> <span class="n">macro_name</span><span class="p">))</span>
+        <span class="k">return</span> <span class="s2">&quot;ok&quot;</span></div>
+
+<div class="viewcode-block" id="Application.RunMacro_2"><a class="viewcode-back" href="../../../microscope_automation.connectors.html#microscope_automation.connectors.connect_zen_blue_dummy.Application.RunMacro_2">[docs]</a>    <span class="k">def</span> <span class="nf">RunMacro_2</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">macro_name</span><span class="p">,</span> <span class="n">macro_params</span><span class="p">):</span>
+        <span class="nb">print</span><span class="p">(</span>
+            <span class="p">(</span>
+                <span class="s2">&quot;Test mode: Running Macro: &quot;</span>
+                <span class="o">+</span> <span class="n">macro_name</span>
+                <span class="o">+</span> <span class="s2">&quot; | Parameter: &quot;</span>
+                <span class="o">+</span> <span class="n">macro_params</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+            <span class="p">)</span>
+        <span class="p">)</span>
+        <span class="k">return</span> <span class="s2">&quot;ok&quot;</span></div></div>
+
+
+<span class="c1">######################################################################################</span>
+<span class="c1">#</span>
+<span class="c1"># Class GetActiveObject</span>
+<span class="c1">#</span>
+<span class="c1">######################################################################################</span>
+
+
+<div class="viewcode-block" id="GetActiveObject"><a class="viewcode-back" href="../../../microscope_automation.connectors.html#microscope_automation.connectors.connect_zen_blue_dummy.GetActiveObject">[docs]</a><span class="k">class</span> <span class="nc">GetActiveObject</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Simulation for connection to ZEN blue software.&quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Simmulation: Connect to Carl Zeiss ZEN blue Python API</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">microscope_status</span> <span class="o">=</span> <span class="n">MicroscopeStatus</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">Devices</span> <span class="o">=</span> <span class="n">Devices</span><span class="p">(</span><span class="n">microscope_status</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">Acquisition</span> <span class="o">=</span> <span class="n">Acquisition</span><span class="p">(</span><span class="n">microscope_status</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">Application</span> <span class="o">=</span> <span class="n">Application</span><span class="p">(</span><span class="n">microscope_status</span><span class="p">)</span></div>
+</pre></div>
+
+          </div>
+          
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<h1 class="logo"><a href="../../../index.html">Microscope Automation</a></h1>
+
+
+
+
+
+
+
+
+<h3>Navigation</h3>
+<p class="caption"><span class="caption-text">Overview</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../index.html">README</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../installation.html">Installation</a></li>
+</ul>
+<p class="caption"><span class="caption-text">Orchestrator</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../find_positions.html">find_positions</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../microscope_automation.html">microscope_automation package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../write_zen_tiles_experiment.html">write_zen_tiles_experiment</a></li>
+</ul>
+<p class="caption"><span class="caption-text">Hardware</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../hardware_components.html">hardware_components</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../hardware_control.html">hardware_control</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../hardware_control_3i.html">hardware_control_3i</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../hardware_control_zeiss.html">hardware_control_zeiss</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../RS232.html">RS232</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../setup_microscope.html">setup_microscope</a></li>
+</ul>
+<p class="caption"><span class="caption-text">Samples</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../correct_background.html">correct_background</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../draw_plate.html">draw_plate</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../find_well_center.html">find_well_center</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../find_cells.html">find_cells</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../interactive_location_picker_pyqtgraph.html">interactive_location_picker_pyqtgraph</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../positions_list.html">positions_list</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../samples.html">samples</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../setup_samples.html">setup_samples</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../tile_images.html">tile_images</a></li>
+</ul>
+<p class="caption"><span class="caption-text">Connectors</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../connect_slidebook.html">connect_slidebook</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../connect_zen_blue.html">connect_zen_blue</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../connect_zen_black.html">connect_zen_black</a></li>
+</ul>
+<p class="caption"><span class="caption-text">Settings</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../meta_data_file.html">meta_data_file</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../preferences.html">preferences</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../slidebook_experiment_info.html">slidebook_experiment_info</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../zen_experiment_info.html">zen_experiment_info</a></li>
+</ul>
+<p class="caption"><span class="caption-text">Utility</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../automation_exceptions.html">automation_exceptions</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../automation_messages_form_layout.html">automation_messages_form_layout</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../error_handling.html">error_handling</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../get_path.html">get_path</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../image_AICS.html">image_AICS</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../load_image_czi.html">load_image_czi</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../software_state.html">software_state</a></li>
+</ul>
+<p class="caption"><span class="caption-text">Import Helpers</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../intelligent_imaging_innovations.html">3i Imports</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../zeiss.html">Zeiss Imports</a></li>
+</ul>
+<p class="caption"><span class="caption-text">Reference Docs</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../CONTRIBUTING.html">Allen Institute Contribution Agreement</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../LICENSE.html">LICENSE</a></li>
+</ul>
+
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="../../../index.html">Documentation overview</a><ul>
+  <li><a href="../../index.html">Module code</a><ul>
+  <li><a href="../../microscope_automation.html">microscope_automation</a><ul>
+  </ul></li>
+  </ul></li>
+  </ul></li>
+</ul>
+</div>
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../../../search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" />
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script>$('#searchbox').show(0);</script>
+
+
+
+
+
+
+
+
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2020, Allen Institute.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 3.4.3</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.12</a>
+      
+    </div>
+
+    
+
+    
+  </body>
+</html>

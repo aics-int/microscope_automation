@@ -1,0 +1,340 @@
+
+<!DOCTYPE html>
+
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>find_positions &#8212; Microscope Automation 0.0 documentation</title>
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    <link rel="stylesheet" href="_static/alabaster.css" type="text/css" />
+    <script id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+    <script src="_static/jquery.js"></script>
+    <script src="_static/underscore.js"></script>
+    <script src="_static/doctools.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="microscope_automation package" href="microscope_automation.html" />
+    <link rel="prev" title="Installation" href="installation.html" />
+   
+  <link rel="stylesheet" href="_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head><body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          
+
+          <div class="body" role="main">
+            
+  <div class="contents topic" id="contents">
+<p class="topic-title">Contents</p>
+<ul class="simple">
+<li><p><a class="reference internal" href="#find-positions" id="id2">find_positions</a></p></li>
+</ul>
+</div>
+<div class="section" id="find-positions">
+<span id="id1"></span><h1><a class="toc-backref" href="#id2">find_positions</a><a class="headerlink" href="#find-positions" title="Permalink to this headline">¶</a></h1>
+<p>This module contains tools to find positions for imaging. At the moment it is only
+used by <span class="xref std std-ref">microscope_automation</span>.</p>
+<dl class="py function">
+<dt id="microscope_automation.orchestrator.find_positions.copy_zero_position">
+<code class="sig-prename descclassname">microscope_automation.orchestrator.find_positions.</code><code class="sig-name descname">copy_zero_position</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">sample_object</span></em>, <em class="sig-param"><span class="n">output_class</span></em>, <em class="sig-param"><span class="n">image</span></em>, <em class="sig-param"><span class="n">z_center_background</span><span class="o">=</span><span class="default_value">0</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/microscope_automation/orchestrator/find_positions.html#copy_zero_position"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#microscope_automation.orchestrator.find_positions.copy_zero_position" title="Permalink to this definition">¶</a></dt>
+<dd><p>Create new object with identical zero position.</p>
+<dl>
+<dt>Input:</dt><dd><p>sampleObject: object that is searched</p>
+<p>output_class: string with name of class of new created output object</p>
+<p>image: image of class imageAICS searched</p>
+<p>z_center_background: center of background in the z direction</p>
+</dd>
+<dt>Output:</dt><dd><p>new_objects: list with objects of class output_class</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt id="microscope_automation.orchestrator.find_positions.copy_image_position">
+<code class="sig-prename descclassname">microscope_automation.orchestrator.find_positions.</code><code class="sig-name descname">copy_image_position</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">sample_object</span></em>, <em class="sig-param"><span class="n">output_class</span></em>, <em class="sig-param"><span class="n">image</span></em>, <em class="sig-param"><span class="n">offset</span><span class="o">=</span><span class="default_value">(0, 0, 0)</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/microscope_automation/orchestrator/find_positions.html#copy_image_position"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#microscope_automation.orchestrator.find_positions.copy_image_position" title="Permalink to this definition">¶</a></dt>
+<dd><p>Create new object with zero position relative to center of image.</p>
+<dl>
+<dt>Input:</dt><dd><p>sample_object: object that is searched</p>
+<p>output_class: string with name of class of new created output object</p>
+<p>image: image of class imageAICS</p>
+<dl class="simple">
+<dt>offset: offset in um relative to center of image as (x, y, z)</dt><dd><p>Default: (0, 0, 0) (center of image)</p>
+</dd>
+</dl>
+</dd>
+<dt>Output:</dt><dd><p>new_object: object of class output_class</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt id="microscope_automation.orchestrator.find_positions.convert_location_list">
+<code class="sig-prename descclassname">microscope_automation.orchestrator.find_positions.</code><code class="sig-name descname">convert_location_list</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">location_list</span></em>, <em class="sig-param"><span class="n">image</span></em>, <em class="sig-param"><span class="n">image_type</span><span class="o">=</span><span class="default_value">'czi'</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/microscope_automation/orchestrator/find_positions.html#convert_location_list"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#microscope_automation.orchestrator.find_positions.convert_location_list" title="Permalink to this definition">¶</a></dt>
+<dd><p>Function to convert the coordinates to microns
+and relative to the center of the image.
+First all the locations are converted to microns using the pixel size of the image.
+Then the locations are converted so that they are relative
+to the center of the image instead of the bottom right corner.
+This calculation is done using the size of image.</p>
+<dl>
+<dt>Input:</dt><dd><p>location_list: list of coordinates</p>
+<p>image: imageAICS object with all the meta data</p>
+<p>image_type: tiff or czi: both have different units for physical pixel size</p>
+</dd>
+<dt>Output:</dt><dd><p>location_list_relative_to_zero: corrected location list</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt id="microscope_automation.orchestrator.find_positions.get_single_slice">
+<code class="sig-prename descclassname">microscope_automation.orchestrator.find_positions.</code><code class="sig-name descname">get_single_slice</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">image</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/microscope_automation/orchestrator/find_positions.html#get_single_slice"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#microscope_automation.orchestrator.find_positions.get_single_slice" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return single image slice.</p>
+<dl class="simple">
+<dt>Input:</dt><dd><p>image: image of class imageAICS</p>
+</dd>
+<dt>Output:</dt><dd><p>image_data: 2D numpy array</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt id="microscope_automation.orchestrator.find_positions.location_to_object">
+<code class="sig-prename descclassname">microscope_automation.orchestrator.find_positions.</code><code class="sig-name descname">location_to_object</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">sample_object</span></em>, <em class="sig-param"><span class="n">output_class</span></em>, <em class="sig-param"><span class="n">image</span></em>, <em class="sig-param"><span class="n">location_list</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/microscope_automation/orchestrator/find_positions.html#location_to_object"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#microscope_automation.orchestrator.find_positions.location_to_object" title="Permalink to this definition">¶</a></dt>
+<dd><p>Convert position list to new objects.</p>
+<dl>
+<dt>Input:</dt><dd><p>sample_object: object that is searched</p>
+<p>output_class: string with name of class of new created output object</p>
+<p>image: image of class imageAICS</p>
+<p>location_list: list of coordinates</p>
+</dd>
+<dt>Output:</dt><dd><p>[new_objects, new_objects_dict]: [list with objects of class output_class,
+dictionary with name and objects]</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt id="microscope_automation.orchestrator.find_positions.find_interactive_position">
+<code class="sig-prename descclassname">microscope_automation.orchestrator.find_positions.</code><code class="sig-name descname">find_interactive_position</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">sample_object</span></em>, <em class="sig-param"><span class="n">output_class</span></em>, <em class="sig-param"><span class="n">image</span></em>, <em class="sig-param"><span class="n">app</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/microscope_automation/orchestrator/find_positions.html#find_interactive_position"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#microscope_automation.orchestrator.find_positions.find_interactive_position" title="Permalink to this definition">¶</a></dt>
+<dd><p>Create new object with zero position based on interactive selection.</p>
+<dl>
+<dt>Input:</dt><dd><p>sample_object: object that is searched</p>
+<p>output_class: string with name of class of new created output object</p>
+<p>image: image of class imageAICS</p>
+<p>app: object of class QtGui.QApplication</p>
+</dd>
+<dt>Output:</dt><dd><p>new_objects: list with objects of class output_class</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt id="microscope_automation.orchestrator.find_positions.segmentation">
+<code class="sig-prename descclassname">microscope_automation.orchestrator.find_positions.</code><code class="sig-name descname">segmentation</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">image_data</span></em>, <em class="sig-param"><span class="n">segmentation_type</span><span class="o">=</span><span class="default_value">'colony'</span></em>, <em class="sig-param"><span class="n">segmentation_settings</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/microscope_automation/orchestrator/find_positions.html#segmentation"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#microscope_automation.orchestrator.find_positions.segmentation" title="Permalink to this definition">¶</a></dt>
+<dd><p>Different algorithms to segment sample.</p>
+<dl>
+<dt>Input:</dt><dd><p>image_data: 2D numpy array with image data</p>
+<dl class="simple">
+<dt>segmentation_type: possible values:</dt><dd><p>‘colony’: segment hiPSC colonies (default)
+‘otsu’: intensity  segmentation based on Ostu algorithm</p>
+</dd>
+</dl>
+<p>segmentation_settings: settings from preferences file.
+Default (None) use default settings</p>
+</dd>
+<dt>Output:</dt><dd><p>segmented_position_list: list with (x, y) positions</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt id="microscope_automation.orchestrator.find_positions.find_interactive_distance_map">
+<code class="sig-prename descclassname">microscope_automation.orchestrator.find_positions.</code><code class="sig-name descname">find_interactive_distance_map</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">sample_object</span></em>, <em class="sig-param"><span class="n">output_class</span></em>, <em class="sig-param"><span class="n">image</span></em>, <em class="sig-param"><span class="n">segmentation_settings</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">app</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/microscope_automation/orchestrator/find_positions.html#find_interactive_distance_map"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#microscope_automation.orchestrator.find_positions.find_interactive_distance_map" title="Permalink to this definition">¶</a></dt>
+<dd><p>Create new object with zero position based on interactive selection.</p>
+<dl>
+<dt>Input:</dt><dd><p>sampleObject: object that is searched</p>
+<p>output_class: string with name of class of new created output object</p>
+<p>image: image of class imageAICS</p>
+<p>segmentation_settings: settings from preferences file</p>
+<p>app: object of class QtGui.QApplication</p>
+</dd>
+<dt>Output:</dt><dd><p>[new_objects, new_objects_dict]: [list with objects of class output_class,
+dictionary with name and objects]</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt id="microscope_automation.orchestrator.find_positions.create_output_objects_from_parent_object">
+<code class="sig-prename descclassname">microscope_automation.orchestrator.find_positions.</code><code class="sig-name descname">create_output_objects_from_parent_object</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">find_type</span></em>, <em class="sig-param"><span class="n">sample_object</span></em>, <em class="sig-param"><span class="n">imaging_settings</span></em>, <em class="sig-param"><span class="n">image</span></em>, <em class="sig-param"><span class="n">output_class</span></em>, <em class="sig-param"><span class="n">app</span></em>, <em class="sig-param"><span class="n">offset</span><span class="o">=</span><span class="default_value">(0, 0, 0)</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/microscope_automation/orchestrator/find_positions.html#create_output_objects_from_parent_object"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#microscope_automation.orchestrator.find_positions.create_output_objects_from_parent_object" title="Permalink to this definition">¶</a></dt>
+<dd><p>This function has methods to create output objects (cells, colonies, background)
+from the parent object(Well, colony)</p>
+<dl>
+<dt>Input:</dt><dd><dl class="simple">
+<dt>find_type: string with name of search algorithm. Possible values:</dt><dd><p>‘copy_zero_position’: keep position
+‘copy_image_position’: use center of image as object zero position
+‘CenterMassCellProfiler’ : find cells using cell profiler
+‘TwofoldDistanceMap’ : find cells in a colony using two fold distance map
+‘Interactive’: select position interactively
+‘InteractiveDistanceMap’: shows recommended positions (by segmentation)
+&amp; can select them interactively</p>
+</dd>
+</dl>
+<p>sample_object: object that is searched</p>
+<p>imaging_settings: settings from preferences file</p>
+<p>image: image of class imageAICS searched</p>
+<p>output_class: class of new created output object</p>
+<p>app: object of class QtGui.QApplication</p>
+<dl class="simple">
+<dt>offset: offset in um relative to center of image as (x, y, z)</dt><dd><p>Default: (0, 0, 0) (center of image)</p>
+</dd>
+</dl>
+</dd>
+<dt>Output:</dt><dd><p>[new_objects, new_objects_dict]: [list with objects of class output_class,
+dictionary with name and objects]</p>
+</dd>
+</dl>
+</dd></dl>
+
+</div>
+
+
+          </div>
+          
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<h1 class="logo"><a href="index.html">Microscope Automation</a></h1>
+
+
+
+
+
+
+
+
+<h3>Navigation</h3>
+<p class="caption"><span class="caption-text">Overview</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="index.html">README</a></li>
+<li class="toctree-l1"><a class="reference internal" href="installation.html">Installation</a></li>
+</ul>
+<p class="caption"><span class="caption-text">Orchestrator</span></p>
+<ul class="current">
+<li class="toctree-l1 current"><a class="current reference internal" href="#">find_positions</a></li>
+<li class="toctree-l1"><a class="reference internal" href="microscope_automation.html">microscope_automation package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="write_zen_tiles_experiment.html">write_zen_tiles_experiment</a></li>
+</ul>
+<p class="caption"><span class="caption-text">Hardware</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="hardware_components.html">hardware_components</a></li>
+<li class="toctree-l1"><a class="reference internal" href="hardware_control.html">hardware_control</a></li>
+<li class="toctree-l1"><a class="reference internal" href="hardware_control_3i.html">hardware_control_3i</a></li>
+<li class="toctree-l1"><a class="reference internal" href="hardware_control_zeiss.html">hardware_control_zeiss</a></li>
+<li class="toctree-l1"><a class="reference internal" href="RS232.html">RS232</a></li>
+<li class="toctree-l1"><a class="reference internal" href="setup_microscope.html">setup_microscope</a></li>
+</ul>
+<p class="caption"><span class="caption-text">Samples</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="correct_background.html">correct_background</a></li>
+<li class="toctree-l1"><a class="reference internal" href="draw_plate.html">draw_plate</a></li>
+<li class="toctree-l1"><a class="reference internal" href="find_well_center.html">find_well_center</a></li>
+<li class="toctree-l1"><a class="reference internal" href="find_cells.html">find_cells</a></li>
+<li class="toctree-l1"><a class="reference internal" href="interactive_location_picker_pyqtgraph.html">interactive_location_picker_pyqtgraph</a></li>
+<li class="toctree-l1"><a class="reference internal" href="positions_list.html">positions_list</a></li>
+<li class="toctree-l1"><a class="reference internal" href="samples.html">samples</a></li>
+<li class="toctree-l1"><a class="reference internal" href="setup_samples.html">setup_samples</a></li>
+<li class="toctree-l1"><a class="reference internal" href="tile_images.html">tile_images</a></li>
+</ul>
+<p class="caption"><span class="caption-text">Connectors</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="connect_slidebook.html">connect_slidebook</a></li>
+<li class="toctree-l1"><a class="reference internal" href="connect_zen_blue.html">connect_zen_blue</a></li>
+<li class="toctree-l1"><a class="reference internal" href="connect_zen_black.html">connect_zen_black</a></li>
+</ul>
+<p class="caption"><span class="caption-text">Settings</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="meta_data_file.html">meta_data_file</a></li>
+<li class="toctree-l1"><a class="reference internal" href="preferences.html">preferences</a></li>
+<li class="toctree-l1"><a class="reference internal" href="slidebook_experiment_info.html">slidebook_experiment_info</a></li>
+<li class="toctree-l1"><a class="reference internal" href="zen_experiment_info.html">zen_experiment_info</a></li>
+</ul>
+<p class="caption"><span class="caption-text">Utility</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="automation_exceptions.html">automation_exceptions</a></li>
+<li class="toctree-l1"><a class="reference internal" href="automation_messages_form_layout.html">automation_messages_form_layout</a></li>
+<li class="toctree-l1"><a class="reference internal" href="error_handling.html">error_handling</a></li>
+<li class="toctree-l1"><a class="reference internal" href="get_path.html">get_path</a></li>
+<li class="toctree-l1"><a class="reference internal" href="image_AICS.html">image_AICS</a></li>
+<li class="toctree-l1"><a class="reference internal" href="load_image_czi.html">load_image_czi</a></li>
+<li class="toctree-l1"><a class="reference internal" href="software_state.html">software_state</a></li>
+</ul>
+<p class="caption"><span class="caption-text">Import Helpers</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="intelligent_imaging_innovations.html">3i Imports</a></li>
+<li class="toctree-l1"><a class="reference internal" href="zeiss.html">Zeiss Imports</a></li>
+</ul>
+<p class="caption"><span class="caption-text">Reference Docs</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="CONTRIBUTING.html">Allen Institute Contribution Agreement</a></li>
+<li class="toctree-l1"><a class="reference internal" href="LICENSE.html">LICENSE</a></li>
+</ul>
+
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="index.html">Documentation overview</a><ul>
+      <li>Previous: <a href="installation.html" title="previous chapter">Installation</a></li>
+      <li>Next: <a href="microscope_automation.html" title="next chapter">microscope_automation package</a></li>
+  </ul></li>
+</ul>
+</div>
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" />
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script>$('#searchbox').show(0);</script>
+
+
+
+
+
+
+
+
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2020, Allen Institute.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 3.4.3</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.12</a>
+      
+      |
+      <a href="_sources/find_positions.rst.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+
+    
+  </body>
+</html>

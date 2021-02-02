@@ -13,5 +13,5 @@ This class is used throughout the project to interact with images taken by the m
 class ImageAICS
 ===============
 
-.. autoclass:: microscope_automation.image_AICS.ImageAICS
+.. autoclass:: microscope_automation.util.image_AICS.ImageAICS
     :members:

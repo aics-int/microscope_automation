@@ -14,8 +14,8 @@
     <script src="_static/doctools.js"></script>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
-    <link rel="next" title="automation_exceptions" href="automation_exceptions.html" />
-    <link rel="prev" title="connect_slidebook" href="connect_slidebook.html" />
+    <link rel="next" title="zen_experiment_info" href="zen_experiment_info.html" />
+    <link rel="prev" title="preferences" href="preferences.html" />
    
   <link rel="stylesheet" href="_static/custom.css" type="text/css" />
   
@@ -50,11 +50,11 @@ SlideBook software. This allows for reading and editing experiment files.</p>
 <div class="section" id="class-slidebookexperiment-object">
 <span id="slidebook-experiment-info-slidebookexperiment"></span><h2><a class="toc-backref" href="#id3">class SlidebookExperiment(object)</a><a class="headerlink" href="#class-slidebookexperiment-object" title="Permalink to this headline">¶</a></h2>
 <dl class="py class">
-<dt id="microscope_automation.slidebook.slidebook_experiment_info.SlidebookExperiment">
-<em class="property">class </em><code class="sig-prename descclassname">microscope_automation.slidebook.slidebook_experiment_info.</code><code class="sig-name descname">SlidebookExperiment</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">experiment_path</span></em>, <em class="sig-param"><span class="n">experiment_name</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/microscope_automation/slidebook/slidebook_experiment_info.html#SlidebookExperiment"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#microscope_automation.slidebook.slidebook_experiment_info.SlidebookExperiment" title="Permalink to this definition">¶</a></dt>
+<dt id="microscope_automation.settings.slidebook_experiment_info.SlidebookExperiment">
+<em class="property">class </em><code class="sig-prename descclassname">microscope_automation.settings.slidebook_experiment_info.</code><code class="sig-name descname">SlidebookExperiment</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">experiment_path</span></em>, <em class="sig-param"><span class="n">experiment_name</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/microscope_automation/settings/slidebook_experiment_info.html#SlidebookExperiment"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#microscope_automation.settings.slidebook_experiment_info.SlidebookExperiment" title="Permalink to this definition">¶</a></dt>
 <dd><dl class="py method">
-<dt id="microscope_automation.slidebook.slidebook_experiment_info.SlidebookExperiment.experiment_exists">
-<code class="sig-name descname">experiment_exists</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/microscope_automation/slidebook/slidebook_experiment_info.html#SlidebookExperiment.experiment_exists"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#microscope_automation.slidebook.slidebook_experiment_info.SlidebookExperiment.experiment_exists" title="Permalink to this definition">¶</a></dt>
+<dt id="microscope_automation.settings.slidebook_experiment_info.SlidebookExperiment.experiment_exists">
+<code class="sig-name descname">experiment_exists</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/microscope_automation/settings/slidebook_experiment_info.html#SlidebookExperiment.experiment_exists"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#microscope_automation.settings.slidebook_experiment_info.SlidebookExperiment.experiment_exists" title="Permalink to this definition">¶</a></dt>
 <dd><p>Function to check if the experiment name provided in the preference
 file exists in the Slidebook software</p>
 <dl class="simple">
@@ -92,10 +92,18 @@ file exists in the Slidebook software</p>
 <li class="toctree-l1"><a class="reference internal" href="index.html">README</a></li>
 <li class="toctree-l1"><a class="reference internal" href="installation.html">Installation</a></li>
 </ul>
+<p class="caption"><span class="caption-text">Orchestrator</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="find_positions.html">find_positions</a></li>
+<li class="toctree-l1"><a class="reference internal" href="microscope_automation.html">microscope_automation package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="write_zen_tiles_experiment.html">write_zen_tiles_experiment</a></li>
+</ul>
 <p class="caption"><span class="caption-text">Hardware</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="hardware_components.html">hardware_components</a></li>
 <li class="toctree-l1"><a class="reference internal" href="hardware_control.html">hardware_control</a></li>
+<li class="toctree-l1"><a class="reference internal" href="hardware_control_3i.html">hardware_control_3i</a></li>
+<li class="toctree-l1"><a class="reference internal" href="hardware_control_zeiss.html">hardware_control_zeiss</a></li>
 <li class="toctree-l1"><a class="reference internal" href="RS232.html">RS232</a></li>
 <li class="toctree-l1"><a class="reference internal" href="setup_microscope.html">setup_microscope</a></li>
 </ul>
@@ -111,21 +119,20 @@ file exists in the Slidebook software</p>
 <li class="toctree-l1"><a class="reference internal" href="setup_samples.html">setup_samples</a></li>
 <li class="toctree-l1"><a class="reference internal" href="tile_images.html">tile_images</a></li>
 </ul>
-<p class="caption"><span class="caption-text">Zeiss Microscopes</span></p>
+<p class="caption"><span class="caption-text">Connectors</span></p>
 <ul>
+<li class="toctree-l1"><a class="reference internal" href="connect_slidebook.html">connect_slidebook</a></li>
 <li class="toctree-l1"><a class="reference internal" href="connect_zen_blue.html">connect_zen_blue</a></li>
 <li class="toctree-l1"><a class="reference internal" href="connect_zen_black.html">connect_zen_black</a></li>
-<li class="toctree-l1"><a class="reference internal" href="hardware_control_zeiss.html">hardware_control_zeiss</a></li>
-<li class="toctree-l1"><a class="reference internal" href="write_zen_tiles_experiment.html">write_zen_tiles_experiment</a></li>
+</ul>
+<p class="caption"><span class="caption-text">Settings</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="meta_data_file.html">meta_data_file</a></li>
+<li class="toctree-l1"><a class="reference internal" href="preferences.html">preferences</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">slidebook_experiment_info</a></li>
 <li class="toctree-l1"><a class="reference internal" href="zen_experiment_info.html">zen_experiment_info</a></li>
 </ul>
-<p class="caption"><span class="caption-text">3i Microscopes</span></p>
-<ul class="current">
-<li class="toctree-l1"><a class="reference internal" href="hardware_control_3i.html">hardware_control_3i</a></li>
-<li class="toctree-l1"><a class="reference internal" href="connect_slidebook.html">connect_slidebook</a></li>
-<li class="toctree-l1 current"><a class="current reference internal" href="#">slidebook_experiment_info</a></li>
-</ul>
-<p class="caption"><span class="caption-text">General Methods</span></p>
+<p class="caption"><span class="caption-text">Utility</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="automation_exceptions.html">automation_exceptions</a></li>
 <li class="toctree-l1"><a class="reference internal" href="automation_messages_form_layout.html">automation_messages_form_layout</a></li>
@@ -133,9 +140,12 @@ file exists in the Slidebook software</p>
 <li class="toctree-l1"><a class="reference internal" href="get_path.html">get_path</a></li>
 <li class="toctree-l1"><a class="reference internal" href="image_AICS.html">image_AICS</a></li>
 <li class="toctree-l1"><a class="reference internal" href="load_image_czi.html">load_image_czi</a></li>
-<li class="toctree-l1"><a class="reference internal" href="meta_data_file.html">meta_data_file</a></li>
-<li class="toctree-l1"><a class="reference internal" href="microscope_automation.html">microscope_automation package</a></li>
-<li class="toctree-l1"><a class="reference internal" href="preferences.html">preferences</a></li>
+<li class="toctree-l1"><a class="reference internal" href="software_state.html">software_state</a></li>
+</ul>
+<p class="caption"><span class="caption-text">Import Helpers</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="intelligent_imaging_innovations.html">3i Imports</a></li>
+<li class="toctree-l1"><a class="reference internal" href="zeiss.html">Zeiss Imports</a></li>
 </ul>
 <p class="caption"><span class="caption-text">Reference Docs</span></p>
 <ul>
@@ -147,8 +157,8 @@ file exists in the Slidebook software</p>
 <h3>Related Topics</h3>
 <ul>
   <li><a href="index.html">Documentation overview</a><ul>
-      <li>Previous: <a href="connect_slidebook.html" title="previous chapter">connect_slidebook</a></li>
-      <li>Next: <a href="automation_exceptions.html" title="next chapter">automation_exceptions</a></li>
+      <li>Previous: <a href="preferences.html" title="previous chapter">preferences</a></li>
+      <li>Next: <a href="zen_experiment_info.html" title="next chapter">zen_experiment_info</a></li>
   </ul></li>
 </ul>
 </div>

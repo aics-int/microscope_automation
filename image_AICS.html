@@ -49,12 +49,12 @@ This class is used throughout the project to interact with images taken by the m
 <div class="section" id="class-imageaics">
 <span id="image-aics-imageaics"></span><h2><a class="toc-backref" href="#id3">class ImageAICS</a><a class="headerlink" href="#class-imageaics" title="Permalink to this headline">¶</a></h2>
 <dl class="py class">
-<dt id="microscope_automation.image_AICS.ImageAICS">
-<em class="property">class </em><code class="sig-prename descclassname">microscope_automation.image_AICS.</code><code class="sig-name descname">ImageAICS</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">data</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">meta</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/microscope_automation/image_AICS.html#ImageAICS"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#microscope_automation.image_AICS.ImageAICS" title="Permalink to this definition">¶</a></dt>
+<dt id="microscope_automation.util.image_AICS.ImageAICS">
+<em class="property">class </em><code class="sig-prename descclassname">microscope_automation.util.image_AICS.</code><code class="sig-name descname">ImageAICS</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">data</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">meta</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/microscope_automation/util/image_AICS.html#ImageAICS"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#microscope_automation.util.image_AICS.ImageAICS" title="Permalink to this definition">¶</a></dt>
 <dd><p>store and display image data</p>
 <dl class="py method">
-<dt id="microscope_automation.image_AICS.ImageAICS.add_data">
-<code class="sig-name descname">add_data</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">data</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/microscope_automation/image_AICS.html#ImageAICS.add_data"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#microscope_automation.image_AICS.ImageAICS.add_data" title="Permalink to this definition">¶</a></dt>
+<dt id="microscope_automation.util.image_AICS.ImageAICS.add_data">
+<code class="sig-name descname">add_data</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">data</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/microscope_automation/util/image_AICS.html#ImageAICS.add_data"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#microscope_automation.util.image_AICS.ImageAICS.add_data" title="Permalink to this definition">¶</a></dt>
 <dd><p>add image data</p>
 <dl class="simple">
 <dt>Input:</dt><dd><p>data: numpy array with image data</p>
@@ -65,8 +65,8 @@ This class is used throughout the project to interact with images taken by the m
 </dd></dl>
 
 <dl class="py method">
-<dt id="microscope_automation.image_AICS.ImageAICS.add_meta">
-<code class="sig-name descname">add_meta</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">meta</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/microscope_automation/image_AICS.html#ImageAICS.add_meta"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#microscope_automation.image_AICS.ImageAICS.add_meta" title="Permalink to this definition">¶</a></dt>
+<dt id="microscope_automation.util.image_AICS.ImageAICS.add_meta">
+<code class="sig-name descname">add_meta</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">meta</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/microscope_automation/util/image_AICS.html#ImageAICS.add_meta"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#microscope_automation.util.image_AICS.ImageAICS.add_meta" title="Permalink to this definition">¶</a></dt>
 <dd><p>Add meta data. Use keys as defined in OME-XML.</p>
 <dl class="simple">
 <dt>Input:</dt><dd><p>meta: dictionary with meta data</p>
@@ -77,8 +77,8 @@ This class is used throughout the project to interact with images taken by the m
 </dd></dl>
 
 <dl class="py method">
-<dt id="microscope_automation.image_AICS.ImageAICS.create_file_name">
-<code class="sig-name descname">create_file_name</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">template</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/microscope_automation/image_AICS.html#ImageAICS.create_file_name"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#microscope_automation.image_AICS.ImageAICS.create_file_name" title="Permalink to this definition">¶</a></dt>
+<dt id="microscope_automation.util.image_AICS.ImageAICS.create_file_name">
+<code class="sig-name descname">create_file_name</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">template</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/microscope_automation/util/image_AICS.html#ImageAICS.create_file_name"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#microscope_automation.util.image_AICS.ImageAICS.create_file_name" title="Permalink to this definition">¶</a></dt>
 <dd><p>Create file name based on meta data and template.</p>
 <dl class="simple">
 <dt>Input:</dt><dd><p>template: string with filename with path for saved image in original format
@@ -90,8 +90,8 @@ or tuple with path to directory and template for file name</p>
 </dd></dl>
 
 <dl class="py method">
-<dt id="microscope_automation.image_AICS.ImageAICS.get_data">
-<code class="sig-name descname">get_data</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/microscope_automation/image_AICS.html#ImageAICS.get_data"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#microscope_automation.image_AICS.ImageAICS.get_data" title="Permalink to this definition">¶</a></dt>
+<dt id="microscope_automation.util.image_AICS.ImageAICS.get_data">
+<code class="sig-name descname">get_data</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/microscope_automation/util/image_AICS.html#ImageAICS.get_data"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#microscope_automation.util.image_AICS.ImageAICS.get_data" title="Permalink to this definition">¶</a></dt>
 <dd><p>retrieve image data as numpy array.</p>
 <dl class="simple">
 <dt>Input:</dt><dd><p>none</p>
@@ -102,8 +102,8 @@ or tuple with path to directory and template for file name</p>
 </dd></dl>
 
 <dl class="py method">
-<dt id="microscope_automation.image_AICS.ImageAICS.get_meta">
-<code class="sig-name descname">get_meta</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">key</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/microscope_automation/image_AICS.html#ImageAICS.get_meta"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#microscope_automation.image_AICS.ImageAICS.get_meta" title="Permalink to this definition">¶</a></dt>
+<dt id="microscope_automation.util.image_AICS.ImageAICS.get_meta">
+<code class="sig-name descname">get_meta</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">key</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/microscope_automation/util/image_AICS.html#ImageAICS.get_meta"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#microscope_automation.util.image_AICS.ImageAICS.get_meta" title="Permalink to this definition">¶</a></dt>
 <dd><p>Retrieve meta data. Use keys as defined in OME-XML.</p>
 <dl class="simple">
 <dt>Input:</dt><dd><p>none</p>
@@ -114,8 +114,8 @@ or tuple with path to directory and template for file name</p>
 </dd></dl>
 
 <dl class="py method">
-<dt id="microscope_automation.image_AICS.ImageAICS.parse_file_template">
-<code class="sig-name descname">parse_file_template</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">template</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/microscope_automation/image_AICS.html#ImageAICS.parse_file_template"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#microscope_automation.image_AICS.ImageAICS.parse_file_template" title="Permalink to this definition">¶</a></dt>
+<dt id="microscope_automation.util.image_AICS.ImageAICS.parse_file_template">
+<code class="sig-name descname">parse_file_template</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">template</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/microscope_automation/util/image_AICS.html#ImageAICS.parse_file_template"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#microscope_automation.util.image_AICS.ImageAICS.parse_file_template" title="Permalink to this definition">¶</a></dt>
 <dd><p>Create file name based on meta data and template.</p>
 <dl class="simple">
 <dt>Input:</dt><dd><p>template: string with filename</p>
@@ -126,8 +126,8 @@ or tuple with path to directory and template for file name</p>
 </dd></dl>
 
 <dl class="py method">
-<dt id="microscope_automation.image_AICS.ImageAICS.save_as_tiff">
-<code class="sig-name descname">save_as_tiff</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">path</span></em>, <em class="sig-param"><span class="n">bits</span><span class="o">=</span><span class="default_value">16</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/microscope_automation/image_AICS.html#ImageAICS.save_as_tiff"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#microscope_automation.image_AICS.ImageAICS.save_as_tiff" title="Permalink to this definition">¶</a></dt>
+<dt id="microscope_automation.util.image_AICS.ImageAICS.save_as_tiff">
+<code class="sig-name descname">save_as_tiff</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">path</span></em>, <em class="sig-param"><span class="n">bits</span><span class="o">=</span><span class="default_value">16</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/microscope_automation/util/image_AICS.html#ImageAICS.save_as_tiff"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#microscope_automation.util.image_AICS.ImageAICS.save_as_tiff" title="Permalink to this definition">¶</a></dt>
 <dd><p>Save data portion of image as .tif file.</p>
 <dl>
 <dt>Input:</dt><dd><p>path: file path with extension .tif as string</p>
@@ -139,8 +139,8 @@ or tuple with path to directory and template for file name</p>
 </dd></dl>
 
 <dl class="py method">
-<dt id="microscope_automation.image_AICS.ImageAICS.show">
-<code class="sig-name descname">show</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">title</span><span class="o">=</span><span class="default_value">'ImageAICS'</span></em>, <em class="sig-param"><span class="n">channel</span><span class="o">=</span><span class="default_value">0</span></em>, <em class="sig-param"><span class="n">z</span><span class="o">=</span><span class="default_value">0</span></em>, <em class="sig-param"><span class="n">t</span><span class="o">=</span><span class="default_value">0</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/microscope_automation/image_AICS.html#ImageAICS.show"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#microscope_automation.image_AICS.ImageAICS.show" title="Permalink to this definition">¶</a></dt>
+<dt id="microscope_automation.util.image_AICS.ImageAICS.show">
+<code class="sig-name descname">show</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">title</span><span class="o">=</span><span class="default_value">'ImageAICS'</span></em>, <em class="sig-param"><span class="n">channel</span><span class="o">=</span><span class="default_value">0</span></em>, <em class="sig-param"><span class="n">z</span><span class="o">=</span><span class="default_value">0</span></em>, <em class="sig-param"><span class="n">t</span><span class="o">=</span><span class="default_value">0</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/microscope_automation/util/image_AICS.html#ImageAICS.show"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#microscope_automation.util.image_AICS.ImageAICS.show" title="Permalink to this definition">¶</a></dt>
 <dd><p>display image data</p>
 <dl>
 <dt>Input:</dt><dd><p>title: string with title for window. Default=’ImageAICS’</p>
@@ -180,10 +180,18 @@ or tuple with path to directory and template for file name</p>
 <li class="toctree-l1"><a class="reference internal" href="index.html">README</a></li>
 <li class="toctree-l1"><a class="reference internal" href="installation.html">Installation</a></li>
 </ul>
+<p class="caption"><span class="caption-text">Orchestrator</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="find_positions.html">find_positions</a></li>
+<li class="toctree-l1"><a class="reference internal" href="microscope_automation.html">microscope_automation package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="write_zen_tiles_experiment.html">write_zen_tiles_experiment</a></li>
+</ul>
 <p class="caption"><span class="caption-text">Hardware</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="hardware_components.html">hardware_components</a></li>
 <li class="toctree-l1"><a class="reference internal" href="hardware_control.html">hardware_control</a></li>
+<li class="toctree-l1"><a class="reference internal" href="hardware_control_3i.html">hardware_control_3i</a></li>
+<li class="toctree-l1"><a class="reference internal" href="hardware_control_zeiss.html">hardware_control_zeiss</a></li>
 <li class="toctree-l1"><a class="reference internal" href="RS232.html">RS232</a></li>
 <li class="toctree-l1"><a class="reference internal" href="setup_microscope.html">setup_microscope</a></li>
 </ul>
@@ -199,21 +207,20 @@ or tuple with path to directory and template for file name</p>
 <li class="toctree-l1"><a class="reference internal" href="setup_samples.html">setup_samples</a></li>
 <li class="toctree-l1"><a class="reference internal" href="tile_images.html">tile_images</a></li>
 </ul>
-<p class="caption"><span class="caption-text">Zeiss Microscopes</span></p>
+<p class="caption"><span class="caption-text">Connectors</span></p>
 <ul>
+<li class="toctree-l1"><a class="reference internal" href="connect_slidebook.html">connect_slidebook</a></li>
 <li class="toctree-l1"><a class="reference internal" href="connect_zen_blue.html">connect_zen_blue</a></li>
 <li class="toctree-l1"><a class="reference internal" href="connect_zen_black.html">connect_zen_black</a></li>
-<li class="toctree-l1"><a class="reference internal" href="hardware_control_zeiss.html">hardware_control_zeiss</a></li>
-<li class="toctree-l1"><a class="reference internal" href="write_zen_tiles_experiment.html">write_zen_tiles_experiment</a></li>
+</ul>
+<p class="caption"><span class="caption-text">Settings</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="meta_data_file.html">meta_data_file</a></li>
+<li class="toctree-l1"><a class="reference internal" href="preferences.html">preferences</a></li>
+<li class="toctree-l1"><a class="reference internal" href="slidebook_experiment_info.html">slidebook_experiment_info</a></li>
 <li class="toctree-l1"><a class="reference internal" href="zen_experiment_info.html">zen_experiment_info</a></li>
 </ul>
-<p class="caption"><span class="caption-text">3i Microscopes</span></p>
-<ul>
-<li class="toctree-l1"><a class="reference internal" href="hardware_control_3i.html">hardware_control_3i</a></li>
-<li class="toctree-l1"><a class="reference internal" href="connect_slidebook.html">connect_slidebook</a></li>
-<li class="toctree-l1"><a class="reference internal" href="slidebook_experiment_info.html">slidebook_experiment_info</a></li>
-</ul>
-<p class="caption"><span class="caption-text">General Methods</span></p>
+<p class="caption"><span class="caption-text">Utility</span></p>
 <ul class="current">
 <li class="toctree-l1"><a class="reference internal" href="automation_exceptions.html">automation_exceptions</a></li>
 <li class="toctree-l1"><a class="reference internal" href="automation_messages_form_layout.html">automation_messages_form_layout</a></li>
@@ -221,9 +228,12 @@ or tuple with path to directory and template for file name</p>
 <li class="toctree-l1"><a class="reference internal" href="get_path.html">get_path</a></li>
 <li class="toctree-l1 current"><a class="current reference internal" href="#">image_AICS</a></li>
 <li class="toctree-l1"><a class="reference internal" href="load_image_czi.html">load_image_czi</a></li>
-<li class="toctree-l1"><a class="reference internal" href="meta_data_file.html">meta_data_file</a></li>
-<li class="toctree-l1"><a class="reference internal" href="microscope_automation.html">microscope_automation package</a></li>
-<li class="toctree-l1"><a class="reference internal" href="preferences.html">preferences</a></li>
+<li class="toctree-l1"><a class="reference internal" href="software_state.html">software_state</a></li>
+</ul>
+<p class="caption"><span class="caption-text">Import Helpers</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="intelligent_imaging_innovations.html">3i Imports</a></li>
+<li class="toctree-l1"><a class="reference internal" href="zeiss.html">Zeiss Imports</a></li>
 </ul>
 <p class="caption"><span class="caption-text">Reference Docs</span></p>
 <ul>

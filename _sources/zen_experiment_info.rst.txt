@@ -14,5 +14,5 @@ Zen Blue or Black software. This allows for reading and editing experiment files
 class ZenExperiment(object)
 ===========================
 
-.. autoclass:: microscope_automation.zeiss.zen_experiment_info.ZenExperiment
+.. autoclass:: microscope_automation.settings.zen_experiment_info.ZenExperiment
     :members:

@@ -1,0 +1,316 @@
+
+<!DOCTYPE html>
+
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>software_state &#8212; Microscope Automation 0.0 documentation</title>
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    <link rel="stylesheet" href="_static/alabaster.css" type="text/css" />
+    <script id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+    <script src="_static/jquery.js"></script>
+    <script src="_static/underscore.js"></script>
+    <script src="_static/doctools.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="3i Imports" href="intelligent_imaging_innovations.html" />
+    <link rel="prev" title="load_image_czi" href="load_image_czi.html" />
+   
+  <link rel="stylesheet" href="_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head><body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          
+
+          <div class="body" role="main">
+            
+  <div class="contents topic" id="contents">
+<p class="topic-title">Contents</p>
+<ul class="simple">
+<li><p><a class="reference internal" href="#software-state" id="id2">software_state</a></p>
+<ul>
+<li><p><a class="reference internal" href="#class-diagnosticpickler-pickle-pickler" id="id3">class DiagnosticPickler(pickle.Pickler)</a></p></li>
+<li><p><a class="reference internal" href="#class-state-object" id="id4">class State(object)</a></p></li>
+</ul>
+</li>
+</ul>
+</div>
+<div class="section" id="software-state">
+<span id="id1"></span><h1><a class="toc-backref" href="#id2">software_state</a><a class="headerlink" href="#software-state" title="Permalink to this headline">¶</a></h1>
+<p>This module contains two classes, <a class="reference internal" href="#software-state-state"><span class="std std-ref">class State(object)</span></a> and
+<a class="reference internal" href="#software-state-diagnosticpickler"><span class="std std-ref">class DiagnosticPickler(pickle.Pickler)</span></a>, which are used to save the state of the
+software so it can restart at the same point in an experiment at which it crashed.</p>
+<div class="section" id="class-diagnosticpickler-pickle-pickler">
+<span id="software-state-diagnosticpickler"></span><h2><a class="toc-backref" href="#id3">class DiagnosticPickler(pickle.Pickler)</a><a class="headerlink" href="#class-diagnosticpickler-pickle-pickler" title="Permalink to this headline">¶</a></h2>
+<dl class="py class">
+<dt id="microscope_automation.util.software_state.DiagnosticPickler">
+<em class="property">class </em><code class="sig-prename descclassname">microscope_automation.util.software_state.</code><code class="sig-name descname">DiagnosticPickler</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">file</span></em>, <em class="sig-param"><span class="n">protocol</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">fix_imports</span><span class="o">=</span><span class="default_value">True</span></em>, <em class="sig-param"><span class="n">buffer_callback</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/microscope_automation/util/software_state.html#DiagnosticPickler"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#microscope_automation.util.software_state.DiagnosticPickler" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</div>
+<div class="section" id="class-state-object">
+<span id="software-state-state"></span><h2><a class="toc-backref" href="#id4">class State(object)</a><a class="headerlink" href="#class-state-object" title="Permalink to this headline">¶</a></h2>
+<dl class="py class">
+<dt id="microscope_automation.util.software_state.State">
+<em class="property">class </em><code class="sig-prename descclassname">microscope_automation.util.software_state.</code><code class="sig-name descname">State</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">recovery_file_path</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/microscope_automation/util/software_state.html#State"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#microscope_automation.util.software_state.State" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="py method">
+<dt id="microscope_automation.util.software_state.State.add_last_experiment_object">
+<code class="sig-name descname">add_last_experiment_object</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">exp_object_name</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/microscope_automation/util/software_state.html#State.add_last_experiment_object"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#microscope_automation.util.software_state.State.add_last_experiment_object" title="Permalink to this definition">¶</a></dt>
+<dd><p>Add objects to the list for last experiment objects to keep track of which
+cells have already  been imaged. To be able to pick up exactly where we left off</p>
+<dl class="simple">
+<dt>Input:</dt><dd><p>exp_object_list: list of experiment objects to add for the next experiment</p>
+</dd>
+<dt>Output:</dt><dd><p>none</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="microscope_automation.util.software_state.State.add_next_experiment_object">
+<code class="sig-name descname">add_next_experiment_object</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">experiment_name</span></em>, <em class="sig-param"><span class="n">exp_object_list</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/microscope_automation/util/software_state.html#State.add_next_experiment_object"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#microscope_automation.util.software_state.State.add_next_experiment_object" title="Permalink to this definition">¶</a></dt>
+<dd><p>Add objects to the list for next experiment objects.</p>
+<dl>
+<dt>Input:</dt><dd><p>experiment_name: name of experiment to add</p>
+<p>exp_object_list: list of experiment objects to add for the next experiment</p>
+</dd>
+<dt>Output:</dt><dd><p>none</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="microscope_automation.util.software_state.State.add_unpickled_objects">
+<code class="sig-name descname">add_unpickled_objects</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">base_object</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/microscope_automation/util/software_state.html#State.add_unpickled_objects"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#microscope_automation.util.software_state.State.add_unpickled_objects" title="Permalink to this definition">¶</a></dt>
+<dd><p>Function to add Zen object back</p>
+<dl class="simple">
+<dt>Input</dt><dd><p>base_object: The reference object or next experiment object to rehydrate</p>
+</dd>
+<dt>Output:</dt><dd><p>none</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="microscope_automation.util.software_state.State.eliminate_unpickled_objects">
+<code class="sig-name descname">eliminate_unpickled_objects</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">base_object</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/microscope_automation/util/software_state.html#State.eliminate_unpickled_objects"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#microscope_automation.util.software_state.State.eliminate_unpickled_objects" title="Permalink to this definition">¶</a></dt>
+<dd><p>Remove unpickled objects from given object</p>
+<dl class="simple">
+<dt>Input:</dt><dd><p>base_object: Object that needs to be pruned</p>
+</dd>
+<dt>Output:</dt><dd><p>none</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="microscope_automation.util.software_state.State.prune_object_dict">
+<code class="sig-name descname">prune_object_dict</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/microscope_automation/util/software_state.html#State.prune_object_dict"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#microscope_automation.util.software_state.State.prune_object_dict" title="Permalink to this definition">¶</a></dt>
+<dd><p>Function to strip away the Zen microscope object from each level
+of the sample object tree.</p>
+<p>Reason - there are some objects in microscope class (communication object)
+that can’t be pickled.</p>
+<dl class="simple">
+<dt>Input:</dt><dd><p>object_dict: The dictionary that needs to be filtered.</p>
+</dd>
+<dt>Output:</dt><dd><p>object_dict: The filtered dictionary.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="microscope_automation.util.software_state.State.recover_objects">
+<code class="sig-name descname">recover_objects</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">file_path</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/microscope_automation/util/software_state.html#State.recover_objects"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#microscope_automation.util.software_state.State.recover_objects" title="Permalink to this definition">¶</a></dt>
+<dd><p>Function to return next objects dictionary
+and the reference object by unpickling the file.</p>
+<dl class="simple">
+<dt>Input:</dt><dd><p>filepath: path to the pickled file</p>
+</dd>
+<dt>Output:</dt><dd><p>tuple of recovered objects in the form (next_experiment_objects,
+reference_object, last_experiment_objects, hardware_status_dict)</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="microscope_automation.util.software_state.State.rehydrate_removed_references">
+<code class="sig-name descname">rehydrate_removed_references</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/microscope_automation/util/software_state.html#State.rehydrate_removed_references"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#microscope_automation.util.software_state.State.rehydrate_removed_references" title="Permalink to this definition">¶</a></dt>
+<dd><p>In case of auto save, we need the Zen object to be added back
+(it was removed before pickling)</p>
+<dl class="simple">
+<dt>Input:</dt><dd><p>none</p>
+</dd>
+<dt>Output:</dt><dd><p>none</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="microscope_automation.util.software_state.State.save_state">
+<code class="sig-name descname">save_state</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/microscope_automation/util/software_state.html#State.save_state"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#microscope_automation.util.software_state.State.save_state" title="Permalink to this definition">¶</a></dt>
+<dd><p>Function to process the objects and save them by pickling.</p>
+<dl class="simple">
+<dt>Input:</dt><dd><p>none</p>
+</dd>
+<dt>Output:</dt><dd><p>none</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="microscope_automation.util.software_state.State.save_state_and_exit">
+<code class="sig-name descname">save_state_and_exit</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/microscope_automation/util/software_state.html#State.save_state_and_exit"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#microscope_automation.util.software_state.State.save_state_and_exit" title="Permalink to this definition">¶</a></dt>
+<dd><p>Function to process the objects and save them by pickling
+and exiting the software.</p>
+<dl class="simple">
+<dt>Input:</dt><dd><p>none</p>
+</dd>
+<dt>Output:</dt><dd><p>none</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+</div>
+
+
+          </div>
+          
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<h1 class="logo"><a href="index.html">Microscope Automation</a></h1>
+
+
+
+
+
+
+
+
+<h3>Navigation</h3>
+<p class="caption"><span class="caption-text">Overview</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="index.html">README</a></li>
+<li class="toctree-l1"><a class="reference internal" href="installation.html">Installation</a></li>
+</ul>
+<p class="caption"><span class="caption-text">Orchestrator</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="find_positions.html">find_positions</a></li>
+<li class="toctree-l1"><a class="reference internal" href="microscope_automation.html">microscope_automation package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="write_zen_tiles_experiment.html">write_zen_tiles_experiment</a></li>
+</ul>
+<p class="caption"><span class="caption-text">Hardware</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="hardware_components.html">hardware_components</a></li>
+<li class="toctree-l1"><a class="reference internal" href="hardware_control.html">hardware_control</a></li>
+<li class="toctree-l1"><a class="reference internal" href="hardware_control_3i.html">hardware_control_3i</a></li>
+<li class="toctree-l1"><a class="reference internal" href="hardware_control_zeiss.html">hardware_control_zeiss</a></li>
+<li class="toctree-l1"><a class="reference internal" href="RS232.html">RS232</a></li>
+<li class="toctree-l1"><a class="reference internal" href="setup_microscope.html">setup_microscope</a></li>
+</ul>
+<p class="caption"><span class="caption-text">Samples</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="correct_background.html">correct_background</a></li>
+<li class="toctree-l1"><a class="reference internal" href="draw_plate.html">draw_plate</a></li>
+<li class="toctree-l1"><a class="reference internal" href="find_well_center.html">find_well_center</a></li>
+<li class="toctree-l1"><a class="reference internal" href="find_cells.html">find_cells</a></li>
+<li class="toctree-l1"><a class="reference internal" href="interactive_location_picker_pyqtgraph.html">interactive_location_picker_pyqtgraph</a></li>
+<li class="toctree-l1"><a class="reference internal" href="positions_list.html">positions_list</a></li>
+<li class="toctree-l1"><a class="reference internal" href="samples.html">samples</a></li>
+<li class="toctree-l1"><a class="reference internal" href="setup_samples.html">setup_samples</a></li>
+<li class="toctree-l1"><a class="reference internal" href="tile_images.html">tile_images</a></li>
+</ul>
+<p class="caption"><span class="caption-text">Connectors</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="connect_slidebook.html">connect_slidebook</a></li>
+<li class="toctree-l1"><a class="reference internal" href="connect_zen_blue.html">connect_zen_blue</a></li>
+<li class="toctree-l1"><a class="reference internal" href="connect_zen_black.html">connect_zen_black</a></li>
+</ul>
+<p class="caption"><span class="caption-text">Settings</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="meta_data_file.html">meta_data_file</a></li>
+<li class="toctree-l1"><a class="reference internal" href="preferences.html">preferences</a></li>
+<li class="toctree-l1"><a class="reference internal" href="slidebook_experiment_info.html">slidebook_experiment_info</a></li>
+<li class="toctree-l1"><a class="reference internal" href="zen_experiment_info.html">zen_experiment_info</a></li>
+</ul>
+<p class="caption"><span class="caption-text">Utility</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="automation_exceptions.html">automation_exceptions</a></li>
+<li class="toctree-l1"><a class="reference internal" href="automation_messages_form_layout.html">automation_messages_form_layout</a></li>
+<li class="toctree-l1"><a class="reference internal" href="error_handling.html">error_handling</a></li>
+<li class="toctree-l1"><a class="reference internal" href="get_path.html">get_path</a></li>
+<li class="toctree-l1"><a class="reference internal" href="image_AICS.html">image_AICS</a></li>
+<li class="toctree-l1"><a class="reference internal" href="load_image_czi.html">load_image_czi</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">software_state</a></li>
+</ul>
+<p class="caption"><span class="caption-text">Import Helpers</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="intelligent_imaging_innovations.html">3i Imports</a></li>
+<li class="toctree-l1"><a class="reference internal" href="zeiss.html">Zeiss Imports</a></li>
+</ul>
+<p class="caption"><span class="caption-text">Reference Docs</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="CONTRIBUTING.html">Allen Institute Contribution Agreement</a></li>
+<li class="toctree-l1"><a class="reference internal" href="LICENSE.html">LICENSE</a></li>
+</ul>
+
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="index.html">Documentation overview</a><ul>
+      <li>Previous: <a href="load_image_czi.html" title="previous chapter">load_image_czi</a></li>
+      <li>Next: <a href="intelligent_imaging_innovations.html" title="next chapter">3i Imports</a></li>
+  </ul></li>
+</ul>
+</div>
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" />
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script>$('#searchbox').show(0);</script>
+
+
+
+
+
+
+
+
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2020, Allen Institute.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 3.4.3</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.12</a>
+      
+      |
+      <a href="_sources/software_state.rst.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+
+    
+  </body>
+</html>

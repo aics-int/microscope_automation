@@ -1,0 +1,53 @@
+microscope\_automation.settings package
+=======================================
+
+Submodules
+----------
+
+microscope\_automation.settings.meta\_data\_file module
+-------------------------------------------------------
+
+.. automodule:: microscope_automation.settings.meta_data_file
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+microscope\_automation.settings.preferences module
+--------------------------------------------------
+
+.. automodule:: microscope_automation.settings.preferences
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+microscope\_automation.settings.slidebook\_experiment\_info module
+------------------------------------------------------------------
+
+.. automodule:: microscope_automation.settings.slidebook_experiment_info
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+microscope\_automation.settings.test\_zen\_experiment module
+------------------------------------------------------------
+
+.. automodule:: microscope_automation.settings.test_zen_experiment
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+microscope\_automation.settings.zen\_experiment\_info module
+------------------------------------------------------------
+
+.. automodule:: microscope_automation.settings.zen_experiment_info
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+Module contents
+---------------
+
+.. automodule:: microscope_automation.settings
+   :members:
+   :undoc-members:
+   :show-inheritance:

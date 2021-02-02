@@ -1,0 +1,45 @@
+microscope\_automation.connectors package
+=========================================
+
+Submodules
+----------
+
+microscope\_automation.connectors.connect\_slidebook module
+-----------------------------------------------------------
+
+.. automodule:: microscope_automation.connectors.connect_slidebook
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+microscope\_automation.connectors.connect\_zen\_black module
+------------------------------------------------------------
+
+.. automodule:: microscope_automation.connectors.connect_zen_black
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+microscope\_automation.connectors.connect\_zen\_blue module
+-----------------------------------------------------------
+
+.. automodule:: microscope_automation.connectors.connect_zen_blue
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+microscope\_automation.connectors.connect\_zen\_blue\_dummy module
+------------------------------------------------------------------
+
+.. automodule:: microscope_automation.connectors.connect_zen_blue_dummy
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+Module contents
+---------------
+
+.. automodule:: microscope_automation.connectors
+   :members:
+   :undoc-members:
+   :show-inheritance:

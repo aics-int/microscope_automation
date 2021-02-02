@@ -50,9 +50,9 @@
 <span class="kn">import</span> <span class="nn">inspect</span>
 
 <span class="c1"># import modules from project microscope_automation</span>
-<span class="kn">from</span> <span class="nn">..image_AICS</span> <span class="kn">import</span> <span class="n">ImageAICS</span>
-<span class="kn">from</span> <span class="nn">..</span> <span class="kn">import</span> <span class="n">automation_messages_form_layout</span> <span class="k">as</span> <span class="n">message</span>
-<span class="kn">from</span> <span class="nn">..automation_exceptions</span> <span class="kn">import</span> <span class="p">(</span>
+<span class="kn">from</span> <span class="nn">microscope_automation.util.image_AICS</span> <span class="kn">import</span> <span class="n">ImageAICS</span>
+<span class="kn">from</span> <span class="nn">microscope_automation.util</span> <span class="kn">import</span> <span class="n">automation_messages_form_layout</span> <span class="k">as</span> <span class="n">message</span>
+<span class="kn">from</span> <span class="nn">microscope_automation.util.automation_exceptions</span> <span class="kn">import</span> <span class="p">(</span>
     <span class="n">ExperimentNotExistError</span><span class="p">,</span>
     <span class="n">AutofocusError</span><span class="p">,</span>
     <span class="n">AutofocusNotSetError</span><span class="p">,</span>
@@ -450,27 +450,37 @@
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">log_method</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;connect_to_microscope_software&quot;</span><span class="p">)</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_id</span><span class="p">()</span> <span class="o">==</span> <span class="s2">&quot;ZEN Blue&quot;</span><span class="p">:</span>
-            <span class="kn">from</span> <span class="nn">..zeiss.connect_zen_blue</span> <span class="kn">import</span> <span class="n">ConnectMicroscope</span>
+            <span class="kn">from</span> <span class="nn">microscope_automation.connectors.connect_zen_blue</span> <span class="kn">import</span> <span class="p">(</span>
+                <span class="n">ConnectMicroscope</span><span class="p">,</span>
+            <span class="p">)</span>
 
             <span class="bp">self</span><span class="o">.</span><span class="n">connection</span> <span class="o">=</span> <span class="n">ConnectMicroscope</span><span class="p">()</span>
         <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_id</span><span class="p">()</span> <span class="o">==</span> <span class="s2">&quot;ZEN Black&quot;</span><span class="p">:</span>
-            <span class="kn">from</span> <span class="nn">..zeiss.connect_zen_black</span> <span class="kn">import</span> <span class="n">ConnectMicroscope</span>
+            <span class="kn">from</span> <span class="nn">microscope_automation.connectors.connect_zen_black</span> <span class="kn">import</span> <span class="p">(</span>
+                <span class="n">ConnectMicroscope</span><span class="p">,</span>
+            <span class="p">)</span>
 
             <span class="bp">self</span><span class="o">.</span><span class="n">connection</span> <span class="o">=</span> <span class="n">ConnectMicroscope</span><span class="p">()</span>
         <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_id</span><span class="p">()</span> <span class="o">==</span> <span class="s2">&quot;Slidebook&quot;</span><span class="p">:</span>
             <span class="c1"># this is the only way to import modules starting with numbers</span>
-            <span class="kn">from</span> <span class="nn">..slidebook.connect_slidebook</span> <span class="kn">import</span> <span class="n">ConnectMicroscope</span>
+            <span class="kn">from</span> <span class="nn">microscope_automation.connectors.connect_slidebook</span> <span class="kn">import</span> <span class="p">(</span>
+                <span class="n">ConnectMicroscope</span><span class="p">,</span>
+            <span class="p">)</span>  <span class="c1"># noqa</span>
 
             <span class="bp">self</span><span class="o">.</span><span class="n">connection</span> <span class="o">=</span> <span class="n">ConnectMicroscope</span><span class="p">()</span>
         <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_id</span><span class="p">()</span> <span class="o">==</span> <span class="s2">&quot;ZEN Blue Dummy&quot;</span><span class="p">:</span>
             <span class="c1"># create microscope Zeiss spinning disk simulation</span>
             <span class="c1"># Uses same module as standard Zen Blue microscope, but without dll</span>
-            <span class="kn">from</span> <span class="nn">..zeiss.connect_zen_blue</span> <span class="kn">import</span> <span class="n">ConnectMicroscope</span>
+            <span class="kn">from</span> <span class="nn">microscope_automation.connectors.connect_zen_blue</span> <span class="kn">import</span> <span class="p">(</span>
+                <span class="n">ConnectMicroscope</span><span class="p">,</span>
+            <span class="p">)</span>
 
             <span class="bp">self</span><span class="o">.</span><span class="n">connection</span> <span class="o">=</span> <span class="n">ConnectMicroscope</span><span class="p">(</span><span class="n">connect_dll</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
         <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_id</span><span class="p">()</span> <span class="o">==</span> <span class="s2">&quot;Slidebook Dummy&quot;</span><span class="p">:</span>
             <span class="c1"># this is the only way to import modules starting with numbers</span>
-            <span class="kn">from</span> <span class="nn">..slidebook.connect_slidebook</span> <span class="kn">import</span> <span class="n">ConnectMicroscope</span>
+            <span class="kn">from</span> <span class="nn">microscope_automation.connectors.connect_slidebook</span> <span class="kn">import</span> <span class="p">(</span>
+                <span class="n">ConnectMicroscope</span><span class="p">,</span>
+            <span class="p">)</span>
 
             <span class="bp">self</span><span class="o">.</span><span class="n">connection</span> <span class="o">=</span> <span class="n">ConnectMicroscope</span><span class="p">(</span><span class="n">dummy</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span></div></div>
 
@@ -2192,10 +2202,18 @@
 <li class="toctree-l1"><a class="reference internal" href="../../../index.html">README</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../installation.html">Installation</a></li>
 </ul>
+<p class="caption"><span class="caption-text">Orchestrator</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../find_positions.html">find_positions</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../microscope_automation.html">microscope_automation package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../write_zen_tiles_experiment.html">write_zen_tiles_experiment</a></li>
+</ul>
 <p class="caption"><span class="caption-text">Hardware</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="../../../hardware_components.html">hardware_components</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../hardware_control.html">hardware_control</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../hardware_control_3i.html">hardware_control_3i</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../hardware_control_zeiss.html">hardware_control_zeiss</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../RS232.html">RS232</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../setup_microscope.html">setup_microscope</a></li>
 </ul>
@@ -2211,21 +2229,20 @@
 <li class="toctree-l1"><a class="reference internal" href="../../../setup_samples.html">setup_samples</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../tile_images.html">tile_images</a></li>
 </ul>
-<p class="caption"><span class="caption-text">Zeiss Microscopes</span></p>
+<p class="caption"><span class="caption-text">Connectors</span></p>
 <ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../connect_slidebook.html">connect_slidebook</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../connect_zen_blue.html">connect_zen_blue</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../connect_zen_black.html">connect_zen_black</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../../hardware_control_zeiss.html">hardware_control_zeiss</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../../write_zen_tiles_experiment.html">write_zen_tiles_experiment</a></li>
+</ul>
+<p class="caption"><span class="caption-text">Settings</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../meta_data_file.html">meta_data_file</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../preferences.html">preferences</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../slidebook_experiment_info.html">slidebook_experiment_info</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../zen_experiment_info.html">zen_experiment_info</a></li>
 </ul>
-<p class="caption"><span class="caption-text">3i Microscopes</span></p>
-<ul>
-<li class="toctree-l1"><a class="reference internal" href="../../../hardware_control_3i.html">hardware_control_3i</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../../connect_slidebook.html">connect_slidebook</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../../slidebook_experiment_info.html">slidebook_experiment_info</a></li>
-</ul>
-<p class="caption"><span class="caption-text">General Methods</span></p>
+<p class="caption"><span class="caption-text">Utility</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="../../../automation_exceptions.html">automation_exceptions</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../automation_messages_form_layout.html">automation_messages_form_layout</a></li>
@@ -2233,9 +2250,12 @@
 <li class="toctree-l1"><a class="reference internal" href="../../../get_path.html">get_path</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../image_AICS.html">image_AICS</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../load_image_czi.html">load_image_czi</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../../meta_data_file.html">meta_data_file</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../../microscope_automation.html">microscope_automation package</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../../preferences.html">preferences</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../software_state.html">software_state</a></li>
+</ul>
+<p class="caption"><span class="caption-text">Import Helpers</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../intelligent_imaging_innovations.html">3i Imports</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../zeiss.html">Zeiss Imports</a></li>
 </ul>
 <p class="caption"><span class="caption-text">Reference Docs</span></p>
 <ul>

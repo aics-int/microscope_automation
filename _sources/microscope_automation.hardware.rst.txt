@@ -36,6 +36,22 @@ microscope\_automation.hardware.hardware\_control module
    :undoc-members:
    :show-inheritance:
 
+microscope\_automation.hardware.hardware\_control\_3i module
+------------------------------------------------------------
+
+.. automodule:: microscope_automation.hardware.hardware_control_3i
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+microscope\_automation.hardware.hardware\_control\_zeiss module
+---------------------------------------------------------------
+
+.. automodule:: microscope_automation.hardware.hardware_control_zeiss
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
 microscope\_automation.hardware.setup\_microscope module
 --------------------------------------------------------
 

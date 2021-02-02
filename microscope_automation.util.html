@@ -1,0 +1,1326 @@
+
+<!DOCTYPE html>
+
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>microscope_automation.util package &#8212; Microscope Automation 0.0 documentation</title>
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    <link rel="stylesheet" href="_static/alabaster.css" type="text/css" />
+    <script id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+    <script src="_static/jquery.js"></script>
+    <script src="_static/underscore.js"></script>
+    <script src="_static/doctools.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="write_zen_tiles_experiment" href="write_zen_tiles_experiment.html" />
+    <link rel="prev" title="microscope_automation.settings package" href="microscope_automation.settings.html" />
+   
+  <link rel="stylesheet" href="_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head><body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          
+
+          <div class="body" role="main">
+            
+  <div class="section" id="microscope-automation-util-package">
+<h1>microscope_automation.util package<a class="headerlink" href="#microscope-automation-util-package" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="submodules">
+<h2>Submodules<a class="headerlink" href="#submodules" title="Permalink to this headline">¶</a></h2>
+</div>
+<div class="section" id="module-microscope_automation.util.automation_exceptions">
+<span id="microscope-automation-util-automation-exceptions-module"></span><h2>microscope_automation.util.automation_exceptions module<a class="headerlink" href="#module-microscope_automation.util.automation_exceptions" title="Permalink to this headline">¶</a></h2>
+<p>Classes for exceptions
+Do not name module exceptions. It will conflict with system exceptions.
+Created on Jun 7, 2017</p>
+<p>&#64;author: winfriedw</p>
+<dl class="py exception">
+<dt id="microscope_automation.util.automation_exceptions.AutofocusError">
+<em class="property">exception </em><code class="sig-prename descclassname">microscope_automation.util.automation_exceptions.</code><code class="sig-name descname">AutofocusError</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">message</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">error_component</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">focus_reference_obj_id</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/microscope_automation/util/automation_exceptions.html#AutofocusError"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#microscope_automation.util.automation_exceptions.AutofocusError" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#microscope_automation.util.automation_exceptions.HardwareError" title="microscope_automation.util.automation_exceptions.HardwareError"><code class="xref py py-class docutils literal notranslate"><span class="pre">microscope_automation.util.automation_exceptions.HardwareError</span></code></a></p>
+<p>Exception if autofocus failed.</p>
+<dl class="py method">
+<dt id="microscope_automation.util.automation_exceptions.AutofocusError.error_dialog">
+<code class="sig-name descname">error_dialog</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/microscope_automation/util/automation_exceptions.html#AutofocusError.error_dialog"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#microscope_automation.util.automation_exceptions.AutofocusError.error_dialog" title="Permalink to this definition">¶</a></dt>
+<dd><p>Show error message to user.</p>
+<dl class="simple">
+<dt>Input:</dt><dd><p>none</p>
+</dd>
+<dt>Output:</dt><dd><p>none</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="microscope_automation.util.automation_exceptions.AutofocusError.get_focus_reference_obj_id">
+<code class="sig-name descname">get_focus_reference_obj_id</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/microscope_automation/util/automation_exceptions.html#AutofocusError.get_focus_reference_obj_id"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#microscope_automation.util.automation_exceptions.AutofocusError.get_focus_reference_obj_id" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="simple">
+<dt>Retrieve object (typcially plate) that is used as reference for autofocus</dt><dd><p>offset.</p>
+</dd>
+<dt>Input:</dt><dd><p>none</p>
+</dd>
+<dt>Output:</dt><dd><p>focus_reference_obj_id: Sample object used as reference for autofocus</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="microscope_automation.util.automation_exceptions.AutofocusError.set_focus_reference_obj_id">
+<code class="sig-name descname">set_focus_reference_obj_id</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">focus_reference_obj_id</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/microscope_automation/util/automation_exceptions.html#AutofocusError.set_focus_reference_obj_id"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#microscope_automation.util.automation_exceptions.AutofocusError.set_focus_reference_obj_id" title="Permalink to this definition">¶</a></dt>
+<dd><p>Set object (typcially plate) that is used as reference for autofocus offset.</p>
+<dl class="simple">
+<dt>Input:</dt><dd><p>focus_reference_obj_id: Sample object used as reference for autofocus</p>
+</dd>
+<dt>Output:</dt><dd><p>None</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py exception">
+<dt id="microscope_automation.util.automation_exceptions.AutofocusNoReferenceObjectError">
+<em class="property">exception </em><code class="sig-prename descclassname">microscope_automation.util.automation_exceptions.</code><code class="sig-name descname">AutofocusNoReferenceObjectError</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">message</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">error_component</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">focus_reference_obj_id</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/microscope_automation/util/automation_exceptions.html#AutofocusNoReferenceObjectError"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#microscope_automation.util.automation_exceptions.AutofocusNoReferenceObjectError" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#microscope_automation.util.automation_exceptions.AutofocusError" title="microscope_automation.util.automation_exceptions.AutofocusError"><code class="xref py py-class docutils literal notranslate"><span class="pre">microscope_automation.util.automation_exceptions.AutofocusError</span></code></a></p>
+<p>Exception if no reference object was selected for autofocus</p>
+<dl>
+<dt>Input:</dt><dd><p>focus_reference_obj_id: Sample object used as reference for autofocus</p>
+<p>message: Test to display as error message</p>
+</dd>
+</dl>
+<dl class="py method">
+<dt id="microscope_automation.util.automation_exceptions.AutofocusNoReferenceObjectError.error_dialog">
+<code class="sig-name descname">error_dialog</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/microscope_automation/util/automation_exceptions.html#AutofocusNoReferenceObjectError.error_dialog"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#microscope_automation.util.automation_exceptions.AutofocusNoReferenceObjectError.error_dialog" title="Permalink to this definition">¶</a></dt>
+<dd><p>Show error message to user.</p>
+<dl class="simple">
+<dt>Input:</dt><dd><p>none</p>
+</dd>
+<dt>Output:</dt><dd><p>none</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py exception">
+<dt id="microscope_automation.util.automation_exceptions.AutofocusNotSetError">
+<em class="property">exception </em><code class="sig-prename descclassname">microscope_automation.util.automation_exceptions.</code><code class="sig-name descname">AutofocusNotSetError</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">message</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">error_component</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">focus_reference_obj_id</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/microscope_automation/util/automation_exceptions.html#AutofocusNotSetError"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#microscope_automation.util.automation_exceptions.AutofocusNotSetError" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#microscope_automation.util.automation_exceptions.AutofocusError" title="microscope_automation.util.automation_exceptions.AutofocusError"><code class="xref py py-class docutils literal notranslate"><span class="pre">microscope_automation.util.automation_exceptions.AutofocusError</span></code></a></p>
+<p>Exception if objective was changed since autofocus was initialized</p>
+<dl>
+<dt>Input:</dt><dd><p>focus_reference_obj_id: Sample object used as reference for autofocus</p>
+<p>message: Test to display as error message</p>
+</dd>
+</dl>
+<dl class="py method">
+<dt id="microscope_automation.util.automation_exceptions.AutofocusNotSetError.error_dialog">
+<code class="sig-name descname">error_dialog</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/microscope_automation/util/automation_exceptions.html#AutofocusNotSetError.error_dialog"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#microscope_automation.util.automation_exceptions.AutofocusNotSetError.error_dialog" title="Permalink to this definition">¶</a></dt>
+<dd><p>Show error message to user.</p>
+<dl class="simple">
+<dt>Input:</dt><dd><p>none</p>
+</dd>
+<dt>Output:</dt><dd><p>none</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py exception">
+<dt id="microscope_automation.util.automation_exceptions.AutofocusObjectiveChangedError">
+<em class="property">exception </em><code class="sig-prename descclassname">microscope_automation.util.automation_exceptions.</code><code class="sig-name descname">AutofocusObjectiveChangedError</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">message</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">error_component</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">focus_reference_obj_id</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/microscope_automation/util/automation_exceptions.html#AutofocusObjectiveChangedError"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#microscope_automation.util.automation_exceptions.AutofocusObjectiveChangedError" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#microscope_automation.util.automation_exceptions.AutofocusError" title="microscope_automation.util.automation_exceptions.AutofocusError"><code class="xref py py-class docutils literal notranslate"><span class="pre">microscope_automation.util.automation_exceptions.AutofocusError</span></code></a></p>
+<p>Exception if objective was changed since autofocus was initialized</p>
+<dl>
+<dt>Input:</dt><dd><p>focus_reference_obj_id: Sample object used as reference for autofocus</p>
+<p>message: Test to display as error message</p>
+</dd>
+<dt>Output:</dt><dd><p>none</p>
+</dd>
+</dl>
+<dl class="py method">
+<dt id="microscope_automation.util.automation_exceptions.AutofocusObjectiveChangedError.error_dialog">
+<code class="sig-name descname">error_dialog</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/microscope_automation/util/automation_exceptions.html#AutofocusObjectiveChangedError.error_dialog"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#microscope_automation.util.automation_exceptions.AutofocusObjectiveChangedError.error_dialog" title="Permalink to this definition">¶</a></dt>
+<dd><p>Show error message to user.</p>
+<dl class="simple">
+<dt>Input:</dt><dd><p>none</p>
+</dd>
+<dt>Output:</dt><dd><p>none</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py exception">
+<dt id="microscope_automation.util.automation_exceptions.AutomationError">
+<em class="property">exception </em><code class="sig-prename descclassname">microscope_automation.util.automation_exceptions.</code><code class="sig-name descname">AutomationError</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">message</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">error_component</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/microscope_automation/util/automation_exceptions.html#AutomationError"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#microscope_automation.util.automation_exceptions.AutomationError" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/exceptions.html#Exception" title="(in Python v3.9)"><code class="xref py py-class docutils literal notranslate"><span class="pre">Exception</span></code></a></p>
+<p>Base exception for all errors in package microscopeautomation</p>
+</dd></dl>
+
+<dl class="py exception">
+<dt id="microscope_automation.util.automation_exceptions.CrashDangerError">
+<em class="property">exception </em><code class="sig-prename descclassname">microscope_automation.util.automation_exceptions.</code><code class="sig-name descname">CrashDangerError</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">message</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">error_component</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/microscope_automation/util/automation_exceptions.html#CrashDangerError"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#microscope_automation.util.automation_exceptions.CrashDangerError" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#microscope_automation.util.automation_exceptions.AutomationError" title="microscope_automation.util.automation_exceptions.AutomationError"><code class="xref py py-class docutils literal notranslate"><span class="pre">microscope_automation.util.automation_exceptions.AutomationError</span></code></a></p>
+<p>Exception if danger for hardware was detected.</p>
+<dl class="py method">
+<dt id="microscope_automation.util.automation_exceptions.CrashDangerError.error_dialog">
+<code class="sig-name descname">error_dialog</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">advice</span><span class="o">=</span><span class="default_value">''</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/microscope_automation/util/automation_exceptions.html#CrashDangerError.error_dialog"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#microscope_automation.util.automation_exceptions.CrashDangerError.error_dialog" title="Permalink to this definition">¶</a></dt>
+<dd><p>Show error message to user.</p>
+<dl class="simple">
+<dt>Input:</dt><dd><p>advice: str with advice to user of how to avoid crash.</p>
+</dd>
+<dt>Output:</dt><dd><p>none</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py exception">
+<dt id="microscope_automation.util.automation_exceptions.ExperimentError">
+<em class="property">exception </em><code class="sig-prename descclassname">microscope_automation.util.automation_exceptions.</code><code class="sig-name descname">ExperimentError</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">message</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">error_component</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/microscope_automation/util/automation_exceptions.html#ExperimentError"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#microscope_automation.util.automation_exceptions.ExperimentError" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#microscope_automation.util.automation_exceptions.HardwareError" title="microscope_automation.util.automation_exceptions.HardwareError"><code class="xref py py-class docutils literal notranslate"><span class="pre">microscope_automation.util.automation_exceptions.HardwareError</span></code></a></p>
+<p>Exception for failures experiment execution.</p>
+<dl class="py method">
+<dt id="microscope_automation.util.automation_exceptions.ExperimentError.error_dialog">
+<code class="sig-name descname">error_dialog</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/microscope_automation/util/automation_exceptions.html#ExperimentError.error_dialog"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#microscope_automation.util.automation_exceptions.ExperimentError.error_dialog" title="Permalink to this definition">¶</a></dt>
+<dd><p>Show error message to user.</p>
+<dl class="simple">
+<dt>Input:</dt><dd><p>none</p>
+</dd>
+<dt>Output:</dt><dd><p>none</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py exception">
+<dt id="microscope_automation.util.automation_exceptions.ExperimentNotExistError">
+<em class="property">exception </em><code class="sig-prename descclassname">microscope_automation.util.automation_exceptions.</code><code class="sig-name descname">ExperimentNotExistError</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">message</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">error_component</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/microscope_automation/util/automation_exceptions.html#ExperimentNotExistError"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#microscope_automation.util.automation_exceptions.ExperimentNotExistError" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#microscope_automation.util.automation_exceptions.ExperimentError" title="microscope_automation.util.automation_exceptions.ExperimentError"><code class="xref py py-class docutils literal notranslate"><span class="pre">microscope_automation.util.automation_exceptions.ExperimentError</span></code></a></p>
+<p>Exception for failures experiment execution.</p>
+<dl class="py method">
+<dt id="microscope_automation.util.automation_exceptions.ExperimentNotExistError.error_dialog">
+<code class="sig-name descname">error_dialog</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/microscope_automation/util/automation_exceptions.html#ExperimentNotExistError.error_dialog"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#microscope_automation.util.automation_exceptions.ExperimentNotExistError.error_dialog" title="Permalink to this definition">¶</a></dt>
+<dd><p>Show error message to user.</p>
+<dl class="simple">
+<dt>Input:</dt><dd><p>none</p>
+</dd>
+<dt>Output:</dt><dd><p>none</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py exception">
+<dt id="microscope_automation.util.automation_exceptions.FileExistsError">
+<em class="property">exception </em><code class="sig-prename descclassname">microscope_automation.util.automation_exceptions.</code><code class="sig-name descname">FileExistsError</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">message</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">error_component</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/microscope_automation/util/automation_exceptions.html#FileExistsError"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#microscope_automation.util.automation_exceptions.FileExistsError" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#microscope_automation.util.automation_exceptions.AutomationError" title="microscope_automation.util.automation_exceptions.AutomationError"><code class="xref py py-class docutils literal notranslate"><span class="pre">microscope_automation.util.automation_exceptions.AutomationError</span></code></a></p>
+<p>Exception if file exists to prevent overriding it.</p>
+<dl class="py method">
+<dt id="microscope_automation.util.automation_exceptions.FileExistsError.error_dialog">
+<code class="sig-name descname">error_dialog</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/microscope_automation/util/automation_exceptions.html#FileExistsError.error_dialog"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#microscope_automation.util.automation_exceptions.FileExistsError.error_dialog" title="Permalink to this definition">¶</a></dt>
+<dd><p>Show error message to user.</p>
+<dl class="simple">
+<dt>Input:</dt><dd><p>none</p>
+</dd>
+<dt>Output:</dt><dd><p>none</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py exception">
+<dt id="microscope_automation.util.automation_exceptions.HardwareCommandNotDefinedError">
+<em class="property">exception </em><code class="sig-prename descclassname">microscope_automation.util.automation_exceptions.</code><code class="sig-name descname">HardwareCommandNotDefinedError</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">message</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">error_component</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/microscope_automation/util/automation_exceptions.html#HardwareCommandNotDefinedError"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#microscope_automation.util.automation_exceptions.HardwareCommandNotDefinedError" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#microscope_automation.util.automation_exceptions.AutomationError" title="microscope_automation.util.automation_exceptions.AutomationError"><code class="xref py py-class docutils literal notranslate"><span class="pre">microscope_automation.util.automation_exceptions.AutomationError</span></code></a></p>
+<p>Exception if experiment is not defined for this microscope.</p>
+<dl class="py method">
+<dt id="microscope_automation.util.automation_exceptions.HardwareCommandNotDefinedError.error_dialog">
+<code class="sig-name descname">error_dialog</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">advice</span><span class="o">=</span><span class="default_value">''</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/microscope_automation/util/automation_exceptions.html#HardwareCommandNotDefinedError.error_dialog"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#microscope_automation.util.automation_exceptions.HardwareCommandNotDefinedError.error_dialog" title="Permalink to this definition">¶</a></dt>
+<dd><p>Show error message to user.</p>
+<dl class="simple">
+<dt>Input:</dt><dd><p>advice: str with advice to user of how to avoid crash.</p>
+</dd>
+<dt>Output:</dt><dd><p>none</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py exception">
+<dt id="microscope_automation.util.automation_exceptions.HardwareDoesNotExistError">
+<em class="property">exception </em><code class="sig-prename descclassname">microscope_automation.util.automation_exceptions.</code><code class="sig-name descname">HardwareDoesNotExistError</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">message</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">error_component</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/microscope_automation/util/automation_exceptions.html#HardwareDoesNotExistError"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#microscope_automation.util.automation_exceptions.HardwareDoesNotExistError" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#microscope_automation.util.automation_exceptions.HardwareError" title="microscope_automation.util.automation_exceptions.HardwareError"><code class="xref py py-class docutils literal notranslate"><span class="pre">microscope_automation.util.automation_exceptions.HardwareError</span></code></a></p>
+<p>Exception if hardware was not defined.</p>
+<dl class="py method">
+<dt id="microscope_automation.util.automation_exceptions.HardwareDoesNotExistError.error_dialog">
+<code class="sig-name descname">error_dialog</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">advice</span><span class="o">=</span><span class="default_value">''</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/microscope_automation/util/automation_exceptions.html#HardwareDoesNotExistError.error_dialog"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#microscope_automation.util.automation_exceptions.HardwareDoesNotExistError.error_dialog" title="Permalink to this definition">¶</a></dt>
+<dd><p>Show error message to user.</p>
+<dl class="simple">
+<dt>Input:</dt><dd><p>none</p>
+</dd>
+<dt>Output:</dt><dd><p>none</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py exception">
+<dt id="microscope_automation.util.automation_exceptions.HardwareError">
+<em class="property">exception </em><code class="sig-prename descclassname">microscope_automation.util.automation_exceptions.</code><code class="sig-name descname">HardwareError</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">message</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">error_component</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/microscope_automation/util/automation_exceptions.html#HardwareError"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#microscope_automation.util.automation_exceptions.HardwareError" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#microscope_automation.util.automation_exceptions.AutomationError" title="microscope_automation.util.automation_exceptions.AutomationError"><code class="xref py py-class docutils literal notranslate"><span class="pre">microscope_automation.util.automation_exceptions.AutomationError</span></code></a></p>
+<p>Exception for failures in hardware.</p>
+<dl class="py method">
+<dt id="microscope_automation.util.automation_exceptions.HardwareError.error_dialog">
+<code class="sig-name descname">error_dialog</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/microscope_automation/util/automation_exceptions.html#HardwareError.error_dialog"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#microscope_automation.util.automation_exceptions.HardwareError.error_dialog" title="Permalink to this definition">¶</a></dt>
+<dd><p>Show error message to user.</p>
+<dl class="simple">
+<dt>Input:</dt><dd><p>none</p>
+</dd>
+<dt>Output:</dt><dd><p>none</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py exception">
+<dt id="microscope_automation.util.automation_exceptions.HardwareNotReadyError">
+<em class="property">exception </em><code class="sig-prename descclassname">microscope_automation.util.automation_exceptions.</code><code class="sig-name descname">HardwareNotReadyError</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">message</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">error_component</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/microscope_automation/util/automation_exceptions.html#HardwareNotReadyError"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#microscope_automation.util.automation_exceptions.HardwareNotReadyError" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#microscope_automation.util.automation_exceptions.AutomationError" title="microscope_automation.util.automation_exceptions.AutomationError"><code class="xref py py-class docutils literal notranslate"><span class="pre">microscope_automation.util.automation_exceptions.AutomationError</span></code></a></p>
+<p>Exception if hardware is not ready for experiment.</p>
+<dl class="py method">
+<dt id="microscope_automation.util.automation_exceptions.HardwareNotReadyError.error_dialog">
+<code class="sig-name descname">error_dialog</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">advice</span><span class="o">=</span><span class="default_value">''</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/microscope_automation/util/automation_exceptions.html#HardwareNotReadyError.error_dialog"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#microscope_automation.util.automation_exceptions.HardwareNotReadyError.error_dialog" title="Permalink to this definition">¶</a></dt>
+<dd><p>Show error message to user.</p>
+<dl class="simple">
+<dt>Input:</dt><dd><p>advice: str with advice to user of how to avoid crash.</p>
+</dd>
+<dt>Output:</dt><dd><p>none</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py exception">
+<dt id="microscope_automation.util.automation_exceptions.IOError">
+<em class="property">exception </em><code class="sig-prename descclassname">microscope_automation.util.automation_exceptions.</code><code class="sig-name descname">IOError</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">message</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">error_component</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/microscope_automation/util/automation_exceptions.html#IOError"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#microscope_automation.util.automation_exceptions.IOError" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#microscope_automation.util.automation_exceptions.AutomationError" title="microscope_automation.util.automation_exceptions.AutomationError"><code class="xref py py-class docutils literal notranslate"><span class="pre">microscope_automation.util.automation_exceptions.AutomationError</span></code></a></p>
+<p>Exception for I/O errors.</p>
+<dl class="py method">
+<dt id="microscope_automation.util.automation_exceptions.IOError.error_dialog">
+<code class="sig-name descname">error_dialog</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/microscope_automation/util/automation_exceptions.html#IOError.error_dialog"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#microscope_automation.util.automation_exceptions.IOError.error_dialog" title="Permalink to this definition">¶</a></dt>
+<dd><p>Show error message to user.</p>
+<dl class="simple">
+<dt>Input:</dt><dd><p>none</p>
+</dd>
+<dt>Output:</dt><dd><p>none</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py exception">
+<dt id="microscope_automation.util.automation_exceptions.LoadNotDefinedError">
+<em class="property">exception </em><code class="sig-prename descclassname">microscope_automation.util.automation_exceptions.</code><code class="sig-name descname">LoadNotDefinedError</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">message</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">error_component</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/microscope_automation/util/automation_exceptions.html#LoadNotDefinedError"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#microscope_automation.util.automation_exceptions.LoadNotDefinedError" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#microscope_automation.util.automation_exceptions.HardwareError" title="microscope_automation.util.automation_exceptions.HardwareError"><code class="xref py py-class docutils literal notranslate"><span class="pre">microscope_automation.util.automation_exceptions.HardwareError</span></code></a></p>
+<p>Exception if load position for focus drive is not defined.</p>
+<dl class="py method">
+<dt id="microscope_automation.util.automation_exceptions.LoadNotDefinedError.error_dialog">
+<code class="sig-name descname">error_dialog</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/microscope_automation/util/automation_exceptions.html#LoadNotDefinedError.error_dialog"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#microscope_automation.util.automation_exceptions.LoadNotDefinedError.error_dialog" title="Permalink to this definition">¶</a></dt>
+<dd><p>Show error message to user.</p>
+<dl class="simple">
+<dt>Input:</dt><dd><p>none</p>
+</dd>
+<dt>Output:</dt><dd><p>none</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py exception">
+<dt id="microscope_automation.util.automation_exceptions.MetaDataNotSavedError">
+<em class="property">exception </em><code class="sig-prename descclassname">microscope_automation.util.automation_exceptions.</code><code class="sig-name descname">MetaDataNotSavedError</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">message</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">error_component</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/microscope_automation/util/automation_exceptions.html#MetaDataNotSavedError"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#microscope_automation.util.automation_exceptions.MetaDataNotSavedError" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#microscope_automation.util.automation_exceptions.AutomationError" title="microscope_automation.util.automation_exceptions.AutomationError"><code class="xref py py-class docutils literal notranslate"><span class="pre">microscope_automation.util.automation_exceptions.AutomationError</span></code></a></p>
+<p>Exception if data could not be saved to meta data file.</p>
+<dl class="py method">
+<dt id="microscope_automation.util.automation_exceptions.MetaDataNotSavedError.error_dialog">
+<code class="sig-name descname">error_dialog</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/microscope_automation/util/automation_exceptions.html#MetaDataNotSavedError.error_dialog"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#microscope_automation.util.automation_exceptions.MetaDataNotSavedError.error_dialog" title="Permalink to this definition">¶</a></dt>
+<dd><p>Show error message to user.</p>
+<dl class="simple">
+<dt>Input:</dt><dd><p>none</p>
+</dd>
+<dt>Output:</dt><dd><p>none</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py exception">
+<dt id="microscope_automation.util.automation_exceptions.ObjectiveNotDefinedError">
+<em class="property">exception </em><code class="sig-prename descclassname">microscope_automation.util.automation_exceptions.</code><code class="sig-name descname">ObjectiveNotDefinedError</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">message</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">error_component</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/microscope_automation/util/automation_exceptions.html#ObjectiveNotDefinedError"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#microscope_automation.util.automation_exceptions.ObjectiveNotDefinedError" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#microscope_automation.util.automation_exceptions.HardwareError" title="microscope_automation.util.automation_exceptions.HardwareError"><code class="xref py py-class docutils literal notranslate"><span class="pre">microscope_automation.util.automation_exceptions.HardwareError</span></code></a></p>
+<p>Exception if selected objective was not defined.</p>
+<dl class="py method">
+<dt id="microscope_automation.util.automation_exceptions.ObjectiveNotDefinedError.error_dialog">
+<code class="sig-name descname">error_dialog</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/microscope_automation/util/automation_exceptions.html#ObjectiveNotDefinedError.error_dialog"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#microscope_automation.util.automation_exceptions.ObjectiveNotDefinedError.error_dialog" title="Permalink to this definition">¶</a></dt>
+<dd><p>Show error message to user.</p>
+<dl class="simple">
+<dt>Input:</dt><dd><p>none</p>
+</dd>
+<dt>Output:</dt><dd><p>none</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py exception">
+<dt id="microscope_automation.util.automation_exceptions.StopCollectingError">
+<em class="property">exception </em><code class="sig-prename descclassname">microscope_automation.util.automation_exceptions.</code><code class="sig-name descname">StopCollectingError</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">message</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">error_component</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/microscope_automation/util/automation_exceptions.html#StopCollectingError"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#microscope_automation.util.automation_exceptions.StopCollectingError" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#microscope_automation.util.automation_exceptions.AutomationError" title="microscope_automation.util.automation_exceptions.AutomationError"><code class="xref py py-class docutils literal notranslate"><span class="pre">microscope_automation.util.automation_exceptions.AutomationError</span></code></a></p>
+<p>Stop collecting sample positions.</p>
+<dl class="py method">
+<dt id="microscope_automation.util.automation_exceptions.StopCollectingError.error_dialog">
+<code class="sig-name descname">error_dialog</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/microscope_automation/util/automation_exceptions.html#StopCollectingError.error_dialog"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#microscope_automation.util.automation_exceptions.StopCollectingError.error_dialog" title="Permalink to this definition">¶</a></dt>
+<dd><p>Show error message to user.</p>
+<dl class="simple">
+<dt>Input:</dt><dd><p>none</p>
+</dd>
+<dt>Output:</dt><dd><p>none</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py exception">
+<dt id="microscope_automation.util.automation_exceptions.WorkNotDefinedError">
+<em class="property">exception </em><code class="sig-prename descclassname">microscope_automation.util.automation_exceptions.</code><code class="sig-name descname">WorkNotDefinedError</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">message</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">error_component</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/microscope_automation/util/automation_exceptions.html#WorkNotDefinedError"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#microscope_automation.util.automation_exceptions.WorkNotDefinedError" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#microscope_automation.util.automation_exceptions.HardwareError" title="microscope_automation.util.automation_exceptions.HardwareError"><code class="xref py py-class docutils literal notranslate"><span class="pre">microscope_automation.util.automation_exceptions.HardwareError</span></code></a></p>
+<p>Exception if work position for focus drive is not defined.</p>
+<dl class="py method">
+<dt id="microscope_automation.util.automation_exceptions.WorkNotDefinedError.error_dialog">
+<code class="sig-name descname">error_dialog</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/microscope_automation/util/automation_exceptions.html#WorkNotDefinedError.error_dialog"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#microscope_automation.util.automation_exceptions.WorkNotDefinedError.error_dialog" title="Permalink to this definition">¶</a></dt>
+<dd><p>Show error message to user.</p>
+<dl class="simple">
+<dt>Input:</dt><dd><p>none</p>
+</dd>
+<dt>Output:</dt><dd><p>none</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py function">
+<dt id="microscope_automation.util.automation_exceptions.get_error_blocking">
+<code class="sig-prename descclassname">microscope_automation.util.automation_exceptions.</code><code class="sig-name descname">get_error_blocking</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/microscope_automation/util/automation_exceptions.html#get_error_blocking"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#microscope_automation.util.automation_exceptions.get_error_blocking" title="Permalink to this definition">¶</a></dt>
+<dd><p>Retrieve blocking behavior of error dialogs.</p>
+<dl class="simple">
+<dt>Input:</dt><dd><p>none</p>
+</dd>
+<dt>Output:</dt><dd><p>blocking: if True use modal dialog for error reporting, otherwise print message</p>
+</dd>
+<dt>Output:</dt><dd><p>None</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt id="microscope_automation.util.automation_exceptions.set_error_blocking">
+<code class="sig-prename descclassname">microscope_automation.util.automation_exceptions.</code><code class="sig-name descname">set_error_blocking</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">block</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/microscope_automation/util/automation_exceptions.html#set_error_blocking"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#microscope_automation.util.automation_exceptions.set_error_blocking" title="Permalink to this definition">¶</a></dt>
+<dd><p>Set blocking behavior of error dialogs.</p>
+<dl class="simple">
+<dt>Input:</dt><dd><p>block: if True use modal dialog for error reporting, otherwise print message</p>
+</dd>
+<dt>Output:</dt><dd><p>None</p>
+</dd>
+</dl>
+</dd></dl>
+
+</div>
+<div class="section" id="module-microscope_automation.util.automation_messages_form_layout">
+<span id="microscope-automation-util-automation-messages-form-layout-module"></span><h2>microscope_automation.util.automation_messages_form_layout module<a class="headerlink" href="#module-microscope_automation.util.automation_messages_form_layout" title="Permalink to this headline">¶</a></h2>
+<p>QDialog boxes and other messages for Microscope Automation package based on formlayout
+<a class="reference external" href="https://pypi.python.org/pypi/formlayout">https://pypi.python.org/pypi/formlayout</a>
+<a class="reference external" href="http://pythonhosted.org/formlayout/index">http://pythonhosted.org/formlayout/index</a>.html#
+<a class="reference external" href="https://github.com/PierreRaybaut/formlayout">https://github.com/PierreRaybaut/formlayout</a>
+<a class="reference external" href="http://pyqt.sourceforge.net/Docs/PyQt4/">http://pyqt.sourceforge.net/Docs/PyQt4/</a>
+<a class="reference external" href="https://wiki.qt.io/PySide">https://wiki.qt.io/PySide</a></p>
+<p>Requires PyQt4 or PyQt5, set installed API below</p>
+<p>Created on Jun 23, 2016</p>
+<p>&#64;author: winfriedw</p>
+<dl class="py function">
+<dt id="microscope_automation.util.automation_messages_form_layout.check_box_message">
+<code class="sig-prename descclassname">microscope_automation.util.automation_messages_form_layout.</code><code class="sig-name descname">check_box_message</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">message</span></em>, <em class="sig-param"><span class="n">checkBoxList</span></em>, <em class="sig-param"><span class="n">return_code</span><span class="o">=</span><span class="default_value">False</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/microscope_automation/util/automation_messages_form_layout.html#check_box_message"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#microscope_automation.util.automation_messages_form_layout.check_box_message" title="Permalink to this definition">¶</a></dt>
+<dd><p>Ask user to operate microscope manually and allows option to abort script.</p>
+<dl>
+<dt>Input:</dt><dd><p>message: Message that will be displayed</p>
+<dl class="simple">
+<dt>checkBoxList: list with check box names and settings in form:</dt><dd><p>[(‘Choice 1’, True), (‘Choice 2’, False)</p>
+</dd>
+</dl>
+<p>return_code: if True, will return after cancel with code 0,
+otherwise will call sys.exit()</p>
+</dd>
+<dt>Return:</dt><dd><p>0: User selected to abort script</p>
+<p>new_check_box_list: User pressed ok result is updated checkBoxList</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt id="microscope_automation.util.automation_messages_form_layout.error_message">
+<code class="sig-prename descclassname">microscope_automation.util.automation_messages_form_layout.</code><code class="sig-name descname">error_message</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">message</span></em>, <em class="sig-param"><span class="n">return_code</span><span class="o">=</span><span class="default_value">False</span></em>, <em class="sig-param"><span class="n">blocking</span><span class="o">=</span><span class="default_value">True</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/microscope_automation/util/automation_messages_form_layout.html#error_message"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#microscope_automation.util.automation_messages_form_layout.error_message" title="Permalink to this definition">¶</a></dt>
+<dd><p>Show error message and allows option to abort script.</p>
+<dl>
+<dt>Input:</dt><dd><p>message: Message that will be displayed</p>
+<p>return_code: if True, will return after cancel with code 0,
+otherwise will call sys.exit()</p>
+<p>blocking: if True use modal dialog for error reporting, otherwise print(message)</p>
+</dd>
+<dt>Return:</dt><dd><p>0: User selected to abort script</p>
+<p>1: User pressed ok</p>
+<p>-1: User pressed ok and selected ‘Ignore’</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt id="microscope_automation.util.automation_messages_form_layout.file_select_dialog">
+<code class="sig-prename descclassname">microscope_automation.util.automation_messages_form_layout.</code><code class="sig-name descname">file_select_dialog</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">directory</span></em>, <em class="sig-param"><span class="n">filePattern</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">comment</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">return_code</span><span class="o">=</span><span class="default_value">False</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/microscope_automation/util/automation_messages_form_layout.html#file_select_dialog"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#microscope_automation.util.automation_messages_form_layout.file_select_dialog" title="Permalink to this definition">¶</a></dt>
+<dd><p>List all files in directory and select one.</p>
+<dl>
+<dt>Input:</dt><dd><p>directory: path to directory with files</p>
+<p>filePattern: string with regular expression.
+If file matches expression it will be pre-selected.</p>
+<p>return_code: if True, will return after cancel with code 0,
+otherwise will call sys.exit()</p>
+</dd>
+<dt>Output:</dt><dd><p>file_path: path to selected file</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt id="microscope_automation.util.automation_messages_form_layout.information_message">
+<code class="sig-prename descclassname">microscope_automation.util.automation_messages_form_layout.</code><code class="sig-name descname">information_message</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">title</span></em>, <em class="sig-param"><span class="n">message</span></em>, <em class="sig-param"><span class="n">return_code</span><span class="o">=</span><span class="default_value">False</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/microscope_automation/util/automation_messages_form_layout.html#information_message"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#microscope_automation.util.automation_messages_form_layout.information_message" title="Permalink to this definition">¶</a></dt>
+<dd><p>Displays information to user and allows option to abort script.</p>
+<dl>
+<dt>Input:</dt><dd><p>title: Title of dialog box</p>
+<p>message: Message that will be displayed</p>
+<p>return_code: if True, will return after cancel with code 0,
+otherwise will call sys.exit()</p>
+</dd>
+<dt>Return:</dt><dd><p>0: User selected to abort script</p>
+<p>1: User pressed ok</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt id="microscope_automation.util.automation_messages_form_layout.operate_message">
+<code class="sig-prename descclassname">microscope_automation.util.automation_messages_form_layout.</code><code class="sig-name descname">operate_message</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">message</span></em>, <em class="sig-param"><span class="n">return_code</span><span class="o">=</span><span class="default_value">False</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/microscope_automation/util/automation_messages_form_layout.html#operate_message"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#microscope_automation.util.automation_messages_form_layout.operate_message" title="Permalink to this definition">¶</a></dt>
+<dd><p>Ask user to operate microscope manually and allows option to abort script.</p>
+<dl>
+<dt>Input:</dt><dd><p>message: Message that will be displayed</p>
+<p>return_code: if True, will return after cancel with code 0,
+otherwise will call sys.exit()</p>
+</dd>
+<dt>Return:</dt><dd><p>0: User selected to abort script</p>
+<p>1: User pressed ok</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt id="microscope_automation.util.automation_messages_form_layout.pull_down_select_dialog">
+<code class="sig-prename descclassname">microscope_automation.util.automation_messages_form_layout.</code><code class="sig-name descname">pull_down_select_dialog</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">item_list</span></em>, <em class="sig-param"><span class="n">message</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/microscope_automation/util/automation_messages_form_layout.html#pull_down_select_dialog"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#microscope_automation.util.automation_messages_form_layout.pull_down_select_dialog" title="Permalink to this definition">¶</a></dt>
+<dd><p>Show all items from itemList in pulldown menu and allow user to select one item.</p>
+<dl>
+<dt>Input:</dt><dd><p>itemList: list of strings to display in pull down menu</p>
+<p>message: string with instructions to user</p>
+</dd>
+<dt>Output:</dt><dd><p>selected_item: item selected by user</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt id="microscope_automation.util.automation_messages_form_layout.read_string">
+<code class="sig-prename descclassname">microscope_automation.util.automation_messages_form_layout.</code><code class="sig-name descname">read_string</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">title</span></em>, <em class="sig-param"><span class="n">label</span></em>, <em class="sig-param"><span class="n">default</span></em>, <em class="sig-param"><span class="n">return_code</span><span class="o">=</span><span class="default_value">False</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/microscope_automation/util/automation_messages_form_layout.html#read_string"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#microscope_automation.util.automation_messages_form_layout.read_string" title="Permalink to this definition">¶</a></dt>
+<dd><p>Ask for user input and allows option to abort script.</p>
+<dl>
+<dt>Input:</dt><dd><p>title: Title of dialog box</p>
+<p>label: Text to display in front of sting input field</p>
+<p>default: default input</p>
+<p>return_code: if True, will return after cancel with code 0,
+otherwise will call sys.exit()</p>
+</dd>
+<dt>Return:</dt><dd><p>0: User selected to abort script</p>
+<p>1: User pressed ok</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt id="microscope_automation.util.automation_messages_form_layout.select_message">
+<code class="sig-prename descclassname">microscope_automation.util.automation_messages_form_layout.</code><code class="sig-name descname">select_message</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">message</span></em>, <em class="sig-param"><span class="n">count</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">return_code</span><span class="o">=</span><span class="default_value">False</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/microscope_automation/util/automation_messages_form_layout.html#select_message"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#microscope_automation.util.automation_messages_form_layout.select_message" title="Permalink to this definition">¶</a></dt>
+<dd><p>Interrupt script and wait for user to continue.</p>
+<dl>
+<dt>Input:</dt><dd><p>message: Message that will be displayed</p>
+<p>count: number of collected positions</p>
+<p>return_code: if True, will return after cancel with code 0,
+otherwise will call sys.exit()</p>
+</dd>
+<dt>Return:</dt><dd><p>0: User selected to abort script</p>
+<p>resultDict: dictionary of form {‘Include’: True/False, ‘Continue’: True/False}</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt id="microscope_automation.util.automation_messages_form_layout.setup_message">
+<code class="sig-prename descclassname">microscope_automation.util.automation_messages_form_layout.</code><code class="sig-name descname">setup_message</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">message</span></em>, <em class="sig-param"><span class="n">return_code</span><span class="o">=</span><span class="default_value">False</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/microscope_automation/util/automation_messages_form_layout.html#setup_message"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#microscope_automation.util.automation_messages_form_layout.setup_message" title="Permalink to this definition">¶</a></dt>
+<dd><p>Displays information about setup error and allows option to abort script.</p>
+<dl>
+<dt>Input:</dt><dd><p>message: Message that will be displayed</p>
+<p>return_code: if True, will return after cancel with code 0,
+otherwise will call sys.exit()</p>
+</dd>
+<dt>Return:</dt><dd><p>0: User selected to abort script</p>
+<p>1: User pressed ok</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt id="microscope_automation.util.automation_messages_form_layout.stop_script">
+<code class="sig-prename descclassname">microscope_automation.util.automation_messages_form_layout.</code><code class="sig-name descname">stop_script</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">message_text</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">allow_continue</span><span class="o">=</span><span class="default_value">False</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/microscope_automation/util/automation_messages_form_layout.html#stop_script"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#microscope_automation.util.automation_messages_form_layout.stop_script" title="Permalink to this definition">¶</a></dt>
+<dd><p>Script will stop all Microscope action immediately and
+ask user to stop execution of script or to continue.</p>
+<dl>
+<dt>Input:</dt><dd><p>message_text: Message to user explaining why processing should be stopped.</p>
+<p>allow_continue: if True, allow user to continue. Default: False</p>
+</dd>
+<dt>Output:</dt><dd><p>none if user selects ‘Continue’, otherwise calls sys.exit()</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt id="microscope_automation.util.automation_messages_form_layout.value_calibration_form">
+<code class="sig-prename descclassname">microscope_automation.util.automation_messages_form_layout.</code><code class="sig-name descname">value_calibration_form</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">title</span></em>, <em class="sig-param"><span class="n">comment</span></em>, <em class="sig-param"><span class="n">default</span></em>, <em class="sig-param"><span class="o">*</span><span class="n">form_fields</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/microscope_automation/util/automation_messages_form_layout.html#value_calibration_form"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#microscope_automation.util.automation_messages_form_layout.value_calibration_form" title="Permalink to this definition">¶</a></dt>
+<dd><p>Attribute selection dialog for value calibration
+Last result value will always be
+True or False for whether the value(s) were acceptable</p>
+<dl>
+<dt>Input:</dt><dd><p>title: title for the form</p>
+<p>comment: comment for the form</p>
+<p>form_fields: variable length argument list for all fields to be changed</p>
+</dd>
+<dt>Output:</dt><dd><p>result: contents of the calibration form</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt id="microscope_automation.util.automation_messages_form_layout.wait_message">
+<code class="sig-prename descclassname">microscope_automation.util.automation_messages_form_layout.</code><code class="sig-name descname">wait_message</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">message</span></em>, <em class="sig-param"><span class="n">return_code</span><span class="o">=</span><span class="default_value">False</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/microscope_automation/util/automation_messages_form_layout.html#wait_message"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#microscope_automation.util.automation_messages_form_layout.wait_message" title="Permalink to this definition">¶</a></dt>
+<dd><p>Interrupt script and wait for user to continue.</p>
+<dl>
+<dt>Input:</dt><dd><p>message: Message that will be displayed</p>
+<p>return_code: if True, will return after cancel with code 0,
+otherwise will call sys.exit()</p>
+</dd>
+<dt>Return:</dt><dd><p>0: User selected to abort script</p>
+<p>True: User pressed ok and want’s to continue to wait after each image</p>
+<p>False: User pressed ok and want’s to cancel wait times</p>
+</dd>
+</dl>
+</dd></dl>
+
+</div>
+<div class="section" id="module-microscope_automation.util.error_handling">
+<span id="microscope-automation-util-error-handling-module"></span><h2>microscope_automation.util.error_handling module<a class="headerlink" href="#module-microscope_automation.util.error_handling" title="Permalink to this headline">¶</a></h2>
+<p>Tools for error handling and logging
+Created on Jul 31, 2016</p>
+<p>&#64;author: winfriedw</p>
+<dl class="py function">
+<dt id="microscope_automation.util.error_handling.setup_logger">
+<code class="sig-prename descclassname">microscope_automation.util.error_handling.</code><code class="sig-name descname">setup_logger</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">prefs</span></em>, <em class="sig-param"><span class="n">log_level</span><span class="o">=</span><span class="default_value">'DEBUG'</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/microscope_automation/util/error_handling.html#setup_logger"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#microscope_automation.util.error_handling.setup_logger" title="Permalink to this definition">¶</a></dt>
+<dd><p>Initialize logger. Will work over multiple modules</p>
+<p>see <a class="reference external" href="https://docs.python.org/2/howto/logging-cookbook.html#using-logging-in-multiple-modules">https://docs.python.org/2/howto/logging-cookbook.html#using-logging-in-multiple-modules</a></p>
+</dd></dl>
+
+</div>
+<div class="section" id="module-microscope_automation.util.get_path">
+<span id="microscope-automation-util-get-path-module"></span><h2>microscope_automation.util.get_path module<a class="headerlink" href="#module-microscope_automation.util.get_path" title="Permalink to this headline">¶</a></h2>
+<p>Collection of functions to return path for settings, logfile, and data
+Created on Aug 8, 2016</p>
+<p>&#64;author: winfriedw</p>
+<dl class="py function">
+<dt id="microscope_automation.util.get_path.add_suffix">
+<code class="sig-prename descclassname">microscope_automation.util.get_path.</code><code class="sig-name descname">add_suffix</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">file_path</span></em>, <em class="sig-param"><span class="n">suffix</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/microscope_automation/util/get_path.html#add_suffix"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#microscope_automation.util.get_path.add_suffix" title="Permalink to this definition">¶</a></dt>
+<dd><p>Add suffix to end of file name.</p>
+<dl>
+<dt>Input:</dt><dd><p>file_path: path to file name</p>
+<p>suffix: suffix to put between end of filename and file extension</p>
+</dd>
+<dt>Output:</dt><dd><p>new_file_path: file_path with suffix</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt id="microscope_automation.util.get_path.get_calibration_path">
+<code class="sig-prename descclassname">microscope_automation.util.get_path.</code><code class="sig-name descname">get_calibration_path</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">prefs</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/microscope_automation/util/get_path.html#get_calibration_path"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#microscope_automation.util.get_path.get_calibration_path" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return path to calibration information e.g. blackreference images</p>
+<dl class="simple">
+<dt>Input:</dt><dd><p>prefs: Preferences object created from YAML file</p>
+</dd>
+<dt>Output:</dt><dd><p>calibration_path: path to calibration directory</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt id="microscope_automation.util.get_path.get_colony_dir_path">
+<code class="sig-prename descclassname">microscope_automation.util.get_path.</code><code class="sig-name descname">get_colony_dir_path</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">prefs</span></em>, <em class="sig-param"><span class="n">barcode</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/microscope_automation/util/get_path.html#get_colony_dir_path"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#microscope_automation.util.get_path.get_colony_dir_path" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return path to directory with .csv file with colony positions and features.</p>
+<dl>
+<dt>Input:</dt><dd><p>prefs: Preferences object created from YAML file</p>
+<p>barcode: Use the plate barcode to make the folder</p>
+</dd>
+<dt>Output:</dt><dd><p>colonyDir: path to log file</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt id="microscope_automation.util.get_path.get_colony_file_path">
+<code class="sig-prename descclassname">microscope_automation.util.get_path.</code><code class="sig-name descname">get_colony_file_path</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">prefs</span></em>, <em class="sig-param"><span class="n">colony_file</span></em>, <em class="sig-param"><span class="n">barcode</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/microscope_automation/util/get_path.html#get_colony_file_path"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#microscope_automation.util.get_path.get_colony_file_path" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return path to file with colony information typically produced by
+CellProfiler based on Celigo platescanner data.</p>
+<dl>
+<dt>Input:</dt><dd><p>prefs: Preferences object created from YAML file</p>
+<p>colony_file: path to .csv file with colony data</p>
+<p>barcode: Use the plate barcode to make the folder</p>
+</dd>
+<dt>Output:</dt><dd><p>colony_file_path: complete path to colony file</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt id="microscope_automation.util.get_path.get_colony_remote_dir_path">
+<code class="sig-prename descclassname">microscope_automation.util.get_path.</code><code class="sig-name descname">get_colony_remote_dir_path</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">prefs</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/microscope_automation/util/get_path.html#get_colony_remote_dir_path"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#microscope_automation.util.get_path.get_colony_remote_dir_path" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return path to directory with .csv file with colony positions
+and features on network.</p>
+<dl class="simple">
+<dt>Input:</dt><dd><p>prefs: Preferences object created from YAML file</p>
+</dd>
+<dt>Output:</dt><dd><p>colony_dir_path: path to log file</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt id="microscope_automation.util.get_path.get_daily_folder">
+<code class="sig-prename descclassname">microscope_automation.util.get_path.</code><code class="sig-name descname">get_daily_folder</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">prefs</span></em>, <em class="sig-param"><span class="n">barcode</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/microscope_automation/util/get_path.html#get_daily_folder"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#microscope_automation.util.get_path.get_daily_folder" title="Permalink to this definition">¶</a></dt>
+<dd><p>Find folder for daily settings and results. Create folder if not existing.</p>
+<dl>
+<dt>Input:</dt><dd><p>prefs: Preferences object created from YAML file</p>
+<p>barcode: Use the plate barcode to make the folder</p>
+</dd>
+<dt>Output:</dt><dd><p>daily_path: path to daily folder. No ‘/’ at end.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt id="microscope_automation.util.get_path.get_experiment_path">
+<code class="sig-prename descclassname">microscope_automation.util.get_path.</code><code class="sig-name descname">get_experiment_path</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">prefs</span></em>, <em class="sig-param"><span class="n">dir</span><span class="o">=</span><span class="default_value">False</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/microscope_automation/util/get_path.html#get_experiment_path"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#microscope_automation.util.get_path.get_experiment_path" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return path to experiment.</p>
+<dl>
+<dt>Input:</dt><dd><p>prefs: Preferences object created from YAML file</p>
+<p>dir: if true return path to experiments directory, otherwise to experiment file.
+Default: False</p>
+</dd>
+<dt>Output:</dt><dd><p>experiment_path: path to experiment</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt id="microscope_automation.util.get_path.get_hardware_settings_path">
+<code class="sig-prename descclassname">microscope_automation.util.get_path.</code><code class="sig-name descname">get_hardware_settings_path</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">prefs</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/microscope_automation/util/get_path.html#get_hardware_settings_path"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#microscope_automation.util.get_path.get_hardware_settings_path" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return path to .yml file with microscope specifications from preferences file.</p>
+<dl class="simple">
+<dt>Input:</dt><dd><p>prefs: Preferences object created from YAML file</p>
+</dd>
+<dt>Output:</dt><dd><p>hardwarePath: path to layout file</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt id="microscope_automation.util.get_path.get_images_path">
+<code class="sig-prename descclassname">microscope_automation.util.get_path.</code><code class="sig-name descname">get_images_path</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">prefs</span></em>, <em class="sig-param"><span class="n">sub_dir</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">barcode</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/microscope_automation/util/get_path.html#get_images_path"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#microscope_automation.util.get_path.get_images_path" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return path to directory for images. Create directory if not available</p>
+<dl>
+<dt>Input:</dt><dd><p>prefs: Preferences object created from YAML file</p>
+<p>sub_dir: Sub-directory for images. Will create folder with this name</p>
+<p>barcode: Use the plate barcode to make the folder</p>
+</dd>
+<dt>Output:</dt><dd><p>references_path: path to directory for reference images for specific well</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt id="microscope_automation.util.get_path.get_log_file_path">
+<code class="sig-prename descclassname">microscope_automation.util.get_path.</code><code class="sig-name descname">get_log_file_path</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">prefs</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/microscope_automation/util/get_path.html#get_log_file_path"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#microscope_automation.util.get_path.get_log_file_path" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return path to log file.</p>
+<dl class="simple">
+<dt>Input:</dt><dd><p>prefs: Preferences object created from YAML file</p>
+</dd>
+<dt>Output:</dt><dd><p>log_file_path: path to log file</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt id="microscope_automation.util.get_path.get_meta_data_path">
+<code class="sig-prename descclassname">microscope_automation.util.get_path.</code><code class="sig-name descname">get_meta_data_path</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">prefs</span></em>, <em class="sig-param"><span class="n">barcode</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/microscope_automation/util/get_path.html#get_meta_data_path"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#microscope_automation.util.get_path.get_meta_data_path" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return path for meta data.</p>
+<dl>
+<dt>Input:</dt><dd><p>prefs: Preferences object created from YAML file</p>
+<p>barcode: Use the plate barcode to make the folder</p>
+</dd>
+<dt>Output:</dt><dd><p>meta_data_file: path to log file</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt id="microscope_automation.util.get_path.get_position_csv_path">
+<code class="sig-prename descclassname">microscope_automation.util.get_path.</code><code class="sig-name descname">get_position_csv_path</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">prefs</span></em>, <em class="sig-param"><span class="n">barcode</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/microscope_automation/util/get_path.html#get_position_csv_path"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#microscope_automation.util.get_path.get_position_csv_path" title="Permalink to this definition">¶</a></dt>
+<dd><p>Function to get the file path for the csv files where
+all the positions are stored after segmentation.</p>
+<dl>
+<dt>Input:</dt><dd><p>prefs: preferences</p>
+<p>barcode: Use the plate barcode to make the folder</p>
+</dd>
+<dt>Output:</dt><dd><p>paths: file paths for the files</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt id="microscope_automation.util.get_path.get_recovery_settings_path">
+<code class="sig-prename descclassname">microscope_automation.util.get_path.</code><code class="sig-name descname">get_recovery_settings_path</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">prefs</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/microscope_automation/util/get_path.html#get_recovery_settings_path"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#microscope_automation.util.get_path.get_recovery_settings_path" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns the file path to save the pickled dictionary after interruption</p>
+<dl class="simple">
+<dt>Input:</dt><dd><p>prefs: Preferences object created from YAML file</p>
+</dd>
+<dt>Output:</dt><dd><p>file_path: path to recovery settings</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt id="microscope_automation.util.get_path.get_references_path">
+<code class="sig-prename descclassname">microscope_automation.util.get_path.</code><code class="sig-name descname">get_references_path</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">prefs</span></em>, <em class="sig-param"><span class="n">barcode</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/microscope_automation/util/get_path.html#get_references_path"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#microscope_automation.util.get_path.get_references_path" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return path to directory for reference images. Create directory if not available</p>
+<dl>
+<dt>Input:</dt><dd><p>prefs: Preferences object created from YAML file</p>
+<p>barcode: Use the plate barcode to make the folder</p>
+</dd>
+<dt>Output:</dt><dd><p>references_path: path to directory for reference images for specific well</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt id="microscope_automation.util.get_path.get_valid_path_from_prefs">
+<code class="sig-prename descclassname">microscope_automation.util.get_path.</code><code class="sig-name descname">get_valid_path_from_prefs</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">prefs</span></em>, <em class="sig-param"><span class="n">key</span></em>, <em class="sig-param"><span class="n">search_dir</span><span class="o">=</span><span class="default_value">True</span></em>, <em class="sig-param"><span class="n">validate</span><span class="o">=</span><span class="default_value">False</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/microscope_automation/util/get_path.html#get_valid_path_from_prefs"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#microscope_automation.util.get_path.get_valid_path_from_prefs" title="Permalink to this definition">¶</a></dt>
+<dd><p>Read list of paths from prefs and return first valid match.</p>
+<dl>
+<dt>Input:</dt><dd><p>prefs: Preferences object created from YAML file</p>
+<p>key: key for pathlist in preferences.yml</p>
+<p>search_dir: if True search for directory, otherwise for file</p>
+</dd>
+<dt>Output:</dt><dd><p>return_path: path to valid file or directory</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt id="microscope_automation.util.get_path.get_well_edge_path">
+<code class="sig-prename descclassname">microscope_automation.util.get_path.</code><code class="sig-name descname">get_well_edge_path</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">prefs</span></em>, <em class="sig-param"><span class="n">barcode</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/microscope_automation/util/get_path.html#get_well_edge_path"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#microscope_automation.util.get_path.get_well_edge_path" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return path to folder where well edge images are saved.
+Used to determine the well’s center.</p>
+<dl class="simple">
+<dt>Input:</dt><dd><p>prefs: Preferences object created from YAML file</p>
+</dd>
+<dt>Output:</dt><dd><p>well_edge_path: path to calibration directory</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt id="microscope_automation.util.get_path.set_up_subfolders">
+<code class="sig-prename descclassname">microscope_automation.util.get_path.</code><code class="sig-name descname">set_up_subfolders</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">parent_folder_path</span></em>, <em class="sig-param"><span class="n">subfolder</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/microscope_automation/util/get_path.html#set_up_subfolders"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#microscope_automation.util.get_path.set_up_subfolders" title="Permalink to this definition">¶</a></dt>
+<dd><p>Set the Subfolders for imaging folder - e.g. TapeOnly and Failed QC</p>
+<dl>
+<dt>Input:</dt><dd><p>parent_folder_path: Image Folder Path</p>
+<p>subfolder: folder to create, can be list of multiple folders</p>
+</dd>
+<dt>Output:</dt><dd><p>subfolders: list of full path of subfolders created</p>
+</dd>
+</dl>
+</dd></dl>
+
+</div>
+<div class="section" id="module-microscope_automation.util.image_AICS">
+<span id="microscope-automation-util-image-aics-module"></span><h2>microscope_automation.util.image_AICS module<a class="headerlink" href="#module-microscope_automation.util.image_AICS" title="Permalink to this headline">¶</a></h2>
+<p>Module with class ImageAICS to wrap image data
+as numpy arrays and meta data as dictionaries.
+Add display methods
+Created on Jul 11, 2016</p>
+<p>&#64;author: winfriedw</p>
+<dl class="py class">
+<dt id="microscope_automation.util.image_AICS.ImageAICS">
+<em class="property">class </em><code class="sig-prename descclassname">microscope_automation.util.image_AICS.</code><code class="sig-name descname">ImageAICS</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">data</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">meta</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/microscope_automation/util/image_AICS.html#ImageAICS"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#microscope_automation.util.image_AICS.ImageAICS" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.9)"><code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></a></p>
+<p>store and display image data</p>
+<dl class="py method">
+<dt id="microscope_automation.util.image_AICS.ImageAICS.add_data">
+<code class="sig-name descname">add_data</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">data</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/microscope_automation/util/image_AICS.html#ImageAICS.add_data"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#microscope_automation.util.image_AICS.ImageAICS.add_data" title="Permalink to this definition">¶</a></dt>
+<dd><p>add image data</p>
+<dl class="simple">
+<dt>Input:</dt><dd><p>data: numpy array with image data</p>
+</dd>
+<dt>Output:</dt><dd><p>none</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="microscope_automation.util.image_AICS.ImageAICS.add_meta">
+<code class="sig-name descname">add_meta</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">meta</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/microscope_automation/util/image_AICS.html#ImageAICS.add_meta"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#microscope_automation.util.image_AICS.ImageAICS.add_meta" title="Permalink to this definition">¶</a></dt>
+<dd><p>Add meta data. Use keys as defined in OME-XML.</p>
+<dl class="simple">
+<dt>Input:</dt><dd><p>meta: dictionary with meta data</p>
+</dd>
+<dt>Output:</dt><dd><p>none</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="microscope_automation.util.image_AICS.ImageAICS.create_file_name">
+<code class="sig-name descname">create_file_name</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">template</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/microscope_automation/util/image_AICS.html#ImageAICS.create_file_name"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#microscope_automation.util.image_AICS.ImageAICS.create_file_name" title="Permalink to this definition">¶</a></dt>
+<dd><p>Create file name based on meta data and template.</p>
+<dl class="simple">
+<dt>Input:</dt><dd><p>template: string with filename with path for saved image in original format
+or tuple with path to directory and template for file name</p>
+</dd>
+<dt>Output:</dt><dd><p>filePath: file name and path for image</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="microscope_automation.util.image_AICS.ImageAICS.get_data">
+<code class="sig-name descname">get_data</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/microscope_automation/util/image_AICS.html#ImageAICS.get_data"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#microscope_automation.util.image_AICS.ImageAICS.get_data" title="Permalink to this definition">¶</a></dt>
+<dd><p>retrieve image data as numpy array.</p>
+<dl class="simple">
+<dt>Input:</dt><dd><p>none</p>
+</dd>
+<dt>Output:</dt><dd><p>data: numpy array with image data</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="microscope_automation.util.image_AICS.ImageAICS.get_meta">
+<code class="sig-name descname">get_meta</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">key</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/microscope_automation/util/image_AICS.html#ImageAICS.get_meta"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#microscope_automation.util.image_AICS.ImageAICS.get_meta" title="Permalink to this definition">¶</a></dt>
+<dd><p>Retrieve meta data. Use keys as defined in OME-XML.</p>
+<dl class="simple">
+<dt>Input:</dt><dd><p>none</p>
+</dd>
+<dt>Output:</dt><dd><p>meta: dictionary with meta data</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="microscope_automation.util.image_AICS.ImageAICS.parse_file_template">
+<code class="sig-name descname">parse_file_template</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">template</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/microscope_automation/util/image_AICS.html#ImageAICS.parse_file_template"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#microscope_automation.util.image_AICS.ImageAICS.parse_file_template" title="Permalink to this definition">¶</a></dt>
+<dd><p>Create file name based on meta data and template.</p>
+<dl class="simple">
+<dt>Input:</dt><dd><p>template: string with filename</p>
+</dd>
+<dt>Output:</dt><dd><p>fileName: file name for image</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="microscope_automation.util.image_AICS.ImageAICS.save_as_tiff">
+<code class="sig-name descname">save_as_tiff</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">path</span></em>, <em class="sig-param"><span class="n">bits</span><span class="o">=</span><span class="default_value">16</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/microscope_automation/util/image_AICS.html#ImageAICS.save_as_tiff"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#microscope_automation.util.image_AICS.ImageAICS.save_as_tiff" title="Permalink to this definition">¶</a></dt>
+<dd><p>Save data portion of image as .tif file.</p>
+<dl>
+<dt>Input:</dt><dd><p>path: file path with extension .tif as string</p>
+<p>bits: bit depth of image. Default: 16</p>
+</dd>
+<dt>Output:</dt><dd><p>none</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="microscope_automation.util.image_AICS.ImageAICS.show">
+<code class="sig-name descname">show</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">title</span><span class="o">=</span><span class="default_value">'ImageAICS'</span></em>, <em class="sig-param"><span class="n">channel</span><span class="o">=</span><span class="default_value">0</span></em>, <em class="sig-param"><span class="n">z</span><span class="o">=</span><span class="default_value">0</span></em>, <em class="sig-param"><span class="n">t</span><span class="o">=</span><span class="default_value">0</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/microscope_automation/util/image_AICS.html#ImageAICS.show"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#microscope_automation.util.image_AICS.ImageAICS.show" title="Permalink to this definition">¶</a></dt>
+<dd><p>display image data</p>
+<dl>
+<dt>Input:</dt><dd><p>title: string with title for window. Default=’ImageAICS’</p>
+<p>channel: channel for display. Default = 0</p>
+<p>z: z slice. Default = 0</p>
+<p>t: time point. Default = 0</p>
+</dd>
+<dt>Output:</dt><dd><p>none</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="module-microscope_automation.util.load_image_czi">
+<span id="microscope-automation-util-load-image-czi-module"></span><h2>microscope_automation.util.load_image_czi module<a class="headerlink" href="#module-microscope_automation.util.load_image_czi" title="Permalink to this headline">¶</a></h2>
+<dl class="py class">
+<dt id="microscope_automation.util.load_image_czi.LoadImageCzi">
+<em class="property">class </em><code class="sig-prename descclassname">microscope_automation.util.load_image_czi.</code><code class="sig-name descname">LoadImageCzi</code><a class="reference internal" href="_modules/microscope_automation/util/load_image_czi.html#LoadImageCzi"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#microscope_automation.util.load_image_czi.LoadImageCzi" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.9)"><code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></a></p>
+<dl class="py method">
+<dt id="microscope_automation.util.load_image_czi.LoadImageCzi.load_image">
+<code class="sig-name descname">load_image</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">image</span></em>, <em class="sig-param"><span class="n">get_meta_data</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/microscope_automation/util/load_image_czi.html#LoadImageCzi.load_image"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#microscope_automation.util.load_image_czi.LoadImageCzi.load_image" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>image</strong> – ImageAICS object</p></li>
+<li><p><strong>get_meta_data</strong> – Flag if the user wants the meta data</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>ImageAICS object with full pixel data and relevant meta data</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="module-microscope_automation.util.software_state">
+<span id="microscope-automation-util-software-state-module"></span><h2>microscope_automation.util.software_state module<a class="headerlink" href="#module-microscope_automation.util.software_state" title="Permalink to this headline">¶</a></h2>
+<p>File to keep track of the state of the software.</p>
+<p>&#64;author: winfriedw</p>
+<dl class="py class">
+<dt id="microscope_automation.util.software_state.DiagnosticPickler">
+<em class="property">class </em><code class="sig-prename descclassname">microscope_automation.util.software_state.</code><code class="sig-name descname">DiagnosticPickler</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">file</span></em>, <em class="sig-param"><span class="n">protocol</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">fix_imports</span><span class="o">=</span><span class="default_value">True</span></em>, <em class="sig-param"><span class="n">buffer_callback</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/microscope_automation/util/software_state.html#DiagnosticPickler"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#microscope_automation.util.software_state.DiagnosticPickler" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">_pickle.Pickler</span></code></p>
+<dl class="py method">
+<dt id="microscope_automation.util.software_state.DiagnosticPickler.save">
+<code class="sig-name descname">save</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">obj</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/microscope_automation/util/software_state.html#DiagnosticPickler.save"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#microscope_automation.util.software_state.DiagnosticPickler.save" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt id="microscope_automation.util.software_state.State">
+<em class="property">class </em><code class="sig-prename descclassname">microscope_automation.util.software_state.</code><code class="sig-name descname">State</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">recovery_file_path</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/microscope_automation/util/software_state.html#State"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#microscope_automation.util.software_state.State" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.9)"><code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></a></p>
+<dl class="py method">
+<dt id="microscope_automation.util.software_state.State.add_last_experiment_object">
+<code class="sig-name descname">add_last_experiment_object</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">exp_object_name</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/microscope_automation/util/software_state.html#State.add_last_experiment_object"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#microscope_automation.util.software_state.State.add_last_experiment_object" title="Permalink to this definition">¶</a></dt>
+<dd><p>Add objects to the list for last experiment objects to keep track of which
+cells have already  been imaged. To be able to pick up exactly where we left off</p>
+<dl class="simple">
+<dt>Input:</dt><dd><p>exp_object_list: list of experiment objects to add for the next experiment</p>
+</dd>
+<dt>Output:</dt><dd><p>none</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="microscope_automation.util.software_state.State.add_next_experiment_object">
+<code class="sig-name descname">add_next_experiment_object</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">experiment_name</span></em>, <em class="sig-param"><span class="n">exp_object_list</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/microscope_automation/util/software_state.html#State.add_next_experiment_object"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#microscope_automation.util.software_state.State.add_next_experiment_object" title="Permalink to this definition">¶</a></dt>
+<dd><p>Add objects to the list for next experiment objects.</p>
+<dl>
+<dt>Input:</dt><dd><p>experiment_name: name of experiment to add</p>
+<p>exp_object_list: list of experiment objects to add for the next experiment</p>
+</dd>
+<dt>Output:</dt><dd><p>none</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="microscope_automation.util.software_state.State.add_unpickled_objects">
+<code class="sig-name descname">add_unpickled_objects</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">base_object</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/microscope_automation/util/software_state.html#State.add_unpickled_objects"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#microscope_automation.util.software_state.State.add_unpickled_objects" title="Permalink to this definition">¶</a></dt>
+<dd><p>Function to add Zen object back</p>
+<dl class="simple">
+<dt>Input</dt><dd><p>base_object: The reference object or next experiment object to rehydrate</p>
+</dd>
+<dt>Output:</dt><dd><p>none</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="microscope_automation.util.software_state.State.eliminate_unpickled_objects">
+<code class="sig-name descname">eliminate_unpickled_objects</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">base_object</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/microscope_automation/util/software_state.html#State.eliminate_unpickled_objects"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#microscope_automation.util.software_state.State.eliminate_unpickled_objects" title="Permalink to this definition">¶</a></dt>
+<dd><p>Remove unpickled objects from given object</p>
+<dl class="simple">
+<dt>Input:</dt><dd><p>base_object: Object that needs to be pruned</p>
+</dd>
+<dt>Output:</dt><dd><p>none</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="microscope_automation.util.software_state.State.prune_object_dict">
+<code class="sig-name descname">prune_object_dict</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/microscope_automation/util/software_state.html#State.prune_object_dict"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#microscope_automation.util.software_state.State.prune_object_dict" title="Permalink to this definition">¶</a></dt>
+<dd><p>Function to strip away the Zen microscope object from each level
+of the sample object tree.</p>
+<p>Reason - there are some objects in microscope class (communication object)
+that can’t be pickled.</p>
+<dl class="simple">
+<dt>Input:</dt><dd><p>object_dict: The dictionary that needs to be filtered.</p>
+</dd>
+<dt>Output:</dt><dd><p>object_dict: The filtered dictionary.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="microscope_automation.util.software_state.State.recover_objects">
+<code class="sig-name descname">recover_objects</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">file_path</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/microscope_automation/util/software_state.html#State.recover_objects"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#microscope_automation.util.software_state.State.recover_objects" title="Permalink to this definition">¶</a></dt>
+<dd><p>Function to return next objects dictionary
+and the reference object by unpickling the file.</p>
+<dl class="simple">
+<dt>Input:</dt><dd><p>filepath: path to the pickled file</p>
+</dd>
+<dt>Output:</dt><dd><p>tuple of recovered objects in the form (next_experiment_objects,
+reference_object, last_experiment_objects, hardware_status_dict)</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="microscope_automation.util.software_state.State.rehydrate_removed_references">
+<code class="sig-name descname">rehydrate_removed_references</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/microscope_automation/util/software_state.html#State.rehydrate_removed_references"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#microscope_automation.util.software_state.State.rehydrate_removed_references" title="Permalink to this definition">¶</a></dt>
+<dd><p>In case of auto save, we need the Zen object to be added back
+(it was removed before pickling)</p>
+<dl class="simple">
+<dt>Input:</dt><dd><p>none</p>
+</dd>
+<dt>Output:</dt><dd><p>none</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="microscope_automation.util.software_state.State.save_state">
+<code class="sig-name descname">save_state</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/microscope_automation/util/software_state.html#State.save_state"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#microscope_automation.util.software_state.State.save_state" title="Permalink to this definition">¶</a></dt>
+<dd><p>Function to process the objects and save them by pickling.</p>
+<dl class="simple">
+<dt>Input:</dt><dd><p>none</p>
+</dd>
+<dt>Output:</dt><dd><p>none</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="microscope_automation.util.software_state.State.save_state_and_exit">
+<code class="sig-name descname">save_state_and_exit</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/microscope_automation/util/software_state.html#State.save_state_and_exit"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#microscope_automation.util.software_state.State.save_state_and_exit" title="Permalink to this definition">¶</a></dt>
+<dd><p>Function to process the objects and save them by pickling
+and exiting the software.</p>
+<dl class="simple">
+<dt>Input:</dt><dd><p>none</p>
+</dd>
+<dt>Output:</dt><dd><p>none</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="module-microscope_automation.util">
+<span id="module-contents"></span><h2>Module contents<a class="headerlink" href="#module-microscope_automation.util" title="Permalink to this headline">¶</a></h2>
+<p>Utility package for Microscope Automation.</p>
+</div>
+</div>
+
+
+          </div>
+          
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<h1 class="logo"><a href="index.html">Microscope Automation</a></h1>
+
+
+
+
+
+
+
+
+<h3>Navigation</h3>
+<p class="caption"><span class="caption-text">Overview</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="index.html">README</a></li>
+<li class="toctree-l1"><a class="reference internal" href="installation.html">Installation</a></li>
+</ul>
+<p class="caption"><span class="caption-text">Orchestrator</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="find_positions.html">find_positions</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="microscope_automation.html">microscope_automation package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="write_zen_tiles_experiment.html">write_zen_tiles_experiment</a></li>
+</ul>
+<p class="caption"><span class="caption-text">Hardware</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="hardware_components.html">hardware_components</a></li>
+<li class="toctree-l1"><a class="reference internal" href="hardware_control.html">hardware_control</a></li>
+<li class="toctree-l1"><a class="reference internal" href="hardware_control_3i.html">hardware_control_3i</a></li>
+<li class="toctree-l1"><a class="reference internal" href="hardware_control_zeiss.html">hardware_control_zeiss</a></li>
+<li class="toctree-l1"><a class="reference internal" href="RS232.html">RS232</a></li>
+<li class="toctree-l1"><a class="reference internal" href="setup_microscope.html">setup_microscope</a></li>
+</ul>
+<p class="caption"><span class="caption-text">Samples</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="correct_background.html">correct_background</a></li>
+<li class="toctree-l1"><a class="reference internal" href="draw_plate.html">draw_plate</a></li>
+<li class="toctree-l1"><a class="reference internal" href="find_well_center.html">find_well_center</a></li>
+<li class="toctree-l1"><a class="reference internal" href="find_cells.html">find_cells</a></li>
+<li class="toctree-l1"><a class="reference internal" href="interactive_location_picker_pyqtgraph.html">interactive_location_picker_pyqtgraph</a></li>
+<li class="toctree-l1"><a class="reference internal" href="positions_list.html">positions_list</a></li>
+<li class="toctree-l1"><a class="reference internal" href="samples.html">samples</a></li>
+<li class="toctree-l1"><a class="reference internal" href="setup_samples.html">setup_samples</a></li>
+<li class="toctree-l1"><a class="reference internal" href="tile_images.html">tile_images</a></li>
+</ul>
+<p class="caption"><span class="caption-text">Connectors</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="connect_slidebook.html">connect_slidebook</a></li>
+<li class="toctree-l1"><a class="reference internal" href="connect_zen_blue.html">connect_zen_blue</a></li>
+<li class="toctree-l1"><a class="reference internal" href="connect_zen_black.html">connect_zen_black</a></li>
+</ul>
+<p class="caption"><span class="caption-text">Settings</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="meta_data_file.html">meta_data_file</a></li>
+<li class="toctree-l1"><a class="reference internal" href="preferences.html">preferences</a></li>
+<li class="toctree-l1"><a class="reference internal" href="slidebook_experiment_info.html">slidebook_experiment_info</a></li>
+<li class="toctree-l1"><a class="reference internal" href="zen_experiment_info.html">zen_experiment_info</a></li>
+</ul>
+<p class="caption"><span class="caption-text">Utility</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="automation_exceptions.html">automation_exceptions</a></li>
+<li class="toctree-l1"><a class="reference internal" href="automation_messages_form_layout.html">automation_messages_form_layout</a></li>
+<li class="toctree-l1"><a class="reference internal" href="error_handling.html">error_handling</a></li>
+<li class="toctree-l1"><a class="reference internal" href="get_path.html">get_path</a></li>
+<li class="toctree-l1"><a class="reference internal" href="image_AICS.html">image_AICS</a></li>
+<li class="toctree-l1"><a class="reference internal" href="load_image_czi.html">load_image_czi</a></li>
+<li class="toctree-l1"><a class="reference internal" href="software_state.html">software_state</a></li>
+</ul>
+<p class="caption"><span class="caption-text">Import Helpers</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="intelligent_imaging_innovations.html">3i Imports</a></li>
+<li class="toctree-l1"><a class="reference internal" href="zeiss.html">Zeiss Imports</a></li>
+</ul>
+<p class="caption"><span class="caption-text">Reference Docs</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="CONTRIBUTING.html">Allen Institute Contribution Agreement</a></li>
+<li class="toctree-l1"><a class="reference internal" href="LICENSE.html">LICENSE</a></li>
+</ul>
+
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="index.html">Documentation overview</a><ul>
+  <li><a href="microscope_automation.html">microscope_automation package</a><ul>
+      <li>Previous: <a href="microscope_automation.settings.html" title="previous chapter">microscope_automation.settings package</a></li>
+      <li>Next: <a href="write_zen_tiles_experiment.html" title="next chapter">write_zen_tiles_experiment</a></li>
+  </ul></li>
+  </ul></li>
+</ul>
+</div>
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" />
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script>$('#searchbox').show(0);</script>
+
+
+
+
+
+
+
+
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2020, Allen Institute.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 3.4.3</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.12</a>
+      
+      |
+      <a href="_sources/microscope_automation.util.rst.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+
+    
+  </body>
+</html>

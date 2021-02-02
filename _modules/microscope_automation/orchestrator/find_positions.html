@@ -1,0 +1,543 @@
+
+<!DOCTYPE html>
+
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>microscope_automation.orchestrator.find_positions &#8212; Microscope Automation 0.0 documentation</title>
+    <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+    <link rel="stylesheet" href="../../../_static/alabaster.css" type="text/css" />
+    <script id="documentation_options" data-url_root="../../../" src="../../../_static/documentation_options.js"></script>
+    <script src="../../../_static/jquery.js"></script>
+    <script src="../../../_static/underscore.js"></script>
+    <script src="../../../_static/doctools.js"></script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" />
+   
+  <link rel="stylesheet" href="../../../_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head><body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          
+
+          <div class="body" role="main">
+            
+  <h1>Source code for microscope_automation.orchestrator.find_positions</h1><div class="highlight"><pre>
+<span></span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">Created on Aug 23, 2018</span>
+
+<span class="sd">Tools to find positions for imaging</span>
+<span class="sd">@author: winfriedw</span>
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="kn">from</span> <span class="nn">microscope_automation.samples</span> <span class="kn">import</span> <span class="n">samples</span>
+<span class="kn">from</span> <span class="nn">microscope_automation.samples.well_overview_segmentation</span> <span class="kn">import</span> <span class="n">WellSegmentation</span>
+
+
+<div class="viewcode-block" id="copy_zero_position"><a class="viewcode-back" href="../../../microscope_automation.orchestrator.html#microscope_automation.orchestrator.find_positions.copy_zero_position">[docs]</a><span class="k">def</span> <span class="nf">copy_zero_position</span><span class="p">(</span><span class="n">sample_object</span><span class="p">,</span> <span class="n">output_class</span><span class="p">,</span> <span class="n">image</span><span class="p">,</span> <span class="n">z_center_background</span><span class="o">=</span><span class="mi">0</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Create new object with identical zero position.</span>
+
+<span class="sd">    Input:</span>
+<span class="sd">     sampleObject: object that is searched</span>
+
+<span class="sd">     output_class: string with name of class of new created output object</span>
+
+<span class="sd">     image: image of class imageAICS searched</span>
+
+<span class="sd">     z_center_background: center of background in the z direction</span>
+
+<span class="sd">    Output:</span>
+<span class="sd">     new_objects: list with objects of class output_class</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">new_objects_dict</span> <span class="o">=</span> <span class="p">{}</span>
+    <span class="c1"># retrieve possible sample classes from module samples</span>
+    <span class="n">class_</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">samples</span><span class="p">,</span> <span class="n">output_class</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">output_class</span> <span class="o">==</span> <span class="s2">&quot;Background&quot;</span><span class="p">:</span>
+        <span class="n">bg_name</span> <span class="o">=</span> <span class="n">sample_object</span><span class="o">.</span><span class="n">get_name</span><span class="p">()</span> <span class="o">+</span> <span class="s2">&quot;_background&quot;</span>
+        <span class="n">new_object</span> <span class="o">=</span> <span class="n">class_</span><span class="p">(</span>
+            <span class="n">name</span><span class="o">=</span><span class="n">bg_name</span><span class="p">,</span> <span class="n">center</span><span class="o">=</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="n">z_center_background</span><span class="p">],</span> <span class="n">well_object</span><span class="o">=</span><span class="n">sample_object</span>
+        <span class="p">)</span>
+        <span class="n">new_objects_dict</span><span class="p">[</span><span class="n">bg_name</span><span class="p">]</span> <span class="o">=</span> <span class="n">new_object</span>
+        <span class="c1"># Add background to the associated plate object</span>
+        <span class="n">sample_object</span><span class="o">.</span><span class="n">get_container</span><span class="p">()</span><span class="o">.</span><span class="n">add_attached_image</span><span class="p">(</span><span class="n">bg_name</span><span class="p">,</span> <span class="n">image</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">new_object</span> <span class="o">=</span> <span class="n">class_</span><span class="p">()</span>
+        <span class="n">new_object</span><span class="o">.</span><span class="n">set_container</span><span class="p">(</span><span class="n">sample_object</span><span class="p">)</span>
+
+    <span class="n">new_objects</span> <span class="o">=</span> <span class="p">[</span><span class="n">new_object</span><span class="p">]</span>
+    <span class="k">return</span> <span class="p">[</span><span class="n">new_objects</span><span class="p">,</span> <span class="n">new_objects_dict</span><span class="p">]</span></div>
+
+
+<div class="viewcode-block" id="copy_image_position"><a class="viewcode-back" href="../../../microscope_automation.orchestrator.html#microscope_automation.orchestrator.find_positions.copy_image_position">[docs]</a><span class="k">def</span> <span class="nf">copy_image_position</span><span class="p">(</span><span class="n">sample_object</span><span class="p">,</span> <span class="n">output_class</span><span class="p">,</span> <span class="n">image</span><span class="p">,</span> <span class="n">offset</span><span class="o">=</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">)):</span>
+    <span class="sd">&quot;&quot;&quot;Create new object with zero position relative to center of image.</span>
+
+<span class="sd">    Input:</span>
+<span class="sd">     sample_object: object that is searched</span>
+
+<span class="sd">     output_class: string with name of class of new created output object</span>
+
+<span class="sd">     image: image of class imageAICS</span>
+
+<span class="sd">     offset: offset in um relative to center of image as (x, y, z)</span>
+<span class="sd">             Default: (0, 0, 0) (center of image)</span>
+
+<span class="sd">    Output:</span>
+<span class="sd">     new_object: object of class output_class</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="c1"># retrieve possible sample classes from module samples</span>
+    <span class="n">class_</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">samples</span><span class="p">,</span> <span class="n">output_class</span><span class="p">)</span>
+    <span class="n">new_object</span> <span class="o">=</span> <span class="n">class_</span><span class="p">()</span>
+    <span class="n">new_object</span><span class="o">.</span><span class="n">set_container</span><span class="p">(</span><span class="n">sample_object</span><span class="p">)</span>
+
+    <span class="c1"># get object coordinates from image position and set as zero position of new image</span>
+    <span class="n">x</span> <span class="o">=</span> <span class="n">image</span><span class="o">.</span><span class="n">get_meta</span><span class="p">(</span><span class="s2">&quot;aics_imageObjectPosX&quot;</span><span class="p">)</span> <span class="o">+</span> <span class="n">offset</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+    <span class="n">y</span> <span class="o">=</span> <span class="n">image</span><span class="o">.</span><span class="n">get_meta</span><span class="p">(</span><span class="s2">&quot;aics_imageObjectPosY&quot;</span><span class="p">)</span> <span class="o">+</span> <span class="n">offset</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+    <span class="n">z</span> <span class="o">=</span> <span class="n">image</span><span class="o">.</span><span class="n">get_meta</span><span class="p">(</span><span class="s2">&quot;aics_imageObjectPosZ&quot;</span><span class="p">)</span> <span class="o">+</span> <span class="n">offset</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span>
+    <span class="n">new_object</span><span class="o">.</span><span class="n">set_zero</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">z</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">new_object</span></div>
+
+
+<div class="viewcode-block" id="convert_location_list"><a class="viewcode-back" href="../../../microscope_automation.orchestrator.html#microscope_automation.orchestrator.find_positions.convert_location_list">[docs]</a><span class="k">def</span> <span class="nf">convert_location_list</span><span class="p">(</span><span class="n">location_list</span><span class="p">,</span> <span class="n">image</span><span class="p">,</span> <span class="n">image_type</span><span class="o">=</span><span class="s2">&quot;czi&quot;</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Function to convert the coordinates to microns</span>
+<span class="sd">    and relative to the center of the image.</span>
+<span class="sd">    First all the locations are converted to microns using the pixel size of the image.</span>
+<span class="sd">    Then the locations are converted so that they are relative</span>
+<span class="sd">    to the center of the image instead of the bottom right corner.</span>
+<span class="sd">    This calculation is done using the size of image.</span>
+
+<span class="sd">    Input:</span>
+<span class="sd">     location_list: list of coordinates</span>
+
+<span class="sd">     image: imageAICS object with all the meta data</span>
+
+<span class="sd">     image_type: tiff or czi: both have different units for physical pixel size</span>
+
+<span class="sd">    Output:</span>
+<span class="sd">     location_list_relative_to_zero: corrected location list</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="c1"># 1. Convert the locations to microns</span>
+    <span class="c1"># pixel size is in um (it&#39;s in meters if cziReader is used)</span>
+    <span class="n">pixel_size_data_x</span> <span class="o">=</span> <span class="n">image</span><span class="o">.</span><span class="n">get_meta</span><span class="p">(</span><span class="s2">&quot;PhysicalSizeX&quot;</span><span class="p">)</span>
+    <span class="n">pixel_size_data_y</span> <span class="o">=</span> <span class="n">image</span><span class="o">.</span><span class="n">get_meta</span><span class="p">(</span><span class="s2">&quot;PhysicalSizeY&quot;</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">image_type</span> <span class="o">==</span> <span class="s2">&quot;czi&quot;</span><span class="p">:</span>
+        <span class="c1"># conversion to um if type is czi</span>
+        <span class="n">pixel_size_data_x</span> <span class="o">=</span> <span class="n">pixel_size_data_x</span> <span class="o">*</span> <span class="mi">1000000</span>
+        <span class="n">pixel_size_data_y</span> <span class="o">=</span> <span class="n">pixel_size_data_y</span> <span class="o">*</span> <span class="mi">1000000</span>
+    <span class="n">new_location_list</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">for</span> <span class="n">location</span> <span class="ow">in</span> <span class="n">location_list</span><span class="p">:</span>
+        <span class="n">xdata</span> <span class="o">=</span> <span class="n">location</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">*</span> <span class="n">pixel_size_data_x</span>
+        <span class="n">ydata</span> <span class="o">=</span> <span class="n">location</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">*</span> <span class="n">pixel_size_data_y</span>
+        <span class="c1"># Rounding to 8 digits for consistency</span>
+        <span class="n">new_location_list</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="nb">round</span><span class="p">(</span><span class="n">xdata</span><span class="p">,</span> <span class="mi">8</span><span class="p">),</span> <span class="nb">round</span><span class="p">(</span><span class="n">ydata</span><span class="p">,</span> <span class="mi">8</span><span class="p">)))</span>
+    <span class="c1"># 2. Convert the location relative to the center of the image</span>
+    <span class="c1"># The length of x-dimension of the image (in microns)</span>
+    <span class="n">image_size_x</span> <span class="o">=</span> <span class="n">image</span><span class="o">.</span><span class="n">get_data</span><span class="p">()</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">*</span> <span class="n">pixel_size_data_x</span>
+    <span class="c1"># The length of y-dimension of the image (in microns)</span>
+    <span class="n">image_size_y</span> <span class="o">=</span> <span class="n">image</span><span class="o">.</span><span class="n">get_data</span><span class="p">()</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">*</span> <span class="n">pixel_size_data_y</span>
+    <span class="n">location_list_relative_to_zero</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">for</span> <span class="n">location</span> <span class="ow">in</span> <span class="n">new_location_list</span><span class="p">:</span>
+        <span class="c1"># the origin of pixel data in ZEN blue is the top left corner</span>
+        <span class="n">xdata</span> <span class="o">=</span> <span class="n">location</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">-</span> <span class="n">image_size_x</span> <span class="o">/</span> <span class="mi">2</span>
+        <span class="n">ydata</span> <span class="o">=</span> <span class="n">location</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">-</span> <span class="n">image_size_y</span> <span class="o">/</span> <span class="mi">2</span>
+        <span class="n">location_list_relative_to_zero</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="nb">round</span><span class="p">(</span><span class="n">xdata</span><span class="p">,</span> <span class="mi">8</span><span class="p">),</span> <span class="nb">round</span><span class="p">(</span><span class="n">ydata</span><span class="p">,</span> <span class="mi">8</span><span class="p">)))</span>
+    <span class="k">return</span> <span class="n">location_list_relative_to_zero</span></div>
+
+
+<div class="viewcode-block" id="get_single_slice"><a class="viewcode-back" href="../../../microscope_automation.orchestrator.html#microscope_automation.orchestrator.find_positions.get_single_slice">[docs]</a><span class="k">def</span> <span class="nf">get_single_slice</span><span class="p">(</span><span class="n">image</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Return single image slice.</span>
+
+<span class="sd">    Input:</span>
+<span class="sd">     image: image of class imageAICS</span>
+
+<span class="sd">    Output:</span>
+<span class="sd">     image_data: 2D numpy array</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">image_data</span> <span class="o">=</span> <span class="n">image</span><span class="o">.</span><span class="n">get_data</span><span class="p">()</span>
+    <span class="k">if</span> <span class="n">image_data</span><span class="o">.</span><span class="n">ndim</span> <span class="o">==</span> <span class="mi">3</span><span class="p">:</span>
+        <span class="c1"># Remove the channel dimension before calling the location_picker module</span>
+        <span class="c1"># Because the module only deals with the XY dimension.</span>
+        <span class="n">image_data</span> <span class="o">=</span> <span class="n">image_data</span><span class="p">[:,</span> <span class="p">:,</span> <span class="mi">0</span><span class="p">]</span>
+    <span class="k">return</span> <span class="n">image_data</span></div>
+
+
+<div class="viewcode-block" id="location_to_object"><a class="viewcode-back" href="../../../microscope_automation.orchestrator.html#microscope_automation.orchestrator.find_positions.location_to_object">[docs]</a><span class="k">def</span> <span class="nf">location_to_object</span><span class="p">(</span><span class="n">sample_object</span><span class="p">,</span> <span class="n">output_class</span><span class="p">,</span> <span class="n">image</span><span class="p">,</span> <span class="n">location_list</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Convert position list to new objects.</span>
+
+<span class="sd">    Input:</span>
+<span class="sd">     sample_object: object that is searched</span>
+
+<span class="sd">     output_class: string with name of class of new created output object</span>
+
+<span class="sd">     image: image of class imageAICS</span>
+
+<span class="sd">     location_list: list of coordinates</span>
+
+<span class="sd">    Output:</span>
+<span class="sd">     [new_objects, new_objects_dict]: [list with objects of class output_class,</span>
+<span class="sd">     dictionary with name and objects]</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="c1"># Populate colony / cell dictionary based on output_class</span>
+    <span class="n">new_objects</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="n">new_objects_dict</span> <span class="o">=</span> <span class="p">{}</span>
+    <span class="c1"># class_ = getattr(samples, output_class)</span>
+    <span class="n">ind</span> <span class="o">=</span> <span class="mi">1</span>
+    <span class="k">for</span> <span class="n">location</span> <span class="ow">in</span> <span class="n">location_list</span><span class="p">:</span>
+        <span class="n">new_object_name</span> <span class="o">=</span> <span class="n">sample_object</span><span class="o">.</span><span class="n">get_name</span><span class="p">()</span> <span class="o">+</span> <span class="s2">&quot;_</span><span class="si">{:04}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">ind</span><span class="p">)</span>
+        <span class="n">ind</span> <span class="o">=</span> <span class="n">ind</span> <span class="o">+</span> <span class="mi">1</span>
+        <span class="c1"># locations in correct_location_list are relative to the image center</span>
+        <span class="c1"># The image center is not necessarily (0, 0, 0) in object coordinates</span>
+        <span class="c1"># Center position of the image in object coordinates stored in image meta data</span>
+        <span class="n">new_object</span> <span class="o">=</span> <span class="n">copy_image_position</span><span class="p">(</span>
+            <span class="n">sample_object</span><span class="p">,</span> <span class="n">output_class</span><span class="p">,</span> <span class="n">image</span><span class="p">,</span> <span class="n">offset</span><span class="o">=</span><span class="p">(</span><span class="n">location</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">location</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="mi">0</span><span class="p">)</span>
+        <span class="p">)</span>
+
+        <span class="n">new_objects</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">new_object</span><span class="p">)</span>
+        <span class="n">new_objects_dict</span><span class="p">[</span><span class="n">new_object_name</span><span class="p">]</span> <span class="o">=</span> <span class="n">new_object</span>
+    <span class="k">return</span> <span class="p">[</span><span class="n">new_objects</span><span class="p">,</span> <span class="n">new_objects_dict</span><span class="p">]</span></div>
+
+
+<div class="viewcode-block" id="find_interactive_position"><a class="viewcode-back" href="../../../microscope_automation.orchestrator.html#microscope_automation.orchestrator.find_positions.find_interactive_position">[docs]</a><span class="k">def</span> <span class="nf">find_interactive_position</span><span class="p">(</span><span class="n">sample_object</span><span class="p">,</span> <span class="n">output_class</span><span class="p">,</span> <span class="n">image</span><span class="p">,</span> <span class="n">app</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Create new object with zero position based on interactive selection.</span>
+
+<span class="sd">    Input:</span>
+<span class="sd">     sample_object: object that is searched</span>
+
+<span class="sd">     output_class: string with name of class of new created output object</span>
+
+<span class="sd">     image: image of class imageAICS</span>
+
+<span class="sd">     app: object of class QtGui.QApplication</span>
+
+<span class="sd">    Output:</span>
+<span class="sd">     new_objects: list with objects of class output_class</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">image_data</span> <span class="o">=</span> <span class="n">get_single_slice</span><span class="p">(</span><span class="n">image</span><span class="p">)</span>
+
+    <span class="n">pre_plotted_locations</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="n">location_list</span> <span class="o">=</span> <span class="n">sample_object</span><span class="o">.</span><span class="n">set_interactive_positions</span><span class="p">(</span>
+        <span class="n">image_data</span><span class="p">,</span> <span class="n">pre_plotted_locations</span><span class="p">,</span> <span class="n">app</span>
+    <span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Locations clicked = &quot;</span><span class="p">,</span> <span class="n">location_list</span><span class="p">)</span>
+    <span class="n">correct_location_list</span> <span class="o">=</span> <span class="n">convert_location_list</span><span class="p">(</span><span class="n">location_list</span><span class="p">,</span> <span class="n">image</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Correct location list = &quot;</span><span class="p">,</span> <span class="n">correct_location_list</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">location_to_object</span><span class="p">(</span><span class="n">sample_object</span><span class="p">,</span> <span class="n">output_class</span><span class="p">,</span> <span class="n">image</span><span class="p">,</span> <span class="n">correct_location_list</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="segmentation"><a class="viewcode-back" href="../../../microscope_automation.orchestrator.html#microscope_automation.orchestrator.find_positions.segmentation">[docs]</a><span class="k">def</span> <span class="nf">segmentation</span><span class="p">(</span><span class="n">image_data</span><span class="p">,</span> <span class="n">segmentation_type</span><span class="o">=</span><span class="s2">&quot;colony&quot;</span><span class="p">,</span> <span class="n">segmentation_settings</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Different algorithms to segment sample.</span>
+
+<span class="sd">    Input:</span>
+<span class="sd">     image_data: 2D numpy array with image data</span>
+
+<span class="sd">     segmentation_type: possible values:</span>
+<span class="sd">      &#39;colony&#39;: segment hiPSC colonies (default)</span>
+<span class="sd">      &#39;otsu&#39;: intensity  segmentation based on Ostu algorithm</span>
+
+<span class="sd">     segmentation_settings: settings from preferences file.</span>
+<span class="sd">     Default (None) use default settings</span>
+
+<span class="sd">    Output:</span>
+<span class="sd">     segmented_position_list: list with (x, y) positions</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="n">segmentation_type</span> <span class="o">==</span> <span class="s2">&quot;colony&quot;</span><span class="p">:</span>
+        <span class="c1"># 1. Call segment well module to find imageable positions</span>
+        <span class="n">filters</span> <span class="o">=</span> <span class="n">segmentation_settings</span><span class="o">.</span><span class="n">getPref</span><span class="p">(</span><span class="s2">&quot;Filters&quot;</span><span class="p">)</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">canny_sigma</span> <span class="o">=</span> <span class="n">segmentation_settings</span><span class="o">.</span><span class="n">getPref</span><span class="p">(</span><span class="s2">&quot;CannySigma&quot;</span><span class="p">)</span>
+            <span class="n">canny_low_threshold</span> <span class="o">=</span> <span class="n">segmentation_settings</span><span class="o">.</span><span class="n">getPref</span><span class="p">(</span><span class="s2">&quot;CannyLowThreshold&quot;</span><span class="p">)</span>
+            <span class="n">remove_small_holes_area_threshold</span> <span class="o">=</span> <span class="n">segmentation_settings</span><span class="o">.</span><span class="n">getPref</span><span class="p">(</span>
+                <span class="s2">&quot;RemoveSmallHolesAreaThreshold&quot;</span>
+            <span class="p">)</span>
+            <span class="n">segmented_well</span> <span class="o">=</span> <span class="n">WellSegmentation</span><span class="p">(</span>
+                <span class="n">image_data</span><span class="p">,</span>
+                <span class="n">colony_filters_dict</span><span class="o">=</span><span class="n">filters</span><span class="p">,</span>
+                <span class="n">mode</span><span class="o">=</span><span class="s2">&quot;A&quot;</span><span class="p">,</span>
+                <span class="n">canny_sigma</span><span class="o">=</span><span class="n">canny_sigma</span><span class="p">,</span>
+                <span class="n">canny_low_threshold</span><span class="o">=</span><span class="n">canny_low_threshold</span><span class="p">,</span>
+                <span class="n">remove_small_holes_area_threshold</span><span class="o">=</span><span class="n">remove_small_holes_area_threshold</span><span class="p">,</span>
+            <span class="p">)</span>
+        <span class="k">except</span> <span class="ne">Exception</span><span class="p">:</span>
+            <span class="c1"># if the preferences are not set, call with default ones</span>
+            <span class="n">segmented_well</span> <span class="o">=</span> <span class="n">WellSegmentation</span><span class="p">(</span><span class="n">image_data</span><span class="p">,</span> <span class="n">colony_filters_dict</span><span class="o">=</span><span class="n">filters</span><span class="p">)</span>
+
+        <span class="n">segmented_well</span><span class="o">.</span><span class="n">segment_and_find_positions</span><span class="p">()</span>
+        <span class="n">segmented_position_list</span> <span class="o">=</span> <span class="n">segmented_well</span><span class="o">.</span><span class="n">point_locations</span>
+    <span class="k">return</span> <span class="n">segmented_position_list</span></div>
+
+
+<div class="viewcode-block" id="find_interactive_distance_map"><a class="viewcode-back" href="../../../microscope_automation.orchestrator.html#microscope_automation.orchestrator.find_positions.find_interactive_distance_map">[docs]</a><span class="k">def</span> <span class="nf">find_interactive_distance_map</span><span class="p">(</span>
+    <span class="n">sample_object</span><span class="p">,</span> <span class="n">output_class</span><span class="p">,</span> <span class="n">image</span><span class="p">,</span> <span class="n">segmentation_settings</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">app</span><span class="o">=</span><span class="kc">None</span>
+<span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Create new object with zero position based on interactive selection.</span>
+
+<span class="sd">    Input:</span>
+<span class="sd">     sampleObject: object that is searched</span>
+
+<span class="sd">     output_class: string with name of class of new created output object</span>
+
+<span class="sd">     image: image of class imageAICS</span>
+
+<span class="sd">     segmentation_settings: settings from preferences file</span>
+
+<span class="sd">     app: object of class QtGui.QApplication</span>
+
+<span class="sd">    Output:</span>
+<span class="sd">     [new_objects, new_objects_dict]: [list with objects of class output_class,</span>
+<span class="sd">     dictionary with name and objects]</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">image_data</span> <span class="o">=</span> <span class="n">get_single_slice</span><span class="p">(</span><span class="n">image</span><span class="p">)</span>
+
+    <span class="n">segmented_position_list</span> <span class="o">=</span> <span class="n">segmentation</span><span class="p">(</span>
+        <span class="n">image_data</span><span class="p">,</span>
+        <span class="n">segmentation_type</span><span class="o">=</span><span class="s2">&quot;colony&quot;</span><span class="p">,</span>
+        <span class="n">segmentation_settings</span><span class="o">=</span><span class="n">segmentation_settings</span><span class="p">,</span>
+    <span class="p">)</span>
+
+    <span class="c1"># 2. Call image location picker module to let the user adjust positions</span>
+    <span class="n">location_list</span> <span class="o">=</span> <span class="n">sample_object</span><span class="o">.</span><span class="n">set_interactive_positions</span><span class="p">(</span>
+        <span class="n">image_data</span><span class="p">,</span> <span class="n">segmented_position_list</span><span class="p">,</span> <span class="n">app</span>
+    <span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Cells selected at positions (in coordinates): &quot;</span><span class="p">,</span> <span class="n">location_list</span><span class="p">)</span>
+    <span class="c1"># 3. Change the location list into microns &amp; relative to the center of the well</span>
+    <span class="n">correct_location_list</span> <span class="o">=</span> <span class="n">convert_location_list</span><span class="p">(</span><span class="n">location_list</span><span class="p">,</span> <span class="n">image</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Cells selected at positions (in microns): &quot;</span><span class="p">,</span> <span class="n">correct_location_list</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">location_to_object</span><span class="p">(</span><span class="n">sample_object</span><span class="p">,</span> <span class="n">output_class</span><span class="p">,</span> <span class="n">image</span><span class="p">,</span> <span class="n">correct_location_list</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="create_output_objects_from_parent_object"><a class="viewcode-back" href="../../../microscope_automation.orchestrator.html#microscope_automation.orchestrator.find_positions.create_output_objects_from_parent_object">[docs]</a><span class="k">def</span> <span class="nf">create_output_objects_from_parent_object</span><span class="p">(</span>
+    <span class="n">find_type</span><span class="p">,</span>
+    <span class="n">sample_object</span><span class="p">,</span>
+    <span class="n">imaging_settings</span><span class="p">,</span>
+    <span class="n">image</span><span class="p">,</span>
+    <span class="n">output_class</span><span class="p">,</span>
+    <span class="n">app</span><span class="p">,</span>
+    <span class="n">offset</span><span class="o">=</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">),</span>
+<span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;This function has methods to create output objects (cells, colonies, background)</span>
+<span class="sd">    from the parent object(Well, colony)</span>
+
+<span class="sd">    Input:</span>
+<span class="sd">     find_type: string with name of search algorithm. Possible values:</span>
+<span class="sd">      &#39;copy_zero_position&#39;: keep position</span>
+<span class="sd">      &#39;copy_image_position&#39;: use center of image as object zero position</span>
+<span class="sd">      &#39;CenterMassCellProfiler&#39; : find cells using cell profiler</span>
+<span class="sd">      &#39;TwofoldDistanceMap&#39; : find cells in a colony using two fold distance map</span>
+<span class="sd">      &#39;Interactive&#39;: select position interactively</span>
+<span class="sd">      &#39;InteractiveDistanceMap&#39;: shows recommended positions (by segmentation)</span>
+<span class="sd">      &amp; can select them interactively</span>
+
+<span class="sd">     sample_object: object that is searched</span>
+
+<span class="sd">     imaging_settings: settings from preferences file</span>
+
+<span class="sd">     image: image of class imageAICS searched</span>
+
+<span class="sd">     output_class: class of new created output object</span>
+
+<span class="sd">     app: object of class QtGui.QApplication</span>
+
+<span class="sd">     offset: offset in um relative to center of image as (x, y, z)</span>
+<span class="sd">             Default: (0, 0, 0) (center of image)</span>
+
+<span class="sd">    Output:</span>
+<span class="sd">     [new_objects, new_objects_dict]: [list with objects of class output_class,</span>
+<span class="sd">     dictionary with name and objects]</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">new_objects</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="n">new_objects_dict</span> <span class="o">=</span> <span class="p">{}</span>
+
+    <span class="c1"># copy objects from previous step</span>
+    <span class="k">if</span> <span class="n">find_type</span> <span class="o">==</span> <span class="s2">&quot;copy_zero_position&quot;</span><span class="p">:</span>
+        <span class="n">return_objects</span> <span class="o">=</span> <span class="n">copy_zero_position</span><span class="p">(</span>
+            <span class="n">sample_object</span><span class="p">,</span> <span class="n">output_class</span><span class="p">,</span> <span class="n">image</span><span class="p">,</span> <span class="n">z_center_background</span><span class="o">=</span><span class="mi">0</span>
+        <span class="p">)</span>
+        <span class="k">return</span> <span class="n">return_objects</span>
+
+    <span class="k">if</span> <span class="n">find_type</span> <span class="o">==</span> <span class="s2">&quot;copy_image_position&quot;</span><span class="p">:</span>
+        <span class="n">new_object</span> <span class="o">=</span> <span class="n">copy_image_position</span><span class="p">(</span>
+            <span class="n">sample_object</span><span class="p">,</span> <span class="n">output_class</span><span class="p">,</span> <span class="n">image</span><span class="p">,</span> <span class="n">offset</span><span class="o">=</span><span class="n">offset</span>
+        <span class="p">)</span>
+        <span class="n">new_objects</span> <span class="o">=</span> <span class="p">[</span><span class="n">new_object</span><span class="p">]</span>
+
+    <span class="c1"># find cells and add them to colony</span>
+    <span class="k">if</span> <span class="n">find_type</span> <span class="o">==</span> <span class="s2">&quot;CenterMassCellProfiler&quot;</span><span class="p">:</span>
+        <span class="c1"># Called on the colony object to find cells using cell profiler</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">sample_object</span><span class="p">,</span> <span class="n">samples</span><span class="o">.</span><span class="n">Colony</span><span class="p">):</span>
+            <span class="n">sample_object</span><span class="o">.</span><span class="n">find_cells_cell_profiler</span><span class="p">(</span><span class="n">imaging_settings</span><span class="p">,</span> <span class="n">image</span><span class="p">)</span>
+            <span class="n">new_objects_dict</span> <span class="o">=</span> <span class="n">sample_object</span><span class="o">.</span><span class="n">get_cells</span><span class="p">()</span>
+            <span class="n">new_objects</span> <span class="o">=</span> <span class="n">new_objects_dict</span><span class="o">.</span><span class="n">values</span><span class="p">()</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="s2">&quot;CenterMassCellProfiler not called on colony object&quot;</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">find_type</span> <span class="o">==</span> <span class="s2">&quot;TwofoldDistanceMap&quot;</span><span class="p">:</span>
+        <span class="c1"># Called on the colony object to find cells using two fold distance map</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">sample_object</span><span class="p">,</span> <span class="n">samples</span><span class="o">.</span><span class="n">Colony</span><span class="p">):</span>
+            <span class="n">sample_object</span><span class="o">.</span><span class="n">find_cells_distance_map</span><span class="p">(</span><span class="n">imaging_settings</span><span class="p">,</span> <span class="n">image</span><span class="p">)</span>
+            <span class="n">new_objects_dict</span> <span class="o">=</span> <span class="n">sample_object</span><span class="o">.</span><span class="n">get_cells</span><span class="p">()</span>
+            <span class="n">new_objects</span> <span class="o">=</span> <span class="n">new_objects_dict</span><span class="o">.</span><span class="n">values</span><span class="p">()</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span>
+                <span class="s2">&quot;TwofoldDistanceMap can currently only called on a colony object&quot;</span>
+            <span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">find_type</span> <span class="o">==</span> <span class="s2">&quot;Interactive&quot;</span><span class="p">:</span>
+        <span class="c1"># Called on Well object to interactively select colonies</span>
+        <span class="n">return_objects</span> <span class="o">=</span> <span class="n">find_interactive_position</span><span class="p">(</span>
+            <span class="n">sample_object</span><span class="p">,</span> <span class="n">output_class</span><span class="p">,</span> <span class="n">image</span><span class="p">,</span> <span class="n">app</span>
+        <span class="p">)</span>
+        <span class="k">return</span> <span class="n">return_objects</span>
+
+    <span class="k">if</span> <span class="n">find_type</span> <span class="o">==</span> <span class="s2">&quot;InteractiveDistanceMap&quot;</span><span class="p">:</span>
+        <span class="c1"># Called on a well object to find cells using two fold distance map</span>
+        <span class="n">return_objects</span> <span class="o">=</span> <span class="n">find_interactive_distance_map</span><span class="p">(</span>
+            <span class="n">sample_object</span><span class="p">,</span>
+            <span class="n">output_class</span><span class="p">,</span>
+            <span class="n">image</span><span class="p">,</span>
+            <span class="n">segmentation_settings</span><span class="o">=</span><span class="n">imaging_settings</span><span class="p">,</span>
+            <span class="n">app</span><span class="o">=</span><span class="n">app</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="k">return</span> <span class="n">return_objects</span>
+
+    <span class="k">if</span> <span class="n">find_type</span> <span class="o">==</span> <span class="s2">&quot;None&quot;</span><span class="p">:</span>
+        <span class="c1"># Do nothing and return empty object list</span>
+        <span class="n">new_objects</span> <span class="o">=</span> <span class="kc">None</span>
+
+    <span class="k">return</span> <span class="p">[</span><span class="n">new_objects</span><span class="p">,</span> <span class="n">new_objects_dict</span><span class="p">]</span></div>
+</pre></div>
+
+          </div>
+          
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<h1 class="logo"><a href="../../../index.html">Microscope Automation</a></h1>
+
+
+
+
+
+
+
+
+<h3>Navigation</h3>
+<p class="caption"><span class="caption-text">Overview</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../index.html">README</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../installation.html">Installation</a></li>
+</ul>
+<p class="caption"><span class="caption-text">Orchestrator</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../find_positions.html">find_positions</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../microscope_automation.html">microscope_automation package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../write_zen_tiles_experiment.html">write_zen_tiles_experiment</a></li>
+</ul>
+<p class="caption"><span class="caption-text">Hardware</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../hardware_components.html">hardware_components</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../hardware_control.html">hardware_control</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../hardware_control_3i.html">hardware_control_3i</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../hardware_control_zeiss.html">hardware_control_zeiss</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../RS232.html">RS232</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../setup_microscope.html">setup_microscope</a></li>
+</ul>
+<p class="caption"><span class="caption-text">Samples</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../correct_background.html">correct_background</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../draw_plate.html">draw_plate</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../find_well_center.html">find_well_center</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../find_cells.html">find_cells</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../interactive_location_picker_pyqtgraph.html">interactive_location_picker_pyqtgraph</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../positions_list.html">positions_list</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../samples.html">samples</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../setup_samples.html">setup_samples</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../tile_images.html">tile_images</a></li>
+</ul>
+<p class="caption"><span class="caption-text">Connectors</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../connect_slidebook.html">connect_slidebook</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../connect_zen_blue.html">connect_zen_blue</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../connect_zen_black.html">connect_zen_black</a></li>
+</ul>
+<p class="caption"><span class="caption-text">Settings</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../meta_data_file.html">meta_data_file</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../preferences.html">preferences</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../slidebook_experiment_info.html">slidebook_experiment_info</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../zen_experiment_info.html">zen_experiment_info</a></li>
+</ul>
+<p class="caption"><span class="caption-text">Utility</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../automation_exceptions.html">automation_exceptions</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../automation_messages_form_layout.html">automation_messages_form_layout</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../error_handling.html">error_handling</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../get_path.html">get_path</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../image_AICS.html">image_AICS</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../load_image_czi.html">load_image_czi</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../software_state.html">software_state</a></li>
+</ul>
+<p class="caption"><span class="caption-text">Import Helpers</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../intelligent_imaging_innovations.html">3i Imports</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../zeiss.html">Zeiss Imports</a></li>
+</ul>
+<p class="caption"><span class="caption-text">Reference Docs</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../CONTRIBUTING.html">Allen Institute Contribution Agreement</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../LICENSE.html">LICENSE</a></li>
+</ul>
+
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="../../../index.html">Documentation overview</a><ul>
+  <li><a href="../../index.html">Module code</a><ul>
+  <li><a href="../../microscope_automation.html">microscope_automation</a><ul>
+  </ul></li>
+  </ul></li>
+  </ul></li>
+</ul>
+</div>
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../../../search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" />
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script>$('#searchbox').show(0);</script>
+
+
+
+
+
+
+
+
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2020, Allen Institute.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 3.4.3</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.12</a>
+      
+    </div>
+
+    
+
+    
+  </body>
+</html>

@@ -7,101 +7,13 @@ Subpackages
 .. toctree::
    :maxdepth: 4
 
+   microscope_automation.connectors
    microscope_automation.hardware
+   microscope_automation.imports
+   microscope_automation.orchestrator
    microscope_automation.samples
-   microscope_automation.slidebook
-   microscope_automation.zeiss
-
-Submodules
-----------
-
-microscope\_automation.automation\_exceptions module
-----------------------------------------------------
-
-.. automodule:: microscope_automation.automation_exceptions
-   :members:
-   :undoc-members:
-   :show-inheritance:
-
-microscope\_automation.automation\_messages\_form\_layout module
-----------------------------------------------------------------
-
-.. automodule:: microscope_automation.automation_messages_form_layout
-   :members:
-   :undoc-members:
-   :show-inheritance:
-
-microscope\_automation.error\_handling module
----------------------------------------------
-
-.. automodule:: microscope_automation.error_handling
-   :members:
-   :undoc-members:
-   :show-inheritance:
-
-microscope\_automation.find\_positions module
----------------------------------------------
-
-.. automodule:: microscope_automation.find_positions
-   :members:
-   :undoc-members:
-   :show-inheritance:
-
-microscope\_automation.get\_path module
----------------------------------------
-
-.. automodule:: microscope_automation.get_path
-   :members:
-   :undoc-members:
-   :show-inheritance:
-
-microscope\_automation.image\_AICS module
------------------------------------------
-
-.. automodule:: microscope_automation.image_AICS
-   :members:
-   :undoc-members:
-   :show-inheritance:
-
-microscope\_automation.load\_image\_czi module
-----------------------------------------------
-
-.. automodule:: microscope_automation.load_image_czi
-   :members:
-   :undoc-members:
-   :show-inheritance:
-
-microscope\_automation.meta\_data\_file module
-----------------------------------------------
-
-.. automodule:: microscope_automation.meta_data_file
-   :members:
-   :undoc-members:
-   :show-inheritance:
-
-microscope\_automation.microscope\_automation module
-----------------------------------------------------
-
-.. automodule:: microscope_automation.microscope_automation
-   :members:
-   :undoc-members:
-   :show-inheritance:
-
-microscope\_automation.preferences module
------------------------------------------
-
-.. automodule:: microscope_automation.preferences
-   :members:
-   :undoc-members:
-   :show-inheritance:
-
-microscope\_automation.software\_state module
----------------------------------------------
-
-.. automodule:: microscope_automation.software_state
-   :members:
-   :undoc-members:
-   :show-inheritance:
+   microscope_automation.settings
+   microscope_automation.util
 
 Module contents
 ---------------

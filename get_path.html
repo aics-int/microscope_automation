@@ -43,8 +43,8 @@
 <p>This module consists of a number of helper functions used to collection of
 functions to return path for settings, logfile, and data.</p>
 <dl class="py function">
-<dt id="microscope_automation.get_path.add_suffix">
-<code class="sig-prename descclassname">microscope_automation.get_path.</code><code class="sig-name descname">add_suffix</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">file_path</span></em>, <em class="sig-param"><span class="n">suffix</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/microscope_automation/get_path.html#add_suffix"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#microscope_automation.get_path.add_suffix" title="Permalink to this definition">¶</a></dt>
+<dt id="microscope_automation.util.get_path.add_suffix">
+<code class="sig-prename descclassname">microscope_automation.util.get_path.</code><code class="sig-name descname">add_suffix</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">file_path</span></em>, <em class="sig-param"><span class="n">suffix</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/microscope_automation/util/get_path.html#add_suffix"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#microscope_automation.util.get_path.add_suffix" title="Permalink to this definition">¶</a></dt>
 <dd><p>Add suffix to end of file name.</p>
 <dl>
 <dt>Input:</dt><dd><p>file_path: path to file name</p>
@@ -56,8 +56,8 @@ functions to return path for settings, logfile, and data.</p>
 </dd></dl>
 
 <dl class="py function">
-<dt id="microscope_automation.get_path.get_valid_path_from_prefs">
-<code class="sig-prename descclassname">microscope_automation.get_path.</code><code class="sig-name descname">get_valid_path_from_prefs</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">prefs</span></em>, <em class="sig-param"><span class="n">key</span></em>, <em class="sig-param"><span class="n">search_dir</span><span class="o">=</span><span class="default_value">True</span></em>, <em class="sig-param"><span class="n">validate</span><span class="o">=</span><span class="default_value">False</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/microscope_automation/get_path.html#get_valid_path_from_prefs"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#microscope_automation.get_path.get_valid_path_from_prefs" title="Permalink to this definition">¶</a></dt>
+<dt id="microscope_automation.util.get_path.get_valid_path_from_prefs">
+<code class="sig-prename descclassname">microscope_automation.util.get_path.</code><code class="sig-name descname">get_valid_path_from_prefs</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">prefs</span></em>, <em class="sig-param"><span class="n">key</span></em>, <em class="sig-param"><span class="n">search_dir</span><span class="o">=</span><span class="default_value">True</span></em>, <em class="sig-param"><span class="n">validate</span><span class="o">=</span><span class="default_value">False</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/microscope_automation/util/get_path.html#get_valid_path_from_prefs"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#microscope_automation.util.get_path.get_valid_path_from_prefs" title="Permalink to this definition">¶</a></dt>
 <dd><p>Read list of paths from prefs and return first valid match.</p>
 <dl>
 <dt>Input:</dt><dd><p>prefs: Preferences object created from YAML file</p>
@@ -70,8 +70,8 @@ functions to return path for settings, logfile, and data.</p>
 </dd></dl>
 
 <dl class="py function">
-<dt id="microscope_automation.get_path.set_up_subfolders">
-<code class="sig-prename descclassname">microscope_automation.get_path.</code><code class="sig-name descname">set_up_subfolders</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">parent_folder_path</span></em>, <em class="sig-param"><span class="n">subfolder</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/microscope_automation/get_path.html#set_up_subfolders"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#microscope_automation.get_path.set_up_subfolders" title="Permalink to this definition">¶</a></dt>
+<dt id="microscope_automation.util.get_path.set_up_subfolders">
+<code class="sig-prename descclassname">microscope_automation.util.get_path.</code><code class="sig-name descname">set_up_subfolders</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">parent_folder_path</span></em>, <em class="sig-param"><span class="n">subfolder</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/microscope_automation/util/get_path.html#set_up_subfolders"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#microscope_automation.util.get_path.set_up_subfolders" title="Permalink to this definition">¶</a></dt>
 <dd><p>Set the Subfolders for imaging folder - e.g. TapeOnly and Failed QC</p>
 <dl>
 <dt>Input:</dt><dd><p>parent_folder_path: Image Folder Path</p>
@@ -83,8 +83,8 @@ functions to return path for settings, logfile, and data.</p>
 </dd></dl>
 
 <dl class="py function">
-<dt id="microscope_automation.get_path.get_daily_folder">
-<code class="sig-prename descclassname">microscope_automation.get_path.</code><code class="sig-name descname">get_daily_folder</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">prefs</span></em>, <em class="sig-param"><span class="n">barcode</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/microscope_automation/get_path.html#get_daily_folder"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#microscope_automation.get_path.get_daily_folder" title="Permalink to this definition">¶</a></dt>
+<dt id="microscope_automation.util.get_path.get_daily_folder">
+<code class="sig-prename descclassname">microscope_automation.util.get_path.</code><code class="sig-name descname">get_daily_folder</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">prefs</span></em>, <em class="sig-param"><span class="n">barcode</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/microscope_automation/util/get_path.html#get_daily_folder"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#microscope_automation.util.get_path.get_daily_folder" title="Permalink to this definition">¶</a></dt>
 <dd><p>Find folder for daily settings and results. Create folder if not existing.</p>
 <dl>
 <dt>Input:</dt><dd><p>prefs: Preferences object created from YAML file</p>
@@ -96,8 +96,8 @@ functions to return path for settings, logfile, and data.</p>
 </dd></dl>
 
 <dl class="py function">
-<dt id="microscope_automation.get_path.get_position_csv_path">
-<code class="sig-prename descclassname">microscope_automation.get_path.</code><code class="sig-name descname">get_position_csv_path</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">prefs</span></em>, <em class="sig-param"><span class="n">barcode</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/microscope_automation/get_path.html#get_position_csv_path"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#microscope_automation.get_path.get_position_csv_path" title="Permalink to this definition">¶</a></dt>
+<dt id="microscope_automation.util.get_path.get_position_csv_path">
+<code class="sig-prename descclassname">microscope_automation.util.get_path.</code><code class="sig-name descname">get_position_csv_path</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">prefs</span></em>, <em class="sig-param"><span class="n">barcode</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/microscope_automation/util/get_path.html#get_position_csv_path"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#microscope_automation.util.get_path.get_position_csv_path" title="Permalink to this definition">¶</a></dt>
 <dd><p>Function to get the file path for the csv files where
 all the positions are stored after segmentation.</p>
 <dl>
@@ -110,8 +110,8 @@ all the positions are stored after segmentation.</p>
 </dd></dl>
 
 <dl class="py function">
-<dt id="microscope_automation.get_path.get_log_file_path">
-<code class="sig-prename descclassname">microscope_automation.get_path.</code><code class="sig-name descname">get_log_file_path</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">prefs</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/microscope_automation/get_path.html#get_log_file_path"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#microscope_automation.get_path.get_log_file_path" title="Permalink to this definition">¶</a></dt>
+<dt id="microscope_automation.util.get_path.get_log_file_path">
+<code class="sig-prename descclassname">microscope_automation.util.get_path.</code><code class="sig-name descname">get_log_file_path</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">prefs</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/microscope_automation/util/get_path.html#get_log_file_path"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#microscope_automation.util.get_path.get_log_file_path" title="Permalink to this definition">¶</a></dt>
 <dd><p>Return path to log file.</p>
 <dl class="simple">
 <dt>Input:</dt><dd><p>prefs: Preferences object created from YAML file</p>
@@ -122,8 +122,8 @@ all the positions are stored after segmentation.</p>
 </dd></dl>
 
 <dl class="py function">
-<dt id="microscope_automation.get_path.get_meta_data_path">
-<code class="sig-prename descclassname">microscope_automation.get_path.</code><code class="sig-name descname">get_meta_data_path</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">prefs</span></em>, <em class="sig-param"><span class="n">barcode</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/microscope_automation/get_path.html#get_meta_data_path"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#microscope_automation.get_path.get_meta_data_path" title="Permalink to this definition">¶</a></dt>
+<dt id="microscope_automation.util.get_path.get_meta_data_path">
+<code class="sig-prename descclassname">microscope_automation.util.get_path.</code><code class="sig-name descname">get_meta_data_path</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">prefs</span></em>, <em class="sig-param"><span class="n">barcode</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/microscope_automation/util/get_path.html#get_meta_data_path"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#microscope_automation.util.get_path.get_meta_data_path" title="Permalink to this definition">¶</a></dt>
 <dd><p>Return path for meta data.</p>
 <dl>
 <dt>Input:</dt><dd><p>prefs: Preferences object created from YAML file</p>
@@ -135,8 +135,8 @@ all the positions are stored after segmentation.</p>
 </dd></dl>
 
 <dl class="py function">
-<dt id="microscope_automation.get_path.get_experiment_path">
-<code class="sig-prename descclassname">microscope_automation.get_path.</code><code class="sig-name descname">get_experiment_path</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">prefs</span></em>, <em class="sig-param"><span class="n">dir</span><span class="o">=</span><span class="default_value">False</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/microscope_automation/get_path.html#get_experiment_path"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#microscope_automation.get_path.get_experiment_path" title="Permalink to this definition">¶</a></dt>
+<dt id="microscope_automation.util.get_path.get_experiment_path">
+<code class="sig-prename descclassname">microscope_automation.util.get_path.</code><code class="sig-name descname">get_experiment_path</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">prefs</span></em>, <em class="sig-param"><span class="n">dir</span><span class="o">=</span><span class="default_value">False</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/microscope_automation/util/get_path.html#get_experiment_path"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#microscope_automation.util.get_path.get_experiment_path" title="Permalink to this definition">¶</a></dt>
 <dd><p>Return path to experiment.</p>
 <dl>
 <dt>Input:</dt><dd><p>prefs: Preferences object created from YAML file</p>
@@ -149,8 +149,8 @@ Default: False</p>
 </dd></dl>
 
 <dl class="py function">
-<dt id="microscope_automation.get_path.get_recovery_settings_path">
-<code class="sig-prename descclassname">microscope_automation.get_path.</code><code class="sig-name descname">get_recovery_settings_path</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">prefs</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/microscope_automation/get_path.html#get_recovery_settings_path"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#microscope_automation.get_path.get_recovery_settings_path" title="Permalink to this definition">¶</a></dt>
+<dt id="microscope_automation.util.get_path.get_recovery_settings_path">
+<code class="sig-prename descclassname">microscope_automation.util.get_path.</code><code class="sig-name descname">get_recovery_settings_path</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">prefs</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/microscope_automation/util/get_path.html#get_recovery_settings_path"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#microscope_automation.util.get_path.get_recovery_settings_path" title="Permalink to this definition">¶</a></dt>
 <dd><p>Returns the file path to save the pickled dictionary after interruption</p>
 <dl class="simple">
 <dt>Input:</dt><dd><p>prefs: Preferences object created from YAML file</p>
@@ -161,8 +161,8 @@ Default: False</p>
 </dd></dl>
 
 <dl class="py function">
-<dt id="microscope_automation.get_path.get_colony_dir_path">
-<code class="sig-prename descclassname">microscope_automation.get_path.</code><code class="sig-name descname">get_colony_dir_path</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">prefs</span></em>, <em class="sig-param"><span class="n">barcode</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/microscope_automation/get_path.html#get_colony_dir_path"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#microscope_automation.get_path.get_colony_dir_path" title="Permalink to this definition">¶</a></dt>
+<dt id="microscope_automation.util.get_path.get_colony_dir_path">
+<code class="sig-prename descclassname">microscope_automation.util.get_path.</code><code class="sig-name descname">get_colony_dir_path</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">prefs</span></em>, <em class="sig-param"><span class="n">barcode</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/microscope_automation/util/get_path.html#get_colony_dir_path"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#microscope_automation.util.get_path.get_colony_dir_path" title="Permalink to this definition">¶</a></dt>
 <dd><p>Return path to directory with .csv file with colony positions and features.</p>
 <dl>
 <dt>Input:</dt><dd><p>prefs: Preferences object created from YAML file</p>
@@ -174,8 +174,8 @@ Default: False</p>
 </dd></dl>
 
 <dl class="py function">
-<dt id="microscope_automation.get_path.get_colony_remote_dir_path">
-<code class="sig-prename descclassname">microscope_automation.get_path.</code><code class="sig-name descname">get_colony_remote_dir_path</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">prefs</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/microscope_automation/get_path.html#get_colony_remote_dir_path"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#microscope_automation.get_path.get_colony_remote_dir_path" title="Permalink to this definition">¶</a></dt>
+<dt id="microscope_automation.util.get_path.get_colony_remote_dir_path">
+<code class="sig-prename descclassname">microscope_automation.util.get_path.</code><code class="sig-name descname">get_colony_remote_dir_path</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">prefs</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/microscope_automation/util/get_path.html#get_colony_remote_dir_path"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#microscope_automation.util.get_path.get_colony_remote_dir_path" title="Permalink to this definition">¶</a></dt>
 <dd><p>Return path to directory with .csv file with colony positions
 and features on network.</p>
 <dl class="simple">
@@ -187,8 +187,8 @@ and features on network.</p>
 </dd></dl>
 
 <dl class="py function">
-<dt id="microscope_automation.get_path.get_colony_file_path">
-<code class="sig-prename descclassname">microscope_automation.get_path.</code><code class="sig-name descname">get_colony_file_path</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">prefs</span></em>, <em class="sig-param"><span class="n">colony_file</span></em>, <em class="sig-param"><span class="n">barcode</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/microscope_automation/get_path.html#get_colony_file_path"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#microscope_automation.get_path.get_colony_file_path" title="Permalink to this definition">¶</a></dt>
+<dt id="microscope_automation.util.get_path.get_colony_file_path">
+<code class="sig-prename descclassname">microscope_automation.util.get_path.</code><code class="sig-name descname">get_colony_file_path</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">prefs</span></em>, <em class="sig-param"><span class="n">colony_file</span></em>, <em class="sig-param"><span class="n">barcode</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/microscope_automation/util/get_path.html#get_colony_file_path"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#microscope_automation.util.get_path.get_colony_file_path" title="Permalink to this definition">¶</a></dt>
 <dd><p>Return path to file with colony information typically produced by
 CellProfiler based on Celigo platescanner data.</p>
 <dl>
@@ -202,8 +202,8 @@ CellProfiler based on Celigo platescanner data.</p>
 </dd></dl>
 
 <dl class="py function">
-<dt id="microscope_automation.get_path.get_hardware_settings_path">
-<code class="sig-prename descclassname">microscope_automation.get_path.</code><code class="sig-name descname">get_hardware_settings_path</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">prefs</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/microscope_automation/get_path.html#get_hardware_settings_path"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#microscope_automation.get_path.get_hardware_settings_path" title="Permalink to this definition">¶</a></dt>
+<dt id="microscope_automation.util.get_path.get_hardware_settings_path">
+<code class="sig-prename descclassname">microscope_automation.util.get_path.</code><code class="sig-name descname">get_hardware_settings_path</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">prefs</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/microscope_automation/util/get_path.html#get_hardware_settings_path"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#microscope_automation.util.get_path.get_hardware_settings_path" title="Permalink to this definition">¶</a></dt>
 <dd><p>Return path to .yml file with microscope specifications from preferences file.</p>
 <dl class="simple">
 <dt>Input:</dt><dd><p>prefs: Preferences object created from YAML file</p>
@@ -214,8 +214,8 @@ CellProfiler based on Celigo platescanner data.</p>
 </dd></dl>
 
 <dl class="py function">
-<dt id="microscope_automation.get_path.get_references_path">
-<code class="sig-prename descclassname">microscope_automation.get_path.</code><code class="sig-name descname">get_references_path</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">prefs</span></em>, <em class="sig-param"><span class="n">barcode</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/microscope_automation/get_path.html#get_references_path"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#microscope_automation.get_path.get_references_path" title="Permalink to this definition">¶</a></dt>
+<dt id="microscope_automation.util.get_path.get_references_path">
+<code class="sig-prename descclassname">microscope_automation.util.get_path.</code><code class="sig-name descname">get_references_path</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">prefs</span></em>, <em class="sig-param"><span class="n">barcode</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/microscope_automation/util/get_path.html#get_references_path"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#microscope_automation.util.get_path.get_references_path" title="Permalink to this definition">¶</a></dt>
 <dd><p>Return path to directory for reference images. Create directory if not available</p>
 <dl>
 <dt>Input:</dt><dd><p>prefs: Preferences object created from YAML file</p>
@@ -227,8 +227,8 @@ CellProfiler based on Celigo platescanner data.</p>
 </dd></dl>
 
 <dl class="py function">
-<dt id="microscope_automation.get_path.get_images_path">
-<code class="sig-prename descclassname">microscope_automation.get_path.</code><code class="sig-name descname">get_images_path</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">prefs</span></em>, <em class="sig-param"><span class="n">sub_dir</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">barcode</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/microscope_automation/get_path.html#get_images_path"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#microscope_automation.get_path.get_images_path" title="Permalink to this definition">¶</a></dt>
+<dt id="microscope_automation.util.get_path.get_images_path">
+<code class="sig-prename descclassname">microscope_automation.util.get_path.</code><code class="sig-name descname">get_images_path</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">prefs</span></em>, <em class="sig-param"><span class="n">sub_dir</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">barcode</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/microscope_automation/util/get_path.html#get_images_path"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#microscope_automation.util.get_path.get_images_path" title="Permalink to this definition">¶</a></dt>
 <dd><p>Return path to directory for images. Create directory if not available</p>
 <dl>
 <dt>Input:</dt><dd><p>prefs: Preferences object created from YAML file</p>
@@ -241,8 +241,8 @@ CellProfiler based on Celigo platescanner data.</p>
 </dd></dl>
 
 <dl class="py function">
-<dt id="microscope_automation.get_path.get_calibration_path">
-<code class="sig-prename descclassname">microscope_automation.get_path.</code><code class="sig-name descname">get_calibration_path</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">prefs</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/microscope_automation/get_path.html#get_calibration_path"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#microscope_automation.get_path.get_calibration_path" title="Permalink to this definition">¶</a></dt>
+<dt id="microscope_automation.util.get_path.get_calibration_path">
+<code class="sig-prename descclassname">microscope_automation.util.get_path.</code><code class="sig-name descname">get_calibration_path</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">prefs</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/microscope_automation/util/get_path.html#get_calibration_path"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#microscope_automation.util.get_path.get_calibration_path" title="Permalink to this definition">¶</a></dt>
 <dd><p>Return path to calibration information e.g. blackreference images</p>
 <dl class="simple">
 <dt>Input:</dt><dd><p>prefs: Preferences object created from YAML file</p>
@@ -276,10 +276,18 @@ CellProfiler based on Celigo platescanner data.</p>
 <li class="toctree-l1"><a class="reference internal" href="index.html">README</a></li>
 <li class="toctree-l1"><a class="reference internal" href="installation.html">Installation</a></li>
 </ul>
+<p class="caption"><span class="caption-text">Orchestrator</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="find_positions.html">find_positions</a></li>
+<li class="toctree-l1"><a class="reference internal" href="microscope_automation.html">microscope_automation package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="write_zen_tiles_experiment.html">write_zen_tiles_experiment</a></li>
+</ul>
 <p class="caption"><span class="caption-text">Hardware</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="hardware_components.html">hardware_components</a></li>
 <li class="toctree-l1"><a class="reference internal" href="hardware_control.html">hardware_control</a></li>
+<li class="toctree-l1"><a class="reference internal" href="hardware_control_3i.html">hardware_control_3i</a></li>
+<li class="toctree-l1"><a class="reference internal" href="hardware_control_zeiss.html">hardware_control_zeiss</a></li>
 <li class="toctree-l1"><a class="reference internal" href="RS232.html">RS232</a></li>
 <li class="toctree-l1"><a class="reference internal" href="setup_microscope.html">setup_microscope</a></li>
 </ul>
@@ -295,21 +303,20 @@ CellProfiler based on Celigo platescanner data.</p>
 <li class="toctree-l1"><a class="reference internal" href="setup_samples.html">setup_samples</a></li>
 <li class="toctree-l1"><a class="reference internal" href="tile_images.html">tile_images</a></li>
 </ul>
-<p class="caption"><span class="caption-text">Zeiss Microscopes</span></p>
+<p class="caption"><span class="caption-text">Connectors</span></p>
 <ul>
+<li class="toctree-l1"><a class="reference internal" href="connect_slidebook.html">connect_slidebook</a></li>
 <li class="toctree-l1"><a class="reference internal" href="connect_zen_blue.html">connect_zen_blue</a></li>
 <li class="toctree-l1"><a class="reference internal" href="connect_zen_black.html">connect_zen_black</a></li>
-<li class="toctree-l1"><a class="reference internal" href="hardware_control_zeiss.html">hardware_control_zeiss</a></li>
-<li class="toctree-l1"><a class="reference internal" href="write_zen_tiles_experiment.html">write_zen_tiles_experiment</a></li>
+</ul>
+<p class="caption"><span class="caption-text">Settings</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="meta_data_file.html">meta_data_file</a></li>
+<li class="toctree-l1"><a class="reference internal" href="preferences.html">preferences</a></li>
+<li class="toctree-l1"><a class="reference internal" href="slidebook_experiment_info.html">slidebook_experiment_info</a></li>
 <li class="toctree-l1"><a class="reference internal" href="zen_experiment_info.html">zen_experiment_info</a></li>
 </ul>
-<p class="caption"><span class="caption-text">3i Microscopes</span></p>
-<ul>
-<li class="toctree-l1"><a class="reference internal" href="hardware_control_3i.html">hardware_control_3i</a></li>
-<li class="toctree-l1"><a class="reference internal" href="connect_slidebook.html">connect_slidebook</a></li>
-<li class="toctree-l1"><a class="reference internal" href="slidebook_experiment_info.html">slidebook_experiment_info</a></li>
-</ul>
-<p class="caption"><span class="caption-text">General Methods</span></p>
+<p class="caption"><span class="caption-text">Utility</span></p>
 <ul class="current">
 <li class="toctree-l1"><a class="reference internal" href="automation_exceptions.html">automation_exceptions</a></li>
 <li class="toctree-l1"><a class="reference internal" href="automation_messages_form_layout.html">automation_messages_form_layout</a></li>
@@ -317,9 +324,12 @@ CellProfiler based on Celigo platescanner data.</p>
 <li class="toctree-l1 current"><a class="current reference internal" href="#">get_path</a></li>
 <li class="toctree-l1"><a class="reference internal" href="image_AICS.html">image_AICS</a></li>
 <li class="toctree-l1"><a class="reference internal" href="load_image_czi.html">load_image_czi</a></li>
-<li class="toctree-l1"><a class="reference internal" href="meta_data_file.html">meta_data_file</a></li>
-<li class="toctree-l1"><a class="reference internal" href="microscope_automation.html">microscope_automation package</a></li>
-<li class="toctree-l1"><a class="reference internal" href="preferences.html">preferences</a></li>
+<li class="toctree-l1"><a class="reference internal" href="software_state.html">software_state</a></li>
+</ul>
+<p class="caption"><span class="caption-text">Import Helpers</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="intelligent_imaging_innovations.html">3i Imports</a></li>
+<li class="toctree-l1"><a class="reference internal" href="zeiss.html">Zeiss Imports</a></li>
 </ul>
 <p class="caption"><span class="caption-text">Reference Docs</span></p>
 <ul>

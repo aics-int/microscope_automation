@@ -14,8 +14,8 @@
     <script src="_static/doctools.js"></script>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
-    <link rel="next" title="Allen Institute Contribution Agreement" href="CONTRIBUTING.html" />
-    <link rel="prev" title="microscope_automation.zeiss package" href="microscope_automation.zeiss.html" />
+    <link rel="next" title="slidebook_experiment_info" href="slidebook_experiment_info.html" />
+    <link rel="prev" title="meta_data_file" href="meta_data_file.html" />
    
   <link rel="stylesheet" href="_static/custom.css" type="text/css" />
   
@@ -49,12 +49,12 @@ methods that will read and return values for different configuration files.</p>
 <div class="section" id="class-preferences">
 <span id="preferences-preferences"></span><h2><a class="toc-backref" href="#id3">class Preferences</a><a class="headerlink" href="#class-preferences" title="Permalink to this headline">¶</a></h2>
 <dl class="py class">
-<dt id="microscope_automation.preferences.Preferences">
-<em class="property">class </em><code class="sig-prename descclassname">microscope_automation.preferences.</code><code class="sig-name descname">Preferences</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">pref_path</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">pref_dict</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">parent_prefs</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/microscope_automation/preferences.html#Preferences"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#microscope_automation.preferences.Preferences" title="Permalink to this definition">¶</a></dt>
+<dt id="microscope_automation.settings.preferences.Preferences">
+<em class="property">class </em><code class="sig-prename descclassname">microscope_automation.settings.preferences.</code><code class="sig-name descname">Preferences</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">pref_path</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">pref_dict</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">parent_prefs</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/microscope_automation/settings/preferences.html#Preferences"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#microscope_automation.settings.preferences.Preferences" title="Permalink to this definition">¶</a></dt>
 <dd><p>Reads configuration files and will return Values</p>
 <dl class="py method">
-<dt id="microscope_automation.preferences.Preferences.get_parent_prefs">
-<code class="sig-name descname">get_parent_prefs</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/microscope_automation/preferences.html#Preferences.get_parent_prefs"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#microscope_automation.preferences.Preferences.get_parent_prefs" title="Permalink to this definition">¶</a></dt>
+<dt id="microscope_automation.settings.preferences.Preferences.get_parent_prefs">
+<code class="sig-name descname">get_parent_prefs</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/microscope_automation/settings/preferences.html#Preferences.get_parent_prefs"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#microscope_automation.settings.preferences.Preferences.get_parent_prefs" title="Permalink to this definition">¶</a></dt>
 <dd><p>preferences objects that are created from a subset of preferences,
 keep a reference to the original preferences set.</p>
 <dl class="simple">
@@ -67,8 +67,8 @@ were source for current subset of preferences.</p>
 </dd></dl>
 
 <dl class="py method">
-<dt id="microscope_automation.preferences.Preferences.get_pref">
-<code class="sig-name descname">get_pref</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">name</span></em>, <em class="sig-param"><span class="n">valid_values</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/microscope_automation/preferences.html#Preferences.get_pref"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#microscope_automation.preferences.Preferences.get_pref" title="Permalink to this definition">¶</a></dt>
+<dt id="microscope_automation.settings.preferences.Preferences.get_pref">
+<code class="sig-name descname">get_pref</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">name</span></em>, <em class="sig-param"><span class="n">valid_values</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/microscope_automation/settings/preferences.html#Preferences.get_pref"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#microscope_automation.settings.preferences.Preferences.get_pref" title="Permalink to this definition">¶</a></dt>
 <dd><p>Return value for key ‘name’ in preferences.</p>
 <dl>
 <dt>Input:</dt><dd><p>name: string with key name</p>
@@ -81,8 +81,8 @@ Default: do not check.</p>
 </dd></dl>
 
 <dl class="py method">
-<dt id="microscope_automation.preferences.Preferences.get_pref_as_meta">
-<code class="sig-name descname">get_pref_as_meta</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">name</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/microscope_automation/preferences.html#Preferences.get_pref_as_meta"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#microscope_automation.preferences.Preferences.get_pref_as_meta" title="Permalink to this definition">¶</a></dt>
+<dt id="microscope_automation.settings.preferences.Preferences.get_pref_as_meta">
+<code class="sig-name descname">get_pref_as_meta</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">name</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/microscope_automation/settings/preferences.html#Preferences.get_pref_as_meta"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#microscope_automation.settings.preferences.Preferences.get_pref_as_meta" title="Permalink to this definition">¶</a></dt>
 <dd><p>Return subset of preferences as preferences object.</p>
 <dl class="simple">
 <dt>Input:</dt><dd><p>name: name of meta data dictionary</p>
@@ -119,10 +119,18 @@ Default: do not check.</p>
 <li class="toctree-l1"><a class="reference internal" href="index.html">README</a></li>
 <li class="toctree-l1"><a class="reference internal" href="installation.html">Installation</a></li>
 </ul>
+<p class="caption"><span class="caption-text">Orchestrator</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="find_positions.html">find_positions</a></li>
+<li class="toctree-l1"><a class="reference internal" href="microscope_automation.html">microscope_automation package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="write_zen_tiles_experiment.html">write_zen_tiles_experiment</a></li>
+</ul>
 <p class="caption"><span class="caption-text">Hardware</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="hardware_components.html">hardware_components</a></li>
 <li class="toctree-l1"><a class="reference internal" href="hardware_control.html">hardware_control</a></li>
+<li class="toctree-l1"><a class="reference internal" href="hardware_control_3i.html">hardware_control_3i</a></li>
+<li class="toctree-l1"><a class="reference internal" href="hardware_control_zeiss.html">hardware_control_zeiss</a></li>
 <li class="toctree-l1"><a class="reference internal" href="RS232.html">RS232</a></li>
 <li class="toctree-l1"><a class="reference internal" href="setup_microscope.html">setup_microscope</a></li>
 </ul>
@@ -138,31 +146,33 @@ Default: do not check.</p>
 <li class="toctree-l1"><a class="reference internal" href="setup_samples.html">setup_samples</a></li>
 <li class="toctree-l1"><a class="reference internal" href="tile_images.html">tile_images</a></li>
 </ul>
-<p class="caption"><span class="caption-text">Zeiss Microscopes</span></p>
+<p class="caption"><span class="caption-text">Connectors</span></p>
 <ul>
+<li class="toctree-l1"><a class="reference internal" href="connect_slidebook.html">connect_slidebook</a></li>
 <li class="toctree-l1"><a class="reference internal" href="connect_zen_blue.html">connect_zen_blue</a></li>
 <li class="toctree-l1"><a class="reference internal" href="connect_zen_black.html">connect_zen_black</a></li>
-<li class="toctree-l1"><a class="reference internal" href="hardware_control_zeiss.html">hardware_control_zeiss</a></li>
-<li class="toctree-l1"><a class="reference internal" href="write_zen_tiles_experiment.html">write_zen_tiles_experiment</a></li>
+</ul>
+<p class="caption"><span class="caption-text">Settings</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="meta_data_file.html">meta_data_file</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">preferences</a></li>
+<li class="toctree-l1"><a class="reference internal" href="slidebook_experiment_info.html">slidebook_experiment_info</a></li>
 <li class="toctree-l1"><a class="reference internal" href="zen_experiment_info.html">zen_experiment_info</a></li>
 </ul>
-<p class="caption"><span class="caption-text">3i Microscopes</span></p>
+<p class="caption"><span class="caption-text">Utility</span></p>
 <ul>
-<li class="toctree-l1"><a class="reference internal" href="hardware_control_3i.html">hardware_control_3i</a></li>
-<li class="toctree-l1"><a class="reference internal" href="connect_slidebook.html">connect_slidebook</a></li>
-<li class="toctree-l1"><a class="reference internal" href="slidebook_experiment_info.html">slidebook_experiment_info</a></li>
-</ul>
-<p class="caption"><span class="caption-text">General Methods</span></p>
-<ul class="current">
 <li class="toctree-l1"><a class="reference internal" href="automation_exceptions.html">automation_exceptions</a></li>
 <li class="toctree-l1"><a class="reference internal" href="automation_messages_form_layout.html">automation_messages_form_layout</a></li>
 <li class="toctree-l1"><a class="reference internal" href="error_handling.html">error_handling</a></li>
 <li class="toctree-l1"><a class="reference internal" href="get_path.html">get_path</a></li>
 <li class="toctree-l1"><a class="reference internal" href="image_AICS.html">image_AICS</a></li>
 <li class="toctree-l1"><a class="reference internal" href="load_image_czi.html">load_image_czi</a></li>
-<li class="toctree-l1"><a class="reference internal" href="meta_data_file.html">meta_data_file</a></li>
-<li class="toctree-l1"><a class="reference internal" href="microscope_automation.html">microscope_automation package</a></li>
-<li class="toctree-l1 current"><a class="current reference internal" href="#">preferences</a></li>
+<li class="toctree-l1"><a class="reference internal" href="software_state.html">software_state</a></li>
+</ul>
+<p class="caption"><span class="caption-text">Import Helpers</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="intelligent_imaging_innovations.html">3i Imports</a></li>
+<li class="toctree-l1"><a class="reference internal" href="zeiss.html">Zeiss Imports</a></li>
 </ul>
 <p class="caption"><span class="caption-text">Reference Docs</span></p>
 <ul>
@@ -174,8 +184,8 @@ Default: do not check.</p>
 <h3>Related Topics</h3>
 <ul>
   <li><a href="index.html">Documentation overview</a><ul>
-      <li>Previous: <a href="microscope_automation.zeiss.html" title="previous chapter">microscope_automation.zeiss package</a></li>
-      <li>Next: <a href="CONTRIBUTING.html" title="next chapter">Allen Institute Contribution Agreement</a></li>
+      <li>Previous: <a href="meta_data_file.html" title="previous chapter">meta_data_file</a></li>
+      <li>Next: <a href="slidebook_experiment_info.html" title="next chapter">slidebook_experiment_info</a></li>
   </ul></li>
 </ul>
 </div>
