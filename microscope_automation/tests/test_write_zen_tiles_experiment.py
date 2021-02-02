@@ -13,35 +13,46 @@ def test_init():
     assert testclass.zsd == "testZsd"
 
 
-sample_coords_from_automation = [
+sample_coords_no_header = [
     ["name0", 0.1, 0.1, 0.1],
     ["name1", 100.0, 100.0, 100.0],
     ["name2", 200.5, 200.5, 200.5],
 ]
-converted_list = testclass.convert_to_stage_coords(
-    offset_x=1.0, offset_y=1.0, positions_list=sample_coords_from_automation
+converted_list_no_header = testclass.convert_to_stage_coords(
+    offset_x=1.0, offset_y=1.0, positions_list=sample_coords_no_header, header=False
+)
+
+sample_coords_with_header = [
+    ["Name", "X", "Y", "Z"]
+    ["name0", 0.1, 0.1, 0.1],
+    ["name1", 100.0, 100.0, 100.0],
+    ["name2", 200.5, 200.5, 200.5],
+]
+converted_list_header = testclass.convert_to_stage_coords(
+    offset_x=1.0, offset_y=1.0, positions_list=sample_coords_with_header, header=False
 )
 
 
 def test_convert_to_stage_coords():
     # list returns correct size
-    assert len(converted_list) == len(sample_coords_from_automation)
+    assert len(converted_list_no_header) == len(sample_coords_no_header)
+    assert len(converted_list_header)
 
     # see if conversion (offset addition) is working okay using floats.
     # Automation software passes floats
-    assert converted_list[0] == {
+    assert converted_list_no_header[0] == {
         "name": "name0",
         "actual_x": 1.1,
         "actual_y": 1.1,
         "actual_z": 0.1,
     }
-    assert converted_list[1] == {
+    assert converted_list_no_header[1] == {
         "name": "name1",
         "actual_x": 101.0,
         "actual_y": 101.0,
         "actual_z": 100.0,
     }
-    assert converted_list[2] == {
+    assert converted_list_no_header[2] == {
         "name": "name2",
         "actual_x": 201.5,
         "actual_y": 201.5,
@@ -49,19 +60,19 @@ def test_convert_to_stage_coords():
     }
 
     # addition of offset still results in a float value
-    assert isinstance(converted_list[0]["actual_x"], float)
-    assert isinstance(converted_list[1]["actual_y"], float)
-    assert isinstance(converted_list[2]["actual_z"], float)
+    assert isinstance(converted_list_no_header[0]["actual_x"], float)
+    assert isinstance(converted_list_no_header[1]["actual_y"], float)
+    assert isinstance(converted_list_no_header[2]["actual_z"], float)
 
 
 def test_write():
     # was convert_to_stage_coords called?
-    assert len(converted_list) != 0
+    assert len(converted_list_header) != 0
 
     # Test by attempting to write with empty dummy file, so error is expected.
     try:
         testclass.write(
-            converted_list,
+            converted_list_header,
             dummy=os.path.join("data", "1234", "testZsd", "positions_output_a.czsh"),
         )
     except Exception as err:

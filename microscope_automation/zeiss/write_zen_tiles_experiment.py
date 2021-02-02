@@ -60,7 +60,13 @@ class PositionWriter(object):
         self.zsd = zsd
         self.gen = self.iter_all_strings()
 
-    def convert_to_stage_coords(self, offset_x=0, offset_y=0, positions_list=[]):
+    def convert_to_stage_coords(
+        self,
+        offset_x=0,
+        offset_y=0,
+        positions_list=[],
+        header=False
+    ):
         """Converts the distance of points from center of image to x-y coordinates in
         stage with 10 to 100x objective offsets.
 
@@ -70,6 +76,9 @@ class PositionWriter(object):
          offset_y: y_offset to accoutn for in stage coordinate conversion
 
          positions_list: center of well positions to convert to stage coordinates
+
+         header: boolean of whether positions_list includes a header. Skips the
+         first row if True. Default: False
 
         Output:
          converted_list: stage coordinates of positions converted
@@ -83,7 +92,8 @@ class PositionWriter(object):
 
         converted_list = []
         obj_offset = [offset_x, offset_y]
-        for i in range(0, len(positions_list)):
+        start = 1 if header else 0
+        for i in range(start, len(positions_list)):
             # positions_list[i][0] is name of position from automation software
             this_position = dict()
             this_position["name"] = positions_list[i][0]
