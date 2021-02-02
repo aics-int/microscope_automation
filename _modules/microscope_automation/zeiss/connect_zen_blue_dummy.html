@@ -429,7 +429,8 @@
         <span class="k">pass</span></div>
 
 <div class="viewcode-block" id="Application.RunMacro"><a class="viewcode-back" href="../../../microscope_automation.zeiss.html#microscope_automation.zeiss.connect_zen_blue_dummy.Application.RunMacro">[docs]</a>    <span class="k">def</span> <span class="nf">RunMacro</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">macro_name</span><span class="p">):</span>
-        <span class="nb">print</span><span class="p">((</span><span class="s2">&quot;Test mode: Running Macro: &quot;</span><span class="p">,</span> <span class="n">macro_name</span><span class="p">))</span></div>
+        <span class="nb">print</span><span class="p">((</span><span class="s2">&quot;Test mode: Running Macro: &quot;</span><span class="p">,</span> <span class="n">macro_name</span><span class="p">))</span>
+        <span class="k">return</span> <span class="s2">&quot;ok&quot;</span></div>
 
 <div class="viewcode-block" id="Application.RunMacro_2"><a class="viewcode-back" href="../../../microscope_automation.zeiss.html#microscope_automation.zeiss.connect_zen_blue_dummy.Application.RunMacro_2">[docs]</a>    <span class="k">def</span> <span class="nf">RunMacro_2</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">macro_name</span><span class="p">,</span> <span class="n">macro_params</span><span class="p">):</span>
         <span class="nb">print</span><span class="p">(</span>
@@ -439,7 +440,8 @@
                 <span class="o">+</span> <span class="s2">&quot; | Parameter: &quot;</span>
                 <span class="o">+</span> <span class="n">macro_params</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
             <span class="p">)</span>
-        <span class="p">)</span></div></div>
+        <span class="p">)</span>
+        <span class="k">return</span> <span class="s2">&quot;ok&quot;</span></div></div>
 
 
 <span class="c1">######################################################################################</span>

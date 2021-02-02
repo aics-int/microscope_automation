@@ -150,48 +150,6 @@
 <span class="n">VALID_WELLS</span> <span class="o">=</span> <span class="p">[</span><span class="n">x</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">y</span><span class="p">)</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">string</span><span class="o">.</span><span class="n">ascii_uppercase</span><span class="p">[</span><span class="mi">0</span><span class="p">:</span><span class="mi">8</span><span class="p">]</span> <span class="k">for</span> <span class="n">y</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">13</span><span class="p">)]</span>
 <span class="n">VALID_BLOCKING</span> <span class="o">=</span> <span class="p">[</span><span class="kc">True</span><span class="p">,</span> <span class="kc">False</span><span class="p">]</span>
 
-<span class="c1">################################################################################</span>
-<span class="c1">#</span>
-<span class="c1"># local maintenance functions</span>
-<span class="c1">#</span>
-<span class="c1">################################################################################</span>
-
-
-<div class="viewcode-block" id="stop_script"><a class="viewcode-back" href="../../microscope_automation.html#microscope_automation.microscope_automation.stop_script">[docs]</a><span class="k">def</span> <span class="nf">stop_script</span><span class="p">(</span><span class="n">message_text</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">allow_continue</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;Stop processing and ask to leave automation script.</span>
-
-<span class="sd">    Input:</span>
-<span class="sd">     message_text: Message to user explaining why processing should be stopped.</span>
-
-<span class="sd">     allow_continue: if True, allow user to continue. Default: False</span>
-
-<span class="sd">    Output:</span>
-<span class="sd">     none if user selects &#39;Continue&#39;, otherwise calls sys.exit()</span>
-
-<span class="sd">    Script will stop all Microscope action immediately and</span>
-<span class="sd">    ask user to stop execution of script or to continue.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
-    <span class="c1"># Microscope.stop_microscope()</span>
-    <span class="k">if</span> <span class="n">allow_continue</span><span class="p">:</span>
-        <span class="k">if</span> <span class="n">message_text</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="n">message_text</span> <span class="o">=</span> <span class="s2">&quot;If you want to abort script press ok.</span><span class="se">\n</span><span class="s2">otherwise Continue&quot;</span>
-        <span class="n">con</span> <span class="o">=</span> <span class="n">message</span><span class="o">.</span><span class="n">information_message</span><span class="p">(</span><span class="s2">&quot;Exit script&quot;</span><span class="p">,</span> <span class="n">message_text</span><span class="p">,</span> <span class="n">return_code</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
-    <span class="k">else</span><span class="p">:</span>
-        <span class="k">if</span> <span class="n">message_text</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="n">message_text</span> <span class="o">=</span> <span class="s2">&quot;Exit&quot;</span>
-        <span class="n">con</span> <span class="o">=</span> <span class="n">message</span><span class="o">.</span><span class="n">information_message</span><span class="p">(</span>
-            <span class="s2">&quot;Exit script&quot;</span><span class="p">,</span> <span class="n">message_text</span><span class="p">,</span> <span class="n">return_code</span><span class="o">=</span><span class="kc">False</span>
-        <span class="p">)</span>
-        <span class="n">con</span> <span class="o">=</span> <span class="mi">0</span>
-
-    <span class="k">if</span> <span class="n">con</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
-        <span class="c1"># logger.info(&#39;User aborted operation&#39;)</span>
-        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;User aborted operation&quot;</span><span class="p">)</span>
-        <span class="n">sys</span><span class="o">.</span><span class="n">exit</span><span class="p">()</span></div>
-
-
-<span class="c1">################################################################################</span>
-
 
 <div class="viewcode-block" id="MicroscopeAutomation"><a class="viewcode-back" href="../../microscope_automation.html#microscope_automation.microscope_automation.MicroscopeAutomation">[docs]</a><span class="k">class</span> <span class="nc">MicroscopeAutomation</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">prefs_path</span><span class="p">):</span>
@@ -434,7 +392,7 @@
 
         <span class="c1"># move away from delivery system to avoid later collisions</span>
         <span class="n">immersion_delivery</span><span class="o">.</span><span class="n">move_to_safe</span><span class="p">()</span>
-        <span class="n">magnification</span> <span class="o">=</span> <span class="n">prefs</span><span class="o">.</span><span class="n">get_pref</span><span class="p">(</span><span class="s2">&quot;MaginificationImmersionSystem&quot;</span><span class="p">)</span>
+        <span class="n">magnification</span> <span class="o">=</span> <span class="n">prefs</span><span class="o">.</span><span class="n">get_pref</span><span class="p">(</span><span class="s2">&quot;MagnificationImmersionSystem&quot;</span><span class="p">)</span>
         <span class="n">immersion_delivery</span><span class="o">.</span><span class="n">magnification</span> <span class="o">=</span> <span class="n">magnification</span></div>
 
     <span class="c1">################################################################################</span>
@@ -1581,7 +1539,7 @@
             <span class="p">)</span>
             <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="s2">&quot;wb&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
                 <span class="n">pickle</span><span class="o">.</span><span class="n">dump</span><span class="p">(</span><span class="n">pickle_dict</span><span class="p">,</span> <span class="n">f</span><span class="p">,</span> <span class="n">pickle</span><span class="o">.</span><span class="n">HIGHEST_PROTOCOL</span><span class="p">)</span>
-                <span class="n">stop_script</span><span class="p">(</span><span class="s2">&quot;Interruption Occurred. Data saved!&quot;</span><span class="p">)</span></div>
+                <span class="n">message</span><span class="o">.</span><span class="n">stop_script</span><span class="p">(</span><span class="s2">&quot;Interruption Occurred. Data saved!&quot;</span><span class="p">)</span></div>
 
     <span class="c1">################################################################################</span>
 
@@ -1771,10 +1729,10 @@
                         <span class="n">plate_holder_object</span><span class="p">,</span> <span class="mi">100</span>
                     <span class="p">)</span>
                     <span class="n">x_offset</span> <span class="o">=</span> <span class="p">(</span>
-                        <span class="n">well_object</span><span class="o">.</span><span class="n">xZero</span> <span class="o">+</span> <span class="n">well_object</span><span class="o">.</span><span class="n">container</span><span class="o">.</span><span class="n">xZero</span> <span class="o">+</span> <span class="n">x_obj_offset</span>
+                        <span class="n">well_object</span><span class="o">.</span><span class="n">x_zero</span> <span class="o">+</span> <span class="n">well_object</span><span class="o">.</span><span class="n">container</span><span class="o">.</span><span class="n">x_zero</span> <span class="o">+</span> <span class="n">x_obj_offset</span>
                     <span class="p">)</span>
                     <span class="n">y_offset</span> <span class="o">=</span> <span class="p">(</span>
-                        <span class="n">well_object</span><span class="o">.</span><span class="n">yZero</span> <span class="o">+</span> <span class="n">well_object</span><span class="o">.</span><span class="n">container</span><span class="o">.</span><span class="n">yZero</span> <span class="o">+</span> <span class="n">y_obj_offset</span>
+                        <span class="n">well_object</span><span class="o">.</span><span class="n">y_zero</span> <span class="o">+</span> <span class="n">well_object</span><span class="o">.</span><span class="n">container</span><span class="o">.</span><span class="n">y_zero</span> <span class="o">+</span> <span class="n">y_obj_offset</span>
                     <span class="p">)</span>
                     <span class="n">x_pos</span> <span class="o">=</span> <span class="n">location</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">+</span> <span class="n">x_offset</span>
                     <span class="n">y_pos</span> <span class="o">=</span> <span class="n">location</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">+</span> <span class="n">y_offset</span>
@@ -1859,7 +1817,7 @@
             <span class="p">)</span>
             <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="s2">&quot;w&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
                 <span class="n">pickle</span><span class="o">.</span><span class="n">dump</span><span class="p">(</span><span class="n">pickle_dict</span><span class="p">,</span> <span class="n">f</span><span class="p">,</span> <span class="n">pickle</span><span class="o">.</span><span class="n">HIGHEST_PROTOCOL</span><span class="p">)</span>
-                <span class="n">stop_script</span><span class="p">(</span><span class="s2">&quot;Interruption Occurred. Data saved!&quot;</span><span class="p">)</span>
+                <span class="n">message</span><span class="o">.</span><span class="n">stop_script</span><span class="p">(</span><span class="s2">&quot;Interruption Occurred. Data saved!&quot;</span><span class="p">)</span>
         <span class="n">daily_folder</span> <span class="o">=</span> <span class="n">get_valid_path_from_prefs</span><span class="p">(</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">prefs</span><span class="p">,</span> <span class="s2">&quot;PathDailyFolder&quot;</span><span class="p">,</span> <span class="n">search_dir</span><span class="o">=</span><span class="kc">True</span>
         <span class="p">)</span>
@@ -2010,7 +1968,7 @@
         <span class="n">param_list</span> <span class="o">=</span> <span class="n">imaging_settings</span><span class="o">.</span><span class="n">get_pref</span><span class="p">(</span><span class="s2">&quot;MacroParams&quot;</span><span class="p">)</span>
 
         <span class="c1"># Check for no params passed in preferences file</span>
-        <span class="c1"># No param key, empty string,   empty list</span>
+        <span class="c1"># No param key, empty string, empty list</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="n">param_list</span><span class="p">:</span>
             <span class="n">plate_holder_object</span><span class="o">.</span><span class="n">microscope</span><span class="o">.</span><span class="n">run_macro</span><span class="p">(</span><span class="n">macro_name</span><span class="p">)</span>
             <span class="k">return</span>
@@ -2292,7 +2250,7 @@
                 <span class="n">valid_experiment</span> <span class="o">=</span> <span class="n">zen_experiment</span><span class="o">.</span><span class="n">validate_experiment</span><span class="p">()</span>
                 <span class="n">num_try</span> <span class="o">=</span> <span class="n">num_try</span> <span class="o">+</span> <span class="mi">1</span>
             <span class="k">if</span> <span class="n">valid_experiment</span> <span class="ow">is</span> <span class="kc">False</span><span class="p">:</span>
-                <span class="n">stop_script</span><span class="p">(</span>
+                <span class="n">message</span><span class="o">.</span><span class="n">stop_script</span><span class="p">(</span>
                     <span class="s2">&quot;The Experiment &quot;</span>
                     <span class="o">+</span> <span class="n">experiment_name</span>
                     <span class="o">+</span> <span class="s2">&quot; is not defined in the ZEN software. Exiting the software.&quot;</span>

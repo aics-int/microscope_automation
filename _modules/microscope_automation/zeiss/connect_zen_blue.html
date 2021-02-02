@@ -40,8 +40,10 @@
 <span class="kn">import</span> <span class="nn">os.path</span>
 <span class="kn">import</span> <span class="nn">logging</span>
 <span class="kn">from</span> <span class="nn">serial.serialutil</span> <span class="kn">import</span> <span class="n">SerialException</span>
+<span class="kn">from</span> <span class="nn">..</span> <span class="kn">import</span> <span class="n">automation_messages_form_layout</span> <span class="k">as</span> <span class="n">message</span>
 <span class="kn">from</span> <span class="nn">..load_image_czi</span> <span class="kn">import</span> <span class="n">LoadImageCzi</span>
 <span class="kn">from</span> <span class="nn">..automation_exceptions</span> <span class="kn">import</span> <span class="p">(</span>
+    <span class="n">AutomationError</span><span class="p">,</span>
     <span class="n">HardwareError</span><span class="p">,</span>
     <span class="n">AutofocusError</span><span class="p">,</span>
     <span class="n">AutofocusObjectiveChangedError</span><span class="p">,</span>
@@ -1102,25 +1104,42 @@
             <span class="k">raise</span> <span class="n">HardwareError</span><span class="p">(</span><span class="s2">&quot;Error in get_objective_name.&quot;</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">position</span></div>
 
-<div class="viewcode-block" id="ConnectMicroscope.run_macro"><a class="viewcode-back" href="../../../microscope_automation.zeiss.html#microscope_automation.zeiss.connect_zen_blue.ConnectMicroscope.run_macro">[docs]</a>    <span class="k">def</span> <span class="nf">run_macro</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">macro_name</span><span class="p">,</span> <span class="n">macro_param</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<div class="viewcode-block" id="ConnectMicroscope.run_macro"><a class="viewcode-back" href="../../../microscope_automation.zeiss.html#microscope_automation.zeiss.connect_zen_blue.ConnectMicroscope.run_macro">[docs]</a>    <span class="k">def</span> <span class="nf">run_macro</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">macro_name</span><span class="p">,</span> <span class="n">macro_param</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">trials</span><span class="o">=</span><span class="mi">3</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Function to run a given Zen Blue Macro</span>
 
 <span class="sd">        Input:</span>
-<span class="sd">         macro_name: Name of the macro</span>
+<span class="sd">         macro_name: name of the macro</span>
+
+<span class="sd">         macro_param: parameters to pass into the macro</span>
+
+<span class="sd">         trials: maximum number of attempts to run the macro.</span>
+<span class="sd">         Gives user the option to fix any errors that arise.</span>
 
 <span class="sd">        Output:</span>
 <span class="sd">         none</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="k">try</span><span class="p">:</span>
-            <span class="k">if</span> <span class="n">macro_param</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">macro_param</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">result</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">Zen</span><span class="o">.</span><span class="n">Application</span><span class="o">.</span><span class="n">RunMacro</span><span class="p">(</span><span class="n">macro_name</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">result</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">Zen</span><span class="o">.</span><span class="n">Application</span><span class="o">.</span><span class="n">RunMacro_2</span><span class="p">(</span><span class="n">macro_name</span><span class="p">,</span> <span class="n">macro_param</span><span class="p">)</span>
 
-                <span class="bp">self</span><span class="o">.</span><span class="n">Zen</span><span class="o">.</span><span class="n">Application</span><span class="o">.</span><span class="n">RunMacro</span><span class="p">(</span><span class="n">macro_name</span><span class="p">)</span>
+        <span class="k">if</span> <span class="s2">&quot;ok&quot;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">result</span><span class="p">:</span>
+            <span class="c1"># if only one trial don&#39;t give the user a chance to recover</span>
+            <span class="k">if</span> <span class="n">trials</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">:</span>
+                <span class="c1"># prompt user to fix macro_name</span>
+                <span class="c1"># print(macro_name)</span>
+                <span class="n">new_macro_name</span> <span class="o">=</span> <span class="n">message</span><span class="o">.</span><span class="n">read_string</span><span class="p">(</span>
+                    <span class="s2">&quot;Invalid Macro Name: &quot;</span> <span class="o">+</span> <span class="n">macro_name</span><span class="p">,</span>
+                    <span class="n">label</span><span class="o">=</span><span class="s2">&quot;Modified macro name:&quot;</span><span class="p">,</span>
+                    <span class="n">default</span><span class="o">=</span><span class="n">macro_name</span><span class="p">,</span>
+                    <span class="n">return_code</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+                <span class="p">)</span>
+                <span class="c1"># if user aborted instead of entering a new name, raise exception</span>
+                <span class="k">if</span> <span class="n">new_macro_name</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+                    <span class="k">raise</span> <span class="n">AutomationError</span><span class="p">(</span><span class="n">result</span><span class="p">)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">run_macro</span><span class="p">(</span><span class="n">new_macro_name</span><span class="p">,</span> <span class="n">macro_param</span><span class="p">,</span> <span class="n">trials</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)</span>
             <span class="k">else</span><span class="p">:</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">Zen</span><span class="o">.</span><span class="n">Application</span><span class="o">.</span><span class="n">RunMacro_2</span><span class="p">(</span><span class="n">macro_name</span><span class="p">,</span> <span class="n">macro_param</span><span class="p">)</span>
-
-        <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
-            <span class="n">log</span><span class="p">(</span><span class="n">e</span><span class="p">)</span>
-            <span class="k">raise</span> <span class="n">e</span></div>
+                <span class="k">raise</span> <span class="n">AutomationError</span><span class="p">(</span><span class="n">result</span><span class="p">)</span></div>
 
     <span class="c1">###############################################################################</span>
     <span class="c1">#</span>

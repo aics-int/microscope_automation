@@ -673,15 +673,15 @@ otherwise will call sys.exit()</p>
 <dl class="py function">
 <dt id="microscope_automation.automation_messages_form_layout.stop_script">
 <code class="sig-prename descclassname">microscope_automation.automation_messages_form_layout.</code><code class="sig-name descname">stop_script</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">message_text</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">allow_continue</span><span class="o">=</span><span class="default_value">False</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/microscope_automation/automation_messages_form_layout.html#stop_script"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#microscope_automation.automation_messages_form_layout.stop_script" title="Permalink to this definition">¶</a></dt>
-<dd><p>Stop processing and ask to leave automation script.</p>
+<dd><p>Script will stop all Microscope action immediately and
+ask user to stop execution of script or to continue.</p>
 <dl>
 <dt>Input:</dt><dd><p>message_text: Message to user explaining why processing should be stopped.</p>
 <p>allow_continue: if True, allow user to continue. Default: False</p>
 </dd>
+<dt>Output:</dt><dd><p>none if user selects ‘Continue’, otherwise calls sys.exit()</p>
+</dd>
 </dl>
-<p>Script will stop all Microscope action immediately and ask user to
-stop execution of script or to continue.</p>
-<p>Returns if user selects ‘Continue’, otherwise calls sys.exit()</p>
 </dd></dl>
 
 <dl class="py function">
@@ -1740,21 +1740,6 @@ from module sample with well information</p>
 <dt id="microscope_automation.microscope_automation.main">
 <code class="sig-prename descclassname">microscope_automation.microscope_automation.</code><code class="sig-name descname">main</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/microscope_automation/microscope_automation.html#main"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#microscope_automation.microscope_automation.main" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
-
-<dl class="py function">
-<dt id="microscope_automation.microscope_automation.stop_script">
-<code class="sig-prename descclassname">microscope_automation.microscope_automation.</code><code class="sig-name descname">stop_script</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">message_text</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">allow_continue</span><span class="o">=</span><span class="default_value">False</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/microscope_automation/microscope_automation.html#stop_script"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#microscope_automation.microscope_automation.stop_script" title="Permalink to this definition">¶</a></dt>
-<dd><p>Stop processing and ask to leave automation script.</p>
-<dl>
-<dt>Input:</dt><dd><p>message_text: Message to user explaining why processing should be stopped.</p>
-<p>allow_continue: if True, allow user to continue. Default: False</p>
-</dd>
-<dt>Output:</dt><dd><p>none if user selects ‘Continue’, otherwise calls sys.exit()</p>
-</dd>
-</dl>
-<p>Script will stop all Microscope action immediately and
-ask user to stop execution of script or to continue.</p>
-</dd></dl>
 
 </div>
 <div class="section" id="module-microscope_automation.preferences">

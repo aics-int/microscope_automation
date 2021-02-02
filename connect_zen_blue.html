@@ -597,10 +597,13 @@ in form {‘magnification’: {‘Position’: position, ‘Name’: name}</p>
 
 <dl class="py function">
 <dt id="microscope_automation.zeiss.connect_zen_blue.ConnectMicroscope.run_macro">
-<code class="sig-prename descclassname">microscope_automation.zeiss.connect_zen_blue.ConnectMicroscope.</code><code class="sig-name descname">run_macro</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">self</span></em>, <em class="sig-param"><span class="n">macro_name</span></em>, <em class="sig-param"><span class="n">macro_param</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="headerlink" href="#microscope_automation.zeiss.connect_zen_blue.ConnectMicroscope.run_macro" title="Permalink to this definition">¶</a></dt>
+<code class="sig-prename descclassname">microscope_automation.zeiss.connect_zen_blue.ConnectMicroscope.</code><code class="sig-name descname">run_macro</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">self</span></em>, <em class="sig-param"><span class="n">macro_name</span></em>, <em class="sig-param"><span class="n">macro_param</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">trials</span><span class="o">=</span><span class="default_value">3</span></em><span class="sig-paren">)</span><a class="headerlink" href="#microscope_automation.zeiss.connect_zen_blue.ConnectMicroscope.run_macro" title="Permalink to this definition">¶</a></dt>
 <dd><p>Function to run a given Zen Blue Macro</p>
-<dl class="simple">
-<dt>Input:</dt><dd><p>macro_name: Name of the macro</p>
+<dl>
+<dt>Input:</dt><dd><p>macro_name: name of the macro</p>
+<p>macro_param: parameters to pass into the macro</p>
+<p>trials: maximum number of attempts to run the macro.
+Gives user the option to fix any errors that arise.</p>
 </dd>
 <dt>Output:</dt><dd><p>none</p>
 </dd>

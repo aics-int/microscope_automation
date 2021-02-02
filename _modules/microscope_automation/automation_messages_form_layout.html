@@ -70,10 +70,6 @@
 
 <span class="n">logger</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="s2">&quot;microscope_automation&quot;</span><span class="p">)</span>
 
-<span class="c1"># get function to abort program</span>
-<span class="c1"># from microscopeAutomation import stop_script</span>
-<span class="c1"># TODO: fix circular imports, current implementation has stop_script in this file</span>
-
 
 <div class="viewcode-block" id="read_string"><a class="viewcode-back" href="../../microscope_automation.html#microscope_automation.automation_messages_form_layout.read_string">[docs]</a><span class="k">def</span> <span class="nf">read_string</span><span class="p">(</span><span class="n">title</span><span class="p">,</span> <span class="n">label</span><span class="p">,</span> <span class="n">default</span><span class="p">,</span> <span class="n">return_code</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;Ask for user input and allows option to abort script.</span>
@@ -441,20 +437,18 @@
 
 
 <div class="viewcode-block" id="stop_script"><a class="viewcode-back" href="../../microscope_automation.html#microscope_automation.automation_messages_form_layout.stop_script">[docs]</a><span class="k">def</span> <span class="nf">stop_script</span><span class="p">(</span><span class="n">message_text</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">allow_continue</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;Stop processing and ask to leave automation script.</span>
+    <span class="sd">&quot;&quot;&quot;Script will stop all Microscope action immediately and</span>
+<span class="sd">    ask user to stop execution of script or to continue.</span>
 
 <span class="sd">    Input:</span>
 <span class="sd">     message_text: Message to user explaining why processing should be stopped.</span>
 
 <span class="sd">     allow_continue: if True, allow user to continue. Default: False</span>
 
-<span class="sd">    Script will stop all Microscope action immediately and ask user to</span>
-<span class="sd">    stop execution of script or to continue.</span>
-
-<span class="sd">    Returns if user selects &#39;Continue&#39;, otherwise calls sys.exit()</span>
+<span class="sd">    Output:</span>
+<span class="sd">     none if user selects &#39;Continue&#39;, otherwise calls sys.exit()</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-
-    <span class="c1">#     Microscope.stop_microscope()</span>
+    <span class="c1"># Microscope.stop_microscope()</span>
     <span class="k">if</span> <span class="n">allow_continue</span><span class="p">:</span>
         <span class="k">if</span> <span class="n">message_text</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
             <span class="n">message_text</span> <span class="o">=</span> <span class="s2">&quot;If you want to abort script press ok.</span><span class="se">\n</span><span class="s2">otherwise Continue&quot;</span>
@@ -467,9 +461,8 @@
 
     <span class="k">if</span> <span class="n">con</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
         <span class="c1"># logger.info(&#39;User aborted operation&#39;)</span>
-        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Operation Aborted&quot;</span><span class="p">)</span>
-        <span class="c1"># cleanup after image displaying</span>
-        <span class="n">os</span><span class="o">.</span><span class="n">_exit</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span></div>
+        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;User aborted operation&quot;</span><span class="p">)</span>
+        <span class="n">sys</span><span class="o">.</span><span class="n">exit</span><span class="p">()</span></div>
 </pre></div>
 
           </div>
