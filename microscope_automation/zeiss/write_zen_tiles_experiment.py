@@ -9,6 +9,7 @@ import xml.etree.ElementTree as ET
 import itertools
 import string
 import os
+from ..automation_messages_form_layout import read_string
 
 
 class PositionWriter(object):
@@ -139,7 +140,15 @@ class PositionWriter(object):
                 "Need positions to write, Did you call convert_to_stage_coords()?"
             )
         # Get empty file
-        tree = ET.parse(os.path.abspath(dummy))
+        try:
+            tree = ET.parse(os.path.abspath(dummy))
+        except FileNotFoundError:
+            dummy = read_string(
+                "Dummy positions file " + dummy + " could not be found.",
+                label="Enter a valid file path:",
+                default="",
+            )
+            tree = ET.parse(os.path.abspath(dummy))
         root = tree.getroot()
         for single_tiles in root.iter("SingleTileRegions"):
 
@@ -154,7 +163,7 @@ class PositionWriter(object):
                 ET.SubElement(tile, "IsUsedForAcquisition").text = "true"
 
         # Write Values
-        tree.write(os.path.join(self.path, name_czsh))
+        tree.write(to_write)
 
     def iter_all_strings(self):
         for size in itertools.count(1):
