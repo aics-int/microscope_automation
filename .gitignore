@@ -57,6 +57,7 @@ microscope_automation/tests/test_code
 microscope_automation/tests/data/2020_*
 microscope_automation/tests/data/2021_*
 microscope_automation/tests/data/new_folder
+microscope_automation/tests/data/1234/testZsd/positions_output_*
 
 # Translations
 *.mo

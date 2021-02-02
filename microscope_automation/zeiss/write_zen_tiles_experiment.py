@@ -9,7 +9,7 @@ import xml.etree.ElementTree as ET
 import itertools
 import string
 import os
-from ..automation_messages_form_layout import read_string
+from .. import automation_messages_form_layout as message
 
 
 class PositionWriter(object):
@@ -143,7 +143,7 @@ class PositionWriter(object):
         try:
             tree = ET.parse(os.path.abspath(dummy))
         except FileNotFoundError:
-            dummy = read_string(
+            dummy = message.read_string(
                 "Dummy positions file " + dummy + " could not be found.",
                 label="Enter a valid file path:",
                 default="",
@@ -151,7 +151,6 @@ class PositionWriter(object):
             tree = ET.parse(os.path.abspath(dummy))
         root = tree.getroot()
         for single_tiles in root.iter("SingleTileRegions"):
-
             for n in converted:
                 # Assign Values for writing
                 tile = ET.SubElement(single_tiles, "SingleTileRegion")
