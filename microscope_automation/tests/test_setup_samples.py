@@ -107,7 +107,7 @@ def test_add_barcode(name, layout_path, helpers):
 
 @patch(
     "microscope_automation.util.automation_messages_form_layout.read_string",
-    return_value=""
+    return_value="",
 )
 @patch(
     "microscope_automation.util.automation_messages_form_layout.pull_down_select_dialog",  # noqa

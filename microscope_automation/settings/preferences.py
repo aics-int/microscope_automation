@@ -87,7 +87,7 @@ class Preferences:
         """
         from microscope_automation.util.automation_messages_form_layout import (
             pull_down_select_dialog,
-            read_string
+            read_string,
         )
 
         if not isinstance(self.prefs, type(dict())):

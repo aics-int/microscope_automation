@@ -2262,7 +2262,7 @@ def test_acquire_images(
 
 @patch(
     "microscope_automation.util.automation_messages_form_layout.read_string",
-    return_value=""
+    return_value="",
 )
 @pytest.mark.skipif(skip_all_tests, reason="Exclude all tests")
 @pytest.mark.parametrize(
@@ -2394,7 +2394,8 @@ def test_compute_tile_positions_list(tile_params, expected, helpers):
 
 
 @patch(
-    "microscope_automation.util.automation_messages_form_layout.read_string", return_value=""
+    "microscope_automation.util.automation_messages_form_layout.read_string",
+    return_value="",
 )
 @pytest.mark.skipif(skip_all_tests, reason="Exclude all tests")
 @pytest.mark.parametrize(
@@ -4192,7 +4193,7 @@ def test_find_cells_cell_profiler(name, expected, helpers):
 @patch("microscope_automation.samples.find_cells.CellFinder.validate")
 @patch(
     "microscope_automation.util.automation_messages_form_layout.read_string",
-    return_value=""
+    return_value="",
 )
 @patch(
     "microscope_automation.util.automation_messages_form_layout.pull_down_select_dialog"

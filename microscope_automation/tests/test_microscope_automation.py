@@ -154,7 +154,8 @@ def test_read_barcode(
 
 
 @patch(
-    "microscope_automation.util.automation_messages_form_layout.read_string", return_value=""
+    "microscope_automation.util.automation_messages_form_layout.read_string",
+    return_value="",
 )
 @pytest.mark.skipif(skip_all_tests, reason="Exclude all tests")
 @pytest.mark.parametrize(
@@ -1080,7 +1081,8 @@ def test_scan_all_objects(
 
 
 @patch(
-    "microscope_automation.util.automation_messages_form_layout.read_string", return_value=""
+    "microscope_automation.util.automation_messages_form_layout.read_string",
+    return_value="",
 )
 @patch(
     "microscope_automation.orchestrator.write_zen_tiles_experiment.PositionWriter.write"
@@ -1464,7 +1466,8 @@ def test_scan_plate(
 
 
 @patch(
-    "microscope_automation.util.automation_messages_form_layout.read_string", return_value=""
+    "microscope_automation.util.automation_messages_form_layout.read_string",
+    return_value="",
 )
 @pytest.mark.skipif(skip_all_tests, reason="Exclude all tests")
 @pytest.mark.parametrize(
@@ -1665,7 +1668,8 @@ def test_save_segmented_image(
     "microscope_automation.orchestrator.microscope_automation.MicroscopeAutomation.scan_all_objects"  # noqa
 )
 @patch(
-    "microscope_automation.util.automation_messages_form_layout.read_string", return_value=""
+    "microscope_automation.util.automation_messages_form_layout.read_string",
+    return_value="",
 )
 @pytest.mark.skipif(skip_all_tests, reason="Exclude all tests")
 @pytest.mark.parametrize(
