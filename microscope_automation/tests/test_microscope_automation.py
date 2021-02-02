@@ -14,7 +14,7 @@ from collections import Mapping
 from microscope_automation.image_AICS import ImageAICS
 from microscope_automation.preferences import Preferences
 from microscope_automation.samples import samples
-from microscope_automation import microscope_automation
+from microscope_automation.automation_messages_form_layout import stop_script
 
 os.chdir(os.path.dirname(__file__))
 
@@ -36,9 +36,7 @@ DATE_STR = str(today.year) + "_" + str(today.month) + "_" + str(today.day)
 )
 def test_stop_script(mock_message, text, allow_continue, expected):
     try:
-        result = microscope_automation.stop_script(
-            message_text=text, allow_continue=allow_continue
-        )
+        result = stop_script(message_text=text, allow_continue=allow_continue)
     except SystemExit as err:
         result = type(err).__name__
     assert result == expected
@@ -155,6 +153,9 @@ def test_read_barcode(
     assert result == expected
 
 
+@patch(
+    "microscope_automation.automation_messages_form_layout.read_string", return_value=""
+)
 @pytest.mark.skipif(skip_all_tests, reason="Exclude all tests")
 @pytest.mark.parametrize(
     (
@@ -192,6 +193,7 @@ def test_read_barcode(
     ],
 )
 def test_calculate_all_wells_correction(
+    mock_read,
     prefs_path,
     pref_name,
     plate_holder_name,
@@ -226,9 +228,12 @@ def test_calculate_all_wells_correction(
     assert result == expected
 
 
-@patch("microscope_automation.samples.samples.PlateHolder.execute_experiment")
-@patch("microscope_automation.hardware.hardware_components.Safety.show_safe_areas")
+@patch(
+    "microscope_automation.automation_messages_form_layout.read_string", return_value=""
+)
 @patch("microscope_automation.automation_messages_form_layout.operate_message")
+@patch("microscope_automation.hardware.hardware_components.Safety.show_safe_areas")
+@patch("microscope_automation.samples.samples.PlateHolder.execute_experiment")
 @pytest.mark.skipif(skip_all_tests, reason="Exclude all tests")
 @pytest.mark.parametrize(
     ("prefs_path, pref_name, plate_holder_name, immersion_name, expected"),
@@ -253,6 +258,7 @@ def test_setup_immersion_system(
     mock_execute,
     mock_show_safe,
     mock_message,
+    mock_read,
     prefs_path,
     pref_name,
     plate_holder_name,
@@ -300,7 +306,7 @@ def test_setup_immersion_system(
         )
 
         assert (
-            prefs.get_pref("MaginificationImmersionSystem")
+            prefs.get_pref("MagnificationImmersionSystem")
             == plate_holder.immersion_delivery_system.magnification
         )
     except Exception as err:
@@ -888,6 +894,9 @@ def test_scan_single_ROI(
     "microscope_automation.zeiss.connect_zen_blue.ConnectMicroscope.close_experiment"
 )
 @patch("microscope_automation.hardware.hardware_components.Safety.show_safe_areas")
+@patch(
+    "microscope_automation.automation_messages_form_layout.read_string", return_value=""
+)
 @patch("microscope_automation.automation_messages_form_layout.wait_message")
 @patch("microscope_automation.automation_messages_form_layout.information_message")
 @patch("microscope_automation.automation_messages_form_layout.operate_message")
@@ -1001,6 +1010,7 @@ def test_scan_all_objects(
     mock_message,
     mock_info,
     mock_wait,
+    mock_read,
     mock_show_safe,
     mock_close,
     mock_save,
@@ -1067,6 +1077,9 @@ def test_scan_all_objects(
     assert result == expected
 
 
+@patch(
+    "microscope_automation.automation_messages_form_layout.read_string", return_value=""
+)
 @patch("microscope_automation.zeiss.write_zen_tiles_experiment.PositionWriter.write")
 @patch(
     "microscope_automation.zeiss.write_zen_tiles_experiment.PositionWriter.convert_to_stage_coords"  # noqa
@@ -1173,6 +1186,7 @@ def test_scan_all_objects(
 def test_segment_wells(
     mock_convert,
     mock_write,
+    mock_read,
     prefs_path,
     pref_name,
     experiment,
@@ -1445,6 +1459,9 @@ def test_scan_plate(
     assert result == expected
 
 
+@patch(
+    "microscope_automation.automation_messages_form_layout.read_string", return_value=""
+)
 @pytest.mark.skipif(skip_all_tests, reason="Exclude all tests")
 @pytest.mark.parametrize(
     ("prefs_path, pref_name, expected"),
@@ -1453,7 +1470,7 @@ def test_scan_plate(
         ("data/preferences_ZSD_2_test.yml", "RunMacro", None),
     ],
 )
-def test_run_macro(prefs_path, pref_name, expected, helpers):
+def test_run_macro(mock_read, prefs_path, pref_name, expected, helpers):
     (
         microscope,
         stage_id,
@@ -1643,6 +1660,9 @@ def test_save_segmented_image(
 @patch(
     "microscope_automation.microscope_automation.MicroscopeAutomation.scan_all_objects"
 )
+@patch(
+    "microscope_automation.automation_messages_form_layout.read_string", return_value=""
+)
 @pytest.mark.skipif(skip_all_tests, reason="Exclude all tests")
 @pytest.mark.parametrize(
     (
@@ -1775,6 +1795,7 @@ def test_save_segmented_image(
     ],
 )
 def test_scan_samples(
+    mock_read,
     mock_scan,
     mock_update,
     prefs_path,

@@ -103,7 +103,13 @@ def test_add_barcode(name, layout_path, helpers):
     assert barcode.get_name() == name
 
 
-@patch("microscope_automation.automation_messages_form_layout.pull_down_select_dialog")
+@patch(
+    "microscope_automation.automation_messages_form_layout.read_string", return_value=""
+)
+@patch(
+    "microscope_automation.automation_messages_form_layout.pull_down_select_dialog",
+    return_value="3500000938",
+)
 @pytest.mark.skipif(skip_all_tests, reason="Exclude all tests")
 @pytest.mark.parametrize(
     "prefs_path, pref_name, colony_file, expected",
@@ -130,6 +136,7 @@ def test_add_barcode(name, layout_path, helpers):
 )
 def test_get_colony_data(
     mock_pull_down,
+    mock_read,
     prefs_path,
     pref_name,
     colony_file,
@@ -137,7 +144,6 @@ def test_get_colony_data(
     helpers,
     get_colony_data_result,
 ):
-    mock_pull_down.return_value = "3500000938"
     prefs = Preferences(prefs_path).get_pref_as_meta(pref_name)
     try:
         colonies = setup.get_colony_data(prefs, colony_file)

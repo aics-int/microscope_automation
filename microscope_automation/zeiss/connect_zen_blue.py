@@ -7,8 +7,10 @@ import time
 import os.path
 import logging
 from serial.serialutil import SerialException
+from .. import automation_messages_form_layout as message
 from ..load_image_czi import LoadImageCzi
 from ..automation_exceptions import (
+    AutomationError,
     HardwareError,
     AutofocusError,
     AutofocusObjectiveChangedError,
@@ -1069,25 +1071,42 @@ class ConnectMicroscope:
             raise HardwareError("Error in get_objective_name.")
         return position
 
-    def run_macro(self, macro_name, macro_param=None):
+    def run_macro(self, macro_name, macro_param=None, trials=3):
         """Function to run a given Zen Blue Macro
 
         Input:
-         macro_name: Name of the macro
+         macro_name: name of the macro
+
+         macro_param: parameters to pass into the macro
+
+         trials: maximum number of attempts to run the macro.
+         Gives user the option to fix any errors that arise.
 
         Output:
          none
         """
-        try:
-            if macro_param is None:
+        if macro_param is None:
+            result = self.Zen.Application.RunMacro(macro_name)
+        else:
+            result = self.Zen.Application.RunMacro_2(macro_name, macro_param)
 
-                self.Zen.Application.RunMacro(macro_name)
+        if "ok" not in result:
+            # if only one trial don't give the user a chance to recover
+            if trials > 1:
+                # prompt user to fix macro_name
+                # print(macro_name)
+                new_macro_name = message.read_string(
+                    "Invalid Macro Name: " + macro_name,
+                    label="Modified macro name:",
+                    default=macro_name,
+                    return_code=True,
+                )
+                # if user aborted instead of entering a new name, raise exception
+                if new_macro_name == 0:
+                    raise AutomationError(result)
+                self.run_macro(new_macro_name, macro_param, trials - 1)
             else:
-                self.Zen.Application.RunMacro_2(macro_name, macro_param)
-
-        except Exception as e:
-            log(e)
-            raise e
+                raise AutomationError(result)
 
     ###############################################################################
     #

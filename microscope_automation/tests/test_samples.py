@@ -2260,6 +2260,9 @@ def test_acquire_images(
     assert final_result == expected
 
 
+@patch(
+    "microscope_automation.automation_messages_form_layout.read_string", return_value=""
+)
 @pytest.mark.skipif(skip_all_tests, reason="Exclude all tests")
 @pytest.mark.parametrize(
     ("sample_type, prefs_path, pref_name, tile_obj, expected"),
@@ -2327,7 +2330,7 @@ def test_acquire_images(
     ],
 )
 def test_get_tile_params(
-    sample_type, prefs_path, pref_name, tile_obj, expected, helpers
+    mock_read, sample_type, prefs_path, pref_name, tile_obj, expected, helpers
 ):
     if prefs_path:
         prefs = Preferences(pref_path=prefs_path)
@@ -2389,6 +2392,9 @@ def test_compute_tile_positions_list(tile_params, expected, helpers):
     assert result == expected
 
 
+@patch(
+    "microscope_automation.automation_messages_form_layout.read_string", return_value=""
+)
 @pytest.mark.skipif(skip_all_tests, reason="Exclude all tests")
 @pytest.mark.parametrize(
     ("sample_type, prefs_path, pref_name, tile_object, expected"),
@@ -2432,7 +2438,7 @@ def test_compute_tile_positions_list(tile_params, expected, helpers):
     ],
 )
 def test_get_tile_positions_list(
-    sample_type, prefs_path, pref_name, tile_object, expected, helpers
+    mock_read, sample_type, prefs_path, pref_name, tile_object, expected, helpers
 ):
     if prefs_path:
         prefs = Preferences(pref_path=prefs_path)
@@ -4183,6 +4189,9 @@ def test_find_cells_cell_profiler(name, expected, helpers):
 
 @patch("psutil.Process.kill")
 @patch("microscope_automation.samples.find_cells.CellFinder.validate")
+@patch(
+    "microscope_automation.automation_messages_form_layout.read_string", return_value=""
+)
 @patch("microscope_automation.automation_messages_form_layout.pull_down_select_dialog")
 @pytest.mark.skipif(skip_all_tests, reason="Exclude all tests")
 @pytest.mark.parametrize(
@@ -4201,6 +4210,7 @@ def test_find_cells_cell_profiler(name, expected, helpers):
 )
 def test_find_cells_distance_map(
     mock_pull_down,
+    mock_read,
     mock_validate,
     mock_kill,
     prefs_path,

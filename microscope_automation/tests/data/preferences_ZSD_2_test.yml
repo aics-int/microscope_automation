@@ -247,7 +247,7 @@ SetupImmersionSystem:
 # DeliverWaterSetupImmersionSystem: True                         # Deliver water to objective after setup
  xImmersionSystem: 5722                                          # x position of immersion water outlet in stage mum
  yImmersionSystem: 71200                                         # Y position of immersion water outlet in stage mum
-# MaginificationImmersionSystem: 100.0                           # Magnification of water immersion objective
+# MagnificationImmersionSystem: 100.0                           # Magnification of water immersion objective
  CameraDeliverSystem: Camera1 (back)
 
 # Image center of selected wells
