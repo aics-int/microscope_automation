@@ -42,6 +42,7 @@
 <span class="kn">import</span> <span class="nn">itertools</span>
 <span class="kn">import</span> <span class="nn">string</span>
 <span class="kn">import</span> <span class="nn">os</span>
+<span class="kn">from</span> <span class="nn">..</span> <span class="kn">import</span> <span class="n">automation_messages_form_layout</span> <span class="k">as</span> <span class="n">message</span>
 
 
 <div class="viewcode-block" id="PositionWriter"><a class="viewcode-back" href="../../../write_zen_tiles_experiment.html#microscope_automation.zeiss.write_zen_tiles_experiment.PositionWriter">[docs]</a><span class="k">class</span> <span class="nc">PositionWriter</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
@@ -93,7 +94,9 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">zsd</span> <span class="o">=</span> <span class="n">zsd</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">gen</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">iter_all_strings</span><span class="p">()</span>
 
-<div class="viewcode-block" id="PositionWriter.convert_to_stage_coords"><a class="viewcode-back" href="../../../write_zen_tiles_experiment.html#microscope_automation.zeiss.write_zen_tiles_experiment.PositionWriter.convert_to_stage_coords">[docs]</a>    <span class="k">def</span> <span class="nf">convert_to_stage_coords</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">offset_x</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">offset_y</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">positions_list</span><span class="o">=</span><span class="p">[]):</span>
+<div class="viewcode-block" id="PositionWriter.convert_to_stage_coords"><a class="viewcode-back" href="../../../write_zen_tiles_experiment.html#microscope_automation.zeiss.write_zen_tiles_experiment.PositionWriter.convert_to_stage_coords">[docs]</a>    <span class="k">def</span> <span class="nf">convert_to_stage_coords</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span> <span class="n">offset_x</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">offset_y</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">positions_list</span><span class="o">=</span><span class="p">[],</span> <span class="n">header</span><span class="o">=</span><span class="kc">False</span>
+    <span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Converts the distance of points from center of image to x-y coordinates in</span>
 <span class="sd">        stage with 10 to 100x objective offsets.</span>
 
@@ -103,6 +106,9 @@
 <span class="sd">         offset_y: y_offset to accoutn for in stage coordinate conversion</span>
 
 <span class="sd">         positions_list: center of well positions to convert to stage coordinates</span>
+
+<span class="sd">         header: boolean of whether positions_list includes a header. Skips the</span>
+<span class="sd">         first row if True. Default: False</span>
 
 <span class="sd">        Output:</span>
 <span class="sd">         converted_list: stage coordinates of positions converted</span>
@@ -116,7 +122,8 @@
 
         <span class="n">converted_list</span> <span class="o">=</span> <span class="p">[]</span>
         <span class="n">obj_offset</span> <span class="o">=</span> <span class="p">[</span><span class="n">offset_x</span><span class="p">,</span> <span class="n">offset_y</span><span class="p">]</span>
-        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">positions_list</span><span class="p">)):</span>
+        <span class="n">start</span> <span class="o">=</span> <span class="mi">1</span> <span class="k">if</span> <span class="n">header</span> <span class="k">else</span> <span class="mi">0</span>
+        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">start</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">positions_list</span><span class="p">)):</span>
             <span class="c1"># positions_list[i][0] is name of position from automation software</span>
             <span class="n">this_position</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">()</span>
             <span class="n">this_position</span><span class="p">[</span><span class="s2">&quot;name&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">positions_list</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span>
@@ -162,10 +169,17 @@
                 <span class="s2">&quot;Need positions to write, Did you call convert_to_stage_coords()?&quot;</span>
             <span class="p">)</span>
         <span class="c1"># Get empty file</span>
-        <span class="n">tree</span> <span class="o">=</span> <span class="n">ET</span><span class="o">.</span><span class="n">parse</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">abspath</span><span class="p">(</span><span class="n">dummy</span><span class="p">))</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">tree</span> <span class="o">=</span> <span class="n">ET</span><span class="o">.</span><span class="n">parse</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">abspath</span><span class="p">(</span><span class="n">dummy</span><span class="p">))</span>
+        <span class="k">except</span> <span class="ne">FileNotFoundError</span><span class="p">:</span>
+            <span class="n">dummy</span> <span class="o">=</span> <span class="n">message</span><span class="o">.</span><span class="n">read_string</span><span class="p">(</span>
+                <span class="s2">&quot;Dummy positions file &quot;</span> <span class="o">+</span> <span class="n">dummy</span> <span class="o">+</span> <span class="s2">&quot; could not be found.&quot;</span><span class="p">,</span>
+                <span class="n">label</span><span class="o">=</span><span class="s2">&quot;Enter a valid file path:&quot;</span><span class="p">,</span>
+                <span class="n">default</span><span class="o">=</span><span class="s2">&quot;&quot;</span><span class="p">,</span>
+            <span class="p">)</span>
+            <span class="n">tree</span> <span class="o">=</span> <span class="n">ET</span><span class="o">.</span><span class="n">parse</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">abspath</span><span class="p">(</span><span class="n">dummy</span><span class="p">))</span>
         <span class="n">root</span> <span class="o">=</span> <span class="n">tree</span><span class="o">.</span><span class="n">getroot</span><span class="p">()</span>
         <span class="k">for</span> <span class="n">single_tiles</span> <span class="ow">in</span> <span class="n">root</span><span class="o">.</span><span class="n">iter</span><span class="p">(</span><span class="s2">&quot;SingleTileRegions&quot;</span><span class="p">):</span>
-
             <span class="k">for</span> <span class="n">n</span> <span class="ow">in</span> <span class="n">converted</span><span class="p">:</span>
                 <span class="c1"># Assign Values for writing</span>
                 <span class="n">tile</span> <span class="o">=</span> <span class="n">ET</span><span class="o">.</span><span class="n">SubElement</span><span class="p">(</span><span class="n">single_tiles</span><span class="p">,</span> <span class="s2">&quot;SingleTileRegion&quot;</span><span class="p">)</span>
@@ -177,7 +191,7 @@
                 <span class="n">ET</span><span class="o">.</span><span class="n">SubElement</span><span class="p">(</span><span class="n">tile</span><span class="p">,</span> <span class="s2">&quot;IsUsedForAcquisition&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">text</span> <span class="o">=</span> <span class="s2">&quot;true&quot;</span>
 
         <span class="c1"># Write Values</span>
-        <span class="n">tree</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">path</span><span class="p">,</span> <span class="n">name_czsh</span><span class="p">))</span></div>
+        <span class="n">tree</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">to_write</span><span class="p">)</span></div>
 
 <div class="viewcode-block" id="PositionWriter.iter_all_strings"><a class="viewcode-back" href="../../../microscope_automation.zeiss.html#microscope_automation.zeiss.write_zen_tiles_experiment.PositionWriter.iter_all_strings">[docs]</a>    <span class="k">def</span> <span class="nf">iter_all_strings</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">for</span> <span class="n">size</span> <span class="ow">in</span> <span class="n">itertools</span><span class="o">.</span><span class="n">count</span><span class="p">(</span><span class="mi">1</span><span class="p">):</span>
@@ -209,6 +223,9 @@
                 <span class="k">if</span> <span class="n">filename</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s2">&quot;positions_output_&quot;</span><span class="p">)</span>
             <span class="p">]</span>
 
+        <span class="c1"># if there&#39;s no existing output files start with the leter &#39;a&#39;</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">prefixed</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="k">return</span> <span class="s2">&quot;a&quot;</span>
         <span class="c1"># Split extension from name of file</span>
         <span class="n">split</span> <span class="o">=</span> <span class="n">prefixed</span><span class="p">[</span><span class="nb">len</span><span class="p">(</span><span class="n">prefixed</span><span class="p">)</span> <span class="o">-</span> <span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;.&quot;</span><span class="p">)</span>
         <span class="c1"># split filename to get letter</span>
