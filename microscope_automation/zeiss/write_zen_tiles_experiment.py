@@ -62,11 +62,7 @@ class PositionWriter(object):
         self.gen = self.iter_all_strings()
 
     def convert_to_stage_coords(
-        self,
-        offset_x=0,
-        offset_y=0,
-        positions_list=[],
-        header=False
+        self, offset_x=0, offset_y=0, positions_list=[], header=False
     ):
         """Converts the distance of points from center of image to x-y coordinates in
         stage with 10 to 100x objective offsets.
@@ -196,7 +192,7 @@ class PositionWriter(object):
 
         # if there's no existing output files start with the leter 'a'
         if len(prefixed) == 0:
-            return 'a'
+            return "a"
         # Split extension from name of file
         split = prefixed[len(prefixed) - 1].split(".")
         # split filename to get letter

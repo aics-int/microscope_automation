@@ -7,7 +7,9 @@ os.chdir(os.path.dirname(__file__))
 
 
 def test_init():
-    testclass = write_zen.PositionWriter(zsd="testZsd", plate=1234, production_path="data")
+    testclass = write_zen.PositionWriter(
+        zsd="testZsd", plate=1234, production_path="data"
+    )
     # Check Type conversion
     assert isinstance(testclass.plate, str)
     # Check data fed into next step
@@ -92,7 +94,7 @@ def test_convert_to_stage_coords(sample_coords, header):
                 ["name2", 200.5, 200.5, 200.5],
             ],
             os.path.join("data", "1234", "testZsd", "positions_output_a.czsh"),
-            "ParseError"
+            "ParseError",
         ),
         (
             [
@@ -102,7 +104,7 @@ def test_convert_to_stage_coords(sample_coords, header):
                 ["name2", 200.5, 200.5, 200.5],
             ],
             "invalid.czsh",
-            "FileNotFoundError"
+            "FileNotFoundError",
         ),
         (
             [
@@ -126,7 +128,7 @@ def test_convert_to_stage_coords(sample_coords, header):
                 },
             ],
             os.path.join("data", "1234", "testZsd", "dummy_tile_positions.czsh"),
-            None
+            None,
         ),
     ],
 )
@@ -159,7 +161,6 @@ def test_get_next_pos_name(test_file_names, expected):
         zsd="testZsd", plate=1234, production_path="data"
     )
     assert (
-        testclass.get_next_pos_name(
-            test_mode=True, test_file_names=test_file_names
-        ) == expected
+        testclass.get_next_pos_name(test_mode=True, test_file_names=test_file_names)
+        == expected
     )
