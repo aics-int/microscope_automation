@@ -8,9 +8,9 @@ Created on October 5, 2020
 import pytest
 import numpy as np
 from mock import patch
-from microscope_automation.image_AICS import ImageAICS
-from microscope_automation.preferences import Preferences
-from microscope_automation.meta_data_file import MetaDataFile
+from microscope_automation.util.image_AICS import ImageAICS
+from microscope_automation.settings.preferences import Preferences
+from microscope_automation.settings.meta_data_file import MetaDataFile
 from microscope_automation.samples import samples
 import os
 
@@ -824,7 +824,7 @@ def test_microscope_is_ready(
 
 
 @patch(
-    "microscope_automation.zeiss.hardware_control_zeiss.SpinningDiskZeiss.recover_hardware"  # noqa
+    "microscope_automation.hardware.hardware_control_zeiss.SpinningDiskZeiss.recover_hardware"  # noqa
 )
 @patch("microscope_automation.hardware.hardware_components.Safety.show_safe_areas")
 @pytest.mark.skipif(skip_all_tests, reason="Exclude all tests")
@@ -913,7 +913,7 @@ def test_move_to_abs_position(
 
 
 @patch(
-    "microscope_automation.zeiss.hardware_control_zeiss.SpinningDiskZeiss.recover_hardware"  # noqa
+    "microscope_automation.hardware.hardware_control_zeiss.SpinningDiskZeiss.recover_hardware"  # noqa
 )
 @patch("microscope_automation.hardware.hardware_components.Safety.show_safe_areas")
 @pytest.mark.skipif(skip_all_tests, reason="Exclude all tests")
@@ -964,7 +964,7 @@ def test_move_to_zero(
 
 
 @patch(
-    "microscope_automation.zeiss.hardware_control_zeiss.SpinningDiskZeiss.recover_hardware"  # noqa
+    "microscope_automation.hardware.hardware_control_zeiss.SpinningDiskZeiss.recover_hardware"  # noqa
 )
 @patch("microscope_automation.hardware.hardware_components.Safety.show_safe_areas")
 @pytest.mark.skipif(skip_all_tests, reason="Exclude all tests")
@@ -1048,7 +1048,7 @@ def test_move_to_safe(
 
 
 @patch(
-    "microscope_automation.zeiss.hardware_control_zeiss.SpinningDiskZeiss.recover_hardware"  # noqa
+    "microscope_automation.hardware.hardware_control_zeiss.SpinningDiskZeiss.recover_hardware"  # noqa
 )
 @patch("microscope_automation.hardware.hardware_components.Safety.show_safe_areas")
 @pytest.mark.skipif(skip_all_tests, reason="Exclude all tests")
@@ -1100,7 +1100,7 @@ def test_move_to_xyz(
 
 
 @patch(
-    "microscope_automation.zeiss.hardware_control_zeiss.SpinningDiskZeiss.recover_hardware"  # noqa
+    "microscope_automation.hardware.hardware_control_zeiss.SpinningDiskZeiss.recover_hardware"  # noqa
 )
 @patch("microscope_automation.hardware.hardware_components.Safety.show_safe_areas")
 @pytest.mark.skipif(skip_all_tests, reason="Exclude all tests")
@@ -1158,7 +1158,7 @@ def test_move_to_r_phi(
 
 
 @patch(
-    "microscope_automation.zeiss.hardware_control_zeiss.SpinningDiskZeiss.recover_hardware"  # noqa
+    "microscope_automation.hardware.hardware_control_zeiss.SpinningDiskZeiss.recover_hardware"  # noqa
 )
 @patch("microscope_automation.hardware.hardware_components.Safety.show_safe_areas")
 @pytest.mark.skipif(skip_all_tests, reason="Exclude all tests")
@@ -1607,7 +1607,7 @@ def test_get_set_autofocus(container_type, prefs_path, flag, expected, helpers):
 
 
 @patch(
-    "microscope_automation.zeiss.hardware_control_zeiss.SpinningDiskZeiss.setup_microscope_for_initialization"  # noqa
+    "microscope_automation.hardware.hardware_control_zeiss.SpinningDiskZeiss.setup_microscope_for_initialization"  # noqa
 )
 @pytest.mark.skipif(skip_all_tests, reason="Exclude all tests")
 @pytest.mark.parametrize(
@@ -1901,9 +1901,9 @@ def test_live_mode_start_stop(
     assert result == expected
 
 
-@patch("microscope_automation.zeiss.connect_zen_blue.ConnectMicroscope.save_image")
+@patch("microscope_automation.connectors.connect_zen_blue.ConnectMicroscope.save_image")
 @patch(
-    "microscope_automation.zeiss.connect_zen_blue.ConnectMicroscope.close_experiment"
+    "microscope_automation.connectors.connect_zen_blue.ConnectMicroscope.close_experiment"  # noqa
 )
 @pytest.mark.skipif(skip_all_tests, reason="Exclude all tests")
 @pytest.mark.parametrize(
@@ -2101,9 +2101,9 @@ def test_execute_experiment(
     "microscope_automation.hardware.hardware_control.BaseMicroscope.recover_hardware"
 )
 @patch("microscope_automation.hardware.hardware_components.Safety.show_safe_areas")
-@patch("microscope_automation.zeiss.connect_zen_blue.ConnectMicroscope.save_image")
+@patch("microscope_automation.connectors.connect_zen_blue.ConnectMicroscope.save_image")
 @patch(
-    "microscope_automation.zeiss.connect_zen_blue.ConnectMicroscope.close_experiment"
+    "microscope_automation.connectors.connect_zen_blue.ConnectMicroscope.close_experiment"  # noqa
 )
 @pytest.mark.skipif(skip_all_tests, reason="Exclude all tests")
 @pytest.mark.parametrize(
@@ -2261,7 +2261,8 @@ def test_acquire_images(
 
 
 @patch(
-    "microscope_automation.automation_messages_form_layout.read_string", return_value=""
+    "microscope_automation.util.automation_messages_form_layout.read_string",
+    return_value="",
 )
 @pytest.mark.skipif(skip_all_tests, reason="Exclude all tests")
 @pytest.mark.parametrize(
@@ -2393,7 +2394,8 @@ def test_compute_tile_positions_list(tile_params, expected, helpers):
 
 
 @patch(
-    "microscope_automation.automation_messages_form_layout.read_string", return_value=""
+    "microscope_automation.util.automation_messages_form_layout.read_string",
+    return_value="",
 )
 @pytest.mark.skipif(skip_all_tests, reason="Exclude all tests")
 @pytest.mark.parametrize(
@@ -2456,7 +2458,7 @@ def test_get_tile_positions_list(
     assert result == expected
 
 
-@patch("microscope_automation.zeiss.connect_zen_blue.ConnectMicroscope.load_image")
+@patch("microscope_automation.connectors.connect_zen_blue.ConnectMicroscope.load_image")
 @pytest.mark.skipif(skip_all_tests, reason="Exclude all tests")
 @pytest.mark.parametrize(
     ("container_type, prefs_path, image, get_meta, expected"),
@@ -2499,7 +2501,7 @@ def test_load_image(
     assert result == expected
 
 
-@patch("microscope_automation.zeiss.connect_zen_blue.ConnectMicroscope.load_image")
+@patch("microscope_automation.connectors.connect_zen_blue.ConnectMicroscope.load_image")
 @pytest.mark.skipif(skip_all_tests, reason="Exclude all tests")
 @pytest.mark.parametrize(
     ("key, load, get_meta, expected"),
@@ -2524,7 +2526,7 @@ def test_get_images(
     assert result == expected
 
 
-@patch("microscope_automation.zeiss.connect_zen_blue.ConnectMicroscope.load_image")
+@patch("microscope_automation.connectors.connect_zen_blue.ConnectMicroscope.load_image")
 @pytest.mark.skipif(skip_all_tests, reason="Exclude all tests")
 @pytest.mark.parametrize(
     ("container_type, uncorrected_image, prefs_path, pref_name, expected"),
@@ -2541,14 +2543,14 @@ def test_get_images(
             "test_image_all_black",
             "data/preferences_ZSD_test.yml",
             "ScanPlate",
-            "<class 'microscope_automation.image_AICS.ImageAICS'>",
+            "<class 'microscope_automation.util.image_AICS.ImageAICS'>",
         ),
         (
             "plate_holder",
             "test_image_all_white",
             "data/preferences_ZSD_test.yml",
             "ScanPlate",
-            "<class 'microscope_automation.image_AICS.ImageAICS'>",
+            "<class 'microscope_automation.util.image_AICS.ImageAICS'>",
         ),
     ],
 )
@@ -2612,7 +2614,7 @@ def test_background_correction(
             ["test_image_all_black", "test_image_all_white"],
             "data/preferences_ZSD_test.yml",
             "ScanPlate",
-            ["<class 'microscope_automation.image_AICS.ImageAICS'>", [5], [5]],
+            ["<class 'microscope_automation.util.image_AICS.ImageAICS'>", [5], [5]],
         ),
     ],
 )
@@ -3043,10 +3045,10 @@ def test_trigger_pump(prefs_path, set_pump_id, func_pump_id, expected, helpers):
     assert result == expected
 
 
-@patch("microscope_automation.automation_messages_form_layout.operate_message")
-@patch("microscope_automation.automation_messages_form_layout.error_message")
+@patch("microscope_automation.util.automation_messages_form_layout.operate_message")
+@patch("microscope_automation.util.automation_messages_form_layout.error_message")
 @patch(
-    "microscope_automation.zeiss.hardware_control_zeiss.SpinningDiskZeiss.recover_hardware"  # noqa
+    "microscope_automation.hardware.hardware_control_zeiss.SpinningDiskZeiss.recover_hardware"  # noqa
 )
 @patch("microscope_automation.hardware.hardware_components.Safety.show_safe_areas")
 @pytest.mark.skipif(skip_all_tests, reason="Exclude all tests")
@@ -3732,14 +3734,14 @@ def test_add_barcode(barcode_name0, barcode_name1, expected_keys, helpers):
 
 
 @patch(
-    "microscope_automation.zeiss.hardware_control_zeiss.SpinningDiskZeiss.recover_hardware"  # noqa
+    "microscope_automation.hardware.hardware_control_zeiss.SpinningDiskZeiss.recover_hardware"  # noqa
 )
 @patch("microscope_automation.hardware.hardware_components.Safety.show_safe_areas")
 @patch(
-    "microscope_automation.zeiss.connect_zen_blue.ConnectMicroscope.close_experiment"
+    "microscope_automation.connectors.connect_zen_blue.ConnectMicroscope.close_experiment"  # noqa
 )
-@patch("microscope_automation.zeiss.connect_zen_blue.ConnectMicroscope.load_image")
-@patch("microscope_automation.zeiss.connect_zen_blue.ConnectMicroscope.save_image")
+@patch("microscope_automation.connectors.connect_zen_blue.ConnectMicroscope.load_image")
+@patch("microscope_automation.connectors.connect_zen_blue.ConnectMicroscope.save_image")
 @pytest.mark.skipif(skip_all_tests, reason="Exclude all tests")
 @pytest.mark.parametrize(
     ("container_type, prefs_path, experiment, well_diameter, camera_id, expected"),
@@ -3855,9 +3857,9 @@ def test_find_well_center_fine(
 ###############################################################################
 
 
-@patch("microscope_automation.zeiss.connect_zen_blue.ConnectMicroscope.save_image")
+@patch("microscope_automation.connectors.connect_zen_blue.ConnectMicroscope.save_image")
 @patch(
-    "microscope_automation.zeiss.connect_zen_blue.ConnectMicroscope.close_experiment"
+    "microscope_automation.connectors.connect_zen_blue.ConnectMicroscope.close_experiment"  # noqa
 )
 @pytest.mark.skipif(skip_all_tests, reason="Exclude all tests")
 @pytest.mark.parametrize(
@@ -3935,10 +3937,10 @@ def test_read_barcode_data_acquisition(
     assert result == expected
 
 
-@patch("microscope_automation.zeiss.connect_zen_blue.ConnectMicroscope.load_image")
-@patch("microscope_automation.zeiss.connect_zen_blue.ConnectMicroscope.save_image")
+@patch("microscope_automation.connectors.connect_zen_blue.ConnectMicroscope.load_image")
+@patch("microscope_automation.connectors.connect_zen_blue.ConnectMicroscope.save_image")
 @patch(
-    "microscope_automation.zeiss.connect_zen_blue.ConnectMicroscope.close_experiment"
+    "microscope_automation.connectors.connect_zen_blue.ConnectMicroscope.close_experiment"  # noqa
 )
 @pytest.mark.skipif(skip_all_tests, reason="Exclude all tests")
 @pytest.mark.parametrize(
@@ -4190,9 +4192,12 @@ def test_find_cells_cell_profiler(name, expected, helpers):
 @patch("psutil.Process.kill")
 @patch("microscope_automation.samples.find_cells.CellFinder.validate")
 @patch(
-    "microscope_automation.automation_messages_form_layout.read_string", return_value=""
+    "microscope_automation.util.automation_messages_form_layout.read_string",
+    return_value="",
 )
-@patch("microscope_automation.automation_messages_form_layout.pull_down_select_dialog")
+@patch(
+    "microscope_automation.util.automation_messages_form_layout.pull_down_select_dialog"
+)
 @pytest.mark.skipif(skip_all_tests, reason="Exclude all tests")
 @pytest.mark.parametrize(
     ("prefs_path, pref_name, image_name, expected"),

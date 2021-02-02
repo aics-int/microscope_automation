@@ -1,7 +1,7 @@
 import pytest
 import pathlib
 import os
-from microscope_automation.zeiss.zen_experiment_info import ZenExperiment
+from microscope_automation.settings.zen_experiment_info import ZenExperiment
 
 os.chdir(os.path.dirname(__file__))
 

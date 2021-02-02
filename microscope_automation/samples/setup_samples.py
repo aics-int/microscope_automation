@@ -12,10 +12,13 @@ import numpy
 import math
 
 # import external modules written for MicroscopeAutomation
-from ..preferences import Preferences
-from .. import automation_messages_form_layout as message
-from ..get_path import get_hardware_settings_path, get_colony_file_path
-from . import samples
+from microscope_automation.settings.preferences import Preferences
+from microscope_automation.util import automation_messages_form_layout as message
+from microscope_automation.util.get_path import (
+    get_hardware_settings_path,
+    get_colony_file_path,
+)
+from microscope_automation.samples import samples
 
 # create logger
 import logging

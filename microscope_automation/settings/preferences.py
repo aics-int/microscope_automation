@@ -85,8 +85,10 @@ class Preferences:
         Output:
          pref: value for key 'name' in preferences
         """
-        from .automation_messages_form_layout import pull_down_select_dialog
-        from .automation_messages_form_layout import read_string
+        from microscope_automation.util.automation_messages_form_layout import (
+            pull_down_select_dialog,
+            read_string,
+        )
 
         if not isinstance(self.prefs, type(dict())):
             print("\n")

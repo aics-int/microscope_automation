@@ -13,5 +13,5 @@ methods that will read and return values for different configuration files.
 class Preferences
 =================
 
-.. autoclass:: microscope_automation.preferences.Preferences
+.. autoclass:: microscope_automation.settings.preferences.Preferences
     :members:

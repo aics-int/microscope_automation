@@ -7,7 +7,7 @@ Created on May 20, 2020
 
 import pytest
 from sys import platform
-import microscope_automation.preferences as preferences
+import microscope_automation.settings.preferences as preferences
 from microscope_automation.hardware.setup_microscope import setup_microscope
 import os
 

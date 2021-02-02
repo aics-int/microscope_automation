@@ -8,9 +8,9 @@ Created on Jan 11, 2021
 import os
 import pytest
 import logging
-from microscope_automation.get_path import get_log_file_path
-from microscope_automation.preferences import Preferences
-from microscope_automation.error_handling import setup_logger
+from microscope_automation.util.get_path import get_log_file_path
+from microscope_automation.settings.preferences import Preferences
+from microscope_automation.util.error_handling import setup_logger
 
 os.chdir(os.path.dirname(__file__))
 

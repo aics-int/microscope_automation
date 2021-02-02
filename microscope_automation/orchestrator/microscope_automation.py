@@ -26,12 +26,12 @@ from collections import OrderedDict
 from datetime import date
 from matplotlib.pyplot import imsave
 
-from microscope_automation import preferences
-from microscope_automation import automation_messages_form_layout as message
+from microscope_automation.settings import preferences
+from microscope_automation.util import automation_messages_form_layout as message
 from microscope_automation.hardware import setup_microscope
-from microscope_automation import error_handling
+from microscope_automation.util import error_handling
 from microscope_automation.samples.setup_samples import setup_plate
-from microscope_automation.get_path import (
+from microscope_automation.util.get_path import (
     set_up_subfolders,
     get_daily_folder,
     get_recovery_settings_path,
@@ -46,19 +46,19 @@ from microscope_automation.get_path import (
 )
 from microscope_automation.samples import samples
 from microscope_automation.hardware import hardware_components
-from microscope_automation.meta_data_file import MetaDataFile
-from microscope_automation.automation_exceptions import (
+from microscope_automation.settings.meta_data_file import MetaDataFile
+from microscope_automation.util.automation_exceptions import (
     StopCollectingError,
     HardwareError,
     AutomationError,
 )
-from microscope_automation.software_state import State
-from microscope_automation.find_positions import (
+from microscope_automation.util.software_state import State
+from microscope_automation.orchestrator.find_positions import (
     create_output_objects_from_parent_object,
     convert_location_list,
 )
-from microscope_automation.zeiss.write_zen_tiles_experiment import PositionWriter
-from microscope_automation.image_AICS import ImageAICS
+from microscope_automation.orchestrator.write_zen_tiles_experiment import PositionWriter
+from microscope_automation.util.image_AICS import ImageAICS
 from microscope_automation.samples.well_segmentation_refined import WellSegmentation
 
 import pickle

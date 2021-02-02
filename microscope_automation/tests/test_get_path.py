@@ -11,8 +11,8 @@ import time
 import re
 import datetime
 from pathlib import Path
-from microscope_automation.preferences import Preferences
-from microscope_automation import get_path
+from microscope_automation.settings.preferences import Preferences
+from microscope_automation.util import get_path
 
 os.chdir(os.path.dirname(__file__))
 

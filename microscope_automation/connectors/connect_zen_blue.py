@@ -7,9 +7,9 @@ import time
 import os.path
 import logging
 from serial.serialutil import SerialException
-from .. import automation_messages_form_layout as message
-from ..load_image_czi import LoadImageCzi
-from ..automation_exceptions import (
+from microscope_automation.util import automation_messages_form_layout as message
+from microscope_automation.util.load_image_czi import LoadImageCzi
+from microscope_automation.util.automation_exceptions import (
     AutomationError,
     HardwareError,
     AutofocusError,
@@ -20,12 +20,12 @@ from ..automation_exceptions import (
     ExperimentError,
     ExperimentNotExistError,
 )
-from .zen_experiment_info import ZenExperiment
+from microscope_automation.settings.zen_experiment_info import ZenExperiment
 
 try:
-    from ..hardware.RS232 import Braintree
+    from microscope_automation.hardware.RS232 import Braintree
 except ImportError:
-    from ..hardware.RS232_dummy import Braintree
+    from microscope_automation.hardware.RS232_dummy import Braintree
 
 # Create Logger
 log = logging.getLogger(__name__)
@@ -64,7 +64,9 @@ class ConnectMicroscope:
         # setup logging
         # Import the ZEN OAD Scripting into Python
         if not connect_dll:
-            from . import connect_zen_blue_dummy as microscopeConnection
+            from microscope_automation.connectors import (
+                connect_zen_blue_dummy as microscopeConnection,
+            )  # noqa
 
             print("Running in Test Mode - Connecting to Simulated hardware")
         else:
@@ -73,8 +75,10 @@ class ConnectMicroscope:
 
                 print("Connected to microscope hardware - Zen Blue")
             except ImportError:
-                from . import connect_zen_blue_dummy as microscopeConnection
-                from ..hardware.RS232_dummy import Braintree  # noqa
+                from microscope_automation.connectors import (
+                    connect_zen_blue_dummy as microscopeConnection,
+                )  # noqa
+                from microscope_automation.hardware.RS232_dummy import Braintree  # noqa
 
                 print(
                     "Failed to connect to Zen Blue Production SW,"
@@ -1140,7 +1144,7 @@ class ConnectMicroscope:
             # stop pump and close connection
             pump.close_connection()
         except SerialException:
-            from ..hardware import RS232_dummy
+            from microscope_automation.hardware import RS232_dummy
 
             pump = RS232_dummy.Braintree(port=port, baudrate=baudrate)
             pump.start_pump()
@@ -1406,7 +1410,7 @@ def test_connect_zen_blue(
     experiment = "Setup_10x"
     experiment_multi_pos = "MultiPos_10x"
     print("Start test suite")
-    from ..image_AICS import ImageAICS
+    from microscope_automation.util.image_AICS import ImageAICS
 
     # test class ConnectMicroscope
     # get instance of type ConnectMicroscope

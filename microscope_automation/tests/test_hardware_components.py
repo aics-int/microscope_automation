@@ -10,7 +10,7 @@ import numpy
 from lxml import etree
 from mock import patch
 from matplotlib.path import Path as mpl_path
-from microscope_automation.zeiss.zen_experiment_info import ZenExperiment
+from microscope_automation.settings.zen_experiment_info import ZenExperiment
 import os
 
 os.chdir(os.path.dirname(__file__))
@@ -312,12 +312,12 @@ def test_get_focus_settings(name, path, prefs_path, expected, helpers):
     [
         (
             "ZEN Blue Dummy",
-            "microscope_automation.zeiss.connect_zen_blue.ConnectMicroscope",
-        ),  # noqa
+            "microscope_automation.connectors.connect_zen_blue.ConnectMicroscope",
+        ),
         (
             "Slidebook Dummy",
-            "microscope_automation.slidebook.connect_slidebook.ConnectMicroscope",
-        ),  # noqa
+            "microscope_automation.connectors.connect_slidebook.ConnectMicroscope",
+        ),
         ("Invalid Name", "AttributeError"),
     ],
 )

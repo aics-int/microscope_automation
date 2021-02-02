@@ -3,8 +3,8 @@
 # USE DLL to connect to the ZEN Black API
 import win32com.client
 import logging
-from ..load_image_czi import LoadImageCzi
-from ..automation_exceptions import (
+from microscope_automation.util.load_image_czi import LoadImageCzi
+from microscope_automation.util.automation_exceptions import (
     HardwareError,
     AutofocusError,
     AutofocusObjectiveChangedError,
@@ -13,7 +13,7 @@ from ..automation_exceptions import (
     LoadNotDefinedError,
 )
 import os
-from ..image_AICS import ImageAICS
+from microscope_automation.util.image_AICS import ImageAICS
 
 # Create Logger
 log = logging.getLogger(__name__)

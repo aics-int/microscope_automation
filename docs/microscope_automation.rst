@@ -11,11 +11,5 @@ and other modules.
 
 class MicroscopeAutomation(object)
 ==================================
-.. autoclass:: microscope_automation.microscope_automation.MicroscopeAutomation
+.. autoclass:: microscope_automation.orchestrator.microscope_automation.MicroscopeAutomation
     :members:
-
-Helper Methods
-==============
-The module also includes a single helper method:
-
-.. autofunction:: microscope_automation.microscope_automation.stop_script

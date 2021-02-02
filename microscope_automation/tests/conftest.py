@@ -18,12 +18,12 @@ Docs: https://docs.pytest.org/en/latest/example/simple.html
 
 import pytest
 import numpy as np
-from microscope_automation.image_AICS import ImageAICS
+from microscope_automation.util.image_AICS import ImageAICS
 import microscope_automation.hardware.setup_microscope as setup_microscope
-import microscope_automation.preferences as preferences
+import microscope_automation.settings.preferences as preferences
 import microscope_automation.hardware.hardware_components as h_comp
 import microscope_automation.samples.samples as samples
-import microscope_automation.microscope_automation as mic_auto
+import microscope_automation.orchestrator.microscope_automation as mic_auto
 
 
 @pytest.fixture

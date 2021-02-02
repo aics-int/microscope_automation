@@ -13,5 +13,5 @@ which loads images of class :ref:`image_AICS_ImageAICS`
 class LoadImageCZI
 ==================
 
-.. autoclass:: microscope_automation.load_image_czi.LoadImageCzi
+.. autoclass:: microscope_automation.util.load_image_czi.LoadImageCzi
     :members:

@@ -1,7 +1,7 @@
 import os
 import pytest
 from mock import patch
-import microscope_automation.zeiss.write_zen_tiles_experiment as write_zen
+import microscope_automation.orchestrator.write_zen_tiles_experiment as write_zen
 
 os.chdir(os.path.dirname(__file__))
 
@@ -80,7 +80,7 @@ def test_convert_to_stage_coords(sample_coords, header):
 
 
 @patch(
-    "microscope_automation.automation_messages_form_layout.read_string",
+    "microscope_automation.util.automation_messages_form_layout.read_string",
     return_value="invalid.czsh",
 )
 @pytest.mark.parametrize(

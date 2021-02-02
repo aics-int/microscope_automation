@@ -11,19 +11,19 @@ Split into hardware_control and hardware_control_3i on Aug. 15, 2020 by Winfried
 import os
 import collections
 import datetime
-from ..image_AICS import ImageAICS
-from ..automation_exceptions import (
+from microscope_automation.util.image_AICS import ImageAICS
+from microscope_automation.util.automation_exceptions import (
     AutomationError,
     HardwareError,
     AutofocusNoReferenceObjectError,
     FileExistsError,
 )
-from ..hardware import hardware_components
-from ..hardware.hardware_control import BaseMicroscope
+from microscope_automation.hardware import hardware_components
+from microscope_automation.hardware.hardware_control import BaseMicroscope
 
 # setup logging
 import logging
-from .. import automation_messages_form_layout as message
+from microscope_automation.util import automation_messages_form_layout as message
 
 logger = logging
 

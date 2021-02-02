@@ -6,7 +6,7 @@ Created on Jul 31, 2016
 """
 
 import logging
-from .get_path import get_log_file_path
+from microscope_automation.util.get_path import get_log_file_path
 
 
 def setup_logger(prefs, log_level="DEBUG"):

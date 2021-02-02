@@ -4,7 +4,7 @@ import skimage
 import random
 from skimage import exposure, feature, morphology, transform
 from scipy import ndimage
-from . import segmentation_filters
+from microscope_automation.samples import segmentation_filters
 
 rcParams["figure.figsize"] = 15, 12
 DOWNSCALING_FACTOR = 4

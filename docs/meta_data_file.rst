@@ -6,5 +6,5 @@
 meta_data_file
 **************
 
-.. autoclass:: microscope_automation.meta_data_file.MetaDataFile
+.. autoclass:: microscope_automation.settings.meta_data_file.MetaDataFile
     :members:

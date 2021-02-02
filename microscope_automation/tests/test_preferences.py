@@ -7,7 +7,7 @@ Created on Nov 24, 2020
 
 import pytest
 from mock import patch
-from microscope_automation.preferences import Preferences
+from microscope_automation.settings.preferences import Preferences
 import os
 
 os.chdir(os.path.dirname(__file__))
@@ -50,7 +50,9 @@ def test_get_parent_prefs(prefs_path, parent_prefs_path):
     assert result == parent_prefs
 
 
-@patch("microscope_automation.automation_messages_form_layout.pull_down_select_dialog")
+@patch(
+    "microscope_automation.util.automation_messages_form_layout.pull_down_select_dialog"
+)
 @pytest.mark.skipif(skip_all_tests, reason="Exclude all tests")
 @pytest.mark.parametrize(
     "prefs_path, name, valid_values, expected",
