@@ -394,11 +394,11 @@ class ImagingSystem(object):
         return the list of coordinates selected
 
         Input:
-        tile_image_data: The pixel data of the image of the well - numpy array
+         tile_image_data: The pixel data of the image of the well - numpy array
 
-        location_list: The list of coordinates to be pre plotted on the image.
+         location_list: The list of coordinates to be pre plotted on the image.
 
-        app: pyqt application object initialized in microscope_automation.py
+         app: pyqt application object initialized in microscope_automation.py
 
         Output:
          location_list: Returns the list of colonies selected by the user

@@ -1131,7 +1131,7 @@ def test_scan_all_objects(
             0,
             {"Status": True},
             None,
-            "ValueError",
+            None,
         ),
         (
             "data/preferences_ZSD_2_test.yml",
@@ -1149,7 +1149,7 @@ def test_scan_all_objects(
             0,
             {"Status": True},
             "invalid_barcode",
-            "OSError",
+            None,
         ),
         (
             "data/preferences_ZSD_2_test.yml",

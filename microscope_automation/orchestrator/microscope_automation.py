@@ -931,8 +931,8 @@ class MicroscopeAutomation(object):
             plane = numpy.cross(v1, v2)
 
             # normalize normal vector to avoid large numbers
-            normFactor = math.sqrt(plane[0] ** 2 + plane[1] ** 2 + plane[2] ** 2)
-            norm = plane / normFactor
+            norm_factor = math.sqrt(plane[0] ** 2 + plane[1] ** 2 + plane[2] ** 2)
+            norm = plane / norm_factor
             # the plane can be described in the form ax + by +cz = d
             # a,b,c are the components of the normal vector and determine the slope
             z_correction_x_slope = norm[0]
@@ -2509,8 +2509,8 @@ class MicroscopeAutomation(object):
                 for i in range(experiment["Repetitions"]):
                     # execute experiment for each repetition
                     try:
-                        args = inspect.getargspec(function_to_use)
-                        if "repetition" in args.args:
+                        args = inspect.signature(function_to_use)
+                        if "repetition" in list(args.parameters.keys()):
                             function_to_use(
                                 imaging_settings,
                                 plate_holder_object,
