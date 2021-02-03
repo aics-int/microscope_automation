@@ -2,7 +2,7 @@ import math
 from matplotlib.pyplot import rcParams
 import numpy as np
 from scipy import ndimage, signal
-from skimage import exposure, feature, morphology, transform, filters, measure
+from skimage import exposure, feature, morphology, transform, filters, measure, segmentation
 
 DOWNSCALING_FACTOR = 4
 rcParams["figure.figsize"] = 15, 12
@@ -198,9 +198,9 @@ class WellSegmentation:
 
         # --------------------------------------------------------------------------
         # Apply watershed segmentation
-        segmentation = morphology.watershed(colony_edge, markers)
-        segmentation[segmentation == 1] = 0.0
-        segmentation[segmentation == 2] = 1.0
+        segmentation_result = segmentation.watershed(colony_edge, markers)
+        segmentation_result[segmentation_result == 1] = 0.0
+        segmentation_result[segmentation_result == 2] = 1.0
 
         # Adjust morphology of cell colonies segmented
         binary_colony_mask = morphology.erosion(segmentation, morphology.disk(5))

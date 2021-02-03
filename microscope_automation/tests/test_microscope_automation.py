@@ -10,7 +10,7 @@ import os
 import datetime
 from shutil import copyfile
 from mock import patch
-from collections import Mapping
+from collections.abc import Mapping
 from microscope_automation.util.image_AICS import ImageAICS
 from microscope_automation.settings.preferences import Preferences
 from microscope_automation.samples import samples
