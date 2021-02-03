@@ -2065,7 +2065,7 @@ class MicroscopeAutomation(object):
         image_path = image_aics.create_file_name(
             (segmented_image_dir, image_file_name_template)
         )
-        imsave(image_path, image_data_save.T, cmap="gray")
+        imsave(image_path, image_data_save.squeeze().T, cmap="gray")
 
     ############################################################################
 
