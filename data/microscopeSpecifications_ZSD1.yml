@@ -7,8 +7,8 @@
 ##########################################################################################
 
 Info:
- Date: 01/08/2020
- Version: 010820_1
+ Date: 02/08/2021
+ Version: 020821_1
  Type: Specifications
  Note: Specifictions for spinning disk ZSD_1
 
@@ -33,6 +33,7 @@ Software: ZEN Blue
 
 Microscope:
  Name: ZSD_01
+ Type: SpinningDisk_Zeiss
 
 ############################################################
 #
@@ -116,6 +117,7 @@ Stages:
  Marzhauser:
   SafeArea: ZSD_01_plate
   SafePosition: [52000, 40200]
+  DefaultExperiment: Setup_10x.czexp
   ObjectiveChanger: 6xMotorizedNosepiece
 
 ############################################################
@@ -124,25 +126,26 @@ Stages:
 #
 ############################################################
 
-PlateHolder: Plateholder
-PlateHolderStageID: Marzhauser                        # name of stage plate holder is mounted on
-PlateHolderFocusID: MotorizedFocus                    # name of focus drive used to image samples on plate holder
-PlateHolderAutoFocusID: DefiniteFocus2                # name of auto focus used with this plate holder
-PlateHolderObjectiveChangerID: 6xMotorizedNosepiece   # name of nose piece that holds objectives used to image samples on plate holder
-PlateHolderSafetyID: ZSD_01_plate                     # name of safety area of plate holder
-xCenterPlateHolder: 0             # zero position of plate holder in stage coordinates.
-yCenterPlateHolder: 0
-zCenterPlateHolder: 0
+Plateholder:
+ Name: Plateholder
+ StageID: Marzhauser                        # name of stage plate holder is mounted on
+ FocusID: MotorizedFocus                    # name of focus drive used to image samples on plate holder
+ AutoFocusID: DefiniteFocus2                # name of auto focus used with this plate holder
+ ObjectiveChangerID: 6xMotorizedNosepiece   # name of nose piece that holds objectives used to image samples on plate holder
+ SafetyID: ZSD_01_plate                     # name of safety area of plate holder
+ xCenter: 0             # zero position of plate holder in stage coordinates.
+ yCenter: 0
+ zCenter: 0
 
-xFlipPlateHolder: 1               # -1 if plate holder coordinate system is flipped in respect to stage coordinate system, otherwise 1
-yFlipPlateHolder: 1               # -1 if plate holder coordinate system is flipped in respect to stage coordinate system, otherwise 1
-zFlipPlateHolder: 1               # -1 if plate holder coordinate system is flipped in respect to stage coordinate system, otherwise 1
-xCorrectionPlateHolder: 1         # correction term for differences in calibration between plate holder and stage
-yCorrectionPlateHolder: 1         # correction term for differences in calibration between plate holder and stage
-zCorrectionPlateHolder: 1         # correction term for differences in calibration between plate holder and stage
-xSavePositionPlateHolder: 55600   # save position to start any movements without danger of objective collisions in absolute coordinates
-ySavePositionPlateHolder: 31800   # save position to start any movements without danger of objective collisions in absolute coordinates
-zSavePositionPlateHolder: None    # save position to start any movements without danger of objective collisions (None= load position)
+ xFlip: 1               # -1 if plate holder coordinate system is flipped in respect to stage coordinate system, otherwise 1
+ yFlip: 1               # -1 if plate holder coordinate system is flipped in respect to stage coordinate system, otherwise 1
+ zFlip: 1               # -1 if plate holder coordinate system is flipped in respect to stage coordinate system, otherwise 1
+ xCorrection: 1         # correction term for differences in calibration between plate holder and stage
+ yCorrection: 1         # correction term for differences in calibration between plate holder and stage
+ zCorrection: 1         # correction term for differences in calibration between plate holder and stage
+ xSafePosition: 55600   # save position to start any movements without danger of objective collisions in absolute coordinates
+ ySafePosition: 31800   # save position to start any movements without danger of objective collisions in absolute coordinates
+ zSafePosition: None    # save position to start any movements without danger of objective collisions (None= load position)
 
 
 ############################################################
@@ -151,19 +154,20 @@ zSavePositionPlateHolder: None    # save position to start any movements without
 #
 ############################################################
 
-Plate: 96-well
-xCenterPlate: 3204          # zero position of plate in plate holder coordinates = center of well A1.
-yCenterPlate: 3718
-zCenterPlate: 8871
+Plate:
+ Name: 96-well
+ xCenter: 3204          # zero position of plate in plate holder coordinates = center of well A1.
+ yCenter: 3718
+ zCenter: 8871
 
-xFlipPlate: 1               # -1 if plate holder coordinate system is flipped in respect to plate holder coordinate system, otherwise 1
-yFlipPlate: 1               # -1 if plate holder coordinate system is flipped in respect to plate holder coordinate system, otherwise 1
-zFlipPlate: 1               # -1 if plate holder coordinate system is flipped in respect to staplate holderge coordinate system, otherwise 1
-xCorrectionPlate: 1         # correction term for differences in calibration between plate holder and plate holder
-yCorrectionPlate: 1         # correction term for differences in calibration between plate holder and plate holder
-zCorrectionPlate: 1         # correction term for differences in calibration between plate holder and plate holder
-zCenterBackground: 200
-InitialReferenceWell: E7    # Well to set initial x, y, z positions for parfocality
+ xFlip: 1               # -1 if plate holder coordinate system is flipped in respect to plate holder coordinate system, otherwise 1
+ yFlip: 1               # -1 if plate holder coordinate system is flipped in respect to plate holder coordinate system, otherwise 1
+ zFlip: 1               # -1 if plate holder coordinate system is flipped in respect to staplate holderge coordinate system, otherwise 1
+ xCorrection: 1         # correction term for differences in calibration between plate holder and plate holder
+ yCorrection: 1         # correction term for differences in calibration between plate holder and plate holder
+ zCorrection: 1         # correction term for differences in calibration between plate holder and plate holder
+ zCenterBackground: 200
+ InitialReferenceWell: E7    # Well to set initial x, y, z positions for parfocality
 
 ############################################################
 #
@@ -171,17 +175,18 @@ InitialReferenceWell: E7    # Well to set initial x, y, z positions for parfocal
 #
 ############################################################
 
-Slide: CalibrationSlide
-xCenterSlide: 50272         # zero position of slide in plate holder coordinates
-yCenterSlide: 37274
-zCenterSlide: 6970
-SlideSafetyID: ZSD_01_slide # name of safety area for slide
-xFlipSlide: 1               # -1 if plate holder coordinate system is flipped in respect to plate holder coordinate system, otherwise 1
-yFlipSlide: 1               # -1 if plate holder coordinate system is flipped in respect to plate holder coordinate system, otherwise 1
-zFlipSlide: 1               # -1 if plate holder coordinate system is flipped in respect to staplate holderge coordinate system, otherwise 1
-xCorrectionSlide: 1         # correction term for differences in calibration between plate holder and plate holder
-yCorrectionSlide: 1         # correction term for differences in calibration between plate holder and plate holder
-zCorrectionSlide: 1         # correction term for differences in calibration between plate holder and plate holder
+Slide:
+ Name: CalibrationSlide
+ xCenter: 50272         # zero position of slide in plate holder coordinates
+ yCenter: 37274
+ zCenter: 6970
+ SafetyID: ZSD_01_slide # name of safety area for slide
+ xFlip: 1               # -1 if plate holder coordinate system is flipped in respect to plate holder coordinate system, otherwise 1
+ yFlip: 1               # -1 if plate holder coordinate system is flipped in respect to plate holder coordinate system, otherwise 1
+ zFlip: 1               # -1 if plate holder coordinate system is flipped in respect to staplate holderge coordinate system, otherwise 1
+ xCorrection: 1         # correction term for differences in calibration between plate holder and plate holder
+ yCorrection: 1         # correction term for differences in calibration between plate holder and plate holder
+ zCorrection: 1         # correction term for differences in calibration between plate holder and plate holder
 
 ############################################################
 #
@@ -295,17 +300,19 @@ ObjectiveChanger:
 #
 ############################################################
 
-Pump: BraintreeScientific
-PumpSafetyID: ZSD_01_immersion      # name of safety area for immersion water delivery system
-xCenterPump: 52063                  # zero position of immersion water outlet in plate holder coordinates.
-yCenterPump: 37147
-zCenterPump: -5099
-xFlipPump: 1                        # -1 if immersion water outlet coordinate system is flipped in respect to stage coordinate system, otherwise 1
-yFlipPump: 1                        # -1 if immersion water outlet coordinate system is flipped in respect to stage coordinate system, otherwise 1
-zFlipPump: 1                        # -1 if immersion water outlet coordinate system is flipped in respect to stage coordinate system, otherwise 1
-xCorrectionPump: 1                  # correction term for differences in calibration between immersion water outlet and plate holder
-yCorrectionPump: 1                  # correction term for differences in calibration between immersion water outlet plate holder
-zCorrectionPump: 1                  # correction term for differences in calibration between immersion water outlet plate holder
-ComPortPump: COM1                   # COM port used to control pump
-BaudratePump: 19200                 # Baudrate to communicate with pump
-TimePump: 5                         # Time in sec pump will dispense immersion water
+
+Pump:
+ Name: BraintreeScientific
+ SafetyID: ZSD_02_immersion      # name of safety area for immersion water delivery system
+ xCenter: 52063                  # zero position of immersion water outlet in plate holder coordinates.
+ yCenter: 37147
+ zCenter: -5099
+ xFlip: 1                        # -1 if immersion water outlet coordinate system is flipped in respect to stage coordinate system, otherwise 1
+ yFlip: 1                        # -1 if immersion water outlet coordinate system is flipped in respect to stage coordinate system, otherwise 1
+ zFlip: 1                        # -1 if immersion water outlet coordinate system is flipped in respect to stage coordinate system, otherwise 1
+ xCorrection: 1                  # correction term for differences in calibration between immersion water outlet and plate holder
+ yCorrection: 1                  # correction term for differences in calibration between immersion water outlet plate holder
+ zCorrection: 1                  # correction term for differences in calibration between immersion water outlet plate holder
+ ComPort: COM1                   # COM port used to control pump
+ Baudrate: 19200                 # Baudrate to communicate with pump
+ Time: 5                         # Time in sec pump will dispense immersion water
