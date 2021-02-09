@@ -618,7 +618,7 @@ class Helpers:
                 "z_offset": 10,
                 "magnification": 10,
                 "immersion": "air",
-                "experiment": "WellTile_10x_true",
+                "experiment": "Not defined",
                 "camera": "Camera1 (back)",
                 "autofocus": "DefiniteFocus2",
             },
