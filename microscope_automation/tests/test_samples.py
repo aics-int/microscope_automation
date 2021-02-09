@@ -922,7 +922,7 @@ def test_move_to_abs_position(
     [
         ("img_sys", None, "ZeroDivisionError"),
         ("plate_holder", None, "AttributeError"),
-        ("plate_holder", "data/preferences_ZSD_test.yml", (20.0, 0.0, 10.0)),
+        ("plate_holder", "data/preferences_ZSD_test.yml", (21.0, 0.0, 10.0)),
     ],
 )
 def test_move_to_zero(
