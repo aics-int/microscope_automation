@@ -33,7 +33,6 @@ from microscope_automation.util import error_handling
 from microscope_automation.samples.setup_samples import setup_plate
 from microscope_automation.util.get_path import (
     set_up_subfolders,
-    get_daily_folder,
     get_recovery_settings_path,
     get_references_path,
     get_images_path,
@@ -119,7 +118,7 @@ VALID_BLOCKING = [True, False]
 
 
 class MicroscopeAutomation(object):
-    def __init__(self, prefs_path):
+    def __init__(self, prefs_path, app=None):
         self.prefs = preferences.Preferences(prefs_path)
         recovery_file_path = get_recovery_settings_path(self.prefs)
 
@@ -135,6 +134,9 @@ class MicroscopeAutomation(object):
             self.less_dialog = False
 
         self.failed_wells = []
+
+        # instead of using a global variable, make the GUI an attribute
+        self.app = app
 
     def get_well_object(self, plate_holder_object, plate_name, well):
         """Return well object for given well.
@@ -225,7 +227,7 @@ class MicroscopeAutomation(object):
         camera_id = prefs.get_pref("CameraBarcode")
 
         # Define and if necessary create folder for images
-        image_dir = get_references_path(prefs)
+        image_dir = get_references_path(prefs, barcode=barcode)
 
         # acquire image
         file_path = image_dir + barcode_name + ".czi"
@@ -297,7 +299,6 @@ class MicroscopeAutomation(object):
         Output:
          none
         """
-
         # TODO: this function should be part of pump.initialize() in module hardware.py
         # set debugging level
         verbose = prefs.get_pref("Verbose", valid_values=VALID_VERBOSE)
@@ -600,6 +601,8 @@ class MicroscopeAutomation(object):
         Output:
          none
         """
+        plates = plate_holder_object.get_plates()
+        barcode = list(plates.values())[-1].get_barcode()
 
         if initialize_prefs.get_pref(
             "CopyColonyFile", valid_values=VALID_COPYCOLONYFILES
@@ -620,7 +623,9 @@ class MicroscopeAutomation(object):
                     source_path = os.path.normpath(
                         os.path.join(colony_remote_dir, colony_remote_file)
                     )
-                    destination_path = get_colony_dir_path(initialize_prefs)
+                    destination_path = get_colony_dir_path(
+                        initialize_prefs, barcode=barcode
+                    )
                     shutil.copy2(source_path, destination_path)
 
         # initialize microscope hardware (e.g. auto-focus)
@@ -931,8 +936,8 @@ class MicroscopeAutomation(object):
             plane = numpy.cross(v1, v2)
 
             # normalize normal vector to avoid large numbers
-            normFactor = math.sqrt(plane[0] ** 2 + plane[1] ** 2 + plane[2] ** 2)
-            norm = plane / normFactor
+            norm_factor = math.sqrt(plane[0] ** 2 + plane[1] ** 2 + plane[2] ** 2)
+            norm = plane / norm_factor
             # the plane can be described in the form ax + by +cz = d
             # a,b,c are the components of the normal vector and determine the slope
             z_correction_x_slope = norm[0]
@@ -1290,7 +1295,9 @@ class MicroscopeAutomation(object):
 
         # Define and if necessary create folder for images
         object_folder = imaging_settings.get_pref("Folder")
-        image_dir = get_images_path(imaging_settings, object_folder)
+        image_dir = get_images_path(
+            imaging_settings, sub_dir=object_folder, barcode=plate_object.get_barcode()
+        )
         image_file_name_template = imaging_settings.get_pref("FileName")
         image_path = (image_dir, image_file_name_template)
 
@@ -1441,7 +1448,7 @@ class MicroscopeAutomation(object):
                             imaging_settings=imaging_settings,
                             image=tile_image,
                             output_class=output_class,
-                            app=app,
+                            app=self.app,
                             offset=(0, 0, 0),
                         )
                     )
@@ -1544,17 +1551,20 @@ class MicroscopeAutomation(object):
         Output:
          none
         """
+        # Get the well names and plates
+        well_names_list = imaging_settings.get_pref("Wells", valid_values=VALID_WELLS)
+        plates = plate_holder_object.get_plates()
+        barcode = list(plates.values())[-1].get_barcode()
+
         # Get all the well overview images in imageAICS format
         source_folder = imaging_settings.get_pref("SourceFolder")
-        image_dir = get_images_path(imaging_settings, source_folder)
+        image_dir = get_images_path(
+            imaging_settings, sub_dir=source_folder, barcode=barcode
+        )
         images_name_list = [
             file for file in os.listdir(image_dir) if file.endswith(".czi")
         ]
         images_list = []
-
-        # Get the well names and plates
-        well_names_list = imaging_settings.get_pref("Wells", valid_values=VALID_WELLS)
-        plates = plate_holder_object.get_plates()
 
         # To preserve the order defined in the preferences, we need to gp through
         # well list and create the image list in that particular order
@@ -1566,7 +1576,7 @@ class MicroscopeAutomation(object):
                 if well_name == well:
                     im_path = os.path.join(image_dir, image_filename)
                     aics_image = AICSImage(im_path, max_workers=1)
-                    image_data = numpy.transpose(aics_image.data[0, 0, 0])
+                    image_data = numpy.transpose(aics_image.data[0, 0, 0, 0])
                     pixel_size = aics_image.get_physical_pixel_size()
                     image_meta = {
                         "Size": image_data.shape,
@@ -1636,7 +1646,7 @@ class MicroscopeAutomation(object):
             position_csv_filepath,
             position_wellid_csv_filepath,
             failed_csv_filepath,
-        ) = get_position_csv_path(imaging_settings)
+        ) = get_position_csv_path(imaging_settings, barcode=barcode)
         # DefaultZ since the z position is not available at this point
         default_z = imaging_settings.get_pref("PositionDefaultZ")
         position_list_for_csv.append(
@@ -1647,7 +1657,6 @@ class MicroscopeAutomation(object):
         )
         try:
             # Display each image for point approval
-
             for well_object in segmentation_info_dict.keys():
                 image_data = segmentation_info_dict[well_object]["image"].get_data()
                 segmented_position_list = segmentation_info_dict[well_object][
@@ -1656,7 +1665,7 @@ class MicroscopeAutomation(object):
                 # Store each image (with red +) in the target folder
                 # location_list will be an empty list if user determines well is failed
                 location_list = well_object.set_interactive_positions(
-                    image_data, segmented_position_list, app
+                    image_data, segmented_position_list, self.app
                 )
                 # save the image
                 self.save_segmented_image(
@@ -1670,57 +1679,59 @@ class MicroscopeAutomation(object):
                     location_list, image, "czi"
                 )
                 # Create cell objects and attach them properly to the parent object
-                for key in experiment["Output"].keys():
-                    output_name = key
-                    output_class = experiment["Output"][key]
-                class_ = getattr(samples, output_class)
-                ind = 1
-                new_objects_list = []
-                new_objects_dict = {}
-                for location in correct_location_list:
-                    new_object_name = well_object.get_name() + "_{:04}".format(ind)
-                    ind = ind + 1
-                    new_object = class_(
-                        new_object_name, [location[0], location[1], 0], well_object
+                for output_name, output_class in experiment["Output"].items():
+                    class_ = getattr(samples, output_class)
+                    ind = 1
+                    new_objects_list = []
+                    new_objects_dict = {}
+                    for location in correct_location_list:
+                        new_object_name = well_object.get_name() + "_{:04}".format(ind)
+                        ind = ind + 1
+                        new_object = class_(
+                            new_object_name, [location[0], location[1], 0], well_object
+                        )
+                        new_objects_list.append(new_object)
+                        new_objects_dict[new_object_name] = new_object
+                        # Add P number to match the format being used in the pipeline
+                        position_name = "P" + str(position_number)
+                        # The positions in this list are relative to the center of well
+                        # To get the absolute stage coordinates
+                        # we will have to add well.zero position + plate.zero position
+                        # And we will also need to add the objective offset
+                        # for 100X to correct for parcentricity
+                        x_obj_offset, y_obj_offset = self.get_objective_offsets(
+                            plate_holder_object, 100
+                        )
+                        x_offset = (
+                            well_object.x_zero
+                            + well_object.container.x_zero
+                            + x_obj_offset
+                        )
+                        y_offset = (
+                            well_object.y_zero
+                            + well_object.container.y_zero
+                            + y_obj_offset
+                        )
+                        x_pos = location[0] + x_offset
+                        y_pos = location[1] + y_offset
+                        pos_info = [position_name, x_pos, y_pos, default_z]
+                        well_info = [
+                            position_name,
+                            well_object.get_name(),
+                            location[0],
+                            location[1],
+                            default_z,
+                        ]
+                        position_list_for_csv.append(pos_info)
+                        image_location_list_for_csv.append(well_info)
+                        position_number += 1
+                    well_object.add_samples(new_objects_dict)
+                    plate_object.add_to_image_dir(
+                        list_name=output_name, sample_object=new_objects_list
                     )
-                    new_objects_list.append(new_object)
-                    new_objects_dict[new_object_name] = new_object
-                    # Add P number to match the format being used in the pipeline
-                    position_name = "P" + str(position_number)
-                    # The positions in this list are relative to the center of well
-                    # To get the absolute stage coordinates
-                    # we will have to add well.zero position + plate.zero position
-                    # And we will also need to add the objective offset
-                    # for 100X to correct for parcentricity
-                    x_obj_offset, y_obj_offset = self.get_objective_offsets(
-                        plate_holder_object, 100
-                    )
-                    x_offset = (
-                        well_object.x_zero + well_object.container.x_zero + x_obj_offset
-                    )
-                    y_offset = (
-                        well_object.y_zero + well_object.container.y_zero + y_obj_offset
-                    )
-                    x_pos = location[0] + x_offset
-                    y_pos = location[1] + y_offset
-                    pos_info = [position_name, x_pos, y_pos, default_z]
-                    well_info = [
-                        position_name,
-                        well_object.get_name(),
-                        location[0],
-                        location[1],
-                        default_z,
-                    ]
-                    position_list_for_csv.append(pos_info)
-                    image_location_list_for_csv.append(well_info)
-                    position_number += 1
-                well_object.add_samples(new_objects_dict)
-                plate_object.add_to_image_dir(
-                    list_name=output_name, sample_object=new_objects_list
-                )
-                all_objects_list.extend(new_objects_list)
-                for object in new_objects_dict:
-                    all_objects_dict[object] = new_objects_dict[object]
+                    all_objects_list.extend(new_objects_list)
+                    for object in new_objects_dict:
+                        all_objects_dict[object] = new_objects_dict[object]
         finally:
             # write each position to the file
             with open(str(position_csv_filepath), mode="a") as position_file:
@@ -1785,20 +1796,26 @@ class MicroscopeAutomation(object):
             with open(filename, "w") as f:
                 pickle.dump(pickle_dict, f, pickle.HIGHEST_PROTOCOL)
                 message.stop_script("Interruption Occurred. Data saved!")
-        daily_folder = get_valid_path_from_prefs(
-            self.prefs, "PathDailyFolder", search_dir=True
-        )
-        pos_list_saver = PositionWriter(
-            self.prefs.prefs["Info"]["System"],
-            plate_object.get_barcode(),
-            daily_folder,
-        )
-        position_list_for_csv = pos_list_saver.convert_to_stage_coords(
-            positions_list=position_list_for_csv, header=True
-        )
-        pos_list_saver.write(
-            converted=position_list_for_csv, dummy=self.prefs.prefs["PathDummy"]
-        )
+        if len(position_list_for_csv) > 1:
+            daily_folder = get_valid_path_from_prefs(
+                self.prefs, "PathDailyFolder", search_dir=True
+            )
+            pos_list_saver = PositionWriter(
+                self.prefs.prefs["Info"]["System"],
+                plate_object.get_barcode(),
+                daily_folder,
+            )
+            position_list_for_csv = pos_list_saver.convert_to_stage_coords(
+                positions_list=position_list_for_csv
+            )
+            pos_list_saver.write(
+                converted=position_list_for_csv, dummy=self.prefs.prefs["PathDummy"]
+            )
+        else:
+            raise AutomationError(
+                "Position list was empty. Likely because no images were found at "
+                + image_dir
+            )
 
     def get_objective_offsets(self, plate_holder_object, magnification):
         """Function to return the objective offsets
@@ -2065,7 +2082,7 @@ class MicroscopeAutomation(object):
         image_path = image_aics.create_file_name(
             (segmented_image_dir, image_file_name_template)
         )
-        imsave(image_path, image_data_save.T, cmap="gray")
+        imsave(image_path, image_data_save.squeeze().T, cmap="gray")
 
     ############################################################################
 
@@ -2336,7 +2353,7 @@ class MicroscopeAutomation(object):
                 )
                 pickle_file = message.file_select_dialog(
                     file_dir,
-                    filePattern="*.pickle",
+                    file_pattern="*.pickle",
                     comment="Please select the file to recover settings from.",
                 )
 
@@ -2380,13 +2397,17 @@ class MicroscopeAutomation(object):
 
         # setup plate holder with plate, wells, and colonies
         colony_file = None
+        barcode = None
         if "AddColonies" in workflow_experiments:
+            barcode = message.read_string(
+                "Barcode", "Barcode:", default="123", return_code=False
+            )
             add_colonies_prefs = self.prefs.get_pref_as_meta("AddColonies")
-            colony_file_directory = get_colony_dir_path(self.prefs)
+            colony_file_directory = get_colony_dir_path(self.prefs, barcode=barcode)
             file_name = add_colonies_prefs.get_pref("FileName")
             colony_file = message.file_select_dialog(
                 colony_file_directory,
-                filePattern=file_name,
+                file_pattern=file_name,
                 comment="""Please select csv file with colony data.""",
             )
             experiment = [
@@ -2397,14 +2418,17 @@ class MicroscopeAutomation(object):
             workflow.remove(experiment[0])
             self.state.workflow_pos.append("AddColonies")
 
-        plate_holder_object = setup_plate(self.prefs, colony_file, microscope_object)
+        plate_holder_object = setup_plate(
+            self.prefs,
+            colony_file=colony_file,
+            microscope_object=microscope_object,
+            barcode=barcode,
+        )
 
         # Set up the Daily folder with plate barcode
         # Currently only one plate supported so barcode is extracted from that
         plates = plate_holder_object.get_plates()
-        barcode = list(plates.keys())[-1]
-        # Set up the high level folder with plate barcode
-        get_daily_folder(self.prefs, barcode)
+        barcode = list(plates.values())[-1].get_barcode()
         # Set up Image Folders and Sub Folders
         image_folder = None
         # Get all the preferences
@@ -2434,14 +2458,12 @@ class MicroscopeAutomation(object):
                                 set_up_subfolders(image_folder, subfolder)
 
         # set-up meta data file object
-        meta_data_file_path = get_meta_data_path(self.prefs, barcode)
+        meta_data_file_path = get_meta_data_path(self.prefs, barcode=barcode)
         meta_data_format = self.prefs.get_pref("MetaDataFormat")
         meta_data_file_object = MetaDataFile(meta_data_file_path, meta_data_format)
         plate_holder_object.add_meta_data_file(meta_data_file_object)
 
-        # cycle through all plates
-        plate_objects = plate_holder_object.get_plates()
-        for barcode, plate_object in plate_objects.items():
+        for barcode, plate_object in plates.items():
             # execute each measurement based on experiment in workflow
             for experiment in workflow:
                 # attach additional parameters to experiment to propagate
@@ -2509,8 +2531,8 @@ class MicroscopeAutomation(object):
                 for i in range(experiment["Repetitions"]):
                     # execute experiment for each repetition
                     try:
-                        args = inspect.getargspec(function_to_use)
-                        if "repetition" in args.args:
+                        args = inspect.signature(function_to_use)
+                        if "repetition" in list(args.parameters.keys()):
                             function_to_use(
                                 imaging_settings,
                                 plate_holder_object,
@@ -2556,10 +2578,9 @@ def main():
 
     # initialize the pyqt application object here (not in the location picker module)
     # as it only needs to be initialized once
-    global app
     app = QtGui.QApplication([])
     try:
-        mic = MicroscopeAutomation(prefs_path)
+        mic = MicroscopeAutomation(prefs_path, app)
         mic.microscope_automation()
     except KeyboardInterrupt:
         pyqtgraph.exit()

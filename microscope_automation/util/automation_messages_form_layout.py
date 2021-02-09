@@ -319,13 +319,13 @@ def select_message(message, count=None, return_code=False):
         return resultDict
 
 
-def file_select_dialog(directory, filePattern=None, comment=None, return_code=False):
+def file_select_dialog(directory, file_pattern=None, comment=None, return_code=False):
     """List all files in directory and select one.
 
     Input:
      directory: path to directory with files
 
-     filePattern: string with regular expression.
+     file_pattern: string with regular expression.
      If file matches expression it will be pre-selected.
 
      return_code: if True, will return after cancel with code 0,
@@ -342,7 +342,7 @@ def file_select_dialog(directory, filePattern=None, comment=None, return_code=Fa
     try:
         # find all filenames that match
         col_file_loc_series = [
-            re.search(filePattern, singleFile) is not None for singleFile in all_files
+            re.search(file_pattern, singleFile) is not None for singleFile in all_files
         ]
         col_file_loc_index = [int(all_files[col_file_loc_series].index.tolist()[0])]
         all_files = list(all_files)

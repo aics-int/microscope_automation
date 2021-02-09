@@ -48,7 +48,6 @@ requirements = [
     "matplotlib>=3.3.1,<3.4",
     "formlayout>=1.2.0,<1.3",
     "lxml>=4.5.2,<4.7",
-    "pathlib>=1.0.1,<1.1",
     "pyserial>=3.4,<3.5",
     'pywin32>=227,<301 ; platform_system=="Windows"',
     "scikit-image>=0.16.2,<0.19",

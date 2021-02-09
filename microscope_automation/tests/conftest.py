@@ -105,7 +105,7 @@ class Helpers:
     @staticmethod
     def setup_local_microscope_automation(prefs_path):
         """Create microscope automation object"""
-        return mic_auto.MicroscopeAutomation(prefs_path)
+        return mic_auto.MicroscopeAutomation(prefs_path, app=None)
 
     @staticmethod
     def setup_local_microscope(prefs_path):
@@ -611,7 +611,17 @@ class Helpers:
                 "experiment": "WellTile_10x_true",
                 "camera": "Camera1 (back)",
                 "autofocus": "DefiniteFocus2",
-            }
+            },
+            "Dummy Objective": {
+                "x_offset": 20,
+                "y_offset": 0,
+                "z_offset": 10,
+                "magnification": 10,
+                "immersion": "air",
+                "experiment": "Not defined",
+                "camera": "Camera1 (back)",
+                "autofocus": "DefiniteFocus2",
+            },
         }
         safety_id = "ZSD_01_plate"
         control_software = self.setup_local_control_software("ZEN Blue Dummy")

@@ -10,7 +10,7 @@ import os
 import datetime
 from shutil import copyfile
 from mock import patch
-from collections import Mapping
+from collections.abc import Mapping
 from microscope_automation.util.image_AICS import ImageAICS
 from microscope_automation.settings.preferences import Preferences
 from microscope_automation.samples import samples
@@ -1081,6 +1081,10 @@ def test_scan_all_objects(
 
 
 @patch(
+    "microscope_automation.samples.samples.Well.set_interactive_positions",  # noqa
+    return_value=[(0, 0)],
+)
+@patch(
     "microscope_automation.util.automation_messages_form_layout.read_string",
     return_value="",
 )
@@ -1101,7 +1105,7 @@ def test_scan_all_objects(
             "data/preferences_ZSD_2_test.yml",
             "ScanPlate",
             {
-                "Experiment": "UpdatePlateWellZero",
+                "Experiment": "SegmentWells",
                 "Repetitions": 1,
                 "Input": None,
                 "Output": {},
@@ -1119,7 +1123,7 @@ def test_scan_all_objects(
             "data/preferences_ZSD_2_test.yml",
             "SegmentWells",
             {
-                "Experiment": "UpdatePlateWellZero",
+                "Experiment": "SegmentWells",
                 "Repetitions": 1,
                 "Input": None,
                 "Output": {},
@@ -1131,13 +1135,13 @@ def test_scan_all_objects(
             0,
             {"Status": True},
             None,
-            "ValueError",
+            "AutomationError",
         ),
         (
             "data/preferences_ZSD_2_test.yml",
             "SegmentWells",
             {
-                "Experiment": "UpdatePlateWellZero",
+                "Experiment": "SegmentWells",
                 "Repetitions": 1,
                 "Input": None,
                 "Output": {},
@@ -1149,13 +1153,13 @@ def test_scan_all_objects(
             0,
             {"Status": True},
             "invalid_barcode",
-            "OSError",
+            "AutomationError",
         ),
         (
             "data/preferences_ZSD_2_test.yml",
             "SegmentWells",
             {
-                "Experiment": "UpdatePlateWellZero",
+                "Experiment": "SegmentWells",
                 "Repetitions": 1,
                 "Input": None,
                 "Output": {},
@@ -1167,13 +1171,13 @@ def test_scan_all_objects(
             0,
             {"Status": True},
             1234,
-            None,
+            "AutomationError",
         ),
         (
             "data/preferences_ZSD_test.yml",
             "SegmentWells",
             {
-                "Experiment": "UpdatePlateWellZero",
+                "Experiment": "SegmentWells",
                 "Repetitions": 1,
                 "Input": None,
                 "Output": {},
@@ -1185,7 +1189,25 @@ def test_scan_all_objects(
             0,
             {"Status": True},
             1234,
-            "NameError",
+            "AutomationError",
+        ),
+        (
+            "data/preferences_ZSD_test.yml",
+            "SegmentWells",
+            {
+                "Experiment": "SegmentWells",
+                "Repetitions": 1,
+                "Input": None,
+                "Output": {"ScanCells": "Cell"},
+                "OriginalWorkflow": ["Koehler", "UpdatePlateWellZero", "RunMacro"],
+                "WorkflowList": ["Koehler", "UpdatePlateWellZero", "RunMacro"],
+                "WorkflowType": "new",
+            },
+            ["B2", "B11", "G11", "C2"],
+            0,
+            {"Status": True},
+            1234,
+            None,
         ),
     ],
 )
@@ -1193,6 +1215,7 @@ def test_segment_wells(
     mock_convert,
     mock_write,
     mock_read,
+    mock_set_interactive,
     prefs_path,
     pref_name,
     experiment,
@@ -1205,9 +1228,14 @@ def test_segment_wells(
 ):
     basepath = os.path.join("data", "Production", "Daily")
     src = os.path.join(basepath, "WellEdge_0_1_C2.czi")
-    dst = os.path.join(
-        basepath, DATE_STR, "Zeiss SD 1", "10XwellScan", "WellEdge_0_1_C2.czi"
-    )
+    if barcode:
+        dst = os.path.join(
+            basepath, str(barcode), "Zeiss SD 1", "10XwellScan", "WellEdge_0_1_C2.czi"
+        )
+    else:
+        dst = os.path.join(
+            basepath, DATE_STR, "Zeiss SD 1", "10XwellScan", "WellEdge_0_1_C2.czi"
+        )
     try:
         copyfile(src, dst)
     except FileNotFoundError:
@@ -1958,6 +1986,10 @@ def test_control_autofocus(
     assert result == expected
 
 
+@patch(
+    "microscope_automation.samples.samples.Well.set_interactive_positions",  # noqa
+    return_value=[(0, 0)],
+)
 @patch("microscope_automation.util.automation_messages_form_layout.read_string")
 @patch("microscope_automation.util.automation_messages_form_layout.check_box_message")
 @patch("microscope_automation.util.automation_messages_form_layout.information_message")
@@ -2027,6 +2059,7 @@ def test_microscope_automation(
     mock_info,
     mock_check_box,
     mock_read,
+    mock_set_interactive,
     file_name,
     check_box_val,
     barcode,

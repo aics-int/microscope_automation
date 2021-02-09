@@ -1,5 +1,5 @@
 # Microscope specifications for microscope automation
-# Used by Python script MicroscopeAutomation.py to control different types of microscopes
+# Used by Python script microscope_automation.py to control different types of microscopes
 #
 # based on yaml specification Version 1.2
 # http://www.yaml.org/spec/1.2/spec.html
@@ -7,8 +7,8 @@
 ##########################################################################################
 
 Info:
- Date: 02/08/2021
- Version: 020821_1
+ Date: 05/22/2020
+ Version: 052220_1
  Type: Specifications
  Note: Specifictions for spinning disk ZSD_1
 
@@ -19,11 +19,11 @@ Info:
 #     ZEN Blue for Zeiss spinning disk and Zeiss LSM 800
 #     ZEN Black for Zeiss LSM 880 (not implemented)
 #     Slidebook for 3i spinning diks (not implemented)
-#     ZEN Blue Test for offline testing
+#     Test for offline testing
 #
 ############################################################
-# Add "ZEN Blue Dummy" to test without DLLs on ZSD machines
-Software: ZEN Blue
+
+Software: ZEN Blue Dummy
 
 ############################################################
 #
@@ -42,7 +42,7 @@ Microscope:
 ############################################################
 
 Cameras:
- Camera1 (Back):
+ Camera1 (back):
   pixelSize_x: 13
   pixelSize_y: 13
   pixelNumber_x: 1848
@@ -54,7 +54,7 @@ Cameras:
   detectorType: sCMOS
   manufacturer: Hamamatsu
 
- Camera2 (Left):
+ Camera2 (left):
   pixelSize_x: 13
   pixelSize_y: 13
   pixelNumber_x: 1848
@@ -70,33 +70,33 @@ Cameras:
 
 ############################################################
 #
-# Save Area
-#  Edge points for areas that are safe to move stage
+# safe area
+#  Edge points for areas that are save to move stage
 #
 ############################################################
 
-SaveAreas:
+SafeAreas:
  ZSD_01_immersion:
   StageArea:
    area: [
-    [0, 300],
-    [105200, 300],
-    [105200, 69700],
-    [0, 69700],
+    [3270, 1870],
+    [108400, 1870],
+    [108400, 71200],
+    [3270, 71200],
     ]
-   zMax: 9200
+   zMax: 9900
   PumpArea:
-   area: [[0, 0], [0, 0], [0, 0], [0, 0]]
+   area: [[5400, 64300], [7400, 64300], [7400, 85100], [5400, 85100]]
    zMax: 100
  ZSD_01_plate:
   StageArea:
    area: [
-    [0, 300],
-    [105200, 300],
-    [105200, 69700],
-    [0, 69700],
+    [5300, 5800],
+    [106000, 5800],
+    [106000, 62600],
+    [5300, 62600],
     ]
-   zMax: 9200
+   zMax: 9900
  ZSD_01_slide:
   StageArea:
    area: [
@@ -143,9 +143,9 @@ PlateHolder:
  xCorrection: 1         # correction term for differences in calibration between plate holder and stage
  yCorrection: 1         # correction term for differences in calibration between plate holder and stage
  zCorrection: 1         # correction term for differences in calibration between plate holder and stage
- xSafePosition: 55600   # save position to start any movements without danger of objective collisions in absolute coordinates
- ySafePosition: 31800   # save position to start any movements without danger of objective collisions in absolute coordinates
- zSafePosition: None    # save position to start any movements without danger of objective collisions (None= load position)
+ xSafePosition: 55600   # safe position to start any movements without danger of objective collisions in absolute coordinates
+ ySafePosition: 31800   # safe position to start any movements without danger of objective collisions in absolute coordinates
+ zSafePosition: None    # safe position to start any movements without danger of objective collisions (None= load position)
 
 
 ############################################################
@@ -156,9 +156,9 @@ PlateHolder:
 
 Plate:
  Name: 96-well
- xCenter: 3204          # zero position of plate in plate holder coordinates = center of well A1.
- yCenter: 3718
- zCenter: 8871
+ xCenter: 6418           # zero position of plate in plate holder coordinates = center of well A1.
+ yCenter: 5011
+ zCenter: 8822
 
  xFlip: 1               # -1 if plate holder coordinate system is flipped in respect to plate holder coordinate system, otherwise 1
  yFlip: 1               # -1 if plate holder coordinate system is flipped in respect to plate holder coordinate system, otherwise 1
@@ -230,11 +230,11 @@ zCenterBackground: 200       # center of background in the z direction in the pl
 
 Focus:
  Name: MotorizedFocus
- MaxLoadPosition: 50
+ MaxLoadPosition: 500
  MinWorkPosition: 100
  AutoFocus: DefiniteFocus2
  DefaultExperiment: Setup_10x.czexp
- DefaultCamera: Camera1 (Back)
+ DefaultCamera: Camera1 (back)
  ObjectiveChanger: 6xMotorizedNosepiece
 
 ############################################################
@@ -246,7 +246,7 @@ Focus:
 AutoFocus:
  Name: DefiniteFocus2
  DefaultExperiment: Setup_10x.czexp
- DefaultCamera: Camera1 (Back)
+ DefaultCamera: Camera1 (back)
  DefaultReferencePosition: [52000, 40200, 8941]
 
 ############################################################
@@ -261,38 +261,21 @@ ObjectiveChanger:
  Positions: 6
  # There is a mechanical offset between different objectives, called parcentricity and parfocality
  # Reference objective to define reference position
- # ReferenceObjective: 'Plan-Apochromat 20x/0.8 M27'
- ReferenceObjective: 'Plan-Apochromat 10x/0.45 M27'
+ ReferenceObjective: 'Plan-Apochromat 20x/0.8 M27'
  Objectives:
     # Use grid slide to calibrate offset
     # Focus with 20x objective on center of grid and record xyz stage position as shown in ZEN software
     # Switch to 10x objective and focus on center of grid and record xyz position
     # Substract 20x position from 10x position and save as offset below
     # Multiply y_offset with -1
-    {'Plan-Apochromat 10x/0.45 M27': {'x_offset': 0,
-                                  'y_offset': 0,
-                                  'z_offset': 0,
-                                  'magnification': 10,
-                                  'immersion': 'air',
-                                  'experiment': 'Setup_10x',
-                                  'camera': Camera1 (Back),
-                                  'autofocus': 'DefiniteFocus2'},
-          'Plan-Apochromat 20x/0.8 M27': {'x_offset': 0,
-                                          'y_offset': 0,
-                                          'z_offset': 0,
-                                          'magnification': 20,
-                                          'immersion': 'air',
-                                          'experiment': 'Setup_20x',
-                                          'camera': Camera1 (Back),
-                                          'autofocus': 'DefiniteFocus2'},
-          'C-Apochromat 100x/1.25 W Korr UV VIS IR': {'x_offset': 0,
-                                                      'y_offset': 0,
-                                                      'z_offset': 0,
-                                                      'magnification': 100,
-                                                      'immersion': 'water',
-                                                      'experiment': 'Setup_100x',
-                                                      'camera': Camera1 (Back),
-                                                      'autofocus': 'DefiniteFocus2'}}
+    {'Dummy Objective': {'x_offset': -19,
+                         'y_offset': 15,
+                         'z_offset': 10,
+                         'magnification': 10,
+                         'immersion': 'air',
+                         'experiment': 'Setup_10x',
+                         'camera': Camera1 (back),
+                         'autofocus': 'DefiniteFocus2'}}
 
 ############################################################
 #
@@ -300,10 +283,9 @@ ObjectiveChanger:
 #
 ############################################################
 
-
 Pump:
  Name: BraintreeScientific
- SafetyID: ZSD_02_immersion      # name of safety area for immersion water delivery system
+ SafetyID: ZSD_01_immersion      # name of safety area for immersion water delivery system
  xCenter: 52063                  # zero position of immersion water outlet in plate holder coordinates.
  yCenter: 37147
  zCenter: -5099

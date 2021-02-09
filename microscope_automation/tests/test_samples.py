@@ -841,7 +841,7 @@ def test_microscope_is_ready(
             None,
             None,
             "data/preferences_ZSD_test.yml",
-            (0, 0, 500),
+            (20, 0, 510),
         ),
     ],
 )
@@ -922,7 +922,7 @@ def test_move_to_abs_position(
     [
         ("img_sys", None, "ZeroDivisionError"),
         ("plate_holder", None, "AttributeError"),
-        ("plate_holder", "data/preferences_ZSD_test.yml", (0, 0, 0)),
+        ("plate_holder", "data/preferences_ZSD_test.yml", (20.0, 0.0, 10.0)),
     ],
 )
 def test_move_to_zero(
@@ -979,7 +979,7 @@ def test_move_to_zero(
             None,
             None,
             None,
-            (55600.0, 31800.0, 0.0),
+            (55620.0, 31800.0, 10.0),
         ),
         (
             "img_sys",
@@ -995,7 +995,7 @@ def test_move_to_zero(
             55600,
             31800,
             None,
-            (55600.0, 31800.0, 500),
+            (55620.0, 31800.0, 510.0),
         ),
     ],
 )
@@ -1057,8 +1057,8 @@ def test_move_to_safe(
     [
         ("img_sys", None, 0, 0, 0, "ZeroDivisionError"),
         ("plate_holder", None, 0, 0, 0, "AttributeError"),
-        ("plate_holder", "data/preferences_ZSD_test.yml", 1, 1, None, (1.0, 1.0, 500)),
-        ("plate_holder", "data/preferences_ZSD_test.yml", 1, 1, 2, (1.0, 1.0, 2.0)),
+        ("plate_holder", "data/preferences_ZSD_test.yml", 1, 1, None, (21.0, 1.0, 510)),
+        ("plate_holder", "data/preferences_ZSD_test.yml", 1, 1, 2, (21.0, 1.0, 12.0)),
     ],
 )
 def test_move_to_xyz(
@@ -1109,13 +1109,13 @@ def test_move_to_xyz(
     [
         ("img_sys", None, 0, 0, "ZeroDivisionError"),
         ("plate_holder", None, 0, 0, "AttributeError"),
-        ("plate_holder", "data/preferences_ZSD_test.yml", 0, 0, (0.0, 0.0, 500)),
+        ("plate_holder", "data/preferences_ZSD_test.yml", 0, 0, (20.0, 0.0, 510)),
         (
             "plate_holder",
             "data/preferences_ZSD_test.yml",
             1,
             2 * np.pi,
-            (0.10944260690631982, 0.9939931165725187, 500),
+            (20.10944260690631982, 0.9939931165725187, 510),
         ),
     ],
 )
@@ -1167,7 +1167,7 @@ def test_move_to_r_phi(
     [
         ("img_sys", None, 0, 0, 0, "AttributeError"),
         ("plate_holder", "data/preferences_ZSD_test.yml", 1, 1, None, "TypeError"),
-        ("plate_holder", "data/preferences_ZSD_test.yml", 1, 1, 2, (1, 1, 502)),
+        ("plate_holder", "data/preferences_ZSD_test.yml", 1, 1, 2, (21, 1, 512)),
     ],
 )
 def test_move_delta_xyz(

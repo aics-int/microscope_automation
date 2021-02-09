@@ -2,7 +2,15 @@ import math
 from matplotlib.pyplot import rcParams
 import numpy as np
 from scipy import ndimage, signal
-from skimage import exposure, feature, morphology, transform, filters, measure
+from skimage import (
+    exposure,
+    feature,
+    morphology,
+    transform,
+    filters,
+    measure,
+    segmentation,
+)
 
 DOWNSCALING_FACTOR = 4
 rcParams["figure.figsize"] = 15, 12
@@ -198,12 +206,12 @@ class WellSegmentation:
 
         # --------------------------------------------------------------------------
         # Apply watershed segmentation
-        segmentation = morphology.watershed(colony_edge, markers)
-        segmentation[segmentation == 1] = 0.0
-        segmentation[segmentation == 2] = 1.0
+        segmentation_result = segmentation.watershed(colony_edge, markers)
+        segmentation_result[segmentation_result == 1] = 0.0
+        segmentation_result[segmentation_result == 2] = 1.0
 
         # Adjust morphology of cell colonies segmented
-        binary_colony_mask = morphology.erosion(segmentation, morphology.disk(5))
+        binary_colony_mask = morphology.erosion(segmentation_result, morphology.disk(5))
         print("Completed creating binary colony mask")
         return binary_colony_mask
 
@@ -267,7 +275,7 @@ class WellSegmentation:
         total = np.logical_or(dilate_maxi, final_small)
         markers = measure.label(total)
         # Apply watershed segmentation
-        labelled_colonies = morphology.watershed(
+        labelled_colonies = segmentation.watershed(
             -distance_map_max, markers, mask=binary_colony_mask
         )
         print("Identified and labelled separate colonies from binary colony mask")
@@ -292,7 +300,7 @@ class WellSegmentation:
         dilate = morphology.dilation(local_maxi, selem=morphology.disk(10))
         seed = measure.label(dilate)
         # Apply watershed segmentation on the colony with new seeds to partition
-        split = morphology.watershed(-dis_map, seed, mask=mask)
+        split = segmentation.watershed(-dis_map, seed, mask=mask)
         print("Partitioned big colonies to smaller colonies")
 
         # Adjust labeling with new partitioned colonies
