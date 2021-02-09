@@ -1028,6 +1028,7 @@ def test_scan_all_objects(
     less_dialog,
     expected,
     helpers,
+    app,
 ):
     mock_load.side_effect = FileNotFoundError if load_error else None
     camera_id = "Camera1 (back)"
@@ -1063,7 +1064,7 @@ def test_scan_all_objects(
         plate_object.add_wells({name: sample})
         sample_list.append(sample)
 
-    mic_auto = helpers.setup_local_microscope_automation(prefs_path)
+    mic_auto = helpers.setup_local_microscope_automation(prefs_path, app)
     mic_auto.less_dialog = less_dialog
     try:
         result = mic_auto.scan_all_objects(
@@ -1080,6 +1081,10 @@ def test_scan_all_objects(
     assert result == expected
 
 
+@patch(
+    "microscope_automation.samples.samples.Well.set_interactive_positions",  # noqa
+    return_value=[(0, 0)],
+)
 @patch(
     "microscope_automation.util.automation_messages_form_layout.read_string",
     return_value="",
@@ -1101,7 +1106,7 @@ def test_scan_all_objects(
             "data/preferences_ZSD_2_test.yml",
             "ScanPlate",
             {
-                "Experiment": "UpdatePlateWellZero",
+                "Experiment": "SegmentWells",
                 "Repetitions": 1,
                 "Input": None,
                 "Output": {},
@@ -1119,7 +1124,7 @@ def test_scan_all_objects(
             "data/preferences_ZSD_2_test.yml",
             "SegmentWells",
             {
-                "Experiment": "UpdatePlateWellZero",
+                "Experiment": "SegmentWells",
                 "Repetitions": 1,
                 "Input": None,
                 "Output": {},
@@ -1137,7 +1142,7 @@ def test_scan_all_objects(
             "data/preferences_ZSD_2_test.yml",
             "SegmentWells",
             {
-                "Experiment": "UpdatePlateWellZero",
+                "Experiment": "SegmentWells",
                 "Repetitions": 1,
                 "Input": None,
                 "Output": {},
@@ -1155,7 +1160,7 @@ def test_scan_all_objects(
             "data/preferences_ZSD_2_test.yml",
             "SegmentWells",
             {
-                "Experiment": "UpdatePlateWellZero",
+                "Experiment": "SegmentWells",
                 "Repetitions": 1,
                 "Input": None,
                 "Output": {},
@@ -1173,7 +1178,7 @@ def test_scan_all_objects(
             "data/preferences_ZSD_test.yml",
             "SegmentWells",
             {
-                "Experiment": "UpdatePlateWellZero",
+                "Experiment": "SegmentWells",
                 "Repetitions": 1,
                 "Input": None,
                 "Output": {},
@@ -1185,7 +1190,25 @@ def test_scan_all_objects(
             0,
             {"Status": True},
             1234,
-            "NameError",
+            "AutomationError",
+        ),
+        (
+            "data/preferences_ZSD_test.yml",
+            "SegmentWells",
+            {
+                "Experiment": "SegmentWells",
+                "Repetitions": 1,
+                "Input": None,
+                "Output": {"ScanCells": "Cell"},
+                "OriginalWorkflow": ["Koehler", "UpdatePlateWellZero", "RunMacro"],
+                "WorkflowList": ["Koehler", "UpdatePlateWellZero", "RunMacro"],
+                "WorkflowType": "new",
+            },
+            ["B2", "B11", "G11", "C2"],
+            0,
+            {"Status": True},
+            1234,
+            None,
         ),
     ],
 )
@@ -1193,6 +1216,7 @@ def test_segment_wells(
     mock_convert,
     mock_write,
     mock_read,
+    mock_set_interactive,
     prefs_path,
     pref_name,
     experiment,
@@ -1202,6 +1226,7 @@ def test_segment_wells(
     barcode,
     expected,
     helpers,
+    app,
 ):
     basepath = os.path.join("data", "Production", "Daily")
     src = os.path.join(basepath, "WellEdge_0_1_C2.czi")
@@ -1251,7 +1276,7 @@ def test_segment_wells(
         well.container = plate_object
         plate_object.add_wells({name: well})
 
-    mic_auto = helpers.setup_local_microscope_automation(prefs_path)
+    mic_auto = helpers.setup_local_microscope_automation(prefs_path, app)
     try:
         result = mic_auto.segment_wells(
             Preferences(prefs_path).get_pref_as_meta(pref_name),
@@ -1963,6 +1988,10 @@ def test_control_autofocus(
     assert result == expected
 
 
+@patch(
+    "microscope_automation.samples.samples.Well.set_interactive_positions",  # noqa
+    return_value=[(0, 0)],
+)
 @patch("microscope_automation.util.automation_messages_form_layout.read_string")
 @patch("microscope_automation.util.automation_messages_form_layout.check_box_message")
 @patch("microscope_automation.util.automation_messages_form_layout.information_message")
@@ -2032,6 +2061,7 @@ def test_microscope_automation(
     mock_info,
     mock_check_box,
     mock_read,
+    mock_set_interactive,
     file_name,
     check_box_val,
     barcode,
@@ -2039,13 +2069,14 @@ def test_microscope_automation(
     less_dialog,
     expected,
     helpers,
+    app,
 ):
     mock_file_dialog.return_value = file_name
     mock_pull_down.return_value = "ScanCells"
     mock_check_box.return_value = check_box_val
     mock_read.return_value = barcode
 
-    mic_auto = helpers.setup_local_microscope_automation(prefs_path)
+    mic_auto = helpers.setup_local_microscope_automation(prefs_path, app)
     mic_auto.less_dialog = less_dialog
     try:
         result = mic_auto.microscope_automation()

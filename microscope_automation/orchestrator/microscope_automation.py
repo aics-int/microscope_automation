@@ -118,7 +118,7 @@ VALID_BLOCKING = [True, False]
 
 
 class MicroscopeAutomation(object):
-    def __init__(self, prefs_path):
+    def __init__(self, prefs_path, app=None):
         self.prefs = preferences.Preferences(prefs_path)
         recovery_file_path = get_recovery_settings_path(self.prefs)
 
@@ -134,6 +134,9 @@ class MicroscopeAutomation(object):
             self.less_dialog = False
 
         self.failed_wells = []
+
+        # instead of using a global variable, make the GUI an attribute
+        self.app = app
 
     def get_well_object(self, plate_holder_object, plate_name, well):
         """Return well object for given well.
@@ -1445,7 +1448,7 @@ class MicroscopeAutomation(object):
                             imaging_settings=imaging_settings,
                             image=tile_image,
                             output_class=output_class,
-                            app=app,
+                            app=self.app,
                             offset=(0, 0, 0),
                         )
                     )
@@ -1662,7 +1665,7 @@ class MicroscopeAutomation(object):
                 # Store each image (with red +) in the target folder
                 # location_list will be an empty list if user determines well is failed
                 location_list = well_object.set_interactive_positions(
-                    image_data, segmented_position_list, app
+                    image_data, segmented_position_list, self.app
                 )
                 # save the image
                 self.save_segmented_image(
@@ -1676,57 +1679,59 @@ class MicroscopeAutomation(object):
                     location_list, image, "czi"
                 )
                 # Create cell objects and attach them properly to the parent object
-                for key in experiment["Output"].keys():
-                    output_name = key
-                    output_class = experiment["Output"][key]
-                class_ = getattr(samples, output_class)
-                ind = 1
-                new_objects_list = []
-                new_objects_dict = {}
-                for location in correct_location_list:
-                    new_object_name = well_object.get_name() + "_{:04}".format(ind)
-                    ind = ind + 1
-                    new_object = class_(
-                        new_object_name, [location[0], location[1], 0], well_object
+                for output_name, output_class in experiment["Output"].items():
+                    class_ = getattr(samples, output_class)
+                    ind = 1
+                    new_objects_list = []
+                    new_objects_dict = {}
+                    for location in correct_location_list:
+                        new_object_name = well_object.get_name() + "_{:04}".format(ind)
+                        ind = ind + 1
+                        new_object = class_(
+                            new_object_name, [location[0], location[1], 0], well_object
+                        )
+                        new_objects_list.append(new_object)
+                        new_objects_dict[new_object_name] = new_object
+                        # Add P number to match the format being used in the pipeline
+                        position_name = "P" + str(position_number)
+                        # The positions in this list are relative to the center of well
+                        # To get the absolute stage coordinates
+                        # we will have to add well.zero position + plate.zero position
+                        # And we will also need to add the objective offset
+                        # for 100X to correct for parcentricity
+                        x_obj_offset, y_obj_offset = self.get_objective_offsets(
+                            plate_holder_object, 100
+                        )
+                        x_offset = (
+                            well_object.x_zero
+                            + well_object.container.x_zero
+                            + x_obj_offset
+                        )
+                        y_offset = (
+                            well_object.y_zero
+                            + well_object.container.y_zero
+                            + y_obj_offset
+                        )
+                        x_pos = location[0] + x_offset
+                        y_pos = location[1] + y_offset
+                        pos_info = [position_name, x_pos, y_pos, default_z]
+                        well_info = [
+                            position_name,
+                            well_object.get_name(),
+                            location[0],
+                            location[1],
+                            default_z,
+                        ]
+                        position_list_for_csv.append(pos_info)
+                        image_location_list_for_csv.append(well_info)
+                        position_number += 1
+                    well_object.add_samples(new_objects_dict)
+                    plate_object.add_to_image_dir(
+                        list_name=output_name, sample_object=new_objects_list
                     )
-                    new_objects_list.append(new_object)
-                    new_objects_dict[new_object_name] = new_object
-                    # Add P number to match the format being used in the pipeline
-                    position_name = "P" + str(position_number)
-                    # The positions in this list are relative to the center of well
-                    # To get the absolute stage coordinates
-                    # we will have to add well.zero position + plate.zero position
-                    # And we will also need to add the objective offset
-                    # for 100X to correct for parcentricity
-                    x_obj_offset, y_obj_offset = self.get_objective_offsets(
-                        plate_holder_object, 100
-                    )
-                    x_offset = (
-                        well_object.x_zero + well_object.container.x_zero + x_obj_offset
-                    )
-                    y_offset = (
-                        well_object.y_zero + well_object.container.y_zero + y_obj_offset
-                    )
-                    x_pos = location[0] + x_offset
-                    y_pos = location[1] + y_offset
-                    pos_info = [position_name, x_pos, y_pos, default_z]
-                    well_info = [
-                        position_name,
-                        well_object.get_name(),
-                        location[0],
-                        location[1],
-                        default_z,
-                    ]
-                    position_list_for_csv.append(pos_info)
-                    image_location_list_for_csv.append(well_info)
-                    position_number += 1
-                well_object.add_samples(new_objects_dict)
-                plate_object.add_to_image_dir(
-                    list_name=output_name, sample_object=new_objects_list
-                )
-                all_objects_list.extend(new_objects_list)
-                for object in new_objects_dict:
-                    all_objects_dict[object] = new_objects_dict[object]
+                    all_objects_list.extend(new_objects_list)
+                    for object in new_objects_dict:
+                        all_objects_dict[object] = new_objects_dict[object]
         finally:
             # write each position to the file
             with open(str(position_csv_filepath), mode="a") as position_file:
@@ -2573,10 +2578,9 @@ def main():
 
     # initialize the pyqt application object here (not in the location picker module)
     # as it only needs to be initialized once
-    global app
     app = QtGui.QApplication([])
     try:
-        mic = MicroscopeAutomation(prefs_path)
+        mic = MicroscopeAutomation(prefs_path, app)
         mic.microscope_automation()
     except KeyboardInterrupt:
         pyqtgraph.exit()

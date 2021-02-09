@@ -18,6 +18,7 @@ Docs: https://docs.pytest.org/en/latest/example/simple.html
 
 import pytest
 import numpy as np
+from pyqtgraph.Qt import QtGui
 from microscope_automation.util.image_AICS import ImageAICS
 import microscope_automation.hardware.setup_microscope as setup_microscope
 import microscope_automation.settings.preferences as preferences
@@ -101,11 +102,16 @@ def test_image_black_reference():
     return ImageAICS(data=data, meta=meta)
 
 
+@pytest.fixture
+def app():
+    return QtGui.QApplication([])
+
+
 class Helpers:
     @staticmethod
-    def setup_local_microscope_automation(prefs_path):
+    def setup_local_microscope_automation(prefs_path, app=None):
         """Create microscope automation object"""
-        return mic_auto.MicroscopeAutomation(prefs_path)
+        return mic_auto.MicroscopeAutomation(prefs_path, app)
 
     @staticmethod
     def setup_local_microscope(prefs_path):
@@ -611,7 +617,17 @@ class Helpers:
                 "experiment": "WellTile_10x_true",
                 "camera": "Camera1 (back)",
                 "autofocus": "DefiniteFocus2",
-            }
+            },
+            "Dummy Objective": {
+                "x_offset": 20,
+                "y_offset": 0,
+                "z_offset": 10,
+                "magnification": 10,
+                "immersion": "air",
+                "experiment": "WellTile_10x_true",
+                "camera": "Camera1 (back)",
+                "autofocus": "DefiniteFocus2",
+            },
         }
         safety_id = "ZSD_01_plate"
         control_software = self.setup_local_control_software("ZEN Blue Dummy")
