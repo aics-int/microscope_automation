@@ -7,8 +7,8 @@
 ##########################################################################################
 
 Info:
- Date: 12/16/2019
- Version: 121619_1
+ Date: 02/09/2021
+ Version: 020921_1
  Type: Specifications
  Note: Specifictions for spinning disk ZSD_2
  Author: Winfried
@@ -176,7 +176,7 @@ Plate:
 #
 ############################################################
 
-Slide: 
+Slide:
  Name: CalibrationSlide
  SafetyID: ZSD_02_slide # name of safety area for slide
  xCenter: 83192         # zero position of slide in plate holder coordinates
@@ -265,13 +265,11 @@ ObjectiveChanger:
  # Reference objective to define reference position
  ReferenceObjective: 'Plan-Apochromat 20x/0.8 M27'
 
-
-
-    # Use grid slide to calibrate offset
-    # Focus with 20x objective on center of grid and record xyz stage position as shown in ZEN software
-    # Switch to 10x objective and focus on center of grid and record xyz position
-    # Substract 20x position from 10x position and save as offset below
-    # Multiply y_offset with -1
+ # Use grid slide to calibrate offset
+ # Focus with 20x objective on center of grid and record xyz stage position as shown in ZEN software
+ # Switch to 10x objective and focus on center of grid and record xyz position
+ # Substract 20x position from 10x position and save as offset below
+ # Multiply y_offset with -1
  Objectives:
   {"C-Apochromat 100x/1.25 W Korr UV VIS IR": {'autofocus': 'DefiniteFocus2',
                                                'camera': "Camera 1 (Back)",
@@ -299,8 +297,6 @@ ObjectiveChanger:
                                   'x_offset': 0,
                                   'y_offset': 0,
                                   'z_offset': 0}}
-
-
 
 ############################################################
 #

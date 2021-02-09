@@ -11,8 +11,8 @@ Info:
  Author: Winfried (based on Calysta)
  Date: 01/06/2021
  Version: 010621_1
- System: ZSD2
- Type: Pipeline 4.8
+ System: ZSD1
+ Type: Pipeline 5.2
  Note: Get overview images of wells and use automated position selection
 
 # Workflow
@@ -44,10 +44,10 @@ PathMicroscopeSpecs: ['D:\Users\SVC_aicspipeline\Documents\Git\microscope_automa
 PathDailyFolder: ['D:\Users\SVC_aicspipeline\Desktop\PRODUCTION']
 
 # Path to calibration information
-PathCalibration: ['D:\Automation\GeneralSettings\', '/Users/winfriedw/Documents/Documents - OSXLT4G8WM/Programming/Production/GeneralSettings/Calibration/', '/home/mattb/git/microscopeautomation/GeneralSettings/Calibration/', '/home/shailjad/git/microscopeautomation/GeneralSettings/Calibration/']
+PathCalibration: ['D:\Automation\GeneralSettings\', 'D:\Automation\GeneralSettings\'Calibration\']
 
 # Path to Empty positions.czsh file- save_position_list uses this to write a filled positions.czsh file with coordinates from the Automation software.
-PathDummy: 'D:\Users\SVC_aicspipeline\Documents\Git\microscope_automation\data\dummy_tile_positions_zsd2.czsh'
+PathDummy: 'D:\Users\SVC_aicspipeline\Documents\Git\microscope_automation\data\dummy_tile_positions_zsd1.czsh'
 
 # Sample Information in daily folder. Do not use '/' at end of directory.
 # All paths are relative to daily folder
@@ -81,7 +81,7 @@ InitializeMicroscope:
  Koehler: False                                   # Set Koehler illumination
  StageID: Marzhauser                              # Name of stage used to set up Koehler illumination
  FocusID: MotorizedFocus                          # Name of focus drive used to set up Koehler illumination
- SaveAreaID: ZSD_02_plate                         # Name of save area used to avoid hardware collisions
+ SaveAreaID: ZSD_01_plate                         # Name of save area used to avoid hardware collisions
  Well: E7                                         # Well used to set Koehler
  Load: True                                       # Go to load position when moving objective to Koehler well
  Wait:                                            # Wait for user input after imaging and before removing image from display (has no effect in this experiment module)
@@ -203,7 +203,7 @@ ScanPlate:
                                                   # -c opy_image_position: use center of image as object zero position
  Filters:                                       # filters for segmentation if find type = interactive distance map
   minArea: [0]                                   # min area of the colony
-  distFromCenter: [150000, 10]                    # max distance from center & the number of colonies you want
+  distFromCenter: [150000, 4]                    # max distance from center & the number of colonies you want
  AdjustSigmoidCutoff: 0.3
  AdjustSigmoidGain: 5
  AdjustGammaGain: 1.5
@@ -238,7 +238,7 @@ SegmentWells:
  FileName: ['#aics_barcode', '_', '#aics_objectiveMagnification', 'X_', '#aics_dateStartShort', '_','#aics_well','.tiff']
  Filters:     # filters for segmentation if find type = interactive distance map
   minArea: [200000]  # min area of the colony
-  distFromCenter: [2500, 10]  # max distance from center & the number of colonies you want
+  distFromCenter: [2500, 4]  # max distance from center & the number of colonies you want
  CannySigma: 0.01
  CannyLowThreshold: 0.025
  RemoveSmallHolesAreaThreshold: 1000
