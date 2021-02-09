@@ -296,7 +296,6 @@ class MicroscopeAutomation(object):
         Output:
          none
         """
-
         # TODO: this function should be part of pump.initialize() in module hardware.py
         # set debugging level
         verbose = prefs.get_pref("Verbose", valid_values=VALID_VERBOSE)
@@ -600,7 +599,7 @@ class MicroscopeAutomation(object):
          none
         """
         plates = plate_holder_object.get_plates()
-        barcode = list(plates.keys())[-1]
+        barcode = list(plates.values())[-1].get_barcode()
 
         if initialize_prefs.get_pref(
             "CopyColonyFile", valid_values=VALID_COPYCOLONYFILES
@@ -1554,7 +1553,7 @@ class MicroscopeAutomation(object):
         # Get the well names and plates
         well_names_list = imaging_settings.get_pref("Wells", valid_values=VALID_WELLS)
         plates = plate_holder_object.get_plates()
-        barcode = list(plates.keys())[-1]
+        barcode = list(plates.values())[-1].get_barcode()
 
         # Get all the well overview images in imageAICS format
         source_folder = imaging_settings.get_pref("SourceFolder")
@@ -1811,6 +1810,11 @@ class MicroscopeAutomation(object):
             pos_list_saver.write(
                 converted=position_list_for_csv, dummy=self.prefs.prefs["PathDummy"]
             )
+        # else:
+        #     raise AutomationError(
+        #         "Position list was empty. Likely because no images were found at "
+        #         + image_dir
+        #     )
 
     def get_objective_offsets(self, plate_holder_object, magnification):
         """Function to return the objective offsets
@@ -2423,7 +2427,7 @@ class MicroscopeAutomation(object):
         # Set up the Daily folder with plate barcode
         # Currently only one plate supported so barcode is extracted from that
         plates = plate_holder_object.get_plates()
-        barcode = list(plates.keys())[-1]
+        barcode = list(plates.values())[-1].get_barcode()
         # Set up Image Folders and Sub Folders
         image_folder = None
         # Get all the preferences

@@ -1205,9 +1205,14 @@ def test_segment_wells(
 ):
     basepath = os.path.join("data", "Production", "Daily")
     src = os.path.join(basepath, "WellEdge_0_1_C2.czi")
-    dst = os.path.join(
-        basepath, DATE_STR, "Zeiss SD 1", "10XwellScan", "WellEdge_0_1_C2.czi"
-    )
+    if barcode:
+        dst = os.path.join(
+            basepath, str(barcode), "Zeiss SD 1", "10XwellScan", "WellEdge_0_1_C2.czi"
+        )
+    else:
+        dst = os.path.join(
+            basepath, DATE_STR, "Zeiss SD 1", "10XwellScan", "WellEdge_0_1_C2.czi"
+        )
     try:
         copyfile(src, dst)
     except FileNotFoundError:
