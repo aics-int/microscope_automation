@@ -18,7 +18,6 @@ Docs: https://docs.pytest.org/en/latest/example/simple.html
 
 import pytest
 import numpy as np
-from pyqtgraph.Qt import QtGui
 from microscope_automation.util.image_AICS import ImageAICS
 import microscope_automation.hardware.setup_microscope as setup_microscope
 import microscope_automation.settings.preferences as preferences
@@ -102,16 +101,11 @@ def test_image_black_reference():
     return ImageAICS(data=data, meta=meta)
 
 
-@pytest.fixture
-def app():
-    return QtGui.QApplication([])
-
-
 class Helpers:
     @staticmethod
-    def setup_local_microscope_automation(prefs_path, app=None):
+    def setup_local_microscope_automation(prefs_path):
         """Create microscope automation object"""
-        return mic_auto.MicroscopeAutomation(prefs_path, app)
+        return mic_auto.MicroscopeAutomation(prefs_path, app=None)
 
     @staticmethod
     def setup_local_microscope(prefs_path):
