@@ -2,7 +2,15 @@ import math
 from matplotlib.pyplot import rcParams
 import numpy as np
 from scipy import ndimage, signal
-from skimage import exposure, feature, morphology, transform, filters, measure, segmentation
+from skimage import (
+    exposure,
+    feature,
+    morphology,
+    transform,
+    filters,
+    measure,
+    segmentation,
+)
 
 DOWNSCALING_FACTOR = 4
 rcParams["figure.figsize"] = 15, 12

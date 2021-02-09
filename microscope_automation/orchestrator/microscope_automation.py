@@ -621,8 +621,7 @@ class MicroscopeAutomation(object):
                         os.path.join(colony_remote_dir, colony_remote_file)
                     )
                     destination_path = get_colony_dir_path(
-                        initialize_prefs,
-                        barcode=barcode
+                        initialize_prefs, barcode=barcode
                     )
                     shutil.copy2(source_path, destination_path)
 
@@ -1294,9 +1293,8 @@ class MicroscopeAutomation(object):
         # Define and if necessary create folder for images
         object_folder = imaging_settings.get_pref("Folder")
         image_dir = get_images_path(
-            imaging_settings,
-            sub_dir=object_folder,
-            barcode=plate_object.get_barcode())
+            imaging_settings, sub_dir=object_folder, barcode=plate_object.get_barcode()
+        )
         image_file_name_template = imaging_settings.get_pref("FileName")
         image_path = (image_dir, image_file_name_template)
 
@@ -1558,9 +1556,7 @@ class MicroscopeAutomation(object):
         # Get all the well overview images in imageAICS format
         source_folder = imaging_settings.get_pref("SourceFolder")
         image_dir = get_images_path(
-            imaging_settings,
-            sub_dir=source_folder,
-            barcode=barcode
+            imaging_settings, sub_dir=source_folder, barcode=barcode
         )
         images_name_list = [
             file for file in os.listdir(image_dir) if file.endswith(".czi")

@@ -321,9 +321,7 @@ def setup_plate(prefs, colony_file=None, microscope_object=None, barcode=None):
 
         # calculate correction factor for wells
         colonies_path = get_colony_file_path(
-            add_colonies_preferences,
-            colony_file,
-            barcode=barcode
+            add_colonies_preferences, colony_file, barcode=barcode
         )
         colonies = get_colony_data(add_colonies_preferences, colonies_path)
 
