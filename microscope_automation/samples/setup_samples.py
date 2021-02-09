@@ -320,7 +320,11 @@ def setup_plate(prefs, colony_file=None, microscope_object=None, barcode=None):
         add_colonies_preferences = prefs.get_pref_as_meta("AddColonies")
 
         # calculate correction factor for wells
-        colonies_path = get_colony_file_path(add_colonies_preferences, colony_file)
+        colonies_path = get_colony_file_path(
+            add_colonies_preferences,
+            colony_file,
+            barcode=barcode
+        )
         colonies = get_colony_data(add_colonies_preferences, colonies_path)
 
         # get names of wells to scan

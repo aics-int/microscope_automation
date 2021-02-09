@@ -33,7 +33,6 @@ from microscope_automation.util import error_handling
 from microscope_automation.samples.setup_samples import setup_plate
 from microscope_automation.util.get_path import (
     set_up_subfolders,
-    get_daily_folder,
     get_recovery_settings_path,
     get_references_path,
     get_images_path,
@@ -225,7 +224,7 @@ class MicroscopeAutomation(object):
         camera_id = prefs.get_pref("CameraBarcode")
 
         # Define and if necessary create folder for images
-        image_dir = get_references_path(prefs)
+        image_dir = get_references_path(prefs, barcode=barcode)
 
         # acquire image
         file_path = image_dir + barcode_name + ".czi"
@@ -600,6 +599,8 @@ class MicroscopeAutomation(object):
         Output:
          none
         """
+        plates = plate_holder_object.get_plates()
+        barcode = list(plates.keys())[-1]
 
         if initialize_prefs.get_pref(
             "CopyColonyFile", valid_values=VALID_COPYCOLONYFILES
@@ -620,7 +621,10 @@ class MicroscopeAutomation(object):
                     source_path = os.path.normpath(
                         os.path.join(colony_remote_dir, colony_remote_file)
                     )
-                    destination_path = get_colony_dir_path(initialize_prefs)
+                    destination_path = get_colony_dir_path(
+                        initialize_prefs,
+                        barcode=barcode
+                    )
                     shutil.copy2(source_path, destination_path)
 
         # initialize microscope hardware (e.g. auto-focus)
@@ -1290,7 +1294,10 @@ class MicroscopeAutomation(object):
 
         # Define and if necessary create folder for images
         object_folder = imaging_settings.get_pref("Folder")
-        image_dir = get_images_path(imaging_settings, object_folder)
+        image_dir = get_images_path(
+            imaging_settings,
+            sub_dir=object_folder,
+            barcode=plate_object.get_barcode())
         image_file_name_template = imaging_settings.get_pref("FileName")
         image_path = (image_dir, image_file_name_template)
 
@@ -1544,17 +1551,22 @@ class MicroscopeAutomation(object):
         Output:
          none
         """
+        # Get the well names and plates
+        well_names_list = imaging_settings.get_pref("Wells", valid_values=VALID_WELLS)
+        plates = plate_holder_object.get_plates()
+        barcode = list(plates.keys())[-1]
+
         # Get all the well overview images in imageAICS format
         source_folder = imaging_settings.get_pref("SourceFolder")
-        image_dir = get_images_path(imaging_settings, source_folder)
+        image_dir = get_images_path(
+            imaging_settings,
+            sub_dir=source_folder,
+            barcode=barcode
+        )
         images_name_list = [
             file for file in os.listdir(image_dir) if file.endswith(".czi")
         ]
         images_list = []
-
-        # Get the well names and plates
-        well_names_list = imaging_settings.get_pref("Wells", valid_values=VALID_WELLS)
-        plates = plate_holder_object.get_plates()
 
         # To preserve the order defined in the preferences, we need to gp through
         # well list and create the image list in that particular order
@@ -1566,7 +1578,7 @@ class MicroscopeAutomation(object):
                 if well_name == well:
                     im_path = os.path.join(image_dir, image_filename)
                     aics_image = AICSImage(im_path, max_workers=1)
-                    image_data = numpy.transpose(aics_image.data[0, 0, 0])
+                    image_data = numpy.transpose(aics_image.data[0, 0, 0, 0])
                     pixel_size = aics_image.get_physical_pixel_size()
                     image_meta = {
                         "Size": image_data.shape,
@@ -1636,7 +1648,7 @@ class MicroscopeAutomation(object):
             position_csv_filepath,
             position_wellid_csv_filepath,
             failed_csv_filepath,
-        ) = get_position_csv_path(imaging_settings)
+        ) = get_position_csv_path(imaging_settings, barcode=barcode)
         # DefaultZ since the z position is not available at this point
         default_z = imaging_settings.get_pref("PositionDefaultZ")
         position_list_for_csv.append(
@@ -2336,7 +2348,7 @@ class MicroscopeAutomation(object):
                 )
                 pickle_file = message.file_select_dialog(
                     file_dir,
-                    filePattern="*.pickle",
+                    file_pattern="*.pickle",
                     comment="Please select the file to recover settings from.",
                 )
 
@@ -2380,13 +2392,17 @@ class MicroscopeAutomation(object):
 
         # setup plate holder with plate, wells, and colonies
         colony_file = None
+        barcode = None
         if "AddColonies" in workflow_experiments:
+            barcode = message.read_string(
+                "Barcode", "Barcode:", default="123", return_code=False
+            )
             add_colonies_prefs = self.prefs.get_pref_as_meta("AddColonies")
-            colony_file_directory = get_colony_dir_path(self.prefs)
+            colony_file_directory = get_colony_dir_path(self.prefs, barcode=barcode)
             file_name = add_colonies_prefs.get_pref("FileName")
             colony_file = message.file_select_dialog(
                 colony_file_directory,
-                filePattern=file_name,
+                file_pattern=file_name,
                 comment="""Please select csv file with colony data.""",
             )
             experiment = [
@@ -2397,14 +2413,17 @@ class MicroscopeAutomation(object):
             workflow.remove(experiment[0])
             self.state.workflow_pos.append("AddColonies")
 
-        plate_holder_object = setup_plate(self.prefs, colony_file, microscope_object)
+        plate_holder_object = setup_plate(
+            self.prefs,
+            colony_file=colony_file,
+            microscope_object=microscope_object,
+            barcode=barcode,
+        )
 
         # Set up the Daily folder with plate barcode
         # Currently only one plate supported so barcode is extracted from that
         plates = plate_holder_object.get_plates()
         barcode = list(plates.keys())[-1]
-        # Set up the high level folder with plate barcode
-        get_daily_folder(self.prefs, barcode)
         # Set up Image Folders and Sub Folders
         image_folder = None
         # Get all the preferences
@@ -2434,14 +2453,12 @@ class MicroscopeAutomation(object):
                                 set_up_subfolders(image_folder, subfolder)
 
         # set-up meta data file object
-        meta_data_file_path = get_meta_data_path(self.prefs, barcode)
+        meta_data_file_path = get_meta_data_path(self.prefs, barcode=barcode)
         meta_data_format = self.prefs.get_pref("MetaDataFormat")
         meta_data_file_object = MetaDataFile(meta_data_file_path, meta_data_format)
         plate_holder_object.add_meta_data_file(meta_data_file_object)
 
-        # cycle through all plates
-        plate_objects = plate_holder_object.get_plates()
-        for barcode, plate_object in plate_objects.items():
+        for barcode, plate_object in plates.items():
             # execute each measurement based on experiment in workflow
             for experiment in workflow:
                 # attach additional parameters to experiment to propagate

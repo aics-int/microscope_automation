@@ -1919,7 +1919,7 @@ class AutoFocus(MicroscopeComponent):
         focus_reference_obj_id = self.focus_reference_obj_id
         return focus_reference_obj_id
 
-    def store_focus(self, communication_object, focus_reference_obj_id):
+    def store_focus(self, communication_object, focus_reference_obj_id, verbose=False):
         """Store actual focus position as offset from coverslip.
 
         Input:
@@ -1938,13 +1938,14 @@ class AutoFocus(MicroscopeComponent):
                 communication_object
             )["name"]
         )
-        print(
-            (
-                "Autofocus position {} stored for {}.".format(
-                    z, self.initialized_objective
+        if verbose:
+            print(
+                (
+                    "Autofocus position {} stored for {}.".format(
+                        z, self.initialized_objective
+                    )
                 )
             )
-        )
         return z
 
     def recall_focus(
