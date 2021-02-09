@@ -1131,7 +1131,7 @@ def test_scan_all_objects(
             0,
             {"Status": True},
             None,
-            None,
+            "AutomationError",
         ),
         (
             "data/preferences_ZSD_2_test.yml",
@@ -1149,7 +1149,7 @@ def test_scan_all_objects(
             0,
             {"Status": True},
             "invalid_barcode",
-            None,
+            "AutomationError",
         ),
         (
             "data/preferences_ZSD_2_test.yml",
@@ -1167,7 +1167,7 @@ def test_scan_all_objects(
             0,
             {"Status": True},
             1234,
-            None,
+            "AutomationError",
         ),
         (
             "data/preferences_ZSD_test.yml",

@@ -1810,11 +1810,11 @@ class MicroscopeAutomation(object):
             pos_list_saver.write(
                 converted=position_list_for_csv, dummy=self.prefs.prefs["PathDummy"]
             )
-        # else:
-        #     raise AutomationError(
-        #         "Position list was empty. Likely because no images were found at "
-        #         + image_dir
-        #     )
+        else:
+            raise AutomationError(
+                "Position list was empty. Likely because no images were found at "
+                + image_dir
+            )
 
     def get_objective_offsets(self, plate_holder_object, magnification):
         """Function to return the objective offsets
