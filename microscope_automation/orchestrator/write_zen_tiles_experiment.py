@@ -94,6 +94,8 @@ class PositionWriter(object):
             # positions_list[i][0] is name of position from automation software
             this_position = dict()
             this_position["name"] = positions_list[i][0]
+            print(positions_list[i][1])
+            print(obj_offset[0])
             this_position["actual_x"] = (
                 positions_list[i][1] + obj_offset[0]
             )  # coordinate X + offset for X
