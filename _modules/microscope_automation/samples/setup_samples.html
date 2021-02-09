@@ -353,7 +353,9 @@
         <span class="n">add_colonies_preferences</span> <span class="o">=</span> <span class="n">prefs</span><span class="o">.</span><span class="n">get_pref_as_meta</span><span class="p">(</span><span class="s2">&quot;AddColonies&quot;</span><span class="p">)</span>
 
         <span class="c1"># calculate correction factor for wells</span>
-        <span class="n">colonies_path</span> <span class="o">=</span> <span class="n">get_colony_file_path</span><span class="p">(</span><span class="n">add_colonies_preferences</span><span class="p">,</span> <span class="n">colony_file</span><span class="p">)</span>
+        <span class="n">colonies_path</span> <span class="o">=</span> <span class="n">get_colony_file_path</span><span class="p">(</span>
+            <span class="n">add_colonies_preferences</span><span class="p">,</span> <span class="n">colony_file</span><span class="p">,</span> <span class="n">barcode</span><span class="o">=</span><span class="n">barcode</span>
+        <span class="p">)</span>
         <span class="n">colonies</span> <span class="o">=</span> <span class="n">get_colony_data</span><span class="p">(</span><span class="n">add_colonies_preferences</span><span class="p">,</span> <span class="n">colonies_path</span><span class="p">)</span>
 
         <span class="c1"># get names of wells to scan</span>

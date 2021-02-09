@@ -35,7 +35,15 @@
 <span class="kn">from</span> <span class="nn">matplotlib.pyplot</span> <span class="kn">import</span> <span class="n">rcParams</span>
 <span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
 <span class="kn">from</span> <span class="nn">scipy</span> <span class="kn">import</span> <span class="n">ndimage</span><span class="p">,</span> <span class="n">signal</span>
-<span class="kn">from</span> <span class="nn">skimage</span> <span class="kn">import</span> <span class="n">exposure</span><span class="p">,</span> <span class="n">feature</span><span class="p">,</span> <span class="n">morphology</span><span class="p">,</span> <span class="n">transform</span><span class="p">,</span> <span class="n">filters</span><span class="p">,</span> <span class="n">measure</span>
+<span class="kn">from</span> <span class="nn">skimage</span> <span class="kn">import</span> <span class="p">(</span>
+    <span class="n">exposure</span><span class="p">,</span>
+    <span class="n">feature</span><span class="p">,</span>
+    <span class="n">morphology</span><span class="p">,</span>
+    <span class="n">transform</span><span class="p">,</span>
+    <span class="n">filters</span><span class="p">,</span>
+    <span class="n">measure</span><span class="p">,</span>
+    <span class="n">segmentation</span><span class="p">,</span>
+<span class="p">)</span>
 
 <span class="n">DOWNSCALING_FACTOR</span> <span class="o">=</span> <span class="mi">4</span>
 <span class="n">rcParams</span><span class="p">[</span><span class="s2">&quot;figure.figsize&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="mi">15</span><span class="p">,</span> <span class="mi">12</span>
@@ -231,12 +239,12 @@
 
         <span class="c1"># --------------------------------------------------------------------------</span>
         <span class="c1"># Apply watershed segmentation</span>
-        <span class="n">segmentation</span> <span class="o">=</span> <span class="n">morphology</span><span class="o">.</span><span class="n">watershed</span><span class="p">(</span><span class="n">colony_edge</span><span class="p">,</span> <span class="n">markers</span><span class="p">)</span>
-        <span class="n">segmentation</span><span class="p">[</span><span class="n">segmentation</span> <span class="o">==</span> <span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="mf">0.0</span>
-        <span class="n">segmentation</span><span class="p">[</span><span class="n">segmentation</span> <span class="o">==</span> <span class="mi">2</span><span class="p">]</span> <span class="o">=</span> <span class="mf">1.0</span>
+        <span class="n">segmentation_result</span> <span class="o">=</span> <span class="n">segmentation</span><span class="o">.</span><span class="n">watershed</span><span class="p">(</span><span class="n">colony_edge</span><span class="p">,</span> <span class="n">markers</span><span class="p">)</span>
+        <span class="n">segmentation_result</span><span class="p">[</span><span class="n">segmentation_result</span> <span class="o">==</span> <span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="mf">0.0</span>
+        <span class="n">segmentation_result</span><span class="p">[</span><span class="n">segmentation_result</span> <span class="o">==</span> <span class="mi">2</span><span class="p">]</span> <span class="o">=</span> <span class="mf">1.0</span>
 
         <span class="c1"># Adjust morphology of cell colonies segmented</span>
-        <span class="n">binary_colony_mask</span> <span class="o">=</span> <span class="n">morphology</span><span class="o">.</span><span class="n">erosion</span><span class="p">(</span><span class="n">segmentation</span><span class="p">,</span> <span class="n">morphology</span><span class="o">.</span><span class="n">disk</span><span class="p">(</span><span class="mi">5</span><span class="p">))</span>
+        <span class="n">binary_colony_mask</span> <span class="o">=</span> <span class="n">morphology</span><span class="o">.</span><span class="n">erosion</span><span class="p">(</span><span class="n">segmentation_result</span><span class="p">,</span> <span class="n">morphology</span><span class="o">.</span><span class="n">disk</span><span class="p">(</span><span class="mi">5</span><span class="p">))</span>
         <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Completed creating binary colony mask&quot;</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">binary_colony_mask</span></div>
 
@@ -300,7 +308,7 @@
         <span class="n">total</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">logical_or</span><span class="p">(</span><span class="n">dilate_maxi</span><span class="p">,</span> <span class="n">final_small</span><span class="p">)</span>
         <span class="n">markers</span> <span class="o">=</span> <span class="n">measure</span><span class="o">.</span><span class="n">label</span><span class="p">(</span><span class="n">total</span><span class="p">)</span>
         <span class="c1"># Apply watershed segmentation</span>
-        <span class="n">labelled_colonies</span> <span class="o">=</span> <span class="n">morphology</span><span class="o">.</span><span class="n">watershed</span><span class="p">(</span>
+        <span class="n">labelled_colonies</span> <span class="o">=</span> <span class="n">segmentation</span><span class="o">.</span><span class="n">watershed</span><span class="p">(</span>
             <span class="o">-</span><span class="n">distance_map_max</span><span class="p">,</span> <span class="n">markers</span><span class="p">,</span> <span class="n">mask</span><span class="o">=</span><span class="n">binary_colony_mask</span>
         <span class="p">)</span>
         <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Identified and labelled separate colonies from binary colony mask&quot;</span><span class="p">)</span>
@@ -325,7 +333,7 @@
         <span class="n">dilate</span> <span class="o">=</span> <span class="n">morphology</span><span class="o">.</span><span class="n">dilation</span><span class="p">(</span><span class="n">local_maxi</span><span class="p">,</span> <span class="n">selem</span><span class="o">=</span><span class="n">morphology</span><span class="o">.</span><span class="n">disk</span><span class="p">(</span><span class="mi">10</span><span class="p">))</span>
         <span class="n">seed</span> <span class="o">=</span> <span class="n">measure</span><span class="o">.</span><span class="n">label</span><span class="p">(</span><span class="n">dilate</span><span class="p">)</span>
         <span class="c1"># Apply watershed segmentation on the colony with new seeds to partition</span>
-        <span class="n">split</span> <span class="o">=</span> <span class="n">morphology</span><span class="o">.</span><span class="n">watershed</span><span class="p">(</span><span class="o">-</span><span class="n">dis_map</span><span class="p">,</span> <span class="n">seed</span><span class="p">,</span> <span class="n">mask</span><span class="o">=</span><span class="n">mask</span><span class="p">)</span>
+        <span class="n">split</span> <span class="o">=</span> <span class="n">segmentation</span><span class="o">.</span><span class="n">watershed</span><span class="p">(</span><span class="o">-</span><span class="n">dis_map</span><span class="p">,</span> <span class="n">seed</span><span class="p">,</span> <span class="n">mask</span><span class="o">=</span><span class="n">mask</span><span class="p">)</span>
         <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Partitioned big colonies to smaller colonies&quot;</span><span class="p">)</span>
 
         <span class="c1"># Adjust labeling with new partitioned colonies</span>

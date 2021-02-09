@@ -1952,7 +1952,7 @@
         <span class="n">focus_reference_obj_id</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">focus_reference_obj_id</span>
         <span class="k">return</span> <span class="n">focus_reference_obj_id</span></div>
 
-<div class="viewcode-block" id="AutoFocus.store_focus"><a class="viewcode-back" href="../../../microscope_automation.hardware.html#microscope_automation.hardware.hardware_components.AutoFocus.store_focus">[docs]</a>    <span class="k">def</span> <span class="nf">store_focus</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">communication_object</span><span class="p">,</span> <span class="n">focus_reference_obj_id</span><span class="p">):</span>
+<div class="viewcode-block" id="AutoFocus.store_focus"><a class="viewcode-back" href="../../../microscope_automation.hardware.html#microscope_automation.hardware.hardware_components.AutoFocus.store_focus">[docs]</a>    <span class="k">def</span> <span class="nf">store_focus</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">communication_object</span><span class="p">,</span> <span class="n">focus_reference_obj_id</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Store actual focus position as offset from coverslip.</span>
 
 <span class="sd">        Input:</span>
@@ -1971,13 +1971,14 @@
                 <span class="n">communication_object</span>
             <span class="p">)[</span><span class="s2">&quot;name&quot;</span><span class="p">]</span>
         <span class="p">)</span>
-        <span class="nb">print</span><span class="p">(</span>
-            <span class="p">(</span>
-                <span class="s2">&quot;Autofocus position </span><span class="si">{}</span><span class="s2"> stored for </span><span class="si">{}</span><span class="s2">.&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
-                    <span class="n">z</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">initialized_objective</span>
+        <span class="k">if</span> <span class="n">verbose</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span>
+                <span class="p">(</span>
+                    <span class="s2">&quot;Autofocus position </span><span class="si">{}</span><span class="s2"> stored for </span><span class="si">{}</span><span class="s2">.&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
+                        <span class="n">z</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">initialized_objective</span>
+                    <span class="p">)</span>
                 <span class="p">)</span>
             <span class="p">)</span>
-        <span class="p">)</span>
         <span class="k">return</span> <span class="n">z</span></div>
 
 <div class="viewcode-block" id="AutoFocus.recall_focus"><a class="viewcode-back" href="../../../microscope_automation.hardware.html#microscope_automation.hardware.hardware_components.AutoFocus.recall_focus">[docs]</a>    <span class="k">def</span> <span class="nf">recall_focus</span><span class="p">(</span>

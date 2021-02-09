@@ -144,7 +144,7 @@
 <span class="sd">        Output:</span>
 <span class="sd">         flipped_location_list: list with (x, y) tuples after transformation</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="n">xdim</span><span class="p">,</span> <span class="n">ydim</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">image</span><span class="o">.</span><span class="n">shape</span>
+        <span class="n">ydim</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">image</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
         <span class="n">flipped_location_list</span> <span class="o">=</span> <span class="p">[]</span>
 
         <span class="c1"># handle single tuple as well as list of tuples</span>
