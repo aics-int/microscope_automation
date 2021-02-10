@@ -24,7 +24,7 @@ Info:
 #
 ############################################################
 
-Software: ZEN Blue
+Software: ZEN Blue Dummy
 
 ############################################################
 #
@@ -90,10 +90,10 @@ SafeAreas:
  ZSD_02_plate:
   StageArea:
    area: [
-    [2700, 2000],
-    [109000, 2000],
-    [109000, 72300],
-    [2700, 72300],
+    [3500, 1800],
+    [108600, 1800],
+    [108600, 71000],
+    [3500, 71000],
     ]
    zMax: 10050
 
@@ -157,8 +157,8 @@ PlateHolder:
 
 Plate:
  Name: 96-well
- xCenter: 6153         # zero position of plate in plate holder coordinates = center of well A1.
- yCenter: 5624
+ xCenter: 6628          # zero position of plate in plate holder coordinates = center of well A1.
+ yCenter: 4860
  zCenter: 9918
 
  xFlip: 1               # -1 if plate holder coordinate system is flipped in respect to plate holder coordinate system, otherwise 1
@@ -176,7 +176,8 @@ Plate:
 #
 ############################################################
 
-Slide: CalibrationSlide
+Slide:
+ Name: CalibrationSlide
  SafetyID: ZSD_02_slide # name of safety area for slide
  xCenter: 83192         # zero position of slide in plate holder coordinates
  yCenter: 34564
@@ -272,34 +273,32 @@ ObjectiveChanger:
     # Substract 20x position from 10x position and save as offset below
     # Multiply y_offset with -1
  Objectives:
-  {"C-Apochromat 100x/1.25 W Korr UV VIS IR": {'autofocus': 'DefiniteFocus2'
-                                               'camera': "Camera1 (back)"
+  {"C-Apochromat 100x/1.25 W Korr UV VIS IR": {'autofocus': 'DefiniteFocus2',
+                                               'camera': "Camera 1 (Back)",
                                                'experiment': 'Setup_100x',
                                                'immersion': 'water',
                                                'magnification': 100,
-                                               'x_offset': 0,
-                                               'y_offset': 0,
-                                               'z_offset': 0},
+                                               'x_offset': -23,
+                                               'y_offset': -25,
+                                               'z_offset': -51},
 
-  "Plan-Apochromat 10x/0.45 M27": {'autofocus': 'DefiniteFocus2'
-                                   'camera': "Camera1 (back)",
+  "Plan-Apochromat 10x/0.45 M27": {'autofocus': 'DefiniteFocus2',
+                                   'camera': "Camera 1 (Back)",
                                    'experiment': 'Setup_10x',
                                    'immersion': 'air',
                                    'magnification': 10,
-                                   'x_offset': 0,
-                                   'y_offset': 0,
-                                   'z_offset': 0},
+                                   'x_offset': -7,
+                                   'y_offset': -7,
+                                   'z_offset': 3},
 
   "Plan-Apochromat 20x/0.8 M27": {'autofocus': 'DefiniteFocus2',
-                                  'camera': "Camera1 (back)",
+                                  'camera': "Camera 1 (Back)",
                                   'experiment': 'Setup_20x',
                                   'immersion': 'air',
                                   'magnification': 20,
                                   'x_offset': 0,
                                   'y_offset': 0,
                                   'z_offset': 0}}
-
-
 
 ############################################################
 #
