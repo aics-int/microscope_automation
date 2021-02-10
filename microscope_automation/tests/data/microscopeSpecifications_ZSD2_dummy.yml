@@ -282,7 +282,7 @@ ObjectiveChanger:
                                                'y_offset': -25,
                                                'z_offset': -51},
 
-  "Plan-Apochromat 10x/0.45 M27": {'autofocus': 'DefiniteFocus2',
+  "Plan-Apochromat 10x/0.45": {'autofocus': 'DefiniteFocus2',
                                    'camera': "Camera 1 (Back)",
                                    'experiment': 'Setup_10x',
                                    'immersion': 'air',

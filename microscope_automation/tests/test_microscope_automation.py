@@ -2016,7 +2016,7 @@ def test_control_autofocus(
             None,
             "data/preferences_ZSD_2_test.yml",
             None,
-            "AttributeError",
+            "HardwareError",
         ),
         (
             None,
