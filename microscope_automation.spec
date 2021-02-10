@@ -14,8 +14,9 @@ a = Analysis(['microscope_automation\\microscope_automation.py'],
              win_private_assemblies=False,
              cipher=block_cipher,
              noarchive=False)
-pyz = PYZ(a.pure, a.zipped_data,
-             cipher=block_cipher)
+pyz = PYZ(a.pure,
+          a.zipped_data,
+          cipher=block_cipher)
 exe = EXE(pyz,
           a.scripts,
           [],
@@ -25,8 +26,9 @@ exe = EXE(pyz,
           bootloader_ignore_signals=False,
           strip=False,
           upx=False,
-          console=True, uac_admin=True,
-          resources=['Export_ZEN_COM_Objects.bat'])
+          console=True,
+          uac_admin=True,
+          resources=['Export_ZEN_COM_Objects.exe'])
 coll = COLLECT(exe,
                a.binaries,
                a.zipfiles,
