@@ -1032,7 +1032,7 @@ class MicroscopeAutomation(object):
         camera_id = prefs.get_pref("CameraScanWellsZero")
 
         # Define and if necessary create folder for images
-        image_dir = get_images_path(prefs)
+        image_dir = get_images_path(prefs, barcode=barcode)
 
         # iterate through all wells
         for well in wells:
@@ -2050,7 +2050,11 @@ class MicroscopeAutomation(object):
 
         # Determine the folder where the images will be stored
         segmented_images_folder = imaging_settings.get_pref("Folder")
-        segmented_image_dir = get_images_path(imaging_settings, segmented_images_folder)
+        segmented_image_dir = get_images_path(
+            imaging_settings,
+            sub_dir=segmented_images_folder,
+            barcode=plate_object.get_barcode(),
+        )
         image_file_name_template = imaging_settings.get_pref("FileName")
 
         microscope_object = plate_object.container.microscope
