@@ -287,9 +287,9 @@ ObjectiveChanger:
                                    'experiment': 'Setup_10x',
                                    'immersion': 'air',
                                    'magnification': 10,
-                                   'x_offset': -7,
-                                   'y_offset': -7,
-                                   'z_offset': 3},
+                                   'x_offset': 0,
+                                   'y_offset': 0,
+                                   'z_offset': 0},
 
   "Plan-Apochromat 20x/0.8 M27": {'autofocus': 'DefiniteFocus2',
                                   'camera': "Camera 1 (Back)",
