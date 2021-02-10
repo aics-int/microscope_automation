@@ -7,8 +7,8 @@
 ##########################################################################################
 
 Info:
- Date: 12/16/2019
- Version: 121619_1
+ Date: 02/09/2021
+ Version: 020921_1
  Type: Specifications
  Note: Specifictions for spinning disk ZSD_2
  Author: Winfried
@@ -24,7 +24,7 @@ Info:
 #
 ############################################################
 
-Software: ZEN Blue Dummy
+Software: ZEN Blue
 
 ############################################################
 #
@@ -43,7 +43,7 @@ Microscope:
 ############################################################
 
 Cameras:
- Camera1 (back):
+ Camera 1 (Back):
   pixelSize_x: 13
   pixelSize_y: 13
   pixelNumber_x: 1848
@@ -90,10 +90,10 @@ SafeAreas:
  ZSD_02_plate:
   StageArea:
    area: [
-    [3500, 1800],
-    [108600, 1800],
-    [108600, 71000],
-    [3500, 71000],
+    [2700, 2000],
+    [109000, 2000],
+    [109000, 72300],
+    [2700, 72300],
     ]
    zMax: 10050
 
@@ -157,8 +157,8 @@ PlateHolder:
 
 Plate:
  Name: 96-well
- xCenter: 6628          # zero position of plate in plate holder coordinates = center of well A1.
- yCenter: 4860
+ xCenter: 6153         # zero position of plate in plate holder coordinates = center of well A1.
+ yCenter: 5624
  zCenter: 9918
 
  xFlip: 1               # -1 if plate holder coordinate system is flipped in respect to plate holder coordinate system, otherwise 1
@@ -236,7 +236,7 @@ Focus:
  MinWorkPosition: 100
  AutoFocus: DefiniteFocus2
  DefaultExperiment: Setup_10x.czexp
- DefaultCamera: Camera1 (back)
+ DefaultCamera: Camera 1 (Back)
  ObjectiveChanger: 6xMotorizedNosepiece
 
 ############################################################
@@ -248,7 +248,7 @@ Focus:
 AutoFocus:
  Name: DefiniteFocus2
  DefaultExperiment: Setup_10x.czexp
- DefaultCamera: Camera1 (back)
+ DefaultCamera: Camera 1 (Back)
  DefaultReferencePosition: [48645, 35791, 7307]
 
 ############################################################
@@ -265,24 +265,22 @@ ObjectiveChanger:
  # Reference objective to define reference position
  ReferenceObjective: 'Plan-Apochromat 20x/0.8 M27'
 
-
-
-    # Use grid slide to calibrate offset
-    # Focus with 20x objective on center of grid and record xyz stage position as shown in ZEN software
-    # Switch to 10x objective and focus on center of grid and record xyz position
-    # Substract 20x position from 10x position and save as offset below
-    # Multiply y_offset with -1
+ # Use grid slide to calibrate offset
+ # Focus with 20x objective on center of grid and record xyz stage position as shown in ZEN software
+ # Switch to 10x objective and focus on center of grid and record xyz position
+ # Substract 20x position from 10x position and save as offset below
+ # Multiply y_offset with -1
  Objectives:
   {"C-Apochromat 100x/1.25 W Korr UV VIS IR": {'autofocus': 'DefiniteFocus2',
                                                'camera': "Camera 1 (Back)",
                                                'experiment': 'Setup_100x',
                                                'immersion': 'water',
                                                'magnification': 100,
-                                               'x_offset': -23,
-                                               'y_offset': -25,
-                                               'z_offset': -51},
+                                               'x_offset': 0,
+                                               'y_offset': 0,
+                                               'z_offset': 0},
 
-  "Plan-Apochromat 10x/0.45": {'autofocus': 'DefiniteFocus2',
+  "Plan-Apochromat 10x/0.45 M27": {'autofocus': 'DefiniteFocus2',
                                    'camera': "Camera 1 (Back)",
                                    'experiment': 'Setup_10x',
                                    'immersion': 'air',
