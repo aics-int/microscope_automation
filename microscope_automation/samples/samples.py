@@ -1971,7 +1971,7 @@ class ImagingSystem(object):
         folder_path = get_images_path(
             settings,
             sub_dir=settings.get_pref("TileFolder"),
-            barcode=self.get_barcode()
+            barcode=self.get_barcode(),
         )
         file_name_pattern = settings.get_pref("TileFileName")
         file_name = images[int(len(images) / 2)].create_file_name(file_name_pattern)
