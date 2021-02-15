@@ -28,6 +28,8 @@ Installation
 
 **Development Head:** ``pip install git+https://github.com/aics-int/microscope_automation.git``
 
+More complete instructions available `here <https://aics-int.github.io/microscope_automation/installation.html/>`_.
+
 Development
 ===========
 See `CONTRIBUTING <https://github.com/aics-int/microscope_automation/blob/master/CONTRIBUTING.rst/>`_

@@ -1269,6 +1269,7 @@ class MicroscopeAutomation(object):
 
          wait_after_image: wait preferences as dictionary to determine whether
          to wait after execution
+         
           Image: Wait after each image
 
           Plate: Reset wait status after each plate
@@ -1539,6 +1540,7 @@ class MicroscopeAutomation(object):
 
          wait_after_image: wait preferences as dictionary to determine whether
          to wait after execution
+
           Image: Wait after each image
 
           Plate: Reset wait status after each plate
@@ -1871,6 +1873,7 @@ class MicroscopeAutomation(object):
 
          wait_after_image: wait preferences as dictionary to determine whether
          to wait after execution
+
           Image: Wait after each image
 
           Plate: Reset wait status after each plate
@@ -2114,6 +2117,7 @@ class MicroscopeAutomation(object):
 
          wait_after_image: wait preferences as dictionary to determine whether
          to wait after execution
+
           Image: Wait after each image
 
           Plate: Reset wait status after each plate
