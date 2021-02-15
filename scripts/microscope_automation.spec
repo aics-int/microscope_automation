@@ -3,7 +3,7 @@
 block_cipher = None
 
 
-a = Analysis(['microscope_automation\\microscope_automation.py'],
+a = Analysis(['..\\microscope_automation\\orchestrator\\microscope_automation.py'],
              binaries=[],
              datas=[],
              hiddenimports=['skimage.filters.rank.core_cy_3d'],
