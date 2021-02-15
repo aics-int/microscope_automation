@@ -28,7 +28,7 @@ exe = EXE(pyz,
           upx=False,
           console=True,
           uac_admin=True,
-          resources=['Export_ZEN_COM_Objects.exe'])
+          resources=['Make_Folders.exe', 'Export_ZEN_COM_Objects.exe'])
 coll = COLLECT(exe,
                a.binaries,
                a.zipfiles,
