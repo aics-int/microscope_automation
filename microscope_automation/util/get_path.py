@@ -70,7 +70,9 @@ def get_valid_path_from_prefs(prefs, key, search_dir=True, validate=False):
     return return_path
 
 
-def set_up_settings_folders(prefs, keys=["PathCalibration", "RecoverySettingsFilePath", "LogFilePath"]):
+def set_up_settings_folders(
+    prefs, keys=["PathCalibration", "RecoverySettingsFilePath", "LogFilePath"]
+):
     """Checks if the folders specified in preferences exist and makes them if not
 
     Input:
@@ -88,6 +90,7 @@ def set_up_settings_folders(prefs, keys=["PathCalibration", "RecoverySettingsFil
                 path = path[0]
             if not os.path.exists(path):
                 os.makedirs(path)
+
 
 def set_up_subfolders(parent_folder_path, subfolder):
     """Set the Subfolders for imaging folder - e.g. TapeOnly and Failed QC

@@ -15,11 +15,13 @@ To install Microscope Automation for use on a ZEN Microscope, follow these steps
 
 1. Copy the zip from the `latest release <https://github.com/aics-int/microscope_automation/releases/>`_
 
-2. Run `Export_ZEN_COM_Objects.bat <https://github.com/aics-int/microscope_automation/blob/master/scripts/Export_ZEN_COM_Objects.exe>`_
+2. Run `Export_ZEN_COM_Objects.bat <https://github.com/aics-int/microscope_automation/blob/master/scripts/Export_ZEN_COM_Objects.bat>`_
 
   a. You may have to run as an administrator for it to work properly.
 
 3. Run ``microscope_automation.exe`` from inside the unzipped folder.
+
+For non-ZEN systems, simply skip ``Step 2``.
 
 Stable Release
 --------------
@@ -61,10 +63,10 @@ Once you have a copy of the source, you can install it with:
 
     $ python setup.py install
 
-
 .. _Github repo: https://github.com/aics-int/microscope_automation
 .. _tarball: https://github.com/aics-int/microscope_automation/tarball/master
 
+.. _Installation_Packaging:
 
 =================
 Packaging the ZIP
@@ -80,20 +82,21 @@ Packaging the ZIP
 
   b. Copy ``pywintypes38.dll`` to ``<pythonpath>\lib\site-packages\win32\lib``
 
-4. Rerun ``installer.bat``
+  c. Rerun ``installer.bat``
 
-5. Try launching ``dist\microscope_automation\microscope_automation.exe`` from the command prompt so you can check error output
+4. Try launching ``dist\microscope_automation\microscope_automation.exe`` from the command prompt so you can check error output
 
-6. If you get an error like ``ModuleNotFoundError: No module named 'skimage.filters.rank.core_cy_3d'``, add ``skimage.filters.rank.core_cy_3d`` to ``hiddenimports`` in ``microscope_automation.spec`` and rerun ``installer.bat``
+5. If you get an error like ``ModuleNotFoundError: No module named 'skimage.filters.rank.core_cy_3d'``, add ``skimage.filters.rank.core_cy_3d`` to ``hiddenimports`` in ``microscope_automation.spec`` and rerun ``installer.bat``
 
-7. Once ``microscope_automation.exe`` runs successfully, copy ``Export_ZEN_COM_Objects.bat`` from ``scripts`` to ``dist\microscope_automation``
+6. Once ``microscope_automation.exe`` runs successfully (i.e. the GUI prompts you for a preferences file) simply quit the program.
 
-8. Package the entire ``dist\microscope_automation`` folder in a ZIP.
+7. Now copy ``Export_ZEN_COM_Objects.bat`` from ``scripts`` to ``dist\microscope_automation``
+
+8. Package the entire ``dist\microscope_automation`` folder into ``microscope_automation.zip``.
 
 9. Create a new release on GitHub following these instructions: :ref:`CONTRIBUTING_Deploying`
 
 10. Attach ``microscope_automation.zip`` to the new release.
-
 
 .. _the repository: https://github.com/aics-int/microscope_automation
 .. _BatToExe: https://sourceforge.net/projects/bat-to-exe/

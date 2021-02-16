@@ -28,7 +28,7 @@ To install the ZIP Version:
 
 1. Copy the zip from the `latest release <https://github.com/aics-int/microscope_automation/releases/>`_
 
-2. Run `Export_ZEN_COM_Objects.bat <https://github.com/aics-int/microscope_automation/blob/master/scripts/Export_ZEN_COM_Objects.exe>`_
+2. For ZEN systems, run `Export_ZEN_COM_Objects.bat <https://github.com/aics-int/microscope_automation/blob/master/scripts/Export_ZEN_COM_Objects.bat>`_
 
   a. You may have to run as an administrator for it to work properly.
 
