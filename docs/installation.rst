@@ -21,8 +21,6 @@ To install Microscope Automation for use on a ZEN Microscope, follow these steps
 
 3. Run ``microscope_automation.exe`` from inside the unzipped folder.
 
-  a. If ``3a`` didn't happen run `Make_Folders.exe <https://github.com/aics-int/microscope_automation/blob/master/scripts/Make_Folders.exe>`_
-
 Stable Release
 --------------
 

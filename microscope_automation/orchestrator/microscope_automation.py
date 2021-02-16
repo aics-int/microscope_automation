@@ -32,6 +32,7 @@ from microscope_automation.hardware import setup_microscope
 from microscope_automation.util import error_handling
 from microscope_automation.samples.setup_samples import setup_plate
 from microscope_automation.util.get_path import (
+    set_up_settings_folders,
     set_up_subfolders,
     get_recovery_settings_path,
     get_references_path,
@@ -122,10 +123,6 @@ class MicroscopeAutomation(object):
         self.prefs = preferences.Preferences(prefs_path)
         recovery_file_path = get_recovery_settings_path(self.prefs)
 
-        # Create the recovery folder if it does not exist.
-        rec_folder_path = os.path.dirname(recovery_file_path)
-        if not os.path.exists(rec_folder_path):
-            os.mkdir(rec_folder_path)
         # Create and save the pickle file
         self.state = State(recovery_file_path)
         self.state.save_state()
@@ -2589,6 +2586,7 @@ def main():
     # as it only needs to be initialized once
     app = QtGui.QApplication([])
     try:
+        set_up_settings_folders(preferences.Preferences(prefs_path))
         mic = MicroscopeAutomation(prefs_path, app)
         mic.microscope_automation()
     except KeyboardInterrupt:
