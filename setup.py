@@ -30,6 +30,7 @@ dev_requirements = [
     "coverage>=5.1",
     "ipython>=7.15.0",
     "pytest-runner>=5.2",
+    "pyinstaller>=4.0"
     "Sphinx>=3,<3.5",
     "sphinx_rtd_theme>=0.4.3,<0.6",
     "tox>=3.15.2",
@@ -48,6 +49,7 @@ requirements = [
     "matplotlib>=3.3.1,<3.4",
     "formlayout>=1.2.0,<1.3",
     "lxml>=4.5.2,<4.7",
+    "psutil>=5.8.0,<5.9",
     "pyserial>=3.4,<3.5",
     'pywin32>=227,<301 ; platform_system=="Windows"',
     "scikit-image>=0.16.2,<0.19",

@@ -24,9 +24,23 @@ Automation software for a variety of popular microscopes, such as Zeiss and 3i.
 
 Installation
 ============
+To install the ZIP Version:
+
+1. Copy the zip from the `latest release <https://github.com/aics-int/microscope_automation/releases/>`_
+
+2. For ZEN systems, run `Export_ZEN_COM_Objects.bat <https://github.com/aics-int/microscope_automation/blob/master/scripts/Export_ZEN_COM_Objects.bat>`_
+
+  a. You may have to run as an administrator for it to work properly.
+
+3. Run ``microscope_automation.exe`` from inside the unzipped folder.
+
+You can also use PyPI as follows:
+
 **Stable Release:** ``pip install microscope_automation``
 
 **Development Head:** ``pip install git+https://github.com/aics-int/microscope_automation.git``
+
+Complete installation instructions available `here <https://aics-int.github.io/microscope_automation/installation.html/>`_.
 
 Development
 ===========

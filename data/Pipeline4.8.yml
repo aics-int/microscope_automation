@@ -44,7 +44,7 @@ PathMicroscopeSpecs: ['D:\Users\SVC_aicspipeline\Documents\Git\microscope_automa
 PathDailyFolder: ['D:\Users\SVC_aicspipeline\Desktop\PRODUCTION']
 
 # Path to calibration information
-PathCalibration: ['D:\Automation\GeneralSettings\', 'D:\Automation\GeneralSettings\'Calibration\']
+PathCalibration: ['D:\Automation\GeneralSettings\', 'D:\Automation\GeneralSettings\Calibration\']
 
 # Path to Empty positions.czsh file- save_position_list uses this to write a filled positions.czsh file with coordinates from the Automation software.
 PathDummy: 'D:\Users\SVC_aicspipeline\Documents\Git\microscope_automation\data\dummy_tile_positions_zsd2.czsh'
