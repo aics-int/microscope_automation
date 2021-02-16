@@ -6,28 +6,24 @@
 Installation
 ============
 
-Full release
+.. _Installation_Full_release:
+
+Full Release
 ------------
 
 To install Microscope Automation for use on a ZEN Microscope, follow these steps:
 
 1. Copy the zip from the `latest release <https://github.com/aics-int/microscope_automation/releases/>`_
 
-2. Unzip it wherever you would like to run the program from.
+2. Run `Export_ZEN_COM_Objects.bat <https://github.com/aics-int/microscope_automation/blob/master/scripts/Export_ZEN_COM_Objects.exe>`_
+
+  a. You may have to run as an administrator for it to work properly.
 
 3. Run ``microscope_automation.exe`` from inside the unzipped folder.
 
-  a. It should create a GeneralSettings folder automatically, but you can change the preferences to point to a different location.
-
-  b. The ZEN communication DLLs should be run as part of the installation, which requires admin privileges.
-
-4. Fixing installation errors
-
   a. If ``3a`` didn't happen run `Make_Folders.exe <https://github.com/aics-int/microscope_automation/blob/master/scripts/Make_Folders.exe>`_
 
-  b. If ``3b`` didn't happen run `Export_ZEN_COM_Objects.exe <https://github.com/aics-int/microscope_automation/blob/master/scripts/Export_ZEN_COM_Objects.exe>`_
-
-Stable release
+Stable Release
 --------------
 
 To install Microscope Automation, run this command in your terminal:
@@ -44,8 +40,7 @@ you through the process.
 .. _pip: https://pip.pypa.io
 .. _Python installation guide: http://docs.python-guide.org/en/latest/starting/installation/
 
-
-From sources
+From Sources
 ------------
 
 The sources for Microscope Automation can be downloaded from the `Github repo`_.
@@ -87,17 +82,15 @@ Packaging the ZIP
 
   b. Copy ``pywintypes38.dll`` to ``<pythonpath>\lib\site-packages\win32\lib``
 
-4. If you get an error like "resource type and/or name not specified", remember that only .exe and .dll files can be packaged as resources by PyInstaller.
+4. Rerun ``installer.bat``
 
-  a. If you need to package a batch script, I recommend converting it to an exe first with `BatToExe`_
+5. Try launching ``dist\microscope_automation\microscope_automation.exe`` from the command prompt so you can check error output
 
-5. Rerun ``installer.bat``
+6. If you get an error like ``ModuleNotFoundError: No module named 'skimage.filters.rank.core_cy_3d'``, add ``skimage.filters.rank.core_cy_3d`` to ``hiddenimports`` in ``microscope_automation.spec`` and rerun ``installer.bat``
 
-6. Try launching ``dist\microscope_automation\microscope_automation.exe`` from the command prompt so you can check error output
+7. Once ``microscope_automation.exe`` runs successfully, copy ``Export_ZEN_COM_Objects.bat`` from ``scripts`` to ``dist\microscope_automation``
 
-7. If you get an error like ``ModuleNotFoundError: No module named 'skimage.filters.rank.core_cy_3d'``, add ``skimage.filters.rank.core_cy_3d`` to ``hiddenimports`` in ``microscope_automation.spec``
-
-8. Once ``microscope_automation.exe`` runs successfully, package the entire ``dist/microscope_automation`` folder in a ZIP.
+8. Package the entire ``dist\microscope_automation`` folder in a ZIP.
 
 9. Create a new release on GitHub following these instructions: :ref:`CONTRIBUTING_Deploying`
 
