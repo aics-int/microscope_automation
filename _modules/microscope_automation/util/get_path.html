@@ -103,6 +103,28 @@
     <span class="k">return</span> <span class="n">return_path</span></div>
 
 
+<div class="viewcode-block" id="set_up_settings_folders"><a class="viewcode-back" href="../../../microscope_automation.util.html#microscope_automation.util.get_path.set_up_settings_folders">[docs]</a><span class="k">def</span> <span class="nf">set_up_settings_folders</span><span class="p">(</span>
+    <span class="n">prefs</span><span class="p">,</span> <span class="n">keys</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;PathCalibration&quot;</span><span class="p">,</span> <span class="s2">&quot;RecoverySettingsFilePath&quot;</span><span class="p">,</span> <span class="s2">&quot;LogFilePath&quot;</span><span class="p">]</span>
+<span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Checks if the folders specified in preferences exist and makes them if not</span>
+
+<span class="sd">    Input:</span>
+<span class="sd">     prefs: Preferences object created from YAML file</span>
+
+<span class="sd">    Output:</span>
+<span class="sd">     none</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">for</span> <span class="n">key</span> <span class="ow">in</span> <span class="n">keys</span><span class="p">:</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">get_valid_path_from_prefs</span><span class="p">(</span><span class="n">prefs</span><span class="p">,</span> <span class="n">key</span><span class="p">,</span> <span class="n">search_dir</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">validate</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        <span class="k">except</span> <span class="ne">AssertionError</span><span class="p">:</span>
+            <span class="n">path</span> <span class="o">=</span> <span class="n">prefs</span><span class="o">.</span><span class="n">get_pref</span><span class="p">(</span><span class="n">key</span><span class="p">)</span>
+            <span class="k">if</span> <span class="nb">type</span><span class="p">(</span><span class="n">path</span><span class="p">)</span> <span class="ow">is</span> <span class="nb">list</span><span class="p">:</span>
+                <span class="n">path</span> <span class="o">=</span> <span class="n">path</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">path</span><span class="p">):</span>
+                <span class="n">os</span><span class="o">.</span><span class="n">makedirs</span><span class="p">(</span><span class="n">path</span><span class="p">)</span></div>
+
+
 <div class="viewcode-block" id="set_up_subfolders"><a class="viewcode-back" href="../../../microscope_automation.util.html#microscope_automation.util.get_path.set_up_subfolders">[docs]</a><span class="k">def</span> <span class="nf">set_up_subfolders</span><span class="p">(</span><span class="n">parent_folder_path</span><span class="p">,</span> <span class="n">subfolder</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;Set the Subfolders for imaging folder - e.g. TapeOnly and Failed QC</span>
 
@@ -459,6 +481,7 @@
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="../../../index.html">README</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../installation.html#packaging-the-zip">Packaging the ZIP</a></li>
 </ul>
 <p class="caption"><span class="caption-text">Orchestrator</span></p>
 <ul>

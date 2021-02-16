@@ -38,6 +38,7 @@
 <li><p><a class="reference internal" href="#allen-institute-contribution-agreement" id="id1">Allen Institute Contribution Agreement</a></p>
 <ul>
 <li><p><a class="reference internal" href="#contribution-status" id="id2">Contribution Status</a></p></li>
+<li><p><a class="reference internal" href="#deploying" id="id3">Deploying</a></p></li>
 </ul>
 </li>
 </ul>
@@ -47,6 +48,24 @@
 <div class="section" id="contribution-status">
 <h2><a class="toc-backref" href="#id2">Contribution Status</a><a class="headerlink" href="#contribution-status" title="Permalink to this headline">¶</a></h2>
 <p>We use this for internal purpose and are currently not accepting pull requests. We are releasing it to the community AS IS.</p>
+</div>
+<div class="section" id="deploying">
+<span id="contributing-deploying"></span><h2><a class="toc-backref" href="#id3">Deploying</a><a class="headerlink" href="#deploying" title="Permalink to this headline">¶</a></h2>
+<p>A reminder for the maintainers on how to deploy.
+Make sure all your changes are committed.
+Then run:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>git checkout master
+git pull
+bumpversion <span class="o">[</span>part<span class="o">]</span>
+git push
+git push --tags
+git branch -D stable
+git checkout -b stable
+git push --set-upstream origin stable -f
+</pre></div>
+</div>
+<p>Where <code class="docutils literal notranslate"><span class="pre">[part]</span></code> is <code class="docutils literal notranslate"><span class="pre">major</span></code>, <code class="docutils literal notranslate"><span class="pre">minor</span></code>, or <code class="docutils literal notranslate"><span class="pre">patch</span></code>.
+This will release a new package version on Git + GitHub and publish to PyPI.</p>
 </div>
 </div>
 
@@ -71,6 +90,7 @@
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="index.html">README</a></li>
 <li class="toctree-l1"><a class="reference internal" href="installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="installation.html#packaging-the-zip">Packaging the ZIP</a></li>
 </ul>
 <p class="caption"><span class="caption-text">Orchestrator</span></p>
 <ul>

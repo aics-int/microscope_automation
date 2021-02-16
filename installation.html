@@ -37,16 +37,35 @@
 <ul class="simple">
 <li><p><a class="reference internal" href="#installation" id="id1">Installation</a></p>
 <ul>
-<li><p><a class="reference internal" href="#stable-release" id="id2">Stable release</a></p></li>
-<li><p><a class="reference internal" href="#from-sources" id="id3">From sources</a></p></li>
+<li><p><a class="reference internal" href="#full-release" id="id2">Full Release</a></p></li>
+<li><p><a class="reference internal" href="#stable-release" id="id3">Stable Release</a></p></li>
+<li><p><a class="reference internal" href="#from-sources" id="id4">From Sources</a></p></li>
 </ul>
 </li>
+<li><p><a class="reference internal" href="#packaging-the-zip" id="id5">Packaging the ZIP</a></p></li>
 </ul>
 </div>
 <div class="section" id="installation">
 <h1><a class="toc-backref" href="#id1">Installation</a><a class="headerlink" href="#installation" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="full-release">
+<span id="installation-full-release"></span><h2><a class="toc-backref" href="#id2">Full Release</a><a class="headerlink" href="#full-release" title="Permalink to this headline">¶</a></h2>
+<p>To install Microscope Automation for use on a ZEN Microscope, follow these steps:</p>
+<ol class="arabic simple">
+<li><p>Copy the zip from the <a class="reference external" href="https://github.com/aics-int/microscope_automation/releases/">latest release</a></p></li>
+<li><p>Run <a class="reference external" href="https://github.com/aics-int/microscope_automation/blob/master/scripts/Export_ZEN_COM_Objects.bat">Export_ZEN_COM_Objects.bat</a></p></li>
+</ol>
+<blockquote>
+<div><ol class="loweralpha simple">
+<li><p>You may have to run as an administrator for it to work properly.</p></li>
+</ol>
+</div></blockquote>
+<ol class="arabic simple" start="3">
+<li><p>Run <code class="docutils literal notranslate"><span class="pre">microscope_automation.exe</span></code> from inside the unzipped folder.</p></li>
+</ol>
+<p>For non-ZEN systems, simply skip <code class="docutils literal notranslate"><span class="pre">Step</span> <span class="pre">2</span></code>.</p>
+</div>
 <div class="section" id="stable-release">
-<h2><a class="toc-backref" href="#id2">Stable release</a><a class="headerlink" href="#stable-release" title="Permalink to this headline">¶</a></h2>
+<h2><a class="toc-backref" href="#id3">Stable Release</a><a class="headerlink" href="#stable-release" title="Permalink to this headline">¶</a></h2>
 <p>To install Microscope Automation, run this command in your terminal:</p>
 <div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>pip install microscope_automation
 </pre></div>
@@ -56,7 +75,7 @@
 you through the process.</p>
 </div>
 <div class="section" id="from-sources">
-<h2><a class="toc-backref" href="#id3">From sources</a><a class="headerlink" href="#from-sources" title="Permalink to this headline">¶</a></h2>
+<h2><a class="toc-backref" href="#id4">From Sources</a><a class="headerlink" href="#from-sources" title="Permalink to this headline">¶</a></h2>
 <p>The sources for Microscope Automation can be downloaded from the <a class="reference external" href="https://github.com/aics-int/microscope_automation">Github repo</a>.</p>
 <p>You can either clone the public repository:</p>
 <div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>git clone git://github.com/aics-int/microscope_automation
@@ -71,6 +90,30 @@ you through the process.</p>
 </pre></div>
 </div>
 </div>
+</div>
+<div class="section" id="packaging-the-zip">
+<span id="installation-packaging"></span><h1><a class="toc-backref" href="#id5">Packaging the ZIP</a><a class="headerlink" href="#packaging-the-zip" title="Permalink to this headline">¶</a></h1>
+<ol class="arabic simple">
+<li><p>Clone <a class="reference external" href="https://github.com/aics-int/microscope_automation">the repository</a> and navigate to <code class="docutils literal notranslate"><span class="pre">scripts</span></code> folder</p></li>
+<li><p>Run <code class="docutils literal notranslate"><span class="pre">installer.bat</span></code></p></li>
+<li><p>If you get an error like <code class="docutils literal notranslate"><span class="pre">ImportError</span> <span class="pre">No</span> <span class="pre">system</span> <span class="pre">module</span> <span class="pre">'pywintypes'</span> <span class="pre">(pywintypes38.dll)</span></code>, follow <a class="reference external" href="https://stackoverflow.com/questions/25254285/pyinstaller-importerror-no-system-module-pywintypes-pywintypes27-dll/">this StackOverflow fix</a></p></li>
+</ol>
+<blockquote>
+<div><ol class="loweralpha simple">
+<li><p>Navigate to <code class="docutils literal notranslate"><span class="pre">&lt;pythonpath&gt;\lib\site-packages\pywin32_system32</span></code></p></li>
+<li><p>Copy <code class="docutils literal notranslate"><span class="pre">pywintypes38.dll</span></code> to <code class="docutils literal notranslate"><span class="pre">&lt;pythonpath&gt;\lib\site-packages\win32\lib</span></code></p></li>
+<li><p>Rerun <code class="docutils literal notranslate"><span class="pre">installer.bat</span></code></p></li>
+</ol>
+</div></blockquote>
+<ol class="arabic simple" start="4">
+<li><p>Try launching <code class="docutils literal notranslate"><span class="pre">dist\microscope_automation\microscope_automation.exe</span></code> from the command prompt so you can check error output</p></li>
+<li><p>If you get an error like <code class="docutils literal notranslate"><span class="pre">ModuleNotFoundError:</span> <span class="pre">No</span> <span class="pre">module</span> <span class="pre">named</span> <span class="pre">'skimage.filters.rank.core_cy_3d'</span></code>, add <code class="docutils literal notranslate"><span class="pre">skimage.filters.rank.core_cy_3d</span></code> to <code class="docutils literal notranslate"><span class="pre">hiddenimports</span></code> in <code class="docutils literal notranslate"><span class="pre">microscope_automation.spec</span></code> and rerun <code class="docutils literal notranslate"><span class="pre">installer.bat</span></code></p></li>
+<li><p>Once <code class="docutils literal notranslate"><span class="pre">microscope_automation.exe</span></code> runs successfully (i.e. the GUI prompts you for a preferences file) simply quit the program.</p></li>
+<li><p>Now copy <code class="docutils literal notranslate"><span class="pre">Export_ZEN_COM_Objects.bat</span></code> from <code class="docutils literal notranslate"><span class="pre">scripts</span></code> to <code class="docutils literal notranslate"><span class="pre">dist\microscope_automation</span></code></p></li>
+<li><p>Package the entire <code class="docutils literal notranslate"><span class="pre">dist\microscope_automation</span></code> folder into <code class="docutils literal notranslate"><span class="pre">microscope_automation.zip</span></code>.</p></li>
+<li><p>Create a new release on GitHub following these instructions: <a class="reference internal" href="CONTRIBUTING.html#contributing-deploying"><span class="std std-ref">Deploying</span></a></p></li>
+<li><p>Attach <code class="docutils literal notranslate"><span class="pre">microscope_automation.zip</span></code> to the new release.</p></li>
+</ol>
 </div>
 
 
@@ -94,6 +137,7 @@ you through the process.</p>
 <ul class="current">
 <li class="toctree-l1"><a class="reference internal" href="index.html">README</a></li>
 <li class="toctree-l1 current"><a class="current reference internal" href="#">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="#packaging-the-zip">Packaging the ZIP</a></li>
 </ul>
 <p class="caption"><span class="caption-text">Orchestrator</span></p>
 <ul>

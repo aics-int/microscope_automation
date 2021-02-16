@@ -65,6 +65,7 @@
 <span class="kn">from</span> <span class="nn">microscope_automation.util</span> <span class="kn">import</span> <span class="n">error_handling</span>
 <span class="kn">from</span> <span class="nn">microscope_automation.samples.setup_samples</span> <span class="kn">import</span> <span class="n">setup_plate</span>
 <span class="kn">from</span> <span class="nn">microscope_automation.util.get_path</span> <span class="kn">import</span> <span class="p">(</span>
+    <span class="n">set_up_settings_folders</span><span class="p">,</span>
     <span class="n">set_up_subfolders</span><span class="p">,</span>
     <span class="n">get_recovery_settings_path</span><span class="p">,</span>
     <span class="n">get_references_path</span><span class="p">,</span>
@@ -155,10 +156,6 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">prefs</span> <span class="o">=</span> <span class="n">preferences</span><span class="o">.</span><span class="n">Preferences</span><span class="p">(</span><span class="n">prefs_path</span><span class="p">)</span>
         <span class="n">recovery_file_path</span> <span class="o">=</span> <span class="n">get_recovery_settings_path</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">prefs</span><span class="p">)</span>
 
-        <span class="c1"># Create the recovery folder if it does not exist.</span>
-        <span class="n">rec_folder_path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">dirname</span><span class="p">(</span><span class="n">recovery_file_path</span><span class="p">)</span>
-        <span class="k">if</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">rec_folder_path</span><span class="p">):</span>
-            <span class="n">os</span><span class="o">.</span><span class="n">mkdir</span><span class="p">(</span><span class="n">rec_folder_path</span><span class="p">)</span>
         <span class="c1"># Create and save the pickle file</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">state</span> <span class="o">=</span> <span class="n">State</span><span class="p">(</span><span class="n">recovery_file_path</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">state</span><span class="o">.</span><span class="n">save_state</span><span class="p">()</span>
@@ -1302,6 +1299,7 @@
 
 <span class="sd">         wait_after_image: wait preferences as dictionary to determine whether</span>
 <span class="sd">         to wait after execution</span>
+
 <span class="sd">          Image: Wait after each image</span>
 
 <span class="sd">          Plate: Reset wait status after each plate</span>
@@ -1572,6 +1570,7 @@
 
 <span class="sd">         wait_after_image: wait preferences as dictionary to determine whether</span>
 <span class="sd">         to wait after execution</span>
+
 <span class="sd">          Image: Wait after each image</span>
 
 <span class="sd">          Plate: Reset wait status after each plate</span>
@@ -1904,6 +1903,7 @@
 
 <span class="sd">         wait_after_image: wait preferences as dictionary to determine whether</span>
 <span class="sd">         to wait after execution</span>
+
 <span class="sd">          Image: Wait after each image</span>
 
 <span class="sd">          Plate: Reset wait status after each plate</span>
@@ -2147,6 +2147,7 @@
 
 <span class="sd">         wait_after_image: wait preferences as dictionary to determine whether</span>
 <span class="sd">         to wait after execution</span>
+
 <span class="sd">          Image: Wait after each image</span>
 
 <span class="sd">          Plate: Reset wait status after each plate</span>
@@ -2618,6 +2619,7 @@
     <span class="c1"># as it only needs to be initialized once</span>
     <span class="n">app</span> <span class="o">=</span> <span class="n">QtGui</span><span class="o">.</span><span class="n">QApplication</span><span class="p">([])</span>
     <span class="k">try</span><span class="p">:</span>
+        <span class="n">set_up_settings_folders</span><span class="p">(</span><span class="n">preferences</span><span class="o">.</span><span class="n">Preferences</span><span class="p">(</span><span class="n">prefs_path</span><span class="p">))</span>
         <span class="n">mic</span> <span class="o">=</span> <span class="n">MicroscopeAutomation</span><span class="p">(</span><span class="n">prefs_path</span><span class="p">,</span> <span class="n">app</span><span class="p">)</span>
         <span class="n">mic</span><span class="o">.</span><span class="n">microscope_automation</span><span class="p">()</span>
     <span class="k">except</span> <span class="ne">KeyboardInterrupt</span><span class="p">:</span>
@@ -2653,6 +2655,7 @@
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="../../../index.html">README</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../installation.html#packaging-the-zip">Packaging the ZIP</a></li>
 </ul>
 <p class="caption"><span class="caption-text">Orchestrator</span></p>
 <ul>
