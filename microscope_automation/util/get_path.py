@@ -71,7 +71,13 @@ def get_valid_path_from_prefs(prefs, key, search_dir=True, validate=False):
 
 
 def set_up_settings_folders(
-    prefs, keys=["PathCalibration", "RecoverySettingsFilePath", "LogFilePath"]
+    prefs,
+    keys=[
+        "PathCalibration",
+        "RecoverySettingsFilePath",
+        "LogFilePath",
+        "PathDailyFolder",
+    ],
 ):
     """Checks if the folders specified in preferences exist and makes them if not
 
