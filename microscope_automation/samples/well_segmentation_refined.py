@@ -309,6 +309,25 @@ class WellSegmentation:
         self.segmented_colonies = labelled_colonies
         print("Done Segmenting colonies")
 
+
+    def find_edge_position(self, colony_mask):
+        """
+        Function to find edge position from a colony mask
+
+        :param colony_mask: a [0, 1] image showing the segmentation of 1 colony
+        :return:
+            edge_position: a tuple (y, x) of the selected edge position in the downsampled well overview image
+        """
+        all_edges = feature.canny(self.segmented_colonies > 0, sigma=0.1)
+
+        col_edge = colony_mask * all_edges
+
+        edge_pt = np.where(col_edge == np.min(col_edge[np.nonzero(col_edge)]))
+        edge_position = edge_pt[0][0], edge_pt[1][0]
+
+        return edge_position
+
+
     def find_positions(self):
         """To find a position in a colony that passes the size filter,
         and is positioned 40% from the edge of colony, maximum in distance map
