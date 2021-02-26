@@ -328,6 +328,49 @@ class WellSegmentation:
         return edge_position
 
 
+    def find_ridge_position(self, colony_mask, edge_position):
+        """
+        Function to find ridge position, optimized by selecting a position in a colony furthest away from the edge position
+        :param colony_mask: a [0, 1] image showing the segmentation of 1 colony
+        :param edge_position: a tuple (y, x) of the selected edge position in the downsampled well overview image
+        :return:
+        """
+        all_edges = feature.canny(self.segmented_colonies > 0, sigma=0.1)
+
+        col_edge = colony_mask * all_edges
+
+        edge_pt = np.where(col_edge == np.min(col_edge[np.nonzero(col_edge)]))
+        edge_tuples = []
+        for i in range(0, len(edge_pt[0])):
+            new_tuple = (edge_pt[0][i], edge_pt[1][i])
+            edge_tuples.append(new_tuple)
+
+        # find the tuple that is the furthest away from [0][0]
+        max_dist = 0
+        for y, x in edge_tuples:
+            dist = np.sqrt((y - edge_position[0]) ** 2 + (x - edge_position[1]) ** 2)
+
+            if dist>max_dist:
+                max_dist = dist
+                ridge_position = (y, x)
+
+        # to show image for rnd
+        # if (ridge_position[0] > 10) & (ridge_position[0] < (colony_mask.shape[0] - 10)) & \
+        #     (ridge_position[1] > 10) & (ridge_position[1] < (colony_mask.shape[1] - 10)) & \
+        #     (edge_position[0] > 10) & (edge_position[0] < (colony_mask.shape[0] - 10)) & \
+        #     (edge_position[1] > 10) & (edge_position[1] < (colony_mask.shape[1] - 10)):
+        #
+        #     loc_mask = colony_mask.copy()
+        #     loc_mask[ridge_position[0]-10:ridge_position[0]+10, ridge_position[1]-10:ridge_position[1]+10] = 10
+        #     loc_mask[edge_position[0]-10:edge_position[0]+10, edge_position[1]-10:edge_position[1]+10] = 10
+        #
+        #     plt.figure()
+        #     plt.imshow(loc_mask)
+        #     plt.show()
+
+        return ridge_position
+
+
     def find_positions(self):
         """To find a position in a colony that passes the size filter,
         and is positioned 40% from the edge of colony, maximum in distance map
