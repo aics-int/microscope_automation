@@ -443,24 +443,28 @@ class WellSegmentation:
         for obj in range(1, num_objs + 1):
             print("On object {} of {}".format(obj, num_objs))
             mask = filtered_colonies == obj
-            dist_mask = distance * mask
-            # for each colony, find the maximum distance from the two fold distance map.
-            # The edge is at 0% and the center of the colony is at 100%
-            d_max = dist_mask.max()
-            # Getting the points which is at least 40% away from the edge
-            top_percent = dist_mask > (d_max * 0.30)
-            colony_mask = smoothed_well * top_percent
-            colony_edges = feature.canny(colony_mask, sigma=0.1)
-            # applying the second distance transform
-            # to find the smoothest point in the correct region
-            inner_edges = ndimage.distance_transform_edt(~colony_edges * top_percent)
-            smooth_point = np.where(inner_edges == inner_edges.max())
-            smooth_point = (smooth_point[0][0], smooth_point[1][0])
+
+            # if mode A, find center position in a colony
+            smooth_point = self.find_center_position(mask, distance, smoothed_well)
+
             smooth_point_corrected = (
                 smooth_point[0] * DOWNSCALING_FACTOR,
                 smooth_point[1] * DOWNSCALING_FACTOR,
             )
             point_locations.append(smooth_point_corrected)
+
+            # if mode C, also find ridge and edge position in the same colony
+
+            # smooth_point_edge = self.find_edge_position(mask)
+            # smooth_point_ridge = self.find_ridge_position(mask, smooth_point_edge)
+
+            # for point in [smooth_point_edge, smooth_point_ridge]:
+            #     smooth_point_corrected = (
+            #         poit[0] * DOWNSCALING_FACTOR,
+            #         point[1] * DOWNSCALING_FACTOR,
+            #     )
+            #     point_locations.append(smooth_point_corrected)
+
         print("Calculated point distances from center of well")
         # Filter top point locations that are closest to the center of the well
         center_well_y = (self.height / 2) * DOWNSCALING_FACTOR
