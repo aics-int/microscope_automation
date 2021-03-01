@@ -8,12 +8,12 @@ Installation
 
 .. _Installation_Full_release:
 
-Full Release
-------------
+ZIP Release
+-----------
 
 To install Microscope Automation for use on a ZEN Microscope, follow these steps:
 
-1. Copy the zip from the latest release by clicking `here <https://github.com/aics-int/microscope_automation/releases/>`_ and selecting ``microscope_automation.zip``
+1. Copy the ZIP from the latest release by clicking `here <https://github.com/aics-int/microscope_automation/releases/>`_ and selecting ``microscope_automation.zip``
 
 2. Extract the contents of ``microscope_automation.zip`` to the location of your choice.
 
@@ -29,8 +29,8 @@ To install Microscope Automation for use on a ZEN Microscope, follow these steps
 
 For non-ZEN systems, simply skip ``Steps 4 and 5``.
 
-Stable Release
---------------
+Pip Installation
+----------------
 
 To install Microscope Automation, run this command in your terminal:
 
