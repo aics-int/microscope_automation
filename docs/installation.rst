@@ -21,13 +21,13 @@ To install Microscope Automation for use on a ZEN Microscope, follow these steps
 
   a. You may have to run as an administrator for it to work properly.
 
-4. Make sure ZEN is calibrated and running.
+4. Start the microscope and run appropriate calibrations.
 
 5. Run ``microscope_automation.exe`` from inside the extracted folder.
 
   a. When prompted, select the workflow preference file you wish to use, first checking all settings are configured as you wish.
 
-For non-ZEN systems, simply skip ``Steps 4 and 5``.
+For non-ZEN systems, simply skip ``Step 3``.
 
 Pip Installation
 ----------------
