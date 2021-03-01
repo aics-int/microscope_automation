@@ -691,6 +691,7 @@ class Safety(MicroscopeComponent):
         view_box = view_box.expanded(1.1, 1.1)
         ax.set_xlim(view_box.min[0], view_box.max[0])
         ax.set_ylim(view_box.min[1], view_box.max[1])
+        plt.gca().invert_yaxis()
         plt.show()
 
 
