@@ -21,7 +21,7 @@ To install Microscope Automation for use on a ZEN Microscope, follow these steps
 
   a. You may have to run as an administrator for it to work properly.
 
-4. Start the microscope and run appropriate calibrations.
+4. Start the microscope and run XY stage, focus, and any other necessary calibrations.
 
 5. Run ``microscope_automation.exe`` from inside the extracted folder.
 
