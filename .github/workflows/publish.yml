@@ -4,10 +4,12 @@ on:
   push:
     branches:
       - stable
+    tags:
+      - "v*.*.*"
 
 jobs:
   publish:
-    runs-on: ubuntu-latest
+    runs-on: windows-latest
     steps:
     - uses: actions/checkout@v1
     - name: Set up Python
@@ -26,3 +28,31 @@ jobs:
       with:
         user: __token__
         password: ${{ secrets.PYPI_TOKEN }}
+    - name: Run PyInstaller
+      run: |
+        scripts\installer.bat
+        scripts\Copy_Export_ZEN.bat
+    - name: Zip Files
+      uses: papeloto/action-zip@v1
+      with:
+        files: scripts/dist/microscope_automation/
+        dest: scripts/microscope_automation.zip
+    - name: Create Release
+      id: create_release
+      uses: actions/create-release@v1
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }} # This token is provided by Actions, you do not need to create your own token
+      with:
+        tag_name: ${{ github.ref }}
+        release_name: Release ${{ github.ref }}
+        draft: false
+        prerelease: false
+    - name: Upload Release Asset
+      uses: actions/upload-release-asset@v1
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }} # This token is provided by Actions, you do not need to create your own token
+      with:
+        upload_url: ${{ steps.create_release.outputs.upload_url }} # This pulls from the CREATE RELEASE step above, referencing it's ID to get its outputs object, which include a `upload_url`. See this blog post for more info: https://jasonet.co/posts/new-features-of-github-actions/#passing-data-to-future-steps
+        asset_path: scripts/microscope_automation.zip
+        asset_name: microscope_automation.zip
+        asset_content_type: application/zip
