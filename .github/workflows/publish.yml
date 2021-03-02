@@ -7,7 +7,7 @@ on:
 
 jobs:
   publish_pypi:
-    if: github.event.base_ref == 'refs/heads/stable'
+    if: github.event.ref == 'refs/heads/stable'
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v1
@@ -28,7 +28,7 @@ jobs:
         user: __token__
         password: ${{ secrets.PYPI_TOKEN }}
   publish_zip:
-    if: github.event.base_ref == 'refs/heads/stable'
+    if: github.event.ref == 'refs/heads/stable'
     runs-on: windows-latest
     steps:
     - uses: actions/checkout@v1
