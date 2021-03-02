@@ -7,7 +7,7 @@ on:
 
 jobs:
   publish_pypi:
-    # if: github.event.ref == 'refs/heads/stable'
+    if: github.event.ref == 'refs/heads/stable'
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v1
@@ -42,8 +42,9 @@ jobs:
         pip install .[dev]
     - name: Run PyInstaller
       run: |
-        scripts\installer.bat
-        scripts\Copy_Export_ZEN.bat
+        cd scripts
+        installer.bat
+        Copy_Export_ZEN.bat
     - name: Zip Files
       uses: papeloto/action-zip@v1
       with:
