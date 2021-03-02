@@ -43,8 +43,8 @@ jobs:
     - name: Run PyInstaller
       run: |
         cd scripts
-        installer.bat
-        Copy_Export_ZEN.bat
+        .\installer.bat
+        .\Copy_Export_ZEN.bat
     - name: Zip Files
       uses: papeloto/action-zip@v1
       with:
