@@ -78,31 +78,10 @@ Once you have a copy of the source, you can install it with:
 Packaging the ZIP
 =================
 
-1. Clone `the repository`_ and navigate to ``scripts`` folder
+Simply follow the instructions on :ref:`CONTRIBUTING_Deploying` in :ref:`CONTRIBUTING`.
 
-2. Run ``installer.bat``
-
-3. If you get an error like ``ImportError No system module 'pywintypes' (pywintypes38.dll)``, follow `this StackOverflow fix <https://stackoverflow.com/questions/25254285/pyinstaller-importerror-no-system-module-pywintypes-pywintypes27-dll/>`_
-
-  a. Navigate to ``<pythonpath>\lib\site-packages\pywin32_system32``
-
-  b. Copy ``pywintypes38.dll`` to ``<pythonpath>\lib\site-packages\win32\lib``
-
-  c. Rerun ``installer.bat``
-
-4. Try launching ``dist\microscope_automation\microscope_automation.exe`` from the command prompt so you can check error output
-
-5. If you get an error like ``ModuleNotFoundError: No module named 'skimage.filters.rank.core_cy_3d'``, add ``skimage.filters.rank.core_cy_3d`` to ``hiddenimports`` in ``microscope_automation.spec`` and rerun ``installer.bat``
-
-6. Once ``microscope_automation.exe`` runs successfully (i.e. the GUI prompts you for a preferences file) simply quit the program.
-
-7. Now copy ``Export_ZEN_COM_Objects.bat`` from ``scripts`` to ``dist\microscope_automation``
-
-8. Package the entire ``dist\microscope_automation`` folder into ``microscope_automation.zip``.
-
-9. Create a new release on GitHub following these instructions: :ref:`CONTRIBUTING_Deploying`
-
-10. Attach ``microscope_automation.zip`` to the new release.
+GitHub Actions is configured to package the ZIP and publish to PyPI whenever a new version
+is pushed to the ``stable`` branch.
 
 .. _the repository: https://github.com/aics-int/microscope_automation
 .. _BatToExe: https://sourceforge.net/projects/bat-to-exe/
