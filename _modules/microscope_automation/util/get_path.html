@@ -104,7 +104,13 @@
 
 
 <div class="viewcode-block" id="set_up_settings_folders"><a class="viewcode-back" href="../../../microscope_automation.util.html#microscope_automation.util.get_path.set_up_settings_folders">[docs]</a><span class="k">def</span> <span class="nf">set_up_settings_folders</span><span class="p">(</span>
-    <span class="n">prefs</span><span class="p">,</span> <span class="n">keys</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;PathCalibration&quot;</span><span class="p">,</span> <span class="s2">&quot;RecoverySettingsFilePath&quot;</span><span class="p">,</span> <span class="s2">&quot;LogFilePath&quot;</span><span class="p">]</span>
+    <span class="n">prefs</span><span class="p">,</span>
+    <span class="n">keys</span><span class="o">=</span><span class="p">[</span>
+        <span class="s2">&quot;PathCalibration&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;RecoverySettingsFilePath&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;LogFilePath&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;PathDailyFolder&quot;</span><span class="p">,</span>
+    <span class="p">],</span>
 <span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;Checks if the folders specified in preferences exist and makes them if not</span>
 

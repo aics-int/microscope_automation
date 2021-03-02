@@ -8,23 +8,29 @@ Installation
 
 .. _Installation_Full_release:
 
-Full Release
-------------
+ZIP Release
+-----------
 
 To install Microscope Automation for use on a ZEN Microscope, follow these steps:
 
-1. Copy the zip from the `latest release <https://github.com/aics-int/microscope_automation/releases/>`_
+1. Copy the ZIP from the latest release by clicking `here <https://github.com/aics-int/microscope_automation/releases/>`_ and selecting ``microscope_automation.zip``
 
-2. Run `Export_ZEN_COM_Objects.bat <https://github.com/aics-int/microscope_automation/blob/master/scripts/Export_ZEN_COM_Objects.bat>`_
+2. Extract the contents of ``microscope_automation.zip`` to the location of your choice.
+
+3. Run `Export_ZEN_COM_Objects.bat <https://github.com/aics-int/microscope_automation/blob/master/scripts/Export_ZEN_COM_Objects.bat>`_ from inside the extracted folder.
 
   a. You may have to run as an administrator for it to work properly.
 
-3. Run ``microscope_automation.exe`` from inside the unzipped folder.
+4. Start the microscope and run XY stage, focus, and any other necessary calibrations.
 
-For non-ZEN systems, simply skip ``Step 2``.
+5. Run ``microscope_automation.exe`` from inside the extracted folder.
 
-Stable Release
---------------
+  a. When prompted, select the workflow preference file you wish to use, first checking all settings are configured as you wish.
+
+For non-ZEN systems, simply skip ``Step 3``.
+
+Pip Installation
+----------------
 
 To install Microscope Automation, run this command in your terminal:
 
