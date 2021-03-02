@@ -9,6 +9,7 @@ Welcome to Microscope Automation's documentation!
 
    README <self>
    installation
+   CONTRIBUTING
 
 .. toctree::
    :maxdepth: 1
@@ -83,7 +84,6 @@ Welcome to Microscope Automation's documentation!
    :maxdepth: 1
    :caption: Reference Docs
 
-   CONTRIBUTING
    LICENSE
 
 .. include:: ../README.rst
