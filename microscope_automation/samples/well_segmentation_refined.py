@@ -45,6 +45,9 @@ class WellSegmentation:
             mode="constant",
         )
         self.height, self.width = self.downsized_image.shape[:2]
+        self.isModeA = True
+        if mode == "C" or mode == "c":
+            self.isModeA = False
 
     def downscale_filter_dictionary(self, colony_filters_dict):
         """To downscale filters from original image to processing image scale
@@ -87,7 +90,7 @@ class WellSegmentation:
         rescaled_image = self.preprocessing_image()
         binary_colony_mask = self.segment_colonies(rescaled_image)
         self.process_colonies(binary_colony_mask)
-        self.find_positions()
+        self.find_positions(modeA=self.isModeA)
 
     def preprocessing_image(self):
         """To pre-process input image with correction for uneven illumination
@@ -371,7 +374,7 @@ class WellSegmentation:
         return ridge_position
 
 
-    def find_positions(self):
+    def find_positions(self, modeA=True):
         """To find a position in a colony that passes the size filter,
         and is positioned 40% from the edge of colony, maximum in distance map
         that indicates preferred smoothness in region,
@@ -444,26 +447,26 @@ class WellSegmentation:
             print("On object {} of {}".format(obj, num_objs))
             mask = filtered_colonies == obj
 
-            # if mode A, find center position in a colony
-            smooth_point = self.find_center_position(mask, distance, smoothed_well)
+            if modeA:
+                smooth_point = self.find_center_position(mask, distance, smoothed_well)
 
-            smooth_point_corrected = (
-                smooth_point[0] * DOWNSCALING_FACTOR,
-                smooth_point[1] * DOWNSCALING_FACTOR,
-            )
-            point_locations.append(smooth_point_corrected)
+                smooth_point_corrected = (
+                    smooth_point[0] * DOWNSCALING_FACTOR,
+                    smooth_point[1] * DOWNSCALING_FACTOR,
+                )
+                point_locations.append(smooth_point_corrected)
 
             # if mode C, also find ridge and edge position in the same colony
+            else:
+                smooth_point_edge = self.find_edge_position(mask)
+                smooth_point_ridge = self.find_ridge_position(mask, smooth_point_edge)
 
-            # smooth_point_edge = self.find_edge_position(mask)
-            # smooth_point_ridge = self.find_ridge_position(mask, smooth_point_edge)
-
-            # for point in [smooth_point_edge, smooth_point_ridge]:
-            #     smooth_point_corrected = (
-            #         poit[0] * DOWNSCALING_FACTOR,
-            #         point[1] * DOWNSCALING_FACTOR,
-            #     )
-            #     point_locations.append(smooth_point_corrected)
+                for point in [smooth_point_edge, smooth_point_ridge]:
+                    smooth_point_corrected = (
+                        poit[0] * DOWNSCALING_FACTOR,
+                        point[1] * DOWNSCALING_FACTOR,
+                    )
+                    point_locations.append(smooth_point_corrected)
 
         print("Calculated point distances from center of well")
         # Filter top point locations that are closest to the center of the well
