@@ -21,10 +21,10 @@ Then run:
   git pull
   bumpversion [part]
   git push
-  git push --tags
   git branch -D stable
   git checkout -b stable
   git push --set-upstream origin stable -f
+  git push --tags
 
 Where ``[part]`` is ``major``, ``minor``, or ``patch``.
 This will release a new package version on Git + GitHub and publish to PyPI.
