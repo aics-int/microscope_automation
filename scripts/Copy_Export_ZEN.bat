@@ -1,0 +1,1 @@
+COPY Export_ZEN_COM_Objects.bat dist\microscope_automation\Export_ZEN_COM_Objects.bat
