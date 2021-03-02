@@ -1603,7 +1603,13 @@ class MicroscopeAutomation(object):
                     remove_small_holes_area_threshold = imaging_settings.get_pref(
                         "RemoveSmallHolesAreaThreshold"
                     )
-                    imaging_mode = imaging_settings.get_pref("ImagingMode")
+
+                    #Determine imaging mode, default to A if not available.
+                    imaging_mode = "A"
+                    try:
+                        imaging_mode = imaging_settings.get_pref("ImagingMode")
+                    except:
+                        imaging_mode = "A"
                     segmented_well = WellSegmentation(
                         image_data,
                         colony_filters_dict=filters,
