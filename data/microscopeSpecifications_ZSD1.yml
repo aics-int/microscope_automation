@@ -23,7 +23,7 @@ Info:
 #
 ############################################################
 # Add "ZEN Blue Dummy" to test without DLLs on ZSD machines
-Software: ZEN Blue
+Software: ZEN Blue Dummy
 
 ############################################################
 #
