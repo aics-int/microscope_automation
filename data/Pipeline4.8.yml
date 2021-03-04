@@ -246,3 +246,4 @@ SegmentWells:
   Image: True
   Plate: False
   Repetition: False
+ ImagingMode: 'C'
