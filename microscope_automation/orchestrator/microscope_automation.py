@@ -1343,11 +1343,12 @@ class MicroscopeAutomation(object):
         message.information_message(
             "Execute Experiment",
             "In Zen, check the following settings: \n\n"
-            "1) Focus Strategy is set to none\n"
-            "2) 1 tile region is set up with 66 tiles\n"
-            "3) 10x objective is checked in the light path\n"
-            "4) Hit live and check the brightness of TL\n"
-            "5) Save Experiment",
+            "1) Load the Scanwell 10x File in Zen"
+            "2) Focus Strategy is set to none\n"
+            "3) 1 tile region is set up with 66 tiles\n"
+            "4) 10x objective is checked in the light path\n"
+            "5) Hit live and check the brightness of TL\n"
+            "6) Save Experiment",
         )
         current_well = None
         load = load_between_objects
