@@ -64,7 +64,7 @@ LessDialog: True                                 # Set "False": All diag boxes (
 # Settings to initialize microscope
 InitializeMicroscope:
  FunctionName: initialize_microscope              # Name of function in Python code in module microscopeAutomation that will process this experiment
- Verbose: True                                Use    # print debug messages?
+ Verbose: True                                    # print debug messages?
  NumberTrials: 3                                  # How often a user is given the chance to set up the system in a correct way
  SetupFolders: True                               # Setup image folder
  CopyColonyFile: False                            # Copy colony file
