@@ -254,7 +254,7 @@ SetupImmersionSystem:
 # This method is mainly used for test purposes
 ScanWellsZero:
  FunctionName: scan_wells_zero                                # Name of function in Python code in module microscope_automation that will process this experiment
- Verbose: True                                                # print debug messages?
+ Verbose: False                                               # print debug messages?
  Blocking: True                                               # open modal dialog in case of error
  WellsScanWellsZero: B3, C3, D3, B4, C4, D4
  # WellsScanWellsZero: G10
