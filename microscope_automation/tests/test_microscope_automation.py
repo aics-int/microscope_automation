@@ -230,7 +230,6 @@ def test_calculate_all_wells_correction(
 
 
 @patch("microscope_automation.samples.samples.PlateHolder.execute_experiment")
-@patch("microscope_automation.hardware.hardware_components.Safety.show_safe_areas")
 @patch("microscope_automation.util.automation_messages_form_layout.operate_message")
 @patch(
     "microscope_automation.util.automation_messages_form_layout.read_string",
@@ -258,7 +257,6 @@ def test_calculate_all_wells_correction(
 )
 def test_setup_immersion_system(
     mock_execute,
-    mock_show_safe,
     mock_message,
     mock_read,
     prefs_path,

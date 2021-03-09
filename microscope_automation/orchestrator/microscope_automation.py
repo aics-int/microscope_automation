@@ -356,7 +356,7 @@ class MicroscopeAutomation(object):
         immersion_delivery.set_zero(verbose=verbose)
 
         # move away from delivery system to avoid later collisions
-        immersion_delivery.move_to_safe()
+        immersion_delivery.move_to_safe(verbose=verbose)
         magnification = prefs.get_pref("MagnificationImmersionSystem")
         immersion_delivery.magnification = magnification
 
