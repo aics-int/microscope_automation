@@ -64,7 +64,7 @@ LessDialog: True                                 # Set "False": All diag boxes (
 # Settings to initialize microscope
 InitializeMicroscope:
  FunctionName: initialize_microscope              # Name of function in Python code in module microscopeAutomation that will process this experiment
- Verbose: True                                Use    # print debug messages?
+ Verbose: False                                   # print debug messages?
  NumberTrials: 3                                  # How often a user is given the chance to set up the system in a correct way
  SetupFolders: True                               # Setup image folder
  CopyColonyFile: False                            # Copy colony file
@@ -93,8 +93,8 @@ InitializeMicroscope:
 
 # Set z-zero positions for plate and wells
 UpdatePlateWellZero_10x:
- FunctionName: update_plate_z_zero               # Name of function in Python code in module microscopeAutomation that will process this experiment
- Verbose: True                                   # print debug messages?
+ FunctionName: update_plate_z_zero                # Name of function in Python code in module microscopeAutomation that will process this experiment
+ Verbose: False                                   # print debug messages?
  NumberTrials: 3                                  # How often a user is given the chance to set up the system in a correct way
  Wait:                                            # Wait for user input after imaging and before removing image from display (has no effect in this experiment module)
   Image: True                                       # Wait after each image
@@ -114,7 +114,7 @@ UpdatePlateWellZero_10x:
 
 Koehler:
  FunctionName: initialize_microscope              # Name of function in Python code in module microscopeAutomation that will process this experiment
- Verbose: True                                    # print debug messages?
+ Verbose: False                                   # print debug messages?
  NumberTrials: 3                                  # How often a user is given the chance to set up the system in a correct way
  SetupFolders: False                              # Setup image folder
  CopyColonyFile: False                            # Copy colony file
@@ -145,7 +145,7 @@ Koehler:
 ScanPlate:
  FunctionName: scan_plate                       # Name of function in Python code in module microscopeAutomation that will process this experiment
  Name: ScanPlate                                # name of experiment
- Verbose: True                                  # print debug messages?
+ Verbose: False                                 # print debug messages?
  NumberTrials: 3                                  # How often a user is given the chance to set up the system in a correct way
  Blocking: False                                # open modal dialog in case of error
   # Wells:[C4, C5, C6, C7, C8,

@@ -230,7 +230,6 @@ def test_calculate_all_wells_correction(
 
 
 @patch("microscope_automation.samples.samples.PlateHolder.execute_experiment")
-@patch("microscope_automation.hardware.hardware_components.Safety.show_safe_areas")
 @patch("microscope_automation.util.automation_messages_form_layout.operate_message")
 @patch(
     "microscope_automation.util.automation_messages_form_layout.read_string",
@@ -258,7 +257,6 @@ def test_calculate_all_wells_correction(
 )
 def test_setup_immersion_system(
     mock_execute,
-    mock_show_safe,
     mock_message,
     mock_read,
     prefs_path,
@@ -677,7 +675,6 @@ def test_calculate_plate_correction(
     assert result == expected
 
 
-@patch("microscope_automation.hardware.hardware_components.Safety.show_safe_areas")
 @patch("microscope_automation.connectors.connect_zen_blue.ConnectMicroscope.save_image")
 @patch(
     "microscope_automation.connectors.connect_zen_blue.ConnectMicroscope.close_experiment"  # noqa
@@ -700,7 +697,6 @@ def test_scan_wells_zero(
     mock_message,
     mock_close,
     mock_save,
-    mock_show_safe,
     prefs_path,
     pref_name,
     well_names,
@@ -895,7 +891,6 @@ def test_scan_single_ROI(
 @patch(
     "microscope_automation.connectors.connect_zen_blue.ConnectMicroscope.close_experiment"  # noqa
 )
-@patch("microscope_automation.hardware.hardware_components.Safety.show_safe_areas")
 @patch(
     "microscope_automation.util.automation_messages_form_layout.read_string",
     return_value="",
@@ -1014,7 +1009,6 @@ def test_scan_all_objects(
     mock_info,
     mock_wait,
     mock_read,
-    mock_show_safe,
     mock_close,
     mock_save,
     mock_load,
@@ -1324,7 +1318,6 @@ def test_get_objective_offsets(prefs_path, magnification, expected, helpers):
 @patch(
     "microscope_automation.connectors.connect_zen_blue.ConnectMicroscope.close_experiment"  # noqa
 )
-@patch("microscope_automation.hardware.hardware_components.Safety.show_safe_areas")
 @patch("microscope_automation.util.automation_messages_form_layout.wait_message")
 @patch("microscope_automation.util.automation_messages_form_layout.information_message")
 @patch("microscope_automation.util.automation_messages_form_layout.operate_message")
@@ -1429,7 +1422,6 @@ def test_scan_plate(
     mock_message,
     mock_info,
     mock_wait,
-    mock_show_safe,
     mock_close,
     mock_save,
     mock_load,
