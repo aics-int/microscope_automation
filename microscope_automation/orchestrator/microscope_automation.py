@@ -43,6 +43,7 @@ from microscope_automation.util.get_path import (
     get_experiment_path,
     get_meta_data_path,
     get_valid_path_from_prefs,
+    get_hardware_settings_path
 )
 from microscope_automation.samples import samples
 from microscope_automation.hardware import hardware_components
@@ -121,6 +122,7 @@ VALID_BLOCKING = [True, False]
 class MicroscopeAutomation(object):
     def __init__(self, prefs_path, app=None):
         self.prefs = preferences.Preferences(prefs_path)
+        self.hardware_settings = get_hardware_settings_path(self.prefs)
         recovery_file_path = get_recovery_settings_path(self.prefs)
 
         # Create and save the pickle file
@@ -2586,7 +2588,7 @@ def main():
     # as it only needs to be initialized once
     app = QtGui.QApplication([])
     try:
-        set_up_settings_folders(preferences.Preferences(prefs_path))
+        #set_up_settings_folders(preferences.Preferences(prefs_path)) # this reads the pref file twice
         mic = MicroscopeAutomation(prefs_path, app)
         mic.microscope_automation()
     except KeyboardInterrupt:
