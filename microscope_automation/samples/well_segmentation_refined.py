@@ -47,9 +47,6 @@ class WellSegmentation:
             mode="constant",
         )
         self.height, self.width = self.downsized_image.shape[:2]
-        self.isModeA = True
-        if mode == "C" or mode == "c":
-            self.isModeA = False
 
     def downscale_filter_dictionary(self, colony_filters_dict):
         """To downscale filters from original image to processing image scale
@@ -459,7 +456,7 @@ class WellSegmentation:
         return smooth_point
 
 
-    def find_positions(self, modeA=True):
+    def find_positions(self, mode="A"):
         """To find a position in a colony that passes the size filter,
         and is positioned 40% from the edge of colony, maximum in distance map
         that indicates preferred smoothness in region,
@@ -531,18 +528,7 @@ class WellSegmentation:
         for obj in range(1, num_objs + 1):
             print("On object {} of {}".format(obj, num_objs))
             mask = filtered_colonies == obj
-
-            if modeA:
-                center_point = self.find_center_position(mask, distance, smoothed_well)
-
-                center_point_corrected = (
-                    center_point[0] * DOWNSCALING_FACTOR,
-                    center_point[1] * DOWNSCALING_FACTOR,
-                )
-                point_locations.append(smooth_point_corrected)
-
-            # if mode C, also find ridge and edge position in the same colony
-            else:
+            if mode == "C" or mode == "c":
                 center_point = self.find_center_position(mask, distance, smoothed_well)
                 edge_point, ridge_point = self.find_edge_ridge_pair(mask, center_point)
 
@@ -555,6 +541,18 @@ class WellSegmentation:
                         point[1] * DOWNSCALING_FACTOR,
                     )
                     point_locations.append(smooth_point_corrected)
+            else:
+                # If we get an unsupported mode, we will just perform mode A imaging
+                center_point = self.find_center_position(mask, distance, smoothed_well)
+
+                center_point_corrected = (
+                    center_point[0] * DOWNSCALING_FACTOR,
+                    center_point[1] * DOWNSCALING_FACTOR,
+                )
+                point_locations.append(smooth_point_corrected)
+
+
+
 
         print("Calculated point distances from center of well")
 

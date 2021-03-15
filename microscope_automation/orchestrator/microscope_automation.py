@@ -1597,6 +1597,7 @@ class MicroscopeAutomation(object):
                     image_data = image_data[:, :, 0]
                 # Call segment well module to find imageable positions
                 filters = imaging_settings.get_pref("Filters")
+                segmented_well = None
                 try:
                     canny_sigma = imaging_settings.get_pref("CannySigma")
                     canny_low_threshold = imaging_settings.get_pref("CannyLowThreshold")
@@ -1608,16 +1609,15 @@ class MicroscopeAutomation(object):
                     imaging_mode = "A"
                     try:
                         imaging_mode = imaging_settings.get_pref("ImagingMode")
-                    except:
-                        imaging_mode = "A"
-                    segmented_well = WellSegmentation(
-                        image_data,
-                        colony_filters_dict=filters,
-                        mode=imaging_mode,
-                        canny_sigma=canny_sigma,
-                        canny_low_threshold=canny_low_threshold,
-                        remove_small_holes_area_threshold=remove_small_holes_area_threshold,  # noqa
-                    )
+                    finally:
+                        segmented_well = WellSegmentation(
+                            image_data,
+                            colony_filters_dict=filters,
+                            mode=imaging_mode,
+                            canny_sigma=canny_sigma,
+                            canny_low_threshold=canny_low_threshold,
+                            remove_small_holes_area_threshold=remove_small_holes_area_threshold,  # noqa
+                        )
                 except Exception:
                     # if the preferences are not set, call with default ones
                     segmented_well = WellSegmentation(
