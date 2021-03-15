@@ -306,7 +306,7 @@ def setup_plate(prefs, hardware_specs, colony_file=None, microscope_object=None,
     Output:
      plate_holder_object: object that contains all wells with sample information.
     """
-    # get description for microscope components from orchestrator
+    # get description for microscope components
     specifications = hardware_specs
 
     # we will first get information about colonies to image.
@@ -513,7 +513,7 @@ def setup_plate(prefs, hardware_specs, colony_file=None, microscope_object=None,
     return plate_holder_object
 
 
-def setup_slide(hardware_specs, microscope_object=None):
+def setup_slide(prefs, microscope_object=None):
     """Create basic object of class slide from module sample that
     consists of plate holder and slide.
 
@@ -523,8 +523,9 @@ def setup_slide(hardware_specs, microscope_object=None):
     Output:
      plate_holder_object: object that contains one slide.
     """
-    # get description for microscope components from main orchestrator
-    hardware_settings = hardware_specs
+    # get description for microscope components
+    path_hardware_settings = get_hardware_settings_path(prefs)
+    hardware_settings = Preferences(path_hardware_settings)
 
     # Read settings for coordinate system of slide relative to stage (plate holder)
     # from microscopeSpecifications.yml file

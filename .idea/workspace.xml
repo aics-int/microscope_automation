@@ -3,6 +3,7 @@
   <component name="ChangeListManager">
     <list default="true" id="85523ccd-56fb-486b-9610-c124cef53c37" name="Default Changelist" comment="">
       <change beforePath="$PROJECT_DIR$/microscope_automation/orchestrator/microscope_automation.py" beforeDir="false" afterPath="$PROJECT_DIR$/microscope_automation/orchestrator/microscope_automation.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/microscope_automation/samples/interactive_location_picker_pyqtgraph.py" beforeDir="false" afterPath="$PROJECT_DIR$/microscope_automation/samples/interactive_location_picker_pyqtgraph.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/microscope_automation/samples/setup_samples.py" beforeDir="false" afterPath="$PROJECT_DIR$/microscope_automation/samples/setup_samples.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
