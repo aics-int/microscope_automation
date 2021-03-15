@@ -43,6 +43,7 @@ from microscope_automation.util.get_path import (
     get_experiment_path,
     get_meta_data_path,
     get_valid_path_from_prefs,
+    get_hardware_settings_path
 )
 from microscope_automation.samples import samples
 from microscope_automation.hardware import hardware_components
@@ -119,9 +120,10 @@ VALID_BLOCKING = [True, False]
 
 
 class MicroscopeAutomation(object):
-    def __init__(self, prefs_path, app=None):
-        self.prefs = preferences.Preferences(prefs_path)
+    def __init__(self, prefs, app=None):
+        self.prefs = prefs
         recovery_file_path = get_recovery_settings_path(self.prefs)
+        self.hardware_settings = get_hardware_settings_path(self.prefs)
 
         # Create and save the pickle file
         self.state = State(recovery_file_path)
@@ -2426,10 +2428,10 @@ class MicroscopeAutomation(object):
 
         plate_holder_object = setup_plate(
             self.prefs,
+            self.hardware_settings,
             colony_file=colony_file,
             microscope_object=microscope_object,
-            barcode=barcode,
-        )
+            barcode=barcode)
 
         # Set up the Daily folder with plate barcode
         # Currently only one plate supported so barcode is extracted from that
@@ -2586,8 +2588,9 @@ def main():
     # as it only needs to be initialized once
     app = QtGui.QApplication([])
     try:
-        set_up_settings_folders(preferences.Preferences(prefs_path))
-        mic = MicroscopeAutomation(prefs_path, app)
+        pref = preferences.Preferences(prefs_path)
+        set_up_settings_folders(pref)
+        mic = MicroscopeAutomation(pref, app)
         mic.microscope_automation()
     except KeyboardInterrupt:
         pyqtgraph.exit()
