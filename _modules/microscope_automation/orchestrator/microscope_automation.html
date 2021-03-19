@@ -615,7 +615,6 @@
             <span class="p">)</span>
 
         <span class="n">microscope_object</span><span class="o">.</span><span class="n">live_mode</span><span class="p">(</span><span class="n">camera_id</span><span class="p">,</span> <span class="n">experiment</span><span class="o">=</span><span class="n">zen_experiment</span><span class="p">,</span> <span class="n">live</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
-        <span class="n">message</span><span class="o">.</span><span class="n">operate_message</span><span class="p">(</span><span class="s2">&quot;Set-up Koehler illumination.&quot;</span><span class="p">)</span>
         <span class="n">microscope_object</span><span class="o">.</span><span class="n">live_mode</span><span class="p">(</span><span class="n">camera_id</span><span class="p">,</span> <span class="n">experiment</span><span class="o">=</span><span class="n">zen_experiment</span><span class="p">,</span> <span class="n">live</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span></div>
 
 <div class="viewcode-block" id="MicroscopeAutomation.initialize_microscope"><a class="viewcode-back" href="../../../microscope_automation.orchestrator.html#microscope_automation.orchestrator.microscope_automation.MicroscopeAutomation.initialize_microscope">[docs]</a>    <span class="k">def</span> <span class="nf">initialize_microscope</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">initialize_prefs</span><span class="p">,</span> <span class="n">plate_holder_object</span><span class="p">,</span> <span class="n">_experiment</span><span class="p">):</span>
@@ -767,7 +766,7 @@
 
             <span class="c1"># User has to set focus position for following experiments</span>
             <span class="n">return_code</span> <span class="o">=</span> <span class="n">message</span><span class="o">.</span><span class="n">operate_message</span><span class="p">(</span>
-                <span class="s2">&quot;Please set the focus for your acquisition&quot;</span><span class="p">,</span> <span class="n">return_code</span><span class="o">=</span><span class="kc">True</span>
+                <span class="s2">&quot;Please set the focus and koehler for your acquisition.&quot;</span><span class="p">,</span> <span class="n">return_code</span><span class="o">=</span><span class="kc">True</span>
             <span class="p">)</span>
 
             <span class="k">if</span> <span class="n">return_code</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
@@ -2469,7 +2468,6 @@
 
         <span class="n">plate_holder_object</span> <span class="o">=</span> <span class="n">setup_plate</span><span class="p">(</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">prefs</span><span class="p">,</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">hardware_settings</span><span class="p">,</span>
             <span class="n">colony_file</span><span class="o">=</span><span class="n">colony_file</span><span class="p">,</span>
             <span class="n">microscope_object</span><span class="o">=</span><span class="n">microscope_object</span><span class="p">,</span>
             <span class="n">barcode</span><span class="o">=</span><span class="n">barcode</span><span class="p">)</span>
