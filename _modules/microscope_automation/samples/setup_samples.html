@@ -322,7 +322,7 @@
 <span class="c1">###########################################################################</span>
 
 
-<div class="viewcode-block" id="setup_plate"><a class="viewcode-back" href="../../../setup_samples.html#microscope_automation.samples.setup_samples.setup_plate">[docs]</a><span class="k">def</span> <span class="nf">setup_plate</span><span class="p">(</span><span class="n">prefs</span><span class="p">,</span> <span class="n">colony_file</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">microscope_object</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">barcode</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<div class="viewcode-block" id="setup_plate"><a class="viewcode-back" href="../../../setup_samples.html#microscope_automation.samples.setup_samples.setup_plate">[docs]</a><span class="k">def</span> <span class="nf">setup_plate</span><span class="p">(</span><span class="n">prefs</span><span class="p">,</span> <span class="n">hardware_specs</span><span class="p">,</span> <span class="n">colony_file</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">microscope_object</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">barcode</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;Create object of class plateholder from module sample</span>
 <span class="sd">    that holds information about all colonies scanned with plate reader.</span>
 
@@ -340,8 +340,7 @@
 <span class="sd">     plate_holder_object: object that contains all wells with sample information.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="c1"># get description for microscope components</span>
-    <span class="n">path_hardware_settings</span> <span class="o">=</span> <span class="n">get_hardware_settings_path</span><span class="p">(</span><span class="n">prefs</span><span class="p">)</span>
-    <span class="n">specifications</span> <span class="o">=</span> <span class="n">Preferences</span><span class="p">(</span><span class="n">path_hardware_settings</span><span class="p">)</span>
+    <span class="n">specifications</span> <span class="o">=</span> <span class="n">hardware_specs</span>
 
     <span class="c1"># we will first get information about colonies to image.</span>
     <span class="c1"># Some of this information (e.g. barcode) required</span>
