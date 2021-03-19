@@ -289,7 +289,7 @@ def add_barcode(name, well_object, layout):
 ###########################################################################
 
 
-def setup_plate(prefs, hardware_specs, colony_file=None, microscope_object=None, barcode=None):
+def setup_plate(prefs, colony_file=None, microscope_object=None, barcode=None):
     """Create object of class plateholder from module sample
     that holds information about all colonies scanned with plate reader.
 
@@ -307,7 +307,7 @@ def setup_plate(prefs, hardware_specs, colony_file=None, microscope_object=None,
      plate_holder_object: object that contains all wells with sample information.
     """
     # get description for microscope components
-    specifications = hardware_specs
+    specifications = Preferences(get_hardware_settings_path(prefs))
 
     # we will first get information about colonies to image.
     # Some of this information (e.g. barcode) required

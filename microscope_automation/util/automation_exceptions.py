@@ -453,7 +453,7 @@ class ExperimentNotExistError(ExperimentError):
         Output:
          none
         """
-        if error_message() is None:
+        if self.error_component is None:
             print("Experiment NONE does not exist error.")
         else:
             return error_message(

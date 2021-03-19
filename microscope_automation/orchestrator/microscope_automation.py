@@ -582,7 +582,6 @@ class MicroscopeAutomation(object):
             )
 
         microscope_object.live_mode(camera_id, experiment=zen_experiment, live=True)
-        message.operate_message("Set-up Koehler illumination.")
         microscope_object.live_mode(camera_id, experiment=zen_experiment, live=False)
 
     def initialize_microscope(self, initialize_prefs, plate_holder_object, _experiment):
@@ -734,7 +733,7 @@ class MicroscopeAutomation(object):
 
             # User has to set focus position for following experiments
             return_code = message.operate_message(
-                "Please set the focus for your acquisition", return_code=True
+                "Please set the focus and koehler for your acquisition.", return_code=True
             )
 
             if return_code == 0:
@@ -2436,7 +2435,6 @@ class MicroscopeAutomation(object):
 
         plate_holder_object = setup_plate(
             self.prefs,
-            self.hardware_settings,
             colony_file=colony_file,
             microscope_object=microscope_object,
             barcode=barcode)
