@@ -48,8 +48,8 @@ Cameras:
   pixelSize_y: 13
   pixelNumber_x: 1848
   pixelNumber_y: 1248
-  offset_x: 104
-  offset_y: 400
+  offset_x: 64
+  offset_y: 408
   pixelType: np.int32
   name: Orca Flash 4.0V2
   detectorType: sCMOS
@@ -60,8 +60,8 @@ Cameras:
   pixelSize_y: 13
   pixelNumber_x: 1848
   pixelNumber_y: 1248
-  offset_x: 104
-  offset_y: 400
+  offset_x: 64
+  offset_y: 408
   pixelType: np.int32
   name: Orca Flash 4.0V2
   detectorType: sCMOS
@@ -95,7 +95,7 @@ SafeAreas:
     [109000, 72300],
     [2700, 72300],
     ]
-   zMax: 10050
+   zMax: 8500
 
  ZSD_02_slide:
   StageArea:
@@ -105,7 +105,7 @@ SafeAreas:
     [89700, 48600],
     [28500, 48600],
     ]
-   zMax: 7880
+   zMax: 6880
 ############################################################
 #
 # Stage
@@ -159,7 +159,7 @@ Plate:
  Name: 96-well
  xCenter: 6153         # zero position of plate in plate holder coordinates = center of well A1.
  yCenter: 5624
- zCenter: 9918
+ zCenter: 8078
 
  xFlip: 1               # -1 if plate holder coordinate system is flipped in respect to plate holder coordinate system, otherwise 1
  yFlip: 1               # -1 if plate holder coordinate system is flipped in respect to plate holder coordinate system, otherwise 1
@@ -181,7 +181,7 @@ Slide:
  SafetyID: ZSD_02_slide # name of safety area for slide
  xCenter: 83192         # zero position of slide in plate holder coordinates
  yCenter: 34564
- zCenter: 7858
+ zCenter: 6858
 
  xFlip: 1               # -1 if plate holder coordinate system is flipped in respect to plate holder coordinate system, otherwise 1
  yFlip: 1               # -1 if plate holder coordinate system is flipped in respect to plate holder coordinate system, otherwise 1

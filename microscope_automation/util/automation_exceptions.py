@@ -453,11 +453,14 @@ class ExperimentNotExistError(ExperimentError):
         Output:
          none
         """
-        return error_message(
-            'Experiment "{}" does not exist.'.format(self.error_component),
-            return_code=False,
-            blocking=get_error_blocking(),
-        )
+        if error_message() is None:
+            print("Experiment NONE does not exist error.")
+        else:
+            return error_message(
+                'Experiment "{}" does not exist.'.format(self.error_component),
+                return_code=False,
+                blocking=get_error_blocking(),
+            )
 
 
 ################################################################################
