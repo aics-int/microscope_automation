@@ -261,7 +261,7 @@ ObjectiveChanger:
  Positions: 6
  # There is a mechanical offset between different objectives, called parcentricity and parfocality
  # Reference objective to define reference position
- ReferenceObjective: 'Plan-Apochromat 20x/0.8 M27'
+ ReferenceObjective: 'Dummy Objective'
  Objectives:
     # Use grid slide to calibrate offset
     # Focus with 20x objective on center of grid and record xyz stage position as shown in ZEN software

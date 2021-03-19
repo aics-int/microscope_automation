@@ -1,7 +1,8 @@
 import math
 from matplotlib.pyplot import rcParams
+import matplotlib.pyplot as plt
 import numpy as np
-from scipy import ndimage, signal
+from scipy import ndimage, signal, spatial
 from skimage import (
     exposure,
     feature,
@@ -11,6 +12,7 @@ from skimage import (
     measure,
     segmentation,
 )
+import pandas as pd
 
 DOWNSCALING_FACTOR = 4
 rcParams["figure.figsize"] = 15, 12
@@ -87,7 +89,7 @@ class WellSegmentation:
         rescaled_image = self.preprocessing_image()
         binary_colony_mask = self.segment_colonies(rescaled_image)
         self.process_colonies(binary_colony_mask)
-        self.find_positions()
+        self.find_positions(modeA=self.isModeA)
 
     def preprocessing_image(self):
         """To pre-process input image with correction for uneven illumination
@@ -309,7 +311,152 @@ class WellSegmentation:
         self.segmented_colonies = labelled_colonies
         print("Done Segmenting colonies")
 
-    def find_positions(self):
+
+    def find_edge_ridge_pair(self, colony_mask, center_pos, dist_well=30.):
+        """
+        A method to find a pair of edge and ridge point in a colony that is far away from each other and the center position
+        :param colony_mask: a binary colony mask
+        :param center_pos: a tuple (y, x) of the center position
+        :param dist_well: a float > 1 to indicate the size of the well that should be masked out
+        :return:
+        """
+        mask = self.create_circular_mask(radius=(self.height / 2.1) - dist_well)
+
+        all_edges = feature.canny(self.segmented_colonies > 0, sigma=0.1)
+        col_edge = colony_mask * mask * all_edges
+
+        all_edges = np.where(col_edge == np.min(col_edge[np.nonzero(col_edge)]))
+
+        df = pd.DataFrame()
+        for i in range (0, len(all_edges[0])):
+            edge_y, edge_x = all_edges[0][i], all_edges[1][i]
+            # if not ((edge_y in out_mask[0]) & (edge_x in out_mask[1])):
+            row = {}
+            row['edge_x'] = edge_x
+            row['edge_y'] = edge_y
+            df = df.append(row, ignore_index=True)
+
+        # for each edge pt, find the other edge that's furthest away from it and save out as a pair, with distance from
+        # center of colony
+        df['opp_edge_x'] = None
+        df['opp_edge_y'] = None
+
+        if len(df) > 100:
+            df = df.sample(n=100)
+
+        for index, row in df.iterrows():
+            edge_x = row['edge_x']
+            edge_y = row['edge_y']
+
+            max_dist = 0
+            furthest_loc = None
+
+            for index_compare, row_compare in df.iterrows():
+                dist = spatial.distance.euclidean((edge_y, edge_x), (row_compare['edge_y'], row_compare['edge_x']))
+                if dist > max_dist:
+                    max_dist = dist
+                    furthest_loc = (row_compare['edge_y'], row_compare['edge_x'])
+
+            if len(df.loc[(df['edge_y'] == furthest_loc[0]) & (df['edge_x'] == furthest_loc[1]) & (df['opp_edge_x'] == None)]) == 0:
+                df.loc[index, 'opp_edge_x'] = furthest_loc[1]
+                df.loc[index, 'opp_edge_y'] = furthest_loc[0]
+                df.loc[index, 'dist'] = max_dist
+
+                dist_to_center = spatial.distance.euclidean(center_pos, furthest_loc) + spatial.distance.euclidean(center_pos, (edge_y, edge_x))
+                df.loc[index, 'dist_to_center'] = dist_to_center
+
+        edge_pt = (
+            int(df.loc[df['dist_to_center'] == df['dist_to_center'].max(), 'edge_x'].values.tolist()[0]),
+            int(df.loc[df['dist_to_center'] == df['dist_to_center'].max(), 'edge_y'].values.tolist()[0])
+        )
+
+        ridge_pt = (
+            int(df.loc[df['dist_to_center'] == df['dist_to_center'].max(), 'opp_edge_x'].values.tolist()[0]),
+            int(df.loc[df['dist_to_center'] == df['dist_to_center'].max(), 'opp_edge_y'].values.tolist()[0])
+        )
+
+        return edge_pt, ridge_pt
+
+
+    def find_edge_position(self, colony_mask):
+        """
+        Function to find edge position from a colony mask
+
+        :param colony_mask: a [0, 1] image showing the segmentation of 1 colony
+        :return:
+            edge_position: a tuple (y, x) of the selected edge position in the downsampled well overview image
+        """
+        all_edges = feature.canny(self.segmented_colonies > 0, sigma=0.1)
+
+        col_edge = colony_mask * all_edges
+
+        edge_pt = np.where(col_edge == np.min(col_edge[np.nonzero(col_edge)]))
+        edge_position = edge_pt[0][0], edge_pt[1][0]
+
+        return edge_position
+
+
+    def find_ridge_position(self, colony_mask, edge_position):
+        """
+        Function to find ridge position, optimized by selecting a position in a colony furthest away from the edge position
+        :param colony_mask: a [0, 1] image showing the segmentation of 1 colony
+        :param edge_position: a tuple (y, x) of the selected edge position in the downsampled well overview image
+        :return:
+        """
+        all_edges = feature.canny(self.segmented_colonies > 0, sigma=0.1)
+
+        col_edge = colony_mask * all_edges
+
+        edge_pt = np.where(col_edge == np.min(col_edge[np.nonzero(col_edge)]))
+        edge_tuples = []
+        for i in range(0, len(edge_pt[0])):
+            new_tuple = (edge_pt[0][i], edge_pt[1][i])
+            edge_tuples.append(new_tuple)
+
+        # find the tuple that is the furthest away from [0][0]
+        max_dist = 0
+        for y, x in edge_tuples:
+            dist = np.sqrt((y - edge_position[0]) ** 2 + (x - edge_position[1]) ** 2)
+
+            if dist>max_dist:
+                max_dist = dist
+                ridge_position = (y, x)
+
+        # to show image for rnd
+        # if (ridge_position[0] > 10) & (ridge_position[0] < (colony_mask.shape[0] - 10)) & \
+        #     (ridge_position[1] > 10) & (ridge_position[1] < (colony_mask.shape[1] - 10)) & \
+        #     (edge_position[0] > 10) & (edge_position[0] < (colony_mask.shape[0] - 10)) & \
+        #     (edge_position[1] > 10) & (edge_position[1] < (colony_mask.shape[1] - 10)):
+        #
+        #     loc_mask = colony_mask.copy()
+        #     loc_mask[ridge_position[0]-10:ridge_position[0]+10, ridge_position[1]-10:ridge_position[1]+10] = 10
+        #     loc_mask[edge_position[0]-10:edge_position[0]+10, edge_position[1]-10:edge_position[1]+10] = 10
+        #
+        #     plt.figure()
+        #     plt.imshow(loc_mask)
+        #     plt.show()
+
+        return ridge_position
+
+
+    def find_center_position(self, mask, distance, smoothed_well):
+        dist_mask = distance * mask
+        # for each colony, find the maximum distance from the two fold distance map.
+        # The edge is at 0% and the center of the colony is at 100%
+        d_max = dist_mask.max()
+        # Getting the points which is at least 40% away from the edge
+        top_percent = dist_mask > (d_max * 0.30)
+        colony_mask = smoothed_well * top_percent
+        colony_edges = feature.canny(colony_mask, sigma=0.1)
+        # applying the second distance transform
+        # to find the smoothest point in the correct region
+        inner_edges = ndimage.distance_transform_edt(~colony_edges * top_percent)
+        smooth_point = np.where(inner_edges == inner_edges.max())
+        smooth_point = (smooth_point[0][0], smooth_point[1][0])
+        return smooth_point
+
+
+    def find_positions(self, mode="A"):
         """To find a position in a colony that passes the size filter,
         and is positioned 40% from the edge of colony, maximum in distance map
         that indicates preferred smoothness in region,
@@ -381,25 +528,34 @@ class WellSegmentation:
         for obj in range(1, num_objs + 1):
             print("On object {} of {}".format(obj, num_objs))
             mask = filtered_colonies == obj
-            dist_mask = distance * mask
-            # for each colony, find the maximum distance from the two fold distance map.
-            # The edge is at 0% and the center of the colony is at 100%
-            d_max = dist_mask.max()
-            # Getting the points which is at least 40% away from the edge
-            top_percent = dist_mask > (d_max * 0.30)
-            colony_mask = smoothed_well * top_percent
-            colony_edges = feature.canny(colony_mask, sigma=0.1)
-            # applying the second distance transform
-            # to find the smoothest point in the correct region
-            inner_edges = ndimage.distance_transform_edt(~colony_edges * top_percent)
-            smooth_point = np.where(inner_edges == inner_edges.max())
-            smooth_point = (smooth_point[0][0], smooth_point[1][0])
-            smooth_point_corrected = (
-                smooth_point[0] * DOWNSCALING_FACTOR,
-                smooth_point[1] * DOWNSCALING_FACTOR,
-            )
-            point_locations.append(smooth_point_corrected)
+            if mode == "C" or mode == "c":
+                center_point = self.find_center_position(mask, distance, smoothed_well)
+                edge_point, ridge_point = self.find_edge_ridge_pair(mask, center_point)
+
+                smooth_point_edge = self.find_edge_position(mask)
+                smooth_point_ridge = self.find_ridge_position(mask, smooth_point_edge)
+
+                for point in [center_point, edge_point, ridge_point]:
+                    smooth_point_corrected = (
+                        point[0] * DOWNSCALING_FACTOR,
+                        point[1] * DOWNSCALING_FACTOR,
+                    )
+                    point_locations.append(smooth_point_corrected)
+            else:
+                # If we get an unsupported mode, we will just perform mode A imaging
+                center_point = self.find_center_position(mask, distance, smoothed_well)
+
+                center_point_corrected = (
+                    center_point[0] * DOWNSCALING_FACTOR,
+                    center_point[1] * DOWNSCALING_FACTOR,
+                )
+                point_locations.append(smooth_point_corrected)
+
+
+
+
         print("Calculated point distances from center of well")
+
         # Filter top point locations that are closest to the center of the well
         center_well_y = (self.height / 2) * DOWNSCALING_FACTOR
         center_well_x = (self.width / 2) * DOWNSCALING_FACTOR
@@ -413,7 +569,10 @@ class WellSegmentation:
         # Rank the distance of point from center
         rank = np.argsort(diff_center)
         # Select the # points wanted with points closest to the center
-        rank_index = rank[:num_colonies_final]
+        if modeA:
+            rank_index = rank[:num_colonies_final]
+        else:
+            rank_index = rank
         for point in rank_index:
             self.point_locations.append(point_locations[point])
         print(
