@@ -1,4 +1,4 @@
-:wq# -*- coding: utf-8 -*-
+# -*- coding: utf-8 -*-
 
 """The setup script."""
 
