@@ -2,8 +2,8 @@ name: Publish
 
 on:
   push:
-    tags:
-      - "v*.*.*"
+#    tags:
+#      - "v*.*.*"
 
 jobs:
   publish_pypi:
