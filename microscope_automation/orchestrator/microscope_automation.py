@@ -120,10 +120,10 @@ VALID_BLOCKING = [True, False]
 
 
 class MicroscopeAutomation(object):
-    def __init__(self, prefs_path, app=None):
-        self.prefs = preferences.Preferences(prefs_path)
-        self.hardware_settings = get_hardware_settings_path(self.prefs)
+    def __init__(self, prefs, app=None):
+        self.prefs = prefs
         recovery_file_path = get_recovery_settings_path(self.prefs)
+        self.hardware_settings = get_hardware_settings_path(self.prefs)
 
         # Create and save the pickle file
         self.state = State(recovery_file_path)
@@ -582,7 +582,6 @@ class MicroscopeAutomation(object):
             )
 
         microscope_object.live_mode(camera_id, experiment=zen_experiment, live=True)
-        message.operate_message("Set-up Koehler illumination.")
         microscope_object.live_mode(camera_id, experiment=zen_experiment, live=False)
 
     def initialize_microscope(self, initialize_prefs, plate_holder_object, _experiment):
@@ -734,7 +733,7 @@ class MicroscopeAutomation(object):
 
             # User has to set focus position for following experiments
             return_code = message.operate_message(
-                "Please set the focus for your acquisition", return_code=True
+                "Please set the focus and koehler for your acquisition.", return_code=True
             )
 
             if return_code == 0:
@@ -1345,11 +1344,12 @@ class MicroscopeAutomation(object):
         message.information_message(
             "Execute Experiment",
             "In Zen, check the following settings: \n\n"
-            "1) Focus Strategy is set to none\n"
-            "2) 1 tile region is set up with 66 tiles\n"
-            "3) 10x objective is checked in the light path\n"
-            "4) Hit live and check the brightness of TL\n"
-            "5) Save Experiment",
+            "1) Load the Scanwell 10x File in Zen"
+            "2) Focus Strategy is set to none\n"
+            "3) 1 tile region is set up with 66 tiles\n"
+            "4) 10x objective is checked in the light path\n"
+            "5) Hit live and check the brightness of TL\n"
+            "6) Save Experiment",
         )
         current_well = None
         load = load_between_objects
@@ -1599,20 +1599,27 @@ class MicroscopeAutomation(object):
                     image_data = image_data[:, :, 0]
                 # Call segment well module to find imageable positions
                 filters = imaging_settings.get_pref("Filters")
+                segmented_well = None
                 try:
                     canny_sigma = imaging_settings.get_pref("CannySigma")
                     canny_low_threshold = imaging_settings.get_pref("CannyLowThreshold")
                     remove_small_holes_area_threshold = imaging_settings.get_pref(
                         "RemoveSmallHolesAreaThreshold"
                     )
-                    segmented_well = WellSegmentation(
-                        image_data,
-                        colony_filters_dict=filters,
-                        mode="A",
-                        canny_sigma=canny_sigma,
-                        canny_low_threshold=canny_low_threshold,
-                        remove_small_holes_area_threshold=remove_small_holes_area_threshold,  # noqa
-                    )
+
+                    #Determine imaging mode, default to A if not available.
+                    imaging_mode = "A"
+                    try:
+                        imaging_mode = imaging_settings.get_pref("ImagingMode")
+                    finally:
+                        segmented_well = WellSegmentation(
+                            image_data,
+                            colony_filters_dict=filters,
+                            mode=imaging_mode,
+                            canny_sigma=canny_sigma,
+                            canny_low_threshold=canny_low_threshold,
+                            remove_small_holes_area_threshold=remove_small_holes_area_threshold,  # noqa
+                        )
                 except Exception:
                     # if the preferences are not set, call with default ones
                     segmented_well = WellSegmentation(
@@ -2430,8 +2437,7 @@ class MicroscopeAutomation(object):
             self.prefs,
             colony_file=colony_file,
             microscope_object=microscope_object,
-            barcode=barcode,
-        )
+            barcode=barcode)
 
         # Set up the Daily folder with plate barcode
         # Currently only one plate supported so barcode is extracted from that
@@ -2588,8 +2594,10 @@ def main():
     # as it only needs to be initialized once
     app = QtGui.QApplication([])
     try:
-        #set_up_settings_folders(preferences.Preferences(prefs_path)) # this reads the pref file twice
-        mic = MicroscopeAutomation(prefs_path, app)
+        pref = preferences.Preferences(prefs_path)
+        set_up_settings_folders(pref)
+        mic = MicroscopeAutomation(pref, app)
+
         mic.microscope_automation()
     except KeyboardInterrupt:
         pyqtgraph.exit()

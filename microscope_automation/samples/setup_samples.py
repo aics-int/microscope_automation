@@ -307,8 +307,7 @@ def setup_plate(prefs, colony_file=None, microscope_object=None, barcode=None):
      plate_holder_object: object that contains all wells with sample information.
     """
     # get description for microscope components
-    path_hardware_settings = get_hardware_settings_path(prefs)
-    specifications = Preferences(path_hardware_settings)
+    specifications = Preferences(get_hardware_settings_path(prefs))
 
     # we will first get information about colonies to image.
     # Some of this information (e.g. barcode) required
