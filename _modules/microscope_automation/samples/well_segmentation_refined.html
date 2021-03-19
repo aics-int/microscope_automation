@@ -33,8 +33,9 @@
   <h1>Source code for microscope_automation.samples.well_segmentation_refined</h1><div class="highlight"><pre>
 <span></span><span class="kn">import</span> <span class="nn">math</span>
 <span class="kn">from</span> <span class="nn">matplotlib.pyplot</span> <span class="kn">import</span> <span class="n">rcParams</span>
+<span class="kn">import</span> <span class="nn">matplotlib.pyplot</span> <span class="k">as</span> <span class="nn">plt</span>
 <span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
-<span class="kn">from</span> <span class="nn">scipy</span> <span class="kn">import</span> <span class="n">ndimage</span><span class="p">,</span> <span class="n">signal</span>
+<span class="kn">from</span> <span class="nn">scipy</span> <span class="kn">import</span> <span class="n">ndimage</span><span class="p">,</span> <span class="n">signal</span><span class="p">,</span> <span class="n">spatial</span>
 <span class="kn">from</span> <span class="nn">skimage</span> <span class="kn">import</span> <span class="p">(</span>
     <span class="n">exposure</span><span class="p">,</span>
     <span class="n">feature</span><span class="p">,</span>
@@ -44,6 +45,7 @@
     <span class="n">measure</span><span class="p">,</span>
     <span class="n">segmentation</span><span class="p">,</span>
 <span class="p">)</span>
+<span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
 
 <span class="n">DOWNSCALING_FACTOR</span> <span class="o">=</span> <span class="mi">4</span>
 <span class="n">rcParams</span><span class="p">[</span><span class="s2">&quot;figure.figsize&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="mi">15</span><span class="p">,</span> <span class="mi">12</span>
@@ -120,7 +122,7 @@
         <span class="n">rescaled_image</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">preprocessing_image</span><span class="p">()</span>
         <span class="n">binary_colony_mask</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">segment_colonies</span><span class="p">(</span><span class="n">rescaled_image</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">process_colonies</span><span class="p">(</span><span class="n">binary_colony_mask</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">find_positions</span><span class="p">()</span></div>
+        <span class="bp">self</span><span class="o">.</span><span class="n">find_positions</span><span class="p">(</span><span class="n">modeA</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">isModeA</span><span class="p">)</span></div>
 
 <div class="viewcode-block" id="WellSegmentation.preprocessing_image"><a class="viewcode-back" href="../../../microscope_automation.samples.html#microscope_automation.samples.well_segmentation_refined.WellSegmentation.preprocessing_image">[docs]</a>    <span class="k">def</span> <span class="nf">preprocessing_image</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;To pre-process input image with correction for uneven illumination</span>
@@ -342,7 +344,152 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">segmented_colonies</span> <span class="o">=</span> <span class="n">labelled_colonies</span>
         <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Done Segmenting colonies&quot;</span><span class="p">)</span></div>
 
-<div class="viewcode-block" id="WellSegmentation.find_positions"><a class="viewcode-back" href="../../../microscope_automation.samples.html#microscope_automation.samples.well_segmentation_refined.WellSegmentation.find_positions">[docs]</a>    <span class="k">def</span> <span class="nf">find_positions</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+
+<div class="viewcode-block" id="WellSegmentation.find_edge_ridge_pair"><a class="viewcode-back" href="../../../microscope_automation.samples.html#microscope_automation.samples.well_segmentation_refined.WellSegmentation.find_edge_ridge_pair">[docs]</a>    <span class="k">def</span> <span class="nf">find_edge_ridge_pair</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">colony_mask</span><span class="p">,</span> <span class="n">center_pos</span><span class="p">,</span> <span class="n">dist_well</span><span class="o">=</span><span class="mf">30.</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        A method to find a pair of edge and ridge point in a colony that is far away from each other and the center position</span>
+<span class="sd">        :param colony_mask: a binary colony mask</span>
+<span class="sd">        :param center_pos: a tuple (y, x) of the center position</span>
+<span class="sd">        :param dist_well: a float &gt; 1 to indicate the size of the well that should be masked out</span>
+<span class="sd">        :return:</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">mask</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">create_circular_mask</span><span class="p">(</span><span class="n">radius</span><span class="o">=</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">height</span> <span class="o">/</span> <span class="mf">2.1</span><span class="p">)</span> <span class="o">-</span> <span class="n">dist_well</span><span class="p">)</span>
+
+        <span class="n">all_edges</span> <span class="o">=</span> <span class="n">feature</span><span class="o">.</span><span class="n">canny</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">segmented_colonies</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">,</span> <span class="n">sigma</span><span class="o">=</span><span class="mf">0.1</span><span class="p">)</span>
+        <span class="n">col_edge</span> <span class="o">=</span> <span class="n">colony_mask</span> <span class="o">*</span> <span class="n">mask</span> <span class="o">*</span> <span class="n">all_edges</span>
+
+        <span class="n">all_edges</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">col_edge</span> <span class="o">==</span> <span class="n">np</span><span class="o">.</span><span class="n">min</span><span class="p">(</span><span class="n">col_edge</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">nonzero</span><span class="p">(</span><span class="n">col_edge</span><span class="p">)]))</span>
+
+        <span class="n">df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">()</span>
+        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span> <span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">all_edges</span><span class="p">[</span><span class="mi">0</span><span class="p">])):</span>
+            <span class="n">edge_y</span><span class="p">,</span> <span class="n">edge_x</span> <span class="o">=</span> <span class="n">all_edges</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="n">i</span><span class="p">],</span> <span class="n">all_edges</span><span class="p">[</span><span class="mi">1</span><span class="p">][</span><span class="n">i</span><span class="p">]</span>
+            <span class="c1"># if not ((edge_y in out_mask[0]) &amp; (edge_x in out_mask[1])):</span>
+            <span class="n">row</span> <span class="o">=</span> <span class="p">{}</span>
+            <span class="n">row</span><span class="p">[</span><span class="s1">&#39;edge_x&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">edge_x</span>
+            <span class="n">row</span><span class="p">[</span><span class="s1">&#39;edge_y&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">edge_y</span>
+            <span class="n">df</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">row</span><span class="p">,</span> <span class="n">ignore_index</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+        <span class="c1"># for each edge pt, find the other edge that&#39;s furthest away from it and save out as a pair, with distance from</span>
+        <span class="c1"># center of colony</span>
+        <span class="n">df</span><span class="p">[</span><span class="s1">&#39;opp_edge_x&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="n">df</span><span class="p">[</span><span class="s1">&#39;opp_edge_y&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
+
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">df</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">100</span><span class="p">:</span>
+            <span class="n">df</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">sample</span><span class="p">(</span><span class="n">n</span><span class="o">=</span><span class="mi">100</span><span class="p">)</span>
+
+        <span class="k">for</span> <span class="n">index</span><span class="p">,</span> <span class="n">row</span> <span class="ow">in</span> <span class="n">df</span><span class="o">.</span><span class="n">iterrows</span><span class="p">():</span>
+            <span class="n">edge_x</span> <span class="o">=</span> <span class="n">row</span><span class="p">[</span><span class="s1">&#39;edge_x&#39;</span><span class="p">]</span>
+            <span class="n">edge_y</span> <span class="o">=</span> <span class="n">row</span><span class="p">[</span><span class="s1">&#39;edge_y&#39;</span><span class="p">]</span>
+
+            <span class="n">max_dist</span> <span class="o">=</span> <span class="mi">0</span>
+            <span class="n">furthest_loc</span> <span class="o">=</span> <span class="kc">None</span>
+
+            <span class="k">for</span> <span class="n">index_compare</span><span class="p">,</span> <span class="n">row_compare</span> <span class="ow">in</span> <span class="n">df</span><span class="o">.</span><span class="n">iterrows</span><span class="p">():</span>
+                <span class="n">dist</span> <span class="o">=</span> <span class="n">spatial</span><span class="o">.</span><span class="n">distance</span><span class="o">.</span><span class="n">euclidean</span><span class="p">((</span><span class="n">edge_y</span><span class="p">,</span> <span class="n">edge_x</span><span class="p">),</span> <span class="p">(</span><span class="n">row_compare</span><span class="p">[</span><span class="s1">&#39;edge_y&#39;</span><span class="p">],</span> <span class="n">row_compare</span><span class="p">[</span><span class="s1">&#39;edge_x&#39;</span><span class="p">]))</span>
+                <span class="k">if</span> <span class="n">dist</span> <span class="o">&gt;</span> <span class="n">max_dist</span><span class="p">:</span>
+                    <span class="n">max_dist</span> <span class="o">=</span> <span class="n">dist</span>
+                    <span class="n">furthest_loc</span> <span class="o">=</span> <span class="p">(</span><span class="n">row_compare</span><span class="p">[</span><span class="s1">&#39;edge_y&#39;</span><span class="p">],</span> <span class="n">row_compare</span><span class="p">[</span><span class="s1">&#39;edge_x&#39;</span><span class="p">])</span>
+
+            <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">df</span><span class="o">.</span><span class="n">loc</span><span class="p">[(</span><span class="n">df</span><span class="p">[</span><span class="s1">&#39;edge_y&#39;</span><span class="p">]</span> <span class="o">==</span> <span class="n">furthest_loc</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span> <span class="o">&amp;</span> <span class="p">(</span><span class="n">df</span><span class="p">[</span><span class="s1">&#39;edge_x&#39;</span><span class="p">]</span> <span class="o">==</span> <span class="n">furthest_loc</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span> <span class="o">&amp;</span> <span class="p">(</span><span class="n">df</span><span class="p">[</span><span class="s1">&#39;opp_edge_x&#39;</span><span class="p">]</span> <span class="o">==</span> <span class="kc">None</span><span class="p">)])</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+                <span class="n">df</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">index</span><span class="p">,</span> <span class="s1">&#39;opp_edge_x&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">furthest_loc</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+                <span class="n">df</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">index</span><span class="p">,</span> <span class="s1">&#39;opp_edge_y&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">furthest_loc</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+                <span class="n">df</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">index</span><span class="p">,</span> <span class="s1">&#39;dist&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">max_dist</span>
+
+                <span class="n">dist_to_center</span> <span class="o">=</span> <span class="n">spatial</span><span class="o">.</span><span class="n">distance</span><span class="o">.</span><span class="n">euclidean</span><span class="p">(</span><span class="n">center_pos</span><span class="p">,</span> <span class="n">furthest_loc</span><span class="p">)</span> <span class="o">+</span> <span class="n">spatial</span><span class="o">.</span><span class="n">distance</span><span class="o">.</span><span class="n">euclidean</span><span class="p">(</span><span class="n">center_pos</span><span class="p">,</span> <span class="p">(</span><span class="n">edge_y</span><span class="p">,</span> <span class="n">edge_x</span><span class="p">))</span>
+                <span class="n">df</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">index</span><span class="p">,</span> <span class="s1">&#39;dist_to_center&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">dist_to_center</span>
+
+        <span class="n">edge_pt</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="nb">int</span><span class="p">(</span><span class="n">df</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">df</span><span class="p">[</span><span class="s1">&#39;dist_to_center&#39;</span><span class="p">]</span> <span class="o">==</span> <span class="n">df</span><span class="p">[</span><span class="s1">&#39;dist_to_center&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">max</span><span class="p">(),</span> <span class="s1">&#39;edge_x&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">values</span><span class="o">.</span><span class="n">tolist</span><span class="p">()[</span><span class="mi">0</span><span class="p">]),</span>
+            <span class="nb">int</span><span class="p">(</span><span class="n">df</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">df</span><span class="p">[</span><span class="s1">&#39;dist_to_center&#39;</span><span class="p">]</span> <span class="o">==</span> <span class="n">df</span><span class="p">[</span><span class="s1">&#39;dist_to_center&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">max</span><span class="p">(),</span> <span class="s1">&#39;edge_y&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">values</span><span class="o">.</span><span class="n">tolist</span><span class="p">()[</span><span class="mi">0</span><span class="p">])</span>
+        <span class="p">)</span>
+
+        <span class="n">ridge_pt</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="nb">int</span><span class="p">(</span><span class="n">df</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">df</span><span class="p">[</span><span class="s1">&#39;dist_to_center&#39;</span><span class="p">]</span> <span class="o">==</span> <span class="n">df</span><span class="p">[</span><span class="s1">&#39;dist_to_center&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">max</span><span class="p">(),</span> <span class="s1">&#39;opp_edge_x&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">values</span><span class="o">.</span><span class="n">tolist</span><span class="p">()[</span><span class="mi">0</span><span class="p">]),</span>
+            <span class="nb">int</span><span class="p">(</span><span class="n">df</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">df</span><span class="p">[</span><span class="s1">&#39;dist_to_center&#39;</span><span class="p">]</span> <span class="o">==</span> <span class="n">df</span><span class="p">[</span><span class="s1">&#39;dist_to_center&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">max</span><span class="p">(),</span> <span class="s1">&#39;opp_edge_y&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">values</span><span class="o">.</span><span class="n">tolist</span><span class="p">()[</span><span class="mi">0</span><span class="p">])</span>
+        <span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">edge_pt</span><span class="p">,</span> <span class="n">ridge_pt</span></div>
+
+
+<div class="viewcode-block" id="WellSegmentation.find_edge_position"><a class="viewcode-back" href="../../../microscope_automation.samples.html#microscope_automation.samples.well_segmentation_refined.WellSegmentation.find_edge_position">[docs]</a>    <span class="k">def</span> <span class="nf">find_edge_position</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">colony_mask</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Function to find edge position from a colony mask</span>
+
+<span class="sd">        :param colony_mask: a [0, 1] image showing the segmentation of 1 colony</span>
+<span class="sd">        :return:</span>
+<span class="sd">            edge_position: a tuple (y, x) of the selected edge position in the downsampled well overview image</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">all_edges</span> <span class="o">=</span> <span class="n">feature</span><span class="o">.</span><span class="n">canny</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">segmented_colonies</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">,</span> <span class="n">sigma</span><span class="o">=</span><span class="mf">0.1</span><span class="p">)</span>
+
+        <span class="n">col_edge</span> <span class="o">=</span> <span class="n">colony_mask</span> <span class="o">*</span> <span class="n">all_edges</span>
+
+        <span class="n">edge_pt</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">col_edge</span> <span class="o">==</span> <span class="n">np</span><span class="o">.</span><span class="n">min</span><span class="p">(</span><span class="n">col_edge</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">nonzero</span><span class="p">(</span><span class="n">col_edge</span><span class="p">)]))</span>
+        <span class="n">edge_position</span> <span class="o">=</span> <span class="n">edge_pt</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="mi">0</span><span class="p">],</span> <span class="n">edge_pt</span><span class="p">[</span><span class="mi">1</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span>
+
+        <span class="k">return</span> <span class="n">edge_position</span></div>
+
+
+<div class="viewcode-block" id="WellSegmentation.find_ridge_position"><a class="viewcode-back" href="../../../microscope_automation.samples.html#microscope_automation.samples.well_segmentation_refined.WellSegmentation.find_ridge_position">[docs]</a>    <span class="k">def</span> <span class="nf">find_ridge_position</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">colony_mask</span><span class="p">,</span> <span class="n">edge_position</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Function to find ridge position, optimized by selecting a position in a colony furthest away from the edge position</span>
+<span class="sd">        :param colony_mask: a [0, 1] image showing the segmentation of 1 colony</span>
+<span class="sd">        :param edge_position: a tuple (y, x) of the selected edge position in the downsampled well overview image</span>
+<span class="sd">        :return:</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">all_edges</span> <span class="o">=</span> <span class="n">feature</span><span class="o">.</span><span class="n">canny</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">segmented_colonies</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">,</span> <span class="n">sigma</span><span class="o">=</span><span class="mf">0.1</span><span class="p">)</span>
+
+        <span class="n">col_edge</span> <span class="o">=</span> <span class="n">colony_mask</span> <span class="o">*</span> <span class="n">all_edges</span>
+
+        <span class="n">edge_pt</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">col_edge</span> <span class="o">==</span> <span class="n">np</span><span class="o">.</span><span class="n">min</span><span class="p">(</span><span class="n">col_edge</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">nonzero</span><span class="p">(</span><span class="n">col_edge</span><span class="p">)]))</span>
+        <span class="n">edge_tuples</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">edge_pt</span><span class="p">[</span><span class="mi">0</span><span class="p">])):</span>
+            <span class="n">new_tuple</span> <span class="o">=</span> <span class="p">(</span><span class="n">edge_pt</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="n">i</span><span class="p">],</span> <span class="n">edge_pt</span><span class="p">[</span><span class="mi">1</span><span class="p">][</span><span class="n">i</span><span class="p">])</span>
+            <span class="n">edge_tuples</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">new_tuple</span><span class="p">)</span>
+
+        <span class="c1"># find the tuple that is the furthest away from [0][0]</span>
+        <span class="n">max_dist</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="k">for</span> <span class="n">y</span><span class="p">,</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">edge_tuples</span><span class="p">:</span>
+            <span class="n">dist</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">((</span><span class="n">y</span> <span class="o">-</span> <span class="n">edge_position</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span> <span class="o">**</span> <span class="mi">2</span> <span class="o">+</span> <span class="p">(</span><span class="n">x</span> <span class="o">-</span> <span class="n">edge_position</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span> <span class="o">**</span> <span class="mi">2</span><span class="p">)</span>
+
+            <span class="k">if</span> <span class="n">dist</span><span class="o">&gt;</span><span class="n">max_dist</span><span class="p">:</span>
+                <span class="n">max_dist</span> <span class="o">=</span> <span class="n">dist</span>
+                <span class="n">ridge_position</span> <span class="o">=</span> <span class="p">(</span><span class="n">y</span><span class="p">,</span> <span class="n">x</span><span class="p">)</span>
+
+        <span class="c1"># to show image for rnd</span>
+        <span class="c1"># if (ridge_position[0] &gt; 10) &amp; (ridge_position[0] &lt; (colony_mask.shape[0] - 10)) &amp; \</span>
+        <span class="c1">#     (ridge_position[1] &gt; 10) &amp; (ridge_position[1] &lt; (colony_mask.shape[1] - 10)) &amp; \</span>
+        <span class="c1">#     (edge_position[0] &gt; 10) &amp; (edge_position[0] &lt; (colony_mask.shape[0] - 10)) &amp; \</span>
+        <span class="c1">#     (edge_position[1] &gt; 10) &amp; (edge_position[1] &lt; (colony_mask.shape[1] - 10)):</span>
+        <span class="c1">#</span>
+        <span class="c1">#     loc_mask = colony_mask.copy()</span>
+        <span class="c1">#     loc_mask[ridge_position[0]-10:ridge_position[0]+10, ridge_position[1]-10:ridge_position[1]+10] = 10</span>
+        <span class="c1">#     loc_mask[edge_position[0]-10:edge_position[0]+10, edge_position[1]-10:edge_position[1]+10] = 10</span>
+        <span class="c1">#</span>
+        <span class="c1">#     plt.figure()</span>
+        <span class="c1">#     plt.imshow(loc_mask)</span>
+        <span class="c1">#     plt.show()</span>
+
+        <span class="k">return</span> <span class="n">ridge_position</span></div>
+
+
+<div class="viewcode-block" id="WellSegmentation.find_center_position"><a class="viewcode-back" href="../../../microscope_automation.samples.html#microscope_automation.samples.well_segmentation_refined.WellSegmentation.find_center_position">[docs]</a>    <span class="k">def</span> <span class="nf">find_center_position</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">mask</span><span class="p">,</span> <span class="n">distance</span><span class="p">,</span> <span class="n">smoothed_well</span><span class="p">):</span>
+        <span class="n">dist_mask</span> <span class="o">=</span> <span class="n">distance</span> <span class="o">*</span> <span class="n">mask</span>
+        <span class="c1"># for each colony, find the maximum distance from the two fold distance map.</span>
+        <span class="c1"># The edge is at 0% and the center of the colony is at 100%</span>
+        <span class="n">d_max</span> <span class="o">=</span> <span class="n">dist_mask</span><span class="o">.</span><span class="n">max</span><span class="p">()</span>
+        <span class="c1"># Getting the points which is at least 40% away from the edge</span>
+        <span class="n">top_percent</span> <span class="o">=</span> <span class="n">dist_mask</span> <span class="o">&gt;</span> <span class="p">(</span><span class="n">d_max</span> <span class="o">*</span> <span class="mf">0.30</span><span class="p">)</span>
+        <span class="n">colony_mask</span> <span class="o">=</span> <span class="n">smoothed_well</span> <span class="o">*</span> <span class="n">top_percent</span>
+        <span class="n">colony_edges</span> <span class="o">=</span> <span class="n">feature</span><span class="o">.</span><span class="n">canny</span><span class="p">(</span><span class="n">colony_mask</span><span class="p">,</span> <span class="n">sigma</span><span class="o">=</span><span class="mf">0.1</span><span class="p">)</span>
+        <span class="c1"># applying the second distance transform</span>
+        <span class="c1"># to find the smoothest point in the correct region</span>
+        <span class="n">inner_edges</span> <span class="o">=</span> <span class="n">ndimage</span><span class="o">.</span><span class="n">distance_transform_edt</span><span class="p">(</span><span class="o">~</span><span class="n">colony_edges</span> <span class="o">*</span> <span class="n">top_percent</span><span class="p">)</span>
+        <span class="n">smooth_point</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">inner_edges</span> <span class="o">==</span> <span class="n">inner_edges</span><span class="o">.</span><span class="n">max</span><span class="p">())</span>
+        <span class="n">smooth_point</span> <span class="o">=</span> <span class="p">(</span><span class="n">smooth_point</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="mi">0</span><span class="p">],</span> <span class="n">smooth_point</span><span class="p">[</span><span class="mi">1</span><span class="p">][</span><span class="mi">0</span><span class="p">])</span>
+        <span class="k">return</span> <span class="n">smooth_point</span></div>
+
+
+<div class="viewcode-block" id="WellSegmentation.find_positions"><a class="viewcode-back" href="../../../microscope_automation.samples.html#microscope_automation.samples.well_segmentation_refined.WellSegmentation.find_positions">[docs]</a>    <span class="k">def</span> <span class="nf">find_positions</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">mode</span><span class="o">=</span><span class="s2">&quot;A&quot;</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;To find a position in a colony that passes the size filter,</span>
 <span class="sd">        and is positioned 40% from the edge of colony, maximum in distance map</span>
 <span class="sd">        that indicates preferred smoothness in region,</span>
@@ -414,25 +561,34 @@
         <span class="k">for</span> <span class="n">obj</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="n">num_objs</span> <span class="o">+</span> <span class="mi">1</span><span class="p">):</span>
             <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;On object </span><span class="si">{}</span><span class="s2"> of </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">obj</span><span class="p">,</span> <span class="n">num_objs</span><span class="p">))</span>
             <span class="n">mask</span> <span class="o">=</span> <span class="n">filtered_colonies</span> <span class="o">==</span> <span class="n">obj</span>
-            <span class="n">dist_mask</span> <span class="o">=</span> <span class="n">distance</span> <span class="o">*</span> <span class="n">mask</span>
-            <span class="c1"># for each colony, find the maximum distance from the two fold distance map.</span>
-            <span class="c1"># The edge is at 0% and the center of the colony is at 100%</span>
-            <span class="n">d_max</span> <span class="o">=</span> <span class="n">dist_mask</span><span class="o">.</span><span class="n">max</span><span class="p">()</span>
-            <span class="c1"># Getting the points which is at least 40% away from the edge</span>
-            <span class="n">top_percent</span> <span class="o">=</span> <span class="n">dist_mask</span> <span class="o">&gt;</span> <span class="p">(</span><span class="n">d_max</span> <span class="o">*</span> <span class="mf">0.30</span><span class="p">)</span>
-            <span class="n">colony_mask</span> <span class="o">=</span> <span class="n">smoothed_well</span> <span class="o">*</span> <span class="n">top_percent</span>
-            <span class="n">colony_edges</span> <span class="o">=</span> <span class="n">feature</span><span class="o">.</span><span class="n">canny</span><span class="p">(</span><span class="n">colony_mask</span><span class="p">,</span> <span class="n">sigma</span><span class="o">=</span><span class="mf">0.1</span><span class="p">)</span>
-            <span class="c1"># applying the second distance transform</span>
-            <span class="c1"># to find the smoothest point in the correct region</span>
-            <span class="n">inner_edges</span> <span class="o">=</span> <span class="n">ndimage</span><span class="o">.</span><span class="n">distance_transform_edt</span><span class="p">(</span><span class="o">~</span><span class="n">colony_edges</span> <span class="o">*</span> <span class="n">top_percent</span><span class="p">)</span>
-            <span class="n">smooth_point</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">inner_edges</span> <span class="o">==</span> <span class="n">inner_edges</span><span class="o">.</span><span class="n">max</span><span class="p">())</span>
-            <span class="n">smooth_point</span> <span class="o">=</span> <span class="p">(</span><span class="n">smooth_point</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="mi">0</span><span class="p">],</span> <span class="n">smooth_point</span><span class="p">[</span><span class="mi">1</span><span class="p">][</span><span class="mi">0</span><span class="p">])</span>
-            <span class="n">smooth_point_corrected</span> <span class="o">=</span> <span class="p">(</span>
-                <span class="n">smooth_point</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">*</span> <span class="n">DOWNSCALING_FACTOR</span><span class="p">,</span>
-                <span class="n">smooth_point</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">*</span> <span class="n">DOWNSCALING_FACTOR</span><span class="p">,</span>
-            <span class="p">)</span>
-            <span class="n">point_locations</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">smooth_point_corrected</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">mode</span> <span class="o">==</span> <span class="s2">&quot;C&quot;</span> <span class="ow">or</span> <span class="n">mode</span> <span class="o">==</span> <span class="s2">&quot;c&quot;</span><span class="p">:</span>
+                <span class="n">center_point</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">find_center_position</span><span class="p">(</span><span class="n">mask</span><span class="p">,</span> <span class="n">distance</span><span class="p">,</span> <span class="n">smoothed_well</span><span class="p">)</span>
+                <span class="n">edge_point</span><span class="p">,</span> <span class="n">ridge_point</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">find_edge_ridge_pair</span><span class="p">(</span><span class="n">mask</span><span class="p">,</span> <span class="n">center_point</span><span class="p">)</span>
+
+                <span class="n">smooth_point_edge</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">find_edge_position</span><span class="p">(</span><span class="n">mask</span><span class="p">)</span>
+                <span class="n">smooth_point_ridge</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">find_ridge_position</span><span class="p">(</span><span class="n">mask</span><span class="p">,</span> <span class="n">smooth_point_edge</span><span class="p">)</span>
+
+                <span class="k">for</span> <span class="n">point</span> <span class="ow">in</span> <span class="p">[</span><span class="n">center_point</span><span class="p">,</span> <span class="n">edge_point</span><span class="p">,</span> <span class="n">ridge_point</span><span class="p">]:</span>
+                    <span class="n">smooth_point_corrected</span> <span class="o">=</span> <span class="p">(</span>
+                        <span class="n">point</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">*</span> <span class="n">DOWNSCALING_FACTOR</span><span class="p">,</span>
+                        <span class="n">point</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">*</span> <span class="n">DOWNSCALING_FACTOR</span><span class="p">,</span>
+                    <span class="p">)</span>
+                    <span class="n">point_locations</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">smooth_point_corrected</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="c1"># If we get an unsupported mode, we will just perform mode A imaging</span>
+                <span class="n">center_point</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">find_center_position</span><span class="p">(</span><span class="n">mask</span><span class="p">,</span> <span class="n">distance</span><span class="p">,</span> <span class="n">smoothed_well</span><span class="p">)</span>
+
+                <span class="n">center_point_corrected</span> <span class="o">=</span> <span class="p">(</span>
+                    <span class="n">center_point</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">*</span> <span class="n">DOWNSCALING_FACTOR</span><span class="p">,</span>
+                    <span class="n">center_point</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">*</span> <span class="n">DOWNSCALING_FACTOR</span><span class="p">,</span>
+                <span class="p">)</span>
+                <span class="n">point_locations</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">smooth_point_corrected</span><span class="p">)</span>
+
+
+
+
         <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Calculated point distances from center of well&quot;</span><span class="p">)</span>
+
         <span class="c1"># Filter top point locations that are closest to the center of the well</span>
         <span class="n">center_well_y</span> <span class="o">=</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">height</span> <span class="o">/</span> <span class="mi">2</span><span class="p">)</span> <span class="o">*</span> <span class="n">DOWNSCALING_FACTOR</span>
         <span class="n">center_well_x</span> <span class="o">=</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">width</span> <span class="o">/</span> <span class="mi">2</span><span class="p">)</span> <span class="o">*</span> <span class="n">DOWNSCALING_FACTOR</span>
@@ -446,7 +602,10 @@
         <span class="c1"># Rank the distance of point from center</span>
         <span class="n">rank</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">argsort</span><span class="p">(</span><span class="n">diff_center</span><span class="p">)</span>
         <span class="c1"># Select the # points wanted with points closest to the center</span>
-        <span class="n">rank_index</span> <span class="o">=</span> <span class="n">rank</span><span class="p">[:</span><span class="n">num_colonies_final</span><span class="p">]</span>
+        <span class="k">if</span> <span class="n">modeA</span><span class="p">:</span>
+            <span class="n">rank_index</span> <span class="o">=</span> <span class="n">rank</span><span class="p">[:</span><span class="n">num_colonies_final</span><span class="p">]</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">rank_index</span> <span class="o">=</span> <span class="n">rank</span>
         <span class="k">for</span> <span class="n">point</span> <span class="ow">in</span> <span class="n">rank_index</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">point_locations</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">point_locations</span><span class="p">[</span><span class="n">point</span><span class="p">])</span>
         <span class="nb">print</span><span class="p">(</span>
