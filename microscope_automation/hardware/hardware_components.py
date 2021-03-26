@@ -1874,6 +1874,7 @@ class AutoFocus(MicroscopeComponent):
         """
         log_method(self, "get_autofocus_ready")
         try:
+            communication_object.store_focus()
             is_ready = communication_object.get_autofocus_ready()
         except AutofocusError:
             is_ready = False
