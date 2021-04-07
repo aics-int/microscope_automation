@@ -2597,6 +2597,7 @@ def main():
         pref = preferences.Preferences(prefs_path)
         set_up_settings_folders(pref)
         mic = MicroscopeAutomation(pref, app)
+
         mic.microscope_automation()
     except KeyboardInterrupt:
         pyqtgraph.exit()
