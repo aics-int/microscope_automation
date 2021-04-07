@@ -80,6 +80,7 @@
             <span class="n">mode</span><span class="o">=</span><span class="s2">&quot;constant&quot;</span><span class="p">,</span>
         <span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">height</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">width</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">downsized_image</span><span class="o">.</span><span class="n">shape</span><span class="p">[:</span><span class="mi">2</span><span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">mode</span> <span class="o">=</span> <span class="n">mode</span>
 
 <div class="viewcode-block" id="WellSegmentation.downscale_filter_dictionary"><a class="viewcode-back" href="../../../microscope_automation.samples.html#microscope_automation.samples.well_segmentation_refined.WellSegmentation.downscale_filter_dictionary">[docs]</a>    <span class="k">def</span> <span class="nf">downscale_filter_dictionary</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">colony_filters_dict</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;To downscale filters from original image to processing image scale</span>
@@ -122,7 +123,7 @@
         <span class="n">rescaled_image</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">preprocessing_image</span><span class="p">()</span>
         <span class="n">binary_colony_mask</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">segment_colonies</span><span class="p">(</span><span class="n">rescaled_image</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">process_colonies</span><span class="p">(</span><span class="n">binary_colony_mask</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">find_positions</span><span class="p">(</span><span class="n">modeA</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">isModeA</span><span class="p">)</span></div>
+        <span class="bp">self</span><span class="o">.</span><span class="n">find_positions</span><span class="p">(</span><span class="n">modeA</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">mode</span><span class="p">)</span></div>
 
 <div class="viewcode-block" id="WellSegmentation.preprocessing_image"><a class="viewcode-back" href="../../../microscope_automation.samples.html#microscope_automation.samples.well_segmentation_refined.WellSegmentation.preprocessing_image">[docs]</a>    <span class="k">def</span> <span class="nf">preprocessing_image</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;To pre-process input image with correction for uneven illumination</span>
@@ -602,7 +603,7 @@
         <span class="c1"># Rank the distance of point from center</span>
         <span class="n">rank</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">argsort</span><span class="p">(</span><span class="n">diff_center</span><span class="p">)</span>
         <span class="c1"># Select the # points wanted with points closest to the center</span>
-        <span class="k">if</span> <span class="n">modeA</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">mode</span> <span class="o">==</span> <span class="s2">&quot;A&quot;</span><span class="p">:</span>
             <span class="n">rank_index</span> <span class="o">=</span> <span class="n">rank</span><span class="p">[:</span><span class="n">num_colonies_final</span><span class="p">]</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="n">rank_index</span> <span class="o">=</span> <span class="n">rank</span>
