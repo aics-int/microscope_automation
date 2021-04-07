@@ -47,6 +47,7 @@ class WellSegmentation:
             mode="constant",
         )
         self.height, self.width = self.downsized_image.shape[:2]
+        self.mode = mode
 
     def downscale_filter_dictionary(self, colony_filters_dict):
         """To downscale filters from original image to processing image scale
@@ -89,7 +90,7 @@ class WellSegmentation:
         rescaled_image = self.preprocessing_image()
         binary_colony_mask = self.segment_colonies(rescaled_image)
         self.process_colonies(binary_colony_mask)
-        self.find_positions(modeA=self.isModeA)
+        self.find_positions(modeA=self.mode)
 
     def preprocessing_image(self):
         """To pre-process input image with correction for uneven illumination
@@ -569,7 +570,7 @@ class WellSegmentation:
         # Rank the distance of point from center
         rank = np.argsort(diff_center)
         # Select the # points wanted with points closest to the center
-        if modeA:
+        if mode == "A":
             rank_index = rank[:num_colonies_final]
         else:
             rank_index = rank
