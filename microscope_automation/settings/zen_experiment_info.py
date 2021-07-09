@@ -1,5 +1,6 @@
 from lxml import etree
 import logging
+import os
 
 try:
     from pathlib import Path
@@ -85,6 +86,8 @@ class ZenExperiment(object):
         try:
             tag = root.xpath(tag_path)
             tag[0].text = new_value
+            os.chmod(self.experiment_path, 0o777)
+
             self.tree.write(self.experiment_path)
         except Exception as err:
             log.exception(err)
